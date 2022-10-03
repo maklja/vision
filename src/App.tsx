@@ -21,11 +21,23 @@ interface StageAction {
 	selectedDrawers?: string[];
 }
 
+const createSelectDrawersAction = (drawerIds: string[]): StageAction => ({
+	type: StageActionType.SelectDrawers,
+	selectedDrawers: drawerIds,
+});
+
 const stageReducer: Reducer<StageState, StageAction> = (state, action) => {
 	if (action.type === StageActionType.AddDrawers) {
 		return {
 			...state,
 			drawers: [...state.drawers, ...(action.drawers ?? [])],
+		};
+	}
+
+	if (action.type === StageActionType.SelectDrawers) {
+		return {
+			...state,
+			selectedDrawers: [...(action.selectedDrawers ?? [])],
 		};
 	}
 
