@@ -1,7 +1,12 @@
 import Konva from 'konva';
 import { connect } from 'react-redux';
 import { ElementState } from '../../elements';
-import { highlightDrawers, removeHighlightDrawers, selectDrawers } from '../drawersSlice';
+import {
+	highlightDrawers,
+	removeHighlightDrawers,
+	selectDrawers,
+	moveDrawer,
+} from '../drawersSlice';
 import { AppDispatch, RootState } from '../rootState';
 
 export interface ElementProps {
@@ -13,6 +18,7 @@ export interface ElementProps {
 	onMouseDown?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseOver?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseOut?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseDrag?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
 }
 
 const mapState = (state: RootState, props: ElementProps) => {
@@ -47,6 +53,16 @@ const mapDispatch = (dispatch: AppDispatch) => ({
 	onMouseOut: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		dispatch(removeHighlightDrawers([id]));
+	},
+	onMouseDrag: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
+		e.cancelBubble = true;
+		dispatch(
+			moveDrawer({
+				id,
+				dx: e.currentTarget.x(),
+				dy: e.currentTarget.y(),
+			}),
+		);
 	},
 });
 

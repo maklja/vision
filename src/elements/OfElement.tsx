@@ -10,7 +10,7 @@ export const OfElement = (props: ElementProps) => {
 	const [textRef, setTextRef] = useState<Konva.Text | null>(null);
 	const [iconTextRef, setIconTextRef] = useState<Konva.Text | null>(null);
 
-	const { x = 0, y = 0, size, id, onMouseOver, onMouseOut, onMouseDown } = props;
+	const { x = 0, y = 0, size, id, onMouseOver, onMouseOut, onMouseDown, onMouseDrag } = props;
 	const radius = fromSize(DRAWER_DEFAULT.radius, size);
 	const textFontSize = fromSize(DRAWER_DEFAULT.textFontSize, size);
 	const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
@@ -29,6 +29,11 @@ export const OfElement = (props: ElementProps) => {
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseDown && onMouseDown(id, e);
 
+	const handleDragMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+		console.log(e.currentTarget);
+		onMouseDrag && onMouseDrag(id, e);
+	};
+
 	return (
 		<Group
 			draggable
@@ -36,6 +41,7 @@ export const OfElement = (props: ElementProps) => {
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
 			onMouseDown={handleMouseDown}
+			onDragMove={handleDragMove}
 		>
 			<BorderElement
 				id={id}
