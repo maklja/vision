@@ -6,5 +6,4 @@ export interface Drawer {
 	x: number;
 	y: number;
 	size: number;
-	selected: boolean;
 }

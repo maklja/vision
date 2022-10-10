@@ -23,7 +23,7 @@ export interface StateTheme {
 const defaultTheme: Theme = {
 	stroke: 'black',
 	fill: 'black',
-	strokeWidth: 1,
+	strokeWidth: 1.5,
 	shadowEnabled: false,
 };
 
@@ -34,12 +34,6 @@ const hoverTheme: Theme = {
 	shadowOffset: { x: 0, y: 1 },
 	shadowBlur: 3,
 	shadowOpacity: 1,
-};
-
-const selectTheme: Theme = {
-	...defaultTheme,
-	stroke: 'blue',
-	fill: 'blue',
 };
 
 export const stateTheme: StateTheme = {
