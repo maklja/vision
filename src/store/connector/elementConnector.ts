@@ -1,3 +1,4 @@
+import Konva from 'konva';
 import { connect } from 'react-redux';
 import { ElementState } from '../../elements';
 import { highlightDrawers, removeHighlightDrawers, selectDrawers } from '../drawersSlice';
@@ -9,9 +10,9 @@ export interface ElementProps {
 	y?: number;
 	size?: number;
 	state?: ElementState;
-	onMouseDown?: (id: string) => void;
-	onMouseOver?: (id: string) => void;
-	onMouseOut?: (id: string) => void;
+	onMouseDown?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseOver?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseOut?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
 }
 
 const mapState = (state: RootState, props: ElementProps) => {
@@ -35,15 +36,19 @@ const mapState = (state: RootState, props: ElementProps) => {
 };
 
 const mapDispatch = (dispatch: AppDispatch) => ({
-	onMouseDown: (id: string) => {
+	onMouseDown: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
+		e.cancelBubble = true;
 		dispatch(selectDrawers([id]));
 	},
-	onMouseOver: (id: string) => {
+	onMouseOver: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
+		e.cancelBubble = true;
 		dispatch(highlightDrawers([id]));
 	},
-	onMouseOut: (id: string) => {
+	onMouseOut: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
+		e.cancelBubble = true;
 		dispatch(removeHighlightDrawers([id]));
 	},
 });
 
 export const elementConnector = connect(mapState, mapDispatch);
+

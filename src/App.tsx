@@ -1,17 +1,8 @@
-import { useReducer, Reducer } from 'react';
 import { useSelector } from 'react-redux';
-import Konva from 'konva';
 import { RootState, useAppDispatch } from './store/rootState';
 import { Stage, Layer } from 'react-konva';
-import { Drawer, DrawerType } from './model';
-import { createDrawerElement } from './factory';
+import { createDrawerElement, createConnectElement } from './factory';
 import { DrawersSlice, selectDrawers } from './store/drawersSlice';
-
-interface StageState {
-	drawers: Drawer[];
-	selectedDrawers: string[];
-	highlightDrawers: string[];
-}
 
 enum StageActionType {
 	AddDrawers = 'addDrawers',
@@ -27,6 +18,7 @@ function App() {
 
 	const handleMouseDown = () => appDispatch(selectDrawers([]));
 
+	const connectors = active.flatMap((drawer) => drawer.connectors ?? []);
 	return (
 		<Stage
 			style={{ backgroundColor: '#eee' }}
@@ -34,9 +26,13 @@ function App() {
 			height={window.innerHeight}
 			onMouseDown={handleMouseDown}
 		>
-			<Layer>{active.map((drawer) => createDrawerElement(drawer))}</Layer>
+			<Layer>
+				{active.map((drawer) => createDrawerElement(drawer))}
+				{connectors.map((connector) => createConnectElement(connector))}
+			</Layer>
 		</Stage>
 	);
 }
 
 export default App;
+

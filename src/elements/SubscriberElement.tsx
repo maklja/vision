@@ -3,17 +3,21 @@ import { BorderElement } from './BorderElement';
 import { DRAWER_DEFAULT, fromSize } from './utils';
 import { elementTheme } from '../theme';
 import { ElementProps, elementConnector } from '../store/connector';
+import Konva from 'konva';
 
 export const SubscriberElement = (props: ElementProps) => {
 	const { x = 0, y = 0, size, id, onMouseDown, onMouseOut, onMouseOver } = props;
 	const radius = fromSize(DRAWER_DEFAULT.radius, size, 0.8);
 	const innerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.5);
 
-	const handleMouseOver = () => onMouseOver && onMouseOver(id);
+	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseOver && onMouseOver(id, e);
 
-	const handleMouseOut = () => onMouseOut && onMouseOut(id);
+	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseOut && onMouseOut(id, e);
 
-	const handleMouseDown = () => onMouseDown && onMouseDown(id);
+	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseDown && onMouseDown(id, e);
 
 	return (
 		<Group
@@ -23,6 +27,7 @@ export const SubscriberElement = (props: ElementProps) => {
 			onMouseOut={handleMouseOut}
 		>
 			<BorderElement
+				id={id}
 				x={x - radius}
 				y={y - radius}
 				width={radius * 2}
@@ -37,3 +42,4 @@ export const SubscriberElement = (props: ElementProps) => {
 };
 
 export const ConnectedSubscriberElement = elementConnector(SubscriberElement);
+

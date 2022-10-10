@@ -20,14 +20,14 @@ export const OfElement = (props: ElementProps) => {
 	const iconX = x - radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
 	const iconY = y + radius * Math.cos(-45) - (iconTextRef?.textHeight ?? 0) / 2;
 
-	const handleMouseOver = () => onMouseOver && onMouseOver(id);
+	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseOver && onMouseOver(id, e);
 
-	const handleMouseOut = () => onMouseOut && onMouseOut(id);
+	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseOut && onMouseOut(id, e);
 
-	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		onMouseDown && onMouseDown(id);
-	};
+	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseDown && onMouseDown(id, e);
 
 	return (
 		<Group
@@ -38,6 +38,7 @@ export const OfElement = (props: ElementProps) => {
 			onMouseDown={handleMouseDown}
 		>
 			<BorderElement
+				id={id}
 				x={x - radius}
 				y={y - radius}
 				width={radius * 2}
@@ -69,3 +70,4 @@ export const OfElement = (props: ElementProps) => {
 };
 
 export const ConnectedOfElement = elementConnector(OfElement);
+

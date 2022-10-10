@@ -4,5 +4,14 @@ import {
 	highlightBorderTheme,
 	selectedBorderTheme,
 } from './borderTheme';
+import { connectionTheme, highlightConnectionTheme } from './connectionTheme';
 
-export { elementTheme, borderThemeByElementState, highlightBorderTheme, selectedBorderTheme };
+export {
+	elementTheme,
+	connectionTheme,
+	highlightConnectionTheme,
+	borderThemeByElementState,
+	highlightBorderTheme,
+	selectedBorderTheme,
+};
+
