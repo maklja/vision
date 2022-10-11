@@ -1,21 +1,16 @@
 import Konva from 'konva';
 import { useState } from 'react';
-import { Circle, Group } from 'react-konva';
+import { Circle, Group, Line } from 'react-konva';
+import { ConnectionPoint } from '../model';
 import { connectionTheme, highlightConnectionTheme } from '../theme';
 import { CONNECTOR_DEFAULT } from './utils';
-
-export enum ConnectionPoint {
-	Top = 'top',
-	Right = 'right',
-	Bottom = 'bottom',
-	Left = 'left',
-}
 
 interface ConnectorProps {
 	position: ConnectionPoint;
 	x: number;
 	y: number;
 	radius: number;
+	selected?: boolean;
 	offsetX?: number;
 	offsetY?: number;
 	onMouseDown?: (point: ConnectionPoint, e: Konva.KonvaEventObject<MouseEvent>) => void;
@@ -24,6 +19,10 @@ interface ConnectorProps {
 }
 
 const Connector = (props: ConnectorProps) => {
+	if (!props.selected) {
+		return null;
+	}
+
 	const [highlight, setHighlight] = useState(false);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -61,6 +60,8 @@ export interface RectConnectionPointsProps {
 	height?: number;
 	connectRadius?: number;
 	offset?: number;
+	selected?: boolean;
+	connectedPoints?: ConnectionPoint[];
 }
 
 export const RectConnectionPoints = (props: RectConnectionPointsProps) => {
@@ -69,6 +70,8 @@ export const RectConnectionPoints = (props: RectConnectionPointsProps) => {
 		y = 0,
 		width = 0,
 		height = 0,
+		selected,
+		connectedPoints = [],
 		connectRadius = CONNECTOR_DEFAULT.radius,
 		offset = CONNECTOR_DEFAULT.offset,
 	} = props;
@@ -90,6 +93,11 @@ export const RectConnectionPoints = (props: RectConnectionPointsProps) => {
 		console.log('called');
 	};
 
+	const isTopConnected = connectedPoints.includes(ConnectionPoint.Top);
+	const isRightConnected = connectedPoints.includes(ConnectionPoint.Right);
+	const isBottomConnected = connectedPoints.includes(ConnectionPoint.Bottom);
+	const isLeftConnected = connectedPoints.includes(ConnectionPoint.Left);
+
 	return (
 		<Group>
 			<Connector
@@ -98,24 +106,31 @@ export const RectConnectionPoints = (props: RectConnectionPointsProps) => {
 				y={topY}
 				radius={connectRadius}
 				offsetY={offset}
+				selected={selected}
 				onMouseDown={handleOnMouseDown}
 			/>
-
+			{isTopConnected ? (
+				<Line points={[topX, topY - offset, topX, topY]} stroke="black" />
+			) : null}
 			<Connector
 				position={ConnectionPoint.Right}
 				x={rightX}
 				y={rightY}
 				radius={connectRadius}
 				offsetX={-offset}
+				selected={selected}
 				onMouseDown={handleOnMouseDown}
 			/>
-
+			{isRightConnected ? (
+				<Line points={[rightX, rightY, rightX + offset, rightY]} stroke="black" />
+			) : null}
 			<Connector
 				position={ConnectionPoint.Bottom}
 				x={bottomX}
 				y={bottomY}
 				radius={connectRadius}
 				offsetY={-offset}
+				selected={selected}
 				onMouseDown={handleOnMouseDown}
 			/>
 
@@ -125,8 +140,12 @@ export const RectConnectionPoints = (props: RectConnectionPointsProps) => {
 				y={leftY}
 				radius={connectRadius}
 				offsetX={offset}
+				selected={selected}
 				onMouseDown={handleOnMouseDown}
 			/>
+			{isLeftConnected ? (
+				<Line points={[leftX, leftY, leftX - offset, leftY]} stroke="black" />
+			) : null}
 		</Group>
 	);
 };

@@ -6,7 +6,7 @@ import { ElementProps, elementConnector } from '../store/connector';
 import Konva from 'konva';
 
 export const SubscriberElement = (props: ElementProps) => {
-	const { x = 0, y = 0, size, id, onMouseDown, onMouseOut, onMouseOver } = props;
+	const { x = 0, y = 0, size, id, onMouseDown, onMouseOut, onMouseOver, onMouseDrag } = props;
 	const radius = fromSize(DRAWER_DEFAULT.radius, size, 0.8);
 	const innerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.5);
 
@@ -19,24 +19,29 @@ export const SubscriberElement = (props: ElementProps) => {
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseDown && onMouseDown(id, e);
 
+	const handleDragMove = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseDrag && onMouseDrag(id, e);
+
 	return (
 		<Group
+			x={x}
+			y={y}
 			draggable
 			onMouseDown={handleMouseDown}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
+			onDragMove={handleDragMove}
 		>
 			<BorderElement
-				id={id}
-				x={x - radius}
-				y={y - radius}
+				x={radius * -1}
+				y={radius * -1}
 				width={radius * 2}
 				height={radius * 2}
 				padding={2}
 				state={props.state}
 			/>
-			<Circle {...elementTheme} id={id} x={x} y={y} radius={radius} fill="transparent" />
-			<Circle {...elementTheme} x={x} y={y} radius={innerRadius} listening={false} />
+			<Circle {...elementTheme} id={id} radius={radius} fill="transparent" />
+			<Circle {...elementTheme} radius={innerRadius} listening={false} />
 		</Group>
 	);
 };

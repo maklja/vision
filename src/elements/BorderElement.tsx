@@ -1,10 +1,8 @@
-import { Rect, Group } from 'react-konva';
+import { Rect } from 'react-konva';
 import { ElementState } from './ElementState';
 import { borderThemeByElementState } from '../theme';
-import { RectConnectionPoints } from './ConnectionPoints';
 
 export interface BorderElementProps {
-	id: string;
 	x: number;
 	y: number;
 	width: number;
@@ -24,19 +22,14 @@ export const BorderElement = (props: BorderElementProps) => {
 	const height = props.height + 2 * props.padding;
 
 	return (
-		<Group>
-			<Rect
-				x={x}
-				y={y}
-				width={width}
-				height={height}
-				listening={false}
-				{...borderThemeByElementState(props.state)}
-			/>
-			{props.state === ElementState.Selected ? (
-				<RectConnectionPoints id={props.id} x={x} y={y} width={width} height={height} />
-			) : null}
-		</Group>
+		<Rect
+			x={x}
+			y={y}
+			width={width}
+			height={height}
+			listening={false}
+			{...borderThemeByElementState(props.state)}
+		/>
 	);
 };
 

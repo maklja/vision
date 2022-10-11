@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from './store/rootState';
 import { Stage, Layer } from 'react-konva';
 import { createDrawerElement, createConnectLineElement } from './factory';
-import { DrawersSlice, selectDrawers } from './store/drawersSlice';
+import { StageSlice, selectDrawers } from './store/stageSlice';
 
 enum StageActionType {
 	AddDrawers = 'addDrawers',
@@ -13,12 +13,11 @@ enum StageActionType {
 }
 
 function App() {
-	const { active } = useSelector<RootState, DrawersSlice>((store) => store.drawers);
+	const { drawers, connectLines } = useSelector<RootState, StageSlice>((store) => store.stage);
 	const appDispatch = useAppDispatch();
 
 	const handleMouseDown = () => appDispatch(selectDrawers([]));
 
-	const connectionLines = active.flatMap((drawer) => drawer.connectionLines ?? []);
 	return (
 		<Stage
 			style={{ backgroundColor: '#eee' }}
@@ -26,9 +25,9 @@ function App() {
 			height={window.innerHeight}
 			onMouseDown={handleMouseDown}
 		>
-			<Layer width={window.innerWidth} height={window.innerHeight}>
-				{active.map((drawer) => createDrawerElement(drawer))}
-				{connectionLines.map((connectionLine) => createConnectLineElement(connectionLine))}
+			<Layer>
+				{drawers.map((drawer) => createDrawerElement(drawer))}
+				{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
 			</Layer>
 		</Stage>
 	);

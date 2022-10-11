@@ -1,4 +1,3 @@
-import { ConnectLine } from './Connect';
 import { DrawerType } from './DrawerType';
 
 export interface Drawer {
@@ -7,6 +6,5 @@ export interface Drawer {
 	x: number;
 	y: number;
 	size: number;
-	connectionLines?: ConnectLine[];
 }
 

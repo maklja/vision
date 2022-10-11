@@ -1,9 +1,9 @@
 import { useDispatch } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import drawersReducer from './drawersSlice';
+import stageReducer from './stageSlice';
 
 const store = configureStore({
-	reducer: { drawers: drawersReducer },
+	reducer: { stage: stageReducer },
 });
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
@@ -12,3 +12,4 @@ export default store;
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+

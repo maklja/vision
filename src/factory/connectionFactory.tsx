@@ -2,16 +2,7 @@ import { Line } from 'react-konva';
 import { ConnectLine } from '../model';
 
 export const createConnectLineElement = (connectionLine: ConnectLine) => {
-	return (
-		<Line
-			stroke="black"
-			points={[
-				connectionLine.sourceX,
-				connectionLine.sourceY,
-				connectionLine.targetX,
-				connectionLine.targetY,
-			]}
-		/>
-	);
+	const { source, target } = connectionLine;
+	return <Line stroke="black" points={[source.x, source.y, target.x, target.y]} />;
 };
 
