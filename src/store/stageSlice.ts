@@ -96,23 +96,25 @@ export const stageSlice = createSlice({
 			}
 
 			const drawer = state.drawers[drawerIdx];
+			const dx = payload.dx - drawer.x;
+			const dy = payload.dy - drawer.y;
 			state.drawers[drawerIdx] = {
 				...drawer,
-				x: drawer.x + payload.dx,
-				y: drawer.y + payload.dy,
+				x: payload.dx,
+				y: payload.dy,
 			};
 
-			// state.connectLines.forEach((cl) => {
-			// 	if (cl.source.id === drawer.id) {
-			// 		cl.source.x += payload.dx;
-			// 		cl.source.y += payload.dy;
-			// 	}
+			state.connectLines.forEach((cl) => {
+				if (cl.source.id === drawer.id) {
+					cl.source.x += dx;
+					cl.source.y += dy;
+				}
 
-			// 	if (cl.target.id === drawer.id) {
-			// 		cl.target.x += payload.dx;
-			// 		cl.target.y += payload.dy;
-			// 	}
-			// });
+				if (cl.target.id === drawer.id) {
+					cl.target.x += dx;
+					cl.target.y += dy;
+				}
+			});
 		},
 	},
 });

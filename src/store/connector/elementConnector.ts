@@ -65,11 +65,12 @@ const mapDispatch = (dispatch: AppDispatch) => ({
 	},
 	onMouseDrag: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
+		const position = e.currentTarget.getAbsolutePosition();
 		dispatch(
 			moveDrawer({
 				id,
-				dx: e.evt.movementX,
-				dy: e.evt.movementY,
+				dx: position.x,
+				dy: position.y,
 			}),
 		);
 	},
