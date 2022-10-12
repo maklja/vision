@@ -18,7 +18,6 @@ export const OfElement = (props: ElementProps) => {
 		size,
 		id,
 		state,
-		connectedPoints,
 		onMouseOver,
 		onMouseOut,
 		onMouseDown,
@@ -71,9 +70,8 @@ export const OfElement = (props: ElementProps) => {
 				width={radius * 2}
 				height={radius * 2}
 				selected={state === ElementState.Selected}
-				connectedPoints={connectedPoints}
 			/>
-			<Circle {...elementTheme} id={id} radius={radius} fill="transparent" />
+			<Circle {...elementTheme} id={id} radius={radius} />
 			<Label x={iconX} y={iconY} listening={false}>
 				<Tag fill="white" />
 				<Text

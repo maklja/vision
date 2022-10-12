@@ -4,9 +4,21 @@ import { DRAWER_DEFAULT, fromSize } from './utils';
 import { elementTheme } from '../theme';
 import { ElementProps, elementConnector } from '../store/connector';
 import Konva from 'konva';
+import { RectConnectionPoints } from './ConnectionPoints';
+import { ElementState } from './ElementState';
 
 export const SubscriberElement = (props: ElementProps) => {
-	const { x = 0, y = 0, size, id, onMouseDown, onMouseOut, onMouseOver, onMouseDrag } = props;
+	const {
+		x = 0,
+		y = 0,
+		size,
+		id,
+		state,
+		onMouseDown,
+		onMouseOut,
+		onMouseOver,
+		onMouseDrag,
+	} = props;
 	const radius = fromSize(DRAWER_DEFAULT.radius, size, 0.8);
 	const innerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.5);
 
@@ -38,10 +50,18 @@ export const SubscriberElement = (props: ElementProps) => {
 				width={radius * 2}
 				height={radius * 2}
 				padding={2}
-				state={props.state}
+				state={state}
 			/>
-			<Circle {...elementTheme} id={id} radius={radius} fill="transparent" />
-			<Circle {...elementTheme} radius={innerRadius} listening={false} />
+			<RectConnectionPoints
+				id={id}
+				x={radius * -1}
+				y={radius * -1}
+				width={radius * 2}
+				height={radius * 2}
+				selected={state === ElementState.Selected}
+			/>
+			<Circle {...elementTheme} id={id} radius={radius} />
+			<Circle {...elementTheme} radius={innerRadius} listening={false} fill="black" />
 		</Group>
 	);
 };

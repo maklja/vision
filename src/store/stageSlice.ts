@@ -1,5 +1,5 @@
 import { createSlice, Draft } from '@reduxjs/toolkit';
-import { ConnectionPoint, ConnectLine, Drawer, DrawerType } from '../model';
+import { ConnectLine, Drawer, DrawerType } from '../model';
 
 export interface StageSlice {
 	drawers: Drawer[];
@@ -49,18 +49,8 @@ const e2: Drawer = {
 };
 
 const c1: ConnectLine = {
-	source: {
-		id: 'test1',
-		point: ConnectionPoint.Top,
-		x: 240,
-		y: 240,
-	},
-	target: {
-		id: 'test',
-		point: ConnectionPoint.Right,
-		x: 239,
-		y: 200,
-	},
+	sourceId: 'test1',
+	targetId: 'test',
 	points: [
 		{ x: 240, y: 240 },
 		{ x: 240, y: 255 },
@@ -111,14 +101,20 @@ export const stageSlice = createSlice({
 			};
 
 			state.connectLines.forEach((cl) => {
-				if (cl.source.id === drawer.id) {
-					cl.source.x += dx;
-					cl.source.y += dy;
+				if (cl.sourceId === drawer.id) {
+					const [p0, p1] = cl.points;
+					p0.x += dx;
+					p0.y += dy;
+					p1.x += dx;
+					p1.y += dy;
 				}
 
-				if (cl.target.id === drawer.id) {
-					cl.target.x += dx;
-					cl.target.y += dy;
+				if (cl.targetId === drawer.id) {
+					const [p0, p1] = cl.points.slice(-2);
+					p0.x += dx;
+					p0.y += dy;
+					p1.x += dx;
+					p1.y += dy;
 				}
 			});
 		},
@@ -129,3 +125,4 @@ export const { addDrawers, selectDrawers, highlightDrawers, removeHighlightDrawe
 	stageSlice.actions;
 
 export default stageSlice.reducer;
+

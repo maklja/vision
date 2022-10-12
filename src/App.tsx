@@ -26,8 +26,8 @@ function App() {
 			onMouseDown={handleMouseDown}
 		>
 			<Layer>
-				{drawers.map((drawer) => createDrawerElement(drawer))}
 				{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
+				{drawers.map((drawer) => createDrawerElement(drawer))}
 			</Layer>
 		</Stage>
 	);

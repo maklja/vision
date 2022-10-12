@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { ElementState } from '../../elements';
 import { highlightDrawers, removeHighlightDrawers, selectDrawers, moveDrawer } from '../stageSlice';
 import { AppDispatch, RootState } from '../rootState';
-import { ConnectionPoint } from '../../model';
 
 export interface ElementProps {
 	id: string;
@@ -11,7 +10,6 @@ export interface ElementProps {
 	y?: number;
 	size?: number;
 	state?: ElementState;
-	connectedPoints?: ConnectionPoint[];
 	onMouseDown?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseOver?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseOut?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
@@ -20,17 +18,6 @@ export interface ElementProps {
 
 const mapState = (state: RootState, props: ElementProps): ElementProps => {
 	const drawer = state.stage.drawers.find((drawer) => drawer.id === props.id) || {};
-	const connectedPoints = state.stage.connectLines.reduce((cPoints, cl) => {
-		if (cl.source.id === props.id) {
-			return cPoints.add(cl.source.point);
-		}
-
-		if (cl.target.id === props.id) {
-			return cPoints.add(cl.target.point);
-		}
-
-		return cPoints;
-	}, new Set<ConnectionPoint>());
 	const selected = state.stage.selected.some((drawerId) => drawerId === props.id);
 	const highlighted = state.stage.highlighted.some((drawerId) => drawerId === props.id);
 
@@ -46,7 +33,6 @@ const mapState = (state: RootState, props: ElementProps): ElementProps => {
 		...props,
 		...drawer,
 		state: elementState,
-		connectedPoints: Array.from(connectedPoints),
 	};
 };
 
