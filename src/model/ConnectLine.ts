@@ -1,3 +1,4 @@
+import Konva from 'konva';
 import { ConnectionPoint } from './ConnectionPoint';
 
 export interface ConnectPoint {
@@ -10,5 +11,5 @@ export interface ConnectPoint {
 export interface ConnectLine {
 	source: ConnectPoint;
 	target: ConnectPoint;
+	points: Konva.Vector2d[];
 }
-

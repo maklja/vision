@@ -69,8 +69,8 @@ const mapDispatch = (dispatch: AppDispatch) => ({
 		dispatch(
 			moveDrawer({
 				id,
-				dx: position.x,
-				dy: position.y,
+				x: position.x,
+				y: position.y,
 			}),
 		);
 	},

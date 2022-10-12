@@ -27,8 +27,8 @@ export interface MoveDrawerAction {
 	type: string;
 	payload: {
 		id: string;
-		dx: number;
-		dy: number;
+		x: number;
+		y: number;
 	};
 }
 
@@ -61,6 +61,12 @@ const c1: ConnectLine = {
 		x: 239,
 		y: 200,
 	},
+	points: [
+		{ x: 240, y: 240 },
+		{ x: 240, y: 255 },
+		{ x: 239, y: 200 },
+		{ x: 200, y: 200 },
+	],
 };
 
 const initialState: StageSlice = {
@@ -96,12 +102,12 @@ export const stageSlice = createSlice({
 			}
 
 			const drawer = state.drawers[drawerIdx];
-			const dx = payload.dx - drawer.x;
-			const dy = payload.dy - drawer.y;
+			const dx = payload.x - drawer.x;
+			const dy = payload.y - drawer.y;
 			state.drawers[drawerIdx] = {
 				...drawer,
-				x: payload.dx,
-				y: payload.dy,
+				x: payload.x,
+				y: payload.y,
 			};
 
 			state.connectLines.forEach((cl) => {
@@ -123,4 +129,3 @@ export const { addDrawers, selectDrawers, highlightDrawers, removeHighlightDrawe
 	stageSlice.actions;
 
 export default stageSlice.reducer;
-
