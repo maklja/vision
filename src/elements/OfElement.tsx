@@ -5,7 +5,7 @@ import { fromSize, DRAWER_DEFAULT } from './utils';
 import { BorderElement } from './BorderElement';
 import { elementTheme } from '../theme';
 import { ElementProps, elementConnector } from '../store/connector';
-import { RectConnectionPoints } from './ConnectionPoints';
+import { ConnectedConnectPoints } from './ConnectedConnectPoints';
 import { ElementState } from './ElementState';
 
 export const OfElement = (props: ElementProps) => {
@@ -18,10 +18,13 @@ export const OfElement = (props: ElementProps) => {
 		size,
 		id,
 		state,
+		dragging,
 		onMouseOver,
 		onMouseOut,
 		onMouseDown,
-		onMouseDrag,
+		onDragMove,
+		onDragStart,
+		onDragEnd,
 	} = props;
 	const radius = fromSize(DRAWER_DEFAULT.radius, size);
 	const textFontSize = fromSize(DRAWER_DEFAULT.textFontSize, size);
@@ -42,7 +45,12 @@ export const OfElement = (props: ElementProps) => {
 		onMouseDown && onMouseDown(id, e);
 
 	const handleDragMove = (e: Konva.KonvaEventObject<MouseEvent>) =>
-		onMouseDrag && onMouseDrag(id, e);
+		onDragMove && onDragMove(id, e);
+
+	const handleDragStart = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onDragStart && onDragStart(id, e);
+
+	const handleDragEnd = (e: Konva.KonvaEventObject<MouseEvent>) => onDragEnd && onDragEnd(id, e);
 
 	return (
 		<Group
@@ -54,6 +62,8 @@ export const OfElement = (props: ElementProps) => {
 			onMouseOut={handleMouseOut}
 			onMouseDown={handleMouseDown}
 			onDragMove={handleDragMove}
+			onDragStart={handleDragStart}
+			onDragEnd={handleDragEnd}
 		>
 			<BorderElement
 				x={radius * -1}
@@ -63,13 +73,16 @@ export const OfElement = (props: ElementProps) => {
 				padding={3}
 				state={props.state}
 			/>
-			<RectConnectionPoints
+			<ConnectedConnectPoints
 				id={id}
+				absoluteX={x}
+				absoluteY={y}
 				x={radius * -1}
 				y={radius * -1}
 				width={radius * 2}
 				height={radius * 2}
 				selected={state === ElementState.Selected}
+				dragging={dragging}
 			/>
 			<Circle {...elementTheme} id={id} radius={radius} />
 			<Label x={iconX} y={iconY} listening={false}>

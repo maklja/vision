@@ -1,11 +1,23 @@
 import { createSlice, Draft } from '@reduxjs/toolkit';
 import { ConnectLine, Drawer, DrawerType } from '../model';
+import {
+	startConnectLineDrawReducer,
+	moveConnectLineDrawReducer,
+	endConnectLineDrawReducer,
+} from './reducer';
+
+export enum StageState {
+	Select = 'select',
+	DrawConnectLine = 'drawConnectLine',
+	Dragging = 'dragging',
+}
 
 export interface StageSlice {
 	drawers: Drawer[];
 	connectLines: ConnectLine[];
 	selected: string[];
 	highlighted: string[];
+	state: StageState;
 }
 
 export interface AddDrawersAction {
@@ -32,6 +44,11 @@ export interface MoveDrawerAction {
 	};
 }
 
+export interface ChangeStateAction {
+	type: string;
+	payload: StageState;
+}
+
 const e1: Drawer = {
 	id: 'test',
 	size: 1,
@@ -49,6 +66,7 @@ const e2: Drawer = {
 };
 
 const c1: ConnectLine = {
+	id: 'test1_test',
 	sourceId: 'test1',
 	targetId: 'test',
 	points: [
@@ -64,26 +82,33 @@ const initialState: StageSlice = {
 	connectLines: [c1],
 	selected: [],
 	highlighted: [],
+	state: StageState.Select,
 };
 
 export const stageSlice = createSlice({
 	name: 'stage',
 	initialState: initialState,
 	reducers: {
-		addDrawers: (state: Draft<StageSlice>, action: AddDrawersAction) => {
-			state.drawers = action.payload;
+		changeState: (slice: Draft<StageSlice>, action: ChangeStateAction) => {
+			slice.state = action.payload;
 		},
-		selectDrawers: (state: Draft<StageSlice>, action: SelectDrawersAction) => {
-			state.selected = action.payload;
+		addDrawers: (slice: Draft<StageSlice>, action: AddDrawersAction) => {
+			slice.drawers = action.payload;
 		},
-		highlightDrawers: (state: Draft<StageSlice>, action: HighlightDrawersAction) => {
-			state.highlighted = action.payload;
+		selectDrawers: (slice: Draft<StageSlice>, action: SelectDrawersAction) => {
+			slice.selected = action.payload;
 		},
-		removeHighlightDrawers: (state: Draft<StageSlice>, action: HighlightDrawersAction) => {
-			state.highlighted = state.highlighted.filter(
+		highlightDrawers: (slice: Draft<StageSlice>, action: HighlightDrawersAction) => {
+			slice.highlighted = action.payload;
+		},
+		removeHighlightDrawers: (slice: Draft<StageSlice>, action: HighlightDrawersAction) => {
+			slice.highlighted = slice.highlighted.filter(
 				(drawerId) => !action.payload.includes(drawerId),
 			);
 		},
+		startConnectLineDraw: startConnectLineDrawReducer,
+		moveConnectLineDraw: moveConnectLineDrawReducer,
+		endConnectLineDraw: endConnectLineDrawReducer,
 		moveDrawer: (state: Draft<StageSlice>, action: MoveDrawerAction) => {
 			const { payload } = action;
 			const drawerIdx = state.drawers.findIndex((drawer) => drawer.id === payload.id);
@@ -121,8 +146,17 @@ export const stageSlice = createSlice({
 	},
 });
 
-export const { addDrawers, selectDrawers, highlightDrawers, removeHighlightDrawers, moveDrawer } =
-	stageSlice.actions;
+export const {
+	addDrawers,
+	selectDrawers,
+	highlightDrawers,
+	removeHighlightDrawers,
+	moveDrawer,
+	changeState,
+	startConnectLineDraw,
+	moveConnectLineDraw,
+	endConnectLineDraw,
+} = stageSlice.actions;
 
 export default stageSlice.reducer;
 

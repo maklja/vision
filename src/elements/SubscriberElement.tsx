@@ -4,7 +4,7 @@ import { DRAWER_DEFAULT, fromSize } from './utils';
 import { elementTheme } from '../theme';
 import { ElementProps, elementConnector } from '../store/connector';
 import Konva from 'konva';
-import { RectConnectionPoints } from './ConnectionPoints';
+import { ConnectedConnectPoints } from './ConnectedConnectPoints';
 import { ElementState } from './ElementState';
 
 export const SubscriberElement = (props: ElementProps) => {
@@ -14,10 +14,13 @@ export const SubscriberElement = (props: ElementProps) => {
 		size,
 		id,
 		state,
+		dragging,
 		onMouseDown,
 		onMouseOut,
 		onMouseOver,
-		onMouseDrag,
+		onDragMove,
+		onDragStart,
+		onDragEnd,
 	} = props;
 	const radius = fromSize(DRAWER_DEFAULT.radius, size, 0.8);
 	const innerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.5);
@@ -32,7 +35,12 @@ export const SubscriberElement = (props: ElementProps) => {
 		onMouseDown && onMouseDown(id, e);
 
 	const handleDragMove = (e: Konva.KonvaEventObject<MouseEvent>) =>
-		onMouseDrag && onMouseDrag(id, e);
+		onDragMove && onDragMove(id, e);
+
+	const handleDragStart = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onDragStart && onDragStart(id, e);
+
+	const handleDragEnd = (e: Konva.KonvaEventObject<MouseEvent>) => onDragEnd && onDragEnd(id, e);
 
 	return (
 		<Group
@@ -43,6 +51,8 @@ export const SubscriberElement = (props: ElementProps) => {
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
 			onDragMove={handleDragMove}
+			onDragStart={handleDragStart}
+			onDragEnd={handleDragEnd}
 		>
 			<BorderElement
 				x={radius * -1}
@@ -52,13 +62,16 @@ export const SubscriberElement = (props: ElementProps) => {
 				padding={2}
 				state={state}
 			/>
-			<RectConnectionPoints
+			<ConnectedConnectPoints
 				id={id}
+				absoluteX={x}
+				absoluteY={y}
 				x={radius * -1}
 				y={radius * -1}
 				width={radius * 2}
 				height={radius * 2}
 				selected={state === ElementState.Selected}
+				dragging={dragging}
 			/>
 			<Circle {...elementTheme} id={id} radius={radius} />
 			<Circle {...elementTheme} radius={innerRadius} listening={false} fill="black" />
