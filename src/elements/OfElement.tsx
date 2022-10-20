@@ -4,9 +4,9 @@ import { Circle, Group, Text, Label, Tag } from 'react-konva';
 import { fromSize, DRAWER_DEFAULT } from './utils';
 import { BorderElement } from './BorderElement';
 import { elementTheme } from '../theme';
-import { ElementProps, elementConnector } from '../store/connector';
+import { elementConnector } from '../store/connector';
 import { ConnectedConnectPoints } from './ConnectedConnectPoints';
-import { ElementState } from './ElementState';
+import { ElementProps } from './ElementProps';
 
 export const OfElement = (props: ElementProps) => {
 	const [textRef, setTextRef] = useState<Konva.Text | null>(null);
@@ -17,7 +17,8 @@ export const OfElement = (props: ElementProps) => {
 		y = 0,
 		size,
 		id,
-		state,
+		selected,
+		highlighted,
 		dragging,
 		onMouseOver,
 		onMouseOut,
@@ -71,7 +72,8 @@ export const OfElement = (props: ElementProps) => {
 				width={radius * 2}
 				height={radius * 2}
 				padding={3}
-				state={props.state}
+				selected={selected}
+				highlighted={highlighted}
 			/>
 			<ConnectedConnectPoints
 				id={id}
@@ -81,7 +83,7 @@ export const OfElement = (props: ElementProps) => {
 				y={radius * -1}
 				width={radius * 2}
 				height={radius * 2}
-				selected={state === ElementState.Selected}
+				selected={selected}
 				dragging={dragging}
 			/>
 			<Circle {...elementTheme} id={id} radius={radius} />

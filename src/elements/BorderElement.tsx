@@ -1,6 +1,5 @@
 import { Rect } from 'react-konva';
-import { ElementState } from './ElementState';
-import { borderThemeByElementState } from '../theme';
+import { selectedBorderTheme, highlightBorderTheme } from '../theme';
 
 export interface BorderElementProps {
 	x: number;
@@ -8,11 +7,12 @@ export interface BorderElementProps {
 	width: number;
 	height: number;
 	padding: number;
-	state?: ElementState;
+	selected?: boolean;
+	highlighted?: boolean;
 }
 
 export const BorderElement = (props: BorderElementProps) => {
-	if (!props.state) {
+	if (!props.selected || !props.highlighted) {
 		return null;
 	}
 
@@ -21,15 +21,12 @@ export const BorderElement = (props: BorderElementProps) => {
 	const width = props.width + 2 * props.padding;
 	const height = props.height + 2 * props.padding;
 
-	return (
-		<Rect
-			x={x}
-			y={y}
-			width={width}
-			height={height}
-			listening={false}
-			{...borderThemeByElementState(props.state)}
-		/>
-	);
+	const theme = props.selected
+		? selectedBorderTheme
+		: props.highlighted
+		? highlightBorderTheme
+		: {};
+
+	return <Rect x={x} y={y} width={width} height={height} listening={false} {...theme} />;
 };
 

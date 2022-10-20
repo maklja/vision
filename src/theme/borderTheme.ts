@@ -1,5 +1,4 @@
 import Konva from 'konva';
-import { ElementState } from '../elements';
 
 export const selectedBorderTheme: Konva.RectConfig = {
 	stroke: 'blue',
@@ -13,14 +12,3 @@ export const highlightBorderTheme: Konva.RectConfig = {
 	cornerRadius: 8,
 };
 
-export const borderThemeByElementState = (state: ElementState): Konva.RectConfig => {
-	if (state === ElementState.Selected) {
-		return selectedBorderTheme;
-	}
-
-	if (state === ElementState.Highlight) {
-		return highlightBorderTheme;
-	}
-
-	return {};
-};

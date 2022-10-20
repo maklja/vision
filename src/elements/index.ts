@@ -1,4 +1,4 @@
-import { ElementState } from './ElementState';
+import { ElementProps } from './ElementProps';
 import { OfElement, ConnectedOfElement } from './OfElement';
 import { SubscriberElement, ConnectedSubscriberElement } from './SubscriberElement';
 import {
@@ -15,10 +15,15 @@ export {
 	ConnectedOfElement,
 	SubscriberElement,
 	ConnectedSubscriberElement,
-	ElementState,
 	ConnectPoint,
 	ConnectPoints,
 };
 
-export type { ConnectPointProps, ConnectPointsProps, ConnectPointEvent, ConnectionPointsEvent };
+export type {
+	ElementProps,
+	ConnectPointProps,
+	ConnectPointsProps,
+	ConnectPointEvent,
+	ConnectionPointsEvent,
+};
 

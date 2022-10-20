@@ -2,10 +2,10 @@ import { Circle, Group } from 'react-konva';
 import { BorderElement } from './BorderElement';
 import { DRAWER_DEFAULT, fromSize } from './utils';
 import { elementTheme } from '../theme';
-import { ElementProps, elementConnector } from '../store/connector';
+import { elementConnector } from '../store/connector';
 import Konva from 'konva';
 import { ConnectedConnectPoints } from './ConnectedConnectPoints';
-import { ElementState } from './ElementState';
+import { ElementProps } from './ElementProps';
 
 export const SubscriberElement = (props: ElementProps) => {
 	const {
@@ -13,7 +13,8 @@ export const SubscriberElement = (props: ElementProps) => {
 		y = 0,
 		size,
 		id,
-		state,
+		selected,
+		highlighted,
 		dragging,
 		onMouseDown,
 		onMouseOut,
@@ -60,7 +61,8 @@ export const SubscriberElement = (props: ElementProps) => {
 				width={radius * 2}
 				height={radius * 2}
 				padding={2}
-				state={state}
+				selected={selected}
+				highlighted={highlighted}
 			/>
 			<ConnectedConnectPoints
 				id={id}
@@ -70,7 +72,7 @@ export const SubscriberElement = (props: ElementProps) => {
 				y={radius * -1}
 				width={radius * 2}
 				height={radius * 2}
-				selected={state === ElementState.Selected}
+				selected={selected}
 				dragging={dragging}
 			/>
 			<Circle {...elementTheme} id={id} radius={radius} />
