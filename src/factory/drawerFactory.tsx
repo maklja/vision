@@ -8,7 +8,7 @@ const createSubscriberElement = (drawer: Drawer) => (
 );
 
 const elementFactories = new Map<DrawerType, (drawer: Drawer) => JSX.Element>([
-	[DrawerType.Of, createOfElement],
+	[DrawerType.CreationOperator, createOfElement],
 	[DrawerType.Subscriber, createSubscriberElement],
 ]);
 
@@ -16,3 +16,4 @@ export const createDrawerElement = (drawer: Drawer) => {
 	const elementFactory = elementFactories.get(drawer.type);
 	return elementFactory ? elementFactory(drawer) : null;
 };
+

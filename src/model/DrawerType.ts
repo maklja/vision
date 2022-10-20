@@ -1,5 +1,5 @@
 export enum DrawerType {
-	Of = 'of',
+	CreationOperator = 'creationOperator',
 	Subscriber = 'subscriber',
 }
 

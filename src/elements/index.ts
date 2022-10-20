@@ -9,6 +9,7 @@ import {
 	ConnectPointEvent,
 	ConnectionPointsEvent,
 } from './ConnectPoints';
+import { ConnectLineElement, ConnectLineElementProps } from './ConnectLineElement';
 
 export {
 	OfElement,
@@ -17,6 +18,7 @@ export {
 	ConnectedSubscriberElement,
 	ConnectPoint,
 	ConnectPoints,
+	ConnectLineElement,
 };
 
 export type {
@@ -25,5 +27,6 @@ export type {
 	ConnectPointsProps,
 	ConnectPointEvent,
 	ConnectionPointsEvent,
+	ConnectLineElementProps,
 };
 

@@ -1,25 +1,25 @@
-import Konva from 'konva';
+import { v1 as createId } from 'uuid';
 import { Draft } from '@reduxjs/toolkit';
 import { ConnectLine } from '../../model';
 import { StageSlice, StageState } from '../stageSlice';
 
 export interface StartConnectLineDrawAction {
 	type: string;
-	payload: ConnectLine;
+	payload: Omit<ConnectLine, 'id'>;
 }
 
 export interface MoveConnectLineDrawAction {
 	type: string;
 	payload: {
-		id: string;
-		point: Konva.Vector2d;
+		x: number;
+		y: number;
 	};
 }
 
-export interface EndConnectLineDrawAction {
+export interface LinkConnectLineDrawAction {
 	type: string;
 	payload: {
-		id: string;
+		targetId: string;
 	};
 }
 
@@ -27,35 +27,79 @@ export const startConnectLineDrawReducer = (
 	slice: Draft<StageSlice>,
 	action: StartConnectLineDrawAction,
 ) => {
+	const draftConnectLineId = createId();
 	slice.state = StageState.DrawConnectLine;
-	slice.connectLines.push(action.payload);
+	slice.draftConnectLineId = draftConnectLineId;
+	slice.connectLines.push({
+		...action.payload,
+		id: draftConnectLineId,
+	});
+
+	slice.selected = slice.drawers.filter((d) => d.id !== action.payload.sourceId).map((d) => d.id);
 };
 
 export const moveConnectLineDrawReducer = (
 	slice: Draft<StageSlice>,
 	action: MoveConnectLineDrawAction,
 ) => {
-	if (slice.state !== StageState.DrawConnectLine) {
+	if (slice.state !== StageState.DrawConnectLine || !slice.draftConnectLineId) {
 		return;
 	}
 
-	const cl = slice.connectLines.find((cl) => cl.id === action.payload.id);
-	if (!cl) {
+	const cl = slice.connectLines.find((cl) => cl.id === slice.draftConnectLineId);
+	if (!cl || cl.locked) {
 		return;
 	}
 
-	cl.points.splice(-1, 1, action.payload.point);
+	cl.points.splice(-1, 1, { x: action.payload.x, y: action.payload.y });
 };
 
-export const endConnectLineDrawReducer = (
-	slice: Draft<StageSlice>,
-	action: EndConnectLineDrawAction,
-) => {
-	if (slice.state !== StageState.DrawConnectLine) {
+export const deleteConnectLineDrawReducer = (slice: Draft<StageSlice>) => {
+	const { draftConnectLineId } = slice;
+	if (slice.state !== StageState.DrawConnectLine || !draftConnectLineId) {
 		return;
 	}
 
 	slice.state = StageState.Select;
-	slice.connectLines = slice.connectLines.filter((cl) => cl.id !== action.payload.id);
+	slice.draftConnectLineId = null;
+	const slIndex = slice.connectLines.findIndex((cl) => cl.id === draftConnectLineId);
+	if (slIndex === -1) {
+		return;
+	}
+
+	slice.selected = [slice.connectLines[slIndex].sourceId];
+	slice.connectLines.splice(slIndex, 1);
+};
+
+export const linkConnectLineDrawReducer = (
+	slice: Draft<StageSlice>,
+	action: LinkConnectLineDrawAction,
+) => {
+	const { draftConnectLineId } = slice;
+	if (slice.state !== StageState.DrawConnectLine || !draftConnectLineId) {
+		return;
+	}
+
+	slice.state = StageState.Select;
+	slice.draftConnectLineId = null;
+	const slIndex = slice.connectLines.findIndex((cl) => cl.id === draftConnectLineId);
+	if (slIndex === -1) {
+		return;
+	}
+
+	slice.selected = [slice.connectLines[slIndex].sourceId];
+	const drawer = slice.drawers.find((d) => d.id === action.payload.targetId);
+	if (!drawer) {
+		slice.connectLines.splice(slIndex, 1);
+		return;
+	}
+	const cl = slice.connectLines[slIndex];
+
+	cl.targetId = action.payload.targetId;
+	cl.locked = false;
+	cl.points.push({
+		x: drawer.x,
+		y: drawer.y,
+	});
 };
 

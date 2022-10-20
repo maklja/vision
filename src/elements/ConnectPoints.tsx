@@ -111,6 +111,8 @@ export interface ConnectPointsProps {
 	dragging?: boolean;
 	onMouseDown?: (cEvent: ConnectionPointsEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseUp?: (cEvent: ConnectionPointsEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseOver?: (cEvent: ConnectionPointsEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseOut?: (cEvent: ConnectionPointsEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
 }
 
 export const ConnectPoints = (props: ConnectPointsProps) => {
@@ -131,6 +133,8 @@ export const ConnectPoints = (props: ConnectPointsProps) => {
 		offset = CONNECTOR_DEFAULT.offset,
 		onMouseDown,
 		onMouseUp,
+		onMouseOver,
+		onMouseOut,
 	} = props;
 
 	const topX = x + width / 2;
@@ -149,33 +153,62 @@ export const ConnectPoints = (props: ConnectPointsProps) => {
 		cEvent: ConnectPointEvent,
 		e: Konva.KonvaEventObject<MouseEvent>,
 	) => {
-		onMouseDown &&
-			onMouseDown(
-				{
-					id,
-					element: {
-						x: absoluteX,
-						y: absoluteY,
-					},
-					connector: cEvent,
+		onMouseDown?.(
+			{
+				id,
+				element: {
+					x: absoluteX,
+					y: absoluteY,
 				},
-				e,
-			);
+				connector: cEvent,
+			},
+			e,
+		);
 	};
 
 	const handleOnMouseUp = (cEvent: ConnectPointEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
-		onMouseUp &&
-			onMouseUp(
-				{
-					id,
-					element: {
-						x: absoluteX,
-						y: absoluteY,
-					},
-					connector: cEvent,
+		onMouseUp?.(
+			{
+				id,
+				element: {
+					x: absoluteX,
+					y: absoluteY,
 				},
-				e,
-			);
+				connector: cEvent,
+			},
+			e,
+		);
+	};
+
+	const handleOnMouseOver = (
+		cEvent: ConnectPointEvent,
+		e: Konva.KonvaEventObject<MouseEvent>,
+	) => {
+		onMouseOver?.(
+			{
+				id,
+				element: {
+					x: absoluteX,
+					y: absoluteY,
+				},
+				connector: cEvent,
+			},
+			e,
+		);
+	};
+
+	const handleOnMouseOut = (cEvent: ConnectPointEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
+		onMouseOut?.(
+			{
+				id,
+				element: {
+					x: absoluteX,
+					y: absoluteY,
+				},
+				connector: cEvent,
+			},
+			e,
+		);
 	};
 
 	return (
@@ -188,6 +221,8 @@ export const ConnectPoints = (props: ConnectPointsProps) => {
 				selected={selected}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
+				onMouseOver={handleOnMouseOver}
+				onMouseOut={handleOnMouseOut}
 			/>
 
 			<ConnectPoint
@@ -198,6 +233,8 @@ export const ConnectPoints = (props: ConnectPointsProps) => {
 				selected={selected}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
+				onMouseOver={handleOnMouseOver}
+				onMouseOut={handleOnMouseOut}
 			/>
 
 			<ConnectPoint
@@ -208,6 +245,8 @@ export const ConnectPoints = (props: ConnectPointsProps) => {
 				selected={selected}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
+				onMouseOver={handleOnMouseOver}
+				onMouseOut={handleOnMouseOut}
 			/>
 
 			<ConnectPoint
@@ -218,6 +257,8 @@ export const ConnectPoints = (props: ConnectPointsProps) => {
 				selected={selected}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
+				onMouseOver={handleOnMouseOver}
+				onMouseOut={handleOnMouseOut}
 			/>
 		</Group>
 	);

@@ -7,7 +7,7 @@ import {
 	StageSlice,
 	selectDrawers,
 	moveConnectLineDraw,
-	endConnectLineDraw,
+	deleteConnectLineDraw,
 } from './store/stageSlice';
 
 function App() {
@@ -19,21 +19,14 @@ function App() {
 	const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		appDispatch(
 			moveConnectLineDraw({
-				id: 'lol',
-				point: {
-					x: e.evt.clientX,
-					y: e.evt.clientY,
-				},
+				x: e.evt.clientX,
+				y: e.evt.clientY,
 			}),
 		);
 	};
 
 	const handleOnMouseUp = () => {
-		appDispatch(
-			endConnectLineDraw({
-				id: 'lol',
-			}),
-		);
+		appDispatch(deleteConnectLineDraw());
 	};
 
 	return (

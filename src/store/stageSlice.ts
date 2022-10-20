@@ -3,7 +3,10 @@ import { ConnectLine, Drawer, DrawerType } from '../model';
 import {
 	startConnectLineDrawReducer,
 	moveConnectLineDrawReducer,
-	endConnectLineDrawReducer,
+	linkConnectLineDrawReducer,
+	deleteConnectLineDrawReducer,
+	pinConnectLineReducer,
+	unpinConnectLineReducer,
 } from './reducer';
 
 export enum StageState {
@@ -18,6 +21,7 @@ export interface StageSlice {
 	selected: string[];
 	highlighted: string[];
 	state: StageState;
+	draftConnectLineId: string | null;
 }
 
 export interface AddDrawersAction {
@@ -54,7 +58,7 @@ const e1: Drawer = {
 	size: 1,
 	x: 200,
 	y: 200,
-	type: DrawerType.Of,
+	type: DrawerType.CreationOperator,
 };
 
 const e2: Drawer = {
@@ -75,14 +79,16 @@ const c1: ConnectLine = {
 		{ x: 239, y: 200 },
 		{ x: 200, y: 200 },
 	],
+	locked: false,
 };
 
 const initialState: StageSlice = {
 	drawers: [e1, e2],
-	connectLines: [c1],
+	connectLines: [],
 	selected: [],
 	highlighted: [],
 	state: StageState.Select,
+	draftConnectLineId: null,
 };
 
 export const stageSlice = createSlice({
@@ -108,7 +114,10 @@ export const stageSlice = createSlice({
 		},
 		startConnectLineDraw: startConnectLineDrawReducer,
 		moveConnectLineDraw: moveConnectLineDrawReducer,
-		endConnectLineDraw: endConnectLineDrawReducer,
+		linkConnectLineDraw: linkConnectLineDrawReducer,
+		deleteConnectLineDraw: deleteConnectLineDrawReducer,
+		pinConnectLine: pinConnectLineReducer,
+		unpinConnectLine: unpinConnectLineReducer,
 		moveDrawer: (state: Draft<StageSlice>, action: MoveDrawerAction) => {
 			const { payload } = action;
 			const drawerIdx = state.drawers.findIndex((drawer) => drawer.id === payload.id);
@@ -155,7 +164,10 @@ export const {
 	changeState,
 	startConnectLineDraw,
 	moveConnectLineDraw,
-	endConnectLineDraw,
+	linkConnectLineDraw,
+	deleteConnectLineDraw,
+	pinConnectLine,
+	unpinConnectLine,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;

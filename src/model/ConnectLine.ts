@@ -5,5 +5,6 @@ export interface ConnectLine {
 	sourceId: string;
 	targetId: string | null;
 	points: Konva.Vector2d[];
+	locked: boolean;
 }
 

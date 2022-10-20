@@ -2,7 +2,12 @@ import Konva from 'konva';
 import { connect } from 'react-redux';
 import { ConnectPointsProps, ConnectionPointsEvent } from '../../elements';
 import { AppDispatch, RootState } from '../rootState';
-import { startConnectLineDraw } from '../stageSlice';
+import {
+	startConnectLineDraw,
+	pinConnectLine,
+	unpinConnectLine,
+	linkConnectLineDraw,
+} from '../stageSlice';
 
 const mapState = (_: RootState, props: ConnectPointsProps): ConnectPointsProps => {
 	return {
@@ -15,7 +20,6 @@ const mapDispatch = (dispatch: AppDispatch) => ({
 		e.cancelBubble = true;
 		dispatch(
 			startConnectLineDraw({
-				id: 'lol',
 				sourceId: cEvent.id,
 				targetId: null,
 				points: [
@@ -23,8 +27,29 @@ const mapDispatch = (dispatch: AppDispatch) => ({
 					{ x: cEvent.connector.x, y: cEvent.connector.y },
 					{ x: cEvent.connector.x, y: cEvent.connector.y },
 				],
+				locked: false,
 			}),
 		);
+	},
+	onMouseUp: (cEvent: ConnectionPointsEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
+		e.cancelBubble = true;
+		dispatch(linkConnectLineDraw({ targetId: cEvent.id }));
+	},
+	onMouseOver: (cEvent: ConnectionPointsEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
+		e.cancelBubble = true;
+		dispatch(
+			pinConnectLine({
+				drawerId: cEvent.id,
+				position: {
+					x: cEvent.connector.x,
+					y: cEvent.connector.y,
+				},
+			}),
+		);
+	},
+	onMouseOut: (_: ConnectionPointsEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
+		e.cancelBubble = true;
+		dispatch(unpinConnectLine());
 	},
 });
 
