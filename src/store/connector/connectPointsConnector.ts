@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { connect } from 'react-redux';
-import { ConnectPointsProps, ConnectionPointsEvent } from '../../elements';
+import { ConnectPointsProps, ConnectionPointsEvent } from '../../drawers';
 import { AppDispatch, RootState } from '../rootState';
 import {
 	startConnectLineDraw,

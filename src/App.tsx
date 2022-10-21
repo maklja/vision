@@ -9,6 +9,7 @@ import {
 	moveConnectLineDraw,
 	deleteConnectLineDraw,
 } from './store/stageSlice';
+import { engine } from './engine';
 
 function App() {
 	const { drawers, connectLines } = useSelector<RootState, StageSlice>((store) => store.stage);
@@ -17,10 +18,12 @@ function App() {
 	const handleMouseDown = () => appDispatch(selectDrawers([]));
 
 	const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+		const stage = e.target.getStage();
+		const rect = stage?.getContent().getBoundingClientRect();
 		appDispatch(
 			moveConnectLineDraw({
-				x: e.evt.clientX,
-				y: e.evt.clientY,
+				x: e.evt.clientX - (rect?.left ?? 0),
+				y: e.evt.clientY - (rect?.top ?? 0),
 			}),
 		);
 	};
@@ -29,20 +32,27 @@ function App() {
 		appDispatch(deleteConnectLineDraw());
 	};
 
+	const handleClick = () => {
+		engine(drawers, connectLines);
+	};
+
 	return (
-		<Stage
-			style={{ backgroundColor: '#eee' }}
-			width={window.innerWidth}
-			height={window.innerHeight}
-			onMouseDown={handleMouseDown}
-			onMouseUp={handleOnMouseUp}
-			onMouseMove={handleMouseMove}
-		>
-			<Layer>
-				{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
-				{drawers.map((drawer) => createDrawerElement(drawer))}
-			</Layer>
-		</Stage>
+		<div>
+			<button onClick={handleClick}>Click</button>
+			<Stage
+				style={{ backgroundColor: '#eee' }}
+				width={window.innerWidth}
+				height={window.innerHeight}
+				onMouseDown={handleMouseDown}
+				onMouseUp={handleOnMouseUp}
+				onMouseMove={handleMouseMove}
+			>
+				<Layer>
+					{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
+					{drawers.map((drawer) => createDrawerElement(drawer))}
+				</Layer>
+			</Stage>
+		</div>
 	);
 }
 

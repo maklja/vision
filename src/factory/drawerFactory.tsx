@@ -1,19 +1,26 @@
-import { ConnectedOfElement, ConnectedSubscriberElement } from '../elements';
-import { Drawer, DrawerType } from '../model';
+import { elementConnector } from '../store/connector';
+import { OfOperatorDrawer, FromOperatorDrawer, ConnectedSubscriberElement } from '../drawers';
+import { Element, ElementType } from '../model';
 
-const createOfElement = (drawer: Drawer) => <ConnectedOfElement id={drawer.id} key={drawer.id} />;
+const ConnectedOfOperatorDrawer = elementConnector(OfOperatorDrawer);
+const ConnectedFromOperatorDrawer = elementConnector(FromOperatorDrawer);
 
-const createSubscriberElement = (drawer: Drawer) => (
-	<ConnectedSubscriberElement id={drawer.id} key={drawer.id} />
+const createOfElement = (el: Element) => <ConnectedOfOperatorDrawer id={el.id} key={el.id} />;
+
+const createFromElement = (el: Element) => <ConnectedFromOperatorDrawer id={el.id} key={el.id} />;
+
+const createSubscriberElement = (el: Element) => (
+	<ConnectedSubscriberElement id={el.id} key={el.id} />
 );
 
-const elementFactories = new Map<DrawerType, (drawer: Drawer) => JSX.Element>([
-	[DrawerType.CreationOperator, createOfElement],
-	[DrawerType.Subscriber, createSubscriberElement],
+const elementFactories = new Map<ElementType, (el: Element) => JSX.Element>([
+	[ElementType.Of, createOfElement],
+	[ElementType.From, createFromElement],
+	[ElementType.Subscriber, createSubscriberElement],
 ]);
 
-export const createDrawerElement = (drawer: Drawer) => {
-	const elementFactory = elementFactories.get(drawer.type);
-	return elementFactory ? elementFactory(drawer) : null;
+export const createDrawerElement = (el: Element) => {
+	const elementFactory = elementFactories.get(el.type);
+	return elementFactory ? elementFactory(el) : null;
 };
 

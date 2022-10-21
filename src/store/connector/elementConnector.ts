@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { connect } from 'react-redux';
-import { ElementProps } from '../../elements';
+import { ElementProps } from '../../drawers';
 import {
 	StageState,
 	highlightDrawers,

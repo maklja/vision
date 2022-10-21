@@ -1,9 +1,12 @@
-import { Drawer } from './Drawer';
+import { Element } from './Element';
 import { ConnectLine } from './ConnectLine';
-import { DrawerType } from './DrawerType';
+import { ElementType, creationOperators } from './ElementType';
 import { ConnectionPoint } from './ConnectionPoint';
 
-export { DrawerType, ConnectionPoint };
+export * from './creationOperators';
 
-export type { Drawer, ConnectLine };
+export { ElementType, ConnectionPoint, creationOperators };
 
+export type { Element, ConnectLine };
+
+// export type {} = CreationOperators;

@@ -1,5 +1,5 @@
 import { createSlice, Draft } from '@reduxjs/toolkit';
-import { ConnectLine, Drawer, DrawerType } from '../model';
+import { ConnectLine, Element, ElementType, FromElement, OfElement } from '../model';
 import {
 	startConnectLineDrawReducer,
 	moveConnectLineDrawReducer,
@@ -16,7 +16,7 @@ export enum StageState {
 }
 
 export interface StageSlice {
-	drawers: Drawer[];
+	drawers: Element[];
 	connectLines: ConnectLine[];
 	selected: string[];
 	highlighted: string[];
@@ -26,7 +26,7 @@ export interface StageSlice {
 
 export interface AddDrawersAction {
 	type: string;
-	payload: Drawer[];
+	payload: Element[];
 }
 
 export interface SelectDrawersAction {
@@ -53,20 +53,30 @@ export interface ChangeStateAction {
 	payload: StageState;
 }
 
-const e1: Drawer = {
+const e1: OfElement = {
 	id: 'test',
 	size: 1,
 	x: 200,
 	y: 200,
-	type: DrawerType.CreationOperator,
+	items: [4, 3, 2, 1],
+	type: ElementType.Of,
 };
 
-const e2: Drawer = {
+const e2: Element = {
 	id: 'test1',
 	size: 1,
 	x: 240,
 	y: 240,
-	type: DrawerType.Subscriber,
+	type: ElementType.Subscriber,
+};
+
+const e3: FromElement = {
+	id: 'fromElement',
+	size: 1,
+	x: 300,
+	y: 300,
+	type: ElementType.From,
+	input: [3, 3, 3, 4],
 };
 
 const c1: ConnectLine = {
@@ -83,7 +93,7 @@ const c1: ConnectLine = {
 };
 
 const initialState: StageSlice = {
-	drawers: [e1, e2],
+	drawers: [e1, e2, e3],
 	connectLines: [],
 	selected: [],
 	highlighted: [],

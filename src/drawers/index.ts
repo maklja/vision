@@ -1,5 +1,4 @@
 import { ElementProps } from './ElementProps';
-import { OfElement, ConnectedOfElement } from './OfElement';
 import { SubscriberElement, ConnectedSubscriberElement } from './SubscriberElement';
 import {
 	ConnectPoint,
@@ -11,9 +10,9 @@ import {
 } from './ConnectPoints';
 import { ConnectLineElement, ConnectLineElementProps } from './ConnectLineElement';
 
+export * from './creationOperators';
+
 export {
-	OfElement,
-	ConnectedOfElement,
 	SubscriberElement,
 	ConnectedSubscriberElement,
 	ConnectPoint,

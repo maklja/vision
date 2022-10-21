@@ -1,5 +1,5 @@
 import { ConnectLine } from '../model';
-import { ConnectLineElement } from '../elements';
+import { ConnectLineElement } from '../drawers';
 
 export const createConnectLineElement = (connectionLine: ConnectLine) => {
 	const { id, points } = connectionLine;

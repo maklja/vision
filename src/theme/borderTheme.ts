@@ -2,7 +2,8 @@ import Konva from 'konva';
 
 export const selectedBorderTheme: Konva.RectConfig = {
 	stroke: 'blue',
-	strokeWidth: 1.5,
+	strokeWidth: 1,
+	dash: [10, 10],
 	cornerRadius: 8,
 };
 
