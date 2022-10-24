@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { connect } from 'react-redux';
-import { ElementProps } from '../../drawers';
+import { ConnectPointsDrawer, ElementProps } from '../../drawers';
 import {
 	StageState,
 	highlightDrawers,
@@ -10,9 +10,12 @@ import {
 	changeState,
 } from '../stageSlice';
 import { AppDispatch, RootState } from '../rootState';
+// import { connectPointsConnector } from './connectPointsConnector';
+
+// const ConnectedConnectPointsDrawer = connectPointsConnector(ConnectPointsDrawer);
 
 const mapState = (state: RootState, props: ElementProps): ElementProps => {
-	const drawer = state.stage.drawers.find((drawer) => drawer.id === props.id) || {};
+	const drawer = state.stage.drawers.find((drawer) => drawer.id === props.id);
 	const selected = state.stage.selected.some((drawerId) => drawerId === props.id);
 	const highlighted = state.stage.highlighted.some((drawerId) => drawerId === props.id);
 	const dragging = state.stage.state === StageState.Dragging;
@@ -20,9 +23,23 @@ const mapState = (state: RootState, props: ElementProps): ElementProps => {
 	return {
 		...props,
 		...drawer,
-		selected,
-		highlighted,
-		dragging,
+		// selected,
+		// highlighted,
+		// dragging,
+		// onCreateConnectPoints: (connectPointProps) => {
+		// 	if (!selected || dragging) {
+		// 		return null;
+		// 	}
+
+		// 	return (
+		// 		<ConnectedConnectPointsDrawer
+		// 			{...connectPointProps}
+		// 			selected={true}
+		// 			absoluteX={drawer?.x ?? 0}
+		// 			absoluteY={drawer?.y ?? 0}
+		// 		/>
+		// 	);
+		// },
 	};
 };
 
@@ -35,7 +52,7 @@ const changeCursorStyle = (cursorStyle: string, e: Konva.KonvaEventObject<MouseE
 	stage.container().style.cursor = cursorStyle;
 };
 
-const mapDispatch = (dispatch: AppDispatch) => ({
+export const drawerMapDispatch = (dispatch: AppDispatch) => ({
 	onMouseDown: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		dispatch(selectDrawers([id]));
@@ -71,5 +88,4 @@ const mapDispatch = (dispatch: AppDispatch) => ({
 	},
 });
 
-export const elementConnector = connect(mapState, mapDispatch);
-
+export const elementConnector = connect(mapState, drawerMapDispatch);

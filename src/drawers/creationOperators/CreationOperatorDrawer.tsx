@@ -2,9 +2,7 @@ import { useState } from 'react';
 import Konva from 'konva';
 import { Circle, Group, Text, Label, Tag } from 'react-konva';
 import { fromSize, DRAWER_DEFAULT } from '../utils';
-import { BorderElement } from '../BorderElement';
 import { elementTheme } from '../../theme';
-import { ConnectedConnectPoints } from '../ConnectedConnectPoints';
 import { ElementProps } from '../ElementProps';
 
 export interface CreationOperatorDrawerProps extends ElementProps {
@@ -23,9 +21,6 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		icon,
 		size,
 		id,
-		selected,
-		highlighted,
-		dragging,
 		onMouseOver,
 		onMouseOut,
 		onMouseDown,
@@ -67,7 +62,7 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
-			<BorderElement
+			{/* <BorderElement
 				x={radius * -1}
 				y={radius * -1}
 				width={radius * 2}
@@ -75,18 +70,8 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 				padding={3}
 				selected={selected}
 				highlighted={highlighted}
-			/>
-			<ConnectedConnectPoints
-				id={id}
-				absoluteX={x}
-				absoluteY={y}
-				x={radius * -1}
-				y={radius * -1}
-				width={radius * 2}
-				height={radius * 2}
-				selected={selected}
-				dragging={dragging}
-			/>
+			/> */}
+
 			<Circle {...elementTheme} id={id} radius={radius} />
 			<Label x={iconX} y={iconY} listening={false}>
 				<Tag fill="#eee" />
@@ -109,4 +94,3 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		</Group>
 	);
 };
-

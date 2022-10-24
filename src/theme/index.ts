@@ -1,5 +1,5 @@
 import { elementTheme } from './elementTheme';
-import { highlightBorderTheme, selectedBorderTheme } from './borderTheme';
+import { highlightBorderTheme, selectedBorderTheme, BorderStyle } from './borderTheme';
 import { connectionTheme, highlightConnectionTheme } from './connectionTheme';
 
 export {
@@ -10,3 +10,4 @@ export {
 	selectedBorderTheme,
 };
 
+export type { BorderStyle };

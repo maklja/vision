@@ -36,26 +36,26 @@ export const ConnectPoint = (props: ConnectPointProps) => {
 		e.cancelBubble = true;
 		setHighlight(true);
 		const { x, y } = e.currentTarget.getAbsolutePosition();
-		onMouseOver && onMouseOver({ position, x, y }, e);
+		onMouseOver?.({ position, x, y }, e);
 	};
 
 	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		setHighlight(false);
 		const { x, y } = e.currentTarget.getAbsolutePosition();
-		onMouseOut && onMouseOut({ position, x, y }, e);
+		onMouseOut?.({ position, x, y }, e);
 	};
 
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		const { x, y } = e.currentTarget.getAbsolutePosition();
-		onMouseDown && onMouseDown({ position, x, y }, e);
+		onMouseDown?.({ position, x, y }, e);
 	};
 
 	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		const { x, y } = e.currentTarget.getAbsolutePosition();
-		onMouseUp && onMouseUp({ position, x, y }, e);
+		onMouseUp?.({ position, x, y }, e);
 	};
 
 	useEffect(() => {
@@ -63,10 +63,32 @@ export const ConnectPoint = (props: ConnectPointProps) => {
 			return;
 		}
 
-		circleRef.to({
+		const tween = new Konva.Tween({
+			node: circleRef,
+			duration: 1,
+			// x: 140,
+			// y: 90,
+			fill: 'green',
+			// rotation: Math.PI * 2,
 			opacity: 1,
-			duration: 0.2,
+			// strokeWidth: 6,
+			scaleX: 1.4,
+			scaleY: 1.4,
 		});
+
+		tween.onFinish = () => {
+			tween.reverse();
+		};
+		tween.onReset = () => {
+			tween.play();
+		};
+		tween.play();
+
+		return () => tween.destroy();
+		// circleRef.to({
+		// 	opacity: 1,
+		// 	duration: 0.2,
+		// });
 	}, [circleRef]);
 
 	return (
@@ -79,7 +101,7 @@ export const ConnectPoint = (props: ConnectPointProps) => {
 			onMouseUp={handleMouseUp}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
-			opacity={0}
+			opacity={0.7}
 			{...(highlight ? highlightConnectionTheme : connectionTheme)}
 		/>
 	);
@@ -263,4 +285,3 @@ export const ConnectPoints = (props: ConnectPointsProps) => {
 		</Group>
 	);
 };
-
