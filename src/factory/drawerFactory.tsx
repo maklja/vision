@@ -3,7 +3,7 @@ import {
 	OfOperatorDrawer,
 	FromOperatorDrawer,
 	ConnectPointsDrawer,
-	ConnectedSubscriberElement,
+	// ConnectedSubscriberElement,
 	BorderDrawer,
 } from '../drawers';
 import { Element, ElementType } from '../model';
