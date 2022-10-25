@@ -18,6 +18,7 @@ export enum StageState {
 export interface StageSlice {
 	drawers: Element[];
 	connectLines: ConnectLine[];
+	connectPoints: unknown[];
 	selected: string[];
 	highlighted: string[];
 	state: StageState;
@@ -79,22 +80,10 @@ const e3: FromElement = {
 	input: [3, 3, 3, 4],
 };
 
-const c1: ConnectLine = {
-	id: 'test1_test',
-	sourceId: 'test1',
-	targetId: 'test',
-	points: [
-		{ x: 240, y: 240 },
-		{ x: 240, y: 255 },
-		{ x: 239, y: 200 },
-		{ x: 200, y: 200 },
-	],
-	locked: false,
-};
-
 const initialState: StageSlice = {
 	drawers: [e1, e2, e3],
 	connectLines: [],
+	connectPoints: [],
 	selected: [],
 	highlighted: [],
 	state: StageState.Select,

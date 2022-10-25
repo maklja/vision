@@ -9,6 +9,7 @@ import {
 	unpinConnectLine,
 	linkConnectLineDraw,
 } from '../stageSlice';
+import { highlightConnectPoints } from '../connectPointsSlice';
 
 const mapState = (_: RootState, props: ConnectPointDrawerProps): ConnectPointDrawerProps => props;
 
@@ -35,8 +36,16 @@ export const connectPointsMapDispatch = (dispatch: AppDispatch, el: Element) => 
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		dispatch(
+			highlightConnectPoints([
+				{
+					elementId: cEvent.id,
+					type: cEvent.connectPoint.type,
+				},
+			]),
+		);
+		dispatch(
 			pinConnectLine({
-				drawerId: cEvent.id,
+				elementId: cEvent.id,
 				position: {
 					x: cEvent.connectPoint.x,
 					y: cEvent.connectPoint.y,
@@ -46,6 +55,7 @@ export const connectPointsMapDispatch = (dispatch: AppDispatch, el: Element) => 
 	},
 	onMouseOut: (_: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
+		dispatch(highlightConnectPoints([]));
 		dispatch(unpinConnectLine());
 	},
 });
@@ -74,7 +84,7 @@ export const mapDispatch = (dispatch: AppDispatch) => ({
 		e.cancelBubble = true;
 		dispatch(
 			pinConnectLine({
-				drawerId: cEvent.id,
+				elementId: cEvent.id,
 				position: {
 					x: cEvent.connectPoint.x,
 					y: cEvent.connectPoint.y,
@@ -89,3 +99,4 @@ export const mapDispatch = (dispatch: AppDispatch) => ({
 });
 
 export const connectPointsConnector = connect(mapState, mapDispatch);
+

@@ -4,7 +4,7 @@ import { StageSlice } from '../stageSlice';
 export interface PinConnectLineAction {
 	type: string;
 	payload: {
-		drawerId: string;
+		elementId: string;
 		position: { x: number; y: number };
 	};
 }

@@ -1,4 +1,4 @@
-export enum ConnectionPoint {
+export enum ConnectPointType {
 	Top = 'top',
 	Right = 'right',
 	Bottom = 'bottom',

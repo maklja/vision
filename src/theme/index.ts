@@ -1,13 +1,18 @@
 import { elementTheme } from './elementTheme';
 import { highlightBorderTheme, selectedBorderTheme, BorderStyle } from './borderTheme';
-import { connectionTheme, highlightConnectionTheme } from './connectionTheme';
+import {
+	connectPointTheme,
+	highlightConnectPointTheme,
+	ConnectPointStyle,
+} from './connectionTheme';
 
 export {
 	elementTheme,
-	connectionTheme,
-	highlightConnectionTheme,
+	connectPointTheme,
+	highlightConnectPointTheme,
 	highlightBorderTheme,
 	selectedBorderTheme,
 };
 
-export type { BorderStyle };
+export type { BorderStyle, ConnectPointStyle };
+

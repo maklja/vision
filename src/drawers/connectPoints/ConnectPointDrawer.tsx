@@ -1,21 +1,24 @@
 import Konva from 'konva';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Circle } from 'react-konva';
-import { ConnectionPoint } from '../../model';
-import { connectionTheme, highlightConnectionTheme } from '../../theme';
+import { Animation, useAnimation } from '../../animations';
+import { ConnectPointType } from '../../model';
+import { ConnectPointStyle } from '../../theme';
 import { CONNECTOR_DEFAULT, fromSize } from '../utils';
 
 export interface ConnectPointDrawerEvent {
-	position: ConnectionPoint;
+	type: ConnectPointType;
 	x: number;
 	y: number;
 }
 
 export interface ConnectPointDrawerProps {
-	position: ConnectionPoint;
+	type: ConnectPointType;
 	x: number;
 	y: number;
 	size?: number;
+	style?: ConnectPointStyle;
+	animation?: Animation;
 	onMouseDown?: (event: ConnectPointDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseUp?: (event: ConnectPointDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseOver?: (event: ConnectPointDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
@@ -23,73 +26,52 @@ export interface ConnectPointDrawerProps {
 }
 
 export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
-	const { position, x, y, size = 1, onMouseDown, onMouseUp, onMouseOver, onMouseOut } = props;
+	const {
+		type,
+		x,
+		y,
+		size = 1,
+		onMouseDown,
+		onMouseUp,
+		onMouseOver,
+		onMouseOut,
+		animation,
+	} = props;
 	const [circleRef, setCircleRef] = useState<Konva.Circle | null>(null);
-	const [highlight, setHighlight] = useState(false);
+	const anime = useAnimation(circleRef, animation);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		setHighlight(true);
 		const { x, y } = e.currentTarget.getAbsolutePosition();
-		onMouseOver?.({ position, x, y }, e);
+		onMouseOver?.({ type, x, y }, e);
+		console.log('over');
+		anime?.playAnimation();
 	};
 
 	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		setHighlight(false);
 		const { x, y } = e.currentTarget.getAbsolutePosition();
-		onMouseOut?.({ position, x, y }, e);
+		onMouseOut?.({ type, x, y }, e);
+		anime?.reverseAnimation();
 	};
 
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		const { x, y } = e.currentTarget.getAbsolutePosition();
-		onMouseDown?.({ position, x, y }, e);
+		onMouseDown?.({ type, x, y }, e);
 	};
 
 	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		const { x, y } = e.currentTarget.getAbsolutePosition();
-		onMouseUp?.({ position, x, y }, e);
+		onMouseUp?.({ type, x, y }, e);
 	};
-
-	useEffect(() => {
-		if (!circleRef) {
-			return;
-		}
-
-		// const tween = new Konva.Tween({
-		// 	node: circleRef,
-		// 	duration: 1,
-		// 	// x: 140,
-		// 	// y: 90,
-		// 	fill: 'green',
-		// 	// rotation: Math.PI * 2,
-		// 	opacity: 1,
-		// 	// strokeWidth: 6,
-		// 	scaleX: 1.4,
-		// 	scaleY: 1.4,
-		// });
-
-		// tween.onFinish = () => {
-		// 	tween.reverse();
-		// };
-		// tween.onReset = () => {
-		// 	tween.play();
-		// };
-		// tween.play();
-
-		// return () => tween.destroy();
-		circleRef.to({
-			opacity: 1,
-			duration: 0.2,
-		});
-	}, [circleRef]);
 
 	const radius = fromSize(CONNECTOR_DEFAULT.radius, size);
 
 	return (
 		<Circle
+			{...props.style}
 			ref={(node) => setCircleRef(node)}
 			x={x}
 			y={y}
@@ -98,8 +80,7 @@ export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
 			onMouseUp={handleMouseUp}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
-			opacity={0.7}
-			{...(highlight ? highlightConnectionTheme : connectionTheme)}
 		/>
 	);
 };
+

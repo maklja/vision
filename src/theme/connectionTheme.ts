@@ -1,13 +1,17 @@
-import Konva from 'konva';
+export interface ConnectPointStyle {
+	stroke?: string;
+	strokeWidth?: number;
+	fill: string;
+}
 
-export const connectionTheme: Konva.CircleConfig = {
+export const connectPointTheme: ConnectPointStyle = {
 	stroke: 'blue',
 	strokeWidth: 1,
 	fill: '#eee',
 };
 
-export const highlightConnectionTheme: Konva.CircleConfig = {
-	...connectionTheme,
+export const highlightConnectPointTheme: ConnectPointStyle = {
+	...connectPointTheme,
 	fill: 'blue',
 };
 
