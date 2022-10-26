@@ -1,6 +1,6 @@
 import { Line, Group, Path } from 'react-konva';
 
-export interface ConnectLineElementProps {
+export interface ConnectLineDrawerProps {
 	id: string;
 	points: { x: number; y: number }[];
 }
@@ -35,7 +35,7 @@ const ConnectLineTargetArrow = (props: { points: { x: number; y: number }[] }) =
 	return <Path data={path} fill="black" />;
 };
 
-export const ConnectLineElement = (props: ConnectLineElementProps) => {
+export const ConnectLineDrawer = (props: ConnectLineDrawerProps) => {
 	const drawAnArrow = props.points.length > 3;
 
 	return (

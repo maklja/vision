@@ -8,7 +8,7 @@ export interface DrawerConnectPointsProps {
 	height: number;
 }
 
-export interface ElementProps {
+export interface DrawerProps {
 	id: string;
 	x?: number;
 	y?: number;
@@ -20,3 +20,4 @@ export interface ElementProps {
 	onDragEnd?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onDragMove?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
 }
+

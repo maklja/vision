@@ -8,7 +8,8 @@ export const DRAWER_DEFAULT = {
 
 export const CONNECTOR_DEFAULT = {
 	radius: 6,
-	offset: 15,
+	offset: 10,
 };
 
 export const fromSize = (value: number, size = 1, factor = 1) => value * size * factor;
+

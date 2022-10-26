@@ -2,9 +2,9 @@ import Konva from 'konva';
 import { Circle, Group } from 'react-konva';
 import { DRAWER_DEFAULT, fromSize } from '../utils';
 import { elementTheme } from '../../theme';
-import { ElementProps } from '../ElementProps';
+import { DrawerProps } from '../DrawerProps';
 
-export const SubscriberDrawer = (props: ElementProps) => {
+export const SubscriberDrawer = (props: DrawerProps) => {
 	const {
 		x,
 		y,
@@ -49,3 +49,4 @@ export const SubscriberDrawer = (props: ElementProps) => {
 		</Group>
 	);
 };
+

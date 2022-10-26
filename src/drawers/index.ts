@@ -1,5 +1,6 @@
-import { ElementProps } from './ElementProps';
-import { ConnectLineElement, ConnectLineElementProps } from './ConnectLineElement';
+export * from './DrawerProps';
+
+export * from './connectLine/ConnectLineDrawer';
 
 export * from './creationOperators';
 
@@ -9,6 +10,3 @@ export * from './border';
 
 export * from './subscriber/SubscriberDrawer';
 
-export { ConnectLineElement };
-
-export type { ElementProps, ConnectLineElementProps };

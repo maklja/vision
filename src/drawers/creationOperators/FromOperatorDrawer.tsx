@@ -1,7 +1,7 @@
-import { ElementProps } from '../ElementProps';
+import { DrawerProps } from '../DrawerProps';
 import { CreationOperatorDrawer } from './CreationOperatorDrawer';
 
-export const FromOperatorDrawer = (props: ElementProps) => {
+export const FromOperatorDrawer = (props: DrawerProps) => {
 	return <CreationOperatorDrawer {...props} title="From" icon="[ ]" />;
 };
 

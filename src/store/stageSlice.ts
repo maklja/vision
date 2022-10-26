@@ -8,6 +8,7 @@ import {
 	pinConnectLineReducer,
 	unpinConnectLineReducer,
 } from './reducer';
+import { RootState } from './rootState';
 
 export enum StageState {
 	Select = 'select',
@@ -170,4 +171,16 @@ export const {
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
+
+export const selectStageState = (state: RootState) => state.stage.state;
+
+export const selectHighlightedConnectPointsByElementId =
+	(elementId: string) => (state: RootState) =>
+		state.connectPoints.highlighted.filter((cp) => cp.elementId === elementId);
+
+export const isSelectedElement = (elementId: string) => (state: RootState) =>
+	state.stage.selected.some((currentElementId) => currentElementId === elementId);
+
+export const isHighlightedElement = (elementId: string) => (state: RootState) =>
+	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
 

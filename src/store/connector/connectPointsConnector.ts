@@ -38,7 +38,7 @@ const selectStateDispatch = (dispatch: AppDispatch, el: Element) => ({
 			]),
 		);
 	},
-	onMouseOut: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
+	onMouseOut: (_: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		dispatch(highlightConnectPoints([]));
 	},
@@ -47,6 +47,7 @@ const selectStateDispatch = (dispatch: AppDispatch, el: Element) => ({
 const drawConnectLineDispatch = (dispatch: AppDispatch) => ({
 	onMouseUp: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
+		dispatch(highlightConnectPoints([]));
 		dispatch(linkConnectLineDraw({ targetId: cEvent.id }));
 	},
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -80,3 +81,4 @@ export const connectPointsConnector = (state: StageState) => {
 
 	return () => ({});
 };
+

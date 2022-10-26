@@ -3,9 +3,9 @@ import Konva from 'konva';
 import { Circle, Group, Text, Label, Tag } from 'react-konva';
 import { fromSize, DRAWER_DEFAULT } from '../utils';
 import { elementTheme } from '../../theme';
-import { ElementProps } from '../ElementProps';
+import { DrawerProps } from '../DrawerProps';
 
-export interface CreationOperatorDrawerProps extends ElementProps {
+export interface CreationOperatorDrawerProps extends DrawerProps {
 	title: string;
 	icon: string;
 }
@@ -62,16 +62,6 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
-			{/* <BorderElement
-				x={radius * -1}
-				y={radius * -1}
-				width={radius * 2}
-				height={radius * 2}
-				padding={3}
-				selected={selected}
-				highlighted={highlighted}
-			/> */}
-
 			<Circle {...elementTheme} id={id} radius={radius} />
 			<Label x={iconX} y={iconY} listening={false}>
 				<Tag fill="#eee" />
@@ -94,3 +84,4 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		</Group>
 	);
 };
+

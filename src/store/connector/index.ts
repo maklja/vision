@@ -1,3 +1,3 @@
-import { elementConnector } from './elementConnector';
+export * from './connectPointsConnector';
+export * from './elementConnector';
 
-export { elementConnector };

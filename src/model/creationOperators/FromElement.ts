@@ -1,5 +1,5 @@
 import { ObservableInput } from 'rxjs';
-import { Element } from '../Element';
+import { Element } from '../element/Element';
 import { ElementType } from '../ElementType';
 
 export interface FromElement<T = unknown> extends Element {
