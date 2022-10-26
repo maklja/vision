@@ -1,19 +1,17 @@
 import Konva from 'konva';
-import { connect } from 'react-redux';
 import { Element } from '../../model';
-import { ConnectPointDrawerProps, ConnectPointsDrawerEvent } from '../../drawers';
-import { AppDispatch, RootState } from '../rootState';
+import { ConnectPointsDrawerEvent } from '../../drawers';
+import { AppDispatch } from '../rootState';
 import {
 	startConnectLineDraw,
 	pinConnectLine,
 	unpinConnectLine,
 	linkConnectLineDraw,
+	StageState,
 } from '../stageSlice';
 import { highlightConnectPoints } from '../connectPointsSlice';
 
-const mapState = (_: RootState, props: ConnectPointDrawerProps): ConnectPointDrawerProps => props;
-
-export const connectPointsMapDispatch = (dispatch: AppDispatch, el: Element) => ({
+const selectStateDispatch = (dispatch: AppDispatch, el: Element) => ({
 	onMouseDown: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		dispatch(
@@ -29,10 +27,6 @@ export const connectPointsMapDispatch = (dispatch: AppDispatch, el: Element) => 
 			}),
 		);
 	},
-	onMouseUp: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		dispatch(linkConnectLineDraw({ targetId: cEvent.id }));
-	},
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		dispatch(
@@ -43,45 +37,21 @@ export const connectPointsMapDispatch = (dispatch: AppDispatch, el: Element) => 
 				},
 			]),
 		);
-		dispatch(
-			pinConnectLine({
-				elementId: cEvent.id,
-				position: {
-					x: cEvent.connectPoint.x,
-					y: cEvent.connectPoint.y,
-				},
-			}),
-		);
 	},
-	onMouseOut: (_: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
+	onMouseOut: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		dispatch(highlightConnectPoints([]));
-		dispatch(unpinConnectLine());
 	},
 });
 
-export const mapDispatch = (dispatch: AppDispatch) => ({
-	onMouseDown: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		dispatch(
-			startConnectLineDraw({
-				sourceId: cEvent.id,
-				targetId: null,
-				points: [
-					{ x: 0, y: 0 },
-					{ x: cEvent.connectPoint.x, y: cEvent.connectPoint.y },
-					{ x: cEvent.connectPoint.x, y: cEvent.connectPoint.y },
-				],
-				locked: false,
-			}),
-		);
-	},
+const drawConnectLineDispatch = (dispatch: AppDispatch) => ({
 	onMouseUp: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		dispatch(linkConnectLineDraw({ targetId: cEvent.id }));
 	},
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
+		cEvent.connectPoint.animations?.snapConnectPoint.play();
 		dispatch(
 			pinConnectLine({
 				elementId: cEvent.id,
@@ -92,11 +62,21 @@ export const mapDispatch = (dispatch: AppDispatch) => ({
 			}),
 		);
 	},
-	onMouseOut: (_: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
+	onMouseOut: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
+		cEvent.connectPoint.animations?.snapConnectPoint.reset();
 		dispatch(unpinConnectLine());
 	},
 });
 
-export const connectPointsConnector = connect(mapState, mapDispatch);
+export const connectPointsConnector = (state: StageState) => {
+	if (state === StageState.Select) {
+		return selectStateDispatch;
+	}
 
+	if (state === StageState.DrawConnectLine) {
+		return drawConnectLineDispatch;
+	}
+
+	return () => ({});
+};

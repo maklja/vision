@@ -1,4 +1,4 @@
-import { elementConnector, connectPointsConnector } from '../store/connector';
+import { elementConnector } from '../store/connector';
 import {
 	OfOperatorDrawer,
 	FromOperatorDrawer,
@@ -12,7 +12,7 @@ import { highlightDrawers, selectDrawers, StageState } from '../store/stageSlice
 import Konva from 'konva';
 import { drawerMapDispatch } from '../store/connector/elementConnector';
 import { DRAWER_DEFAULT, fromSize } from '../drawers/utils';
-import { connectPointsMapDispatch } from '../store/connector/connectPointsConnector';
+import { connectPointsConnector } from '../store/connector/connectPointsConnector';
 import { Group } from 'react-konva';
 import {
 	selectedBorderTheme,
@@ -20,7 +20,6 @@ import {
 	connectPointTheme,
 	highlightConnectPointTheme,
 } from '../theme';
-import { snapConnectPointAnimation } from '../animations';
 
 const ConnectedOfOperatorDrawer = elementConnector(OfOperatorDrawer);
 const ConnectedFromOperatorDrawer = elementConnector(FromOperatorDrawer);
@@ -94,18 +93,12 @@ export const CreationOperation = ({ el }: { el: Element }) => {
 		<Group>
 			{selected && !dragging ? (
 				<ConnectPointsDrawer
-					{...connectPointsMapDispatch(appDispatch, el)}
+					{...connectPointsConnector(stageState.state)(appDispatch, el)}
 					id={el.id}
 					x={el.x - width / 2}
 					y={el.y - height / 2}
 					width={width}
 					height={height}
-					animations={{
-						[ConnectPointType.Top]:
-							snap && highlightedConnectPoints.includes(ConnectPointType.Top)
-								? snapConnectPointAnimation
-								: undefined,
-					}}
 					styles={{
 						[ConnectPointType.Top]: {
 							...connectPointTheme,
@@ -150,4 +143,3 @@ export const CreationOperation = ({ el }: { el: Element }) => {
 		</Group>
 	);
 };
-

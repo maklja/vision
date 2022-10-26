@@ -11,7 +11,7 @@ import {
 	PinConnectLineAction,
 	pinConnectLineReducer,
 	unpinConnectLineReducer,
-} from './connectorReducer';
+} from './connectPointReducer';
 
 export {
 	startConnectLineDrawReducer,

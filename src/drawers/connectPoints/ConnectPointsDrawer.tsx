@@ -1,6 +1,5 @@
 import Konva from 'konva';
 import { Group } from 'react-konva';
-import { Animation } from '../../animations';
 import { ConnectPointType } from '../../model';
 import { ConnectPointStyle } from '../../theme';
 import { CONNECTOR_DEFAULT } from '../utils';
@@ -8,11 +7,7 @@ import { ConnectPointDrawer, ConnectPointDrawerEvent } from './ConnectPointDrawe
 
 export interface ConnectPointsDrawerEvent {
 	id: string;
-	connectPoint: {
-		type: ConnectPointType;
-		x: number;
-		y: number;
-	};
+	connectPoint: ConnectPointDrawerEvent;
 }
 
 export interface ConnectPointsDrawerProps {
@@ -25,9 +20,6 @@ export interface ConnectPointsDrawerProps {
 	offset?: number;
 	styles?: {
 		[key in ConnectPointType]?: ConnectPointStyle;
-	};
-	animations?: {
-		[key in ConnectPointType]?: Animation;
 	};
 	onMouseDown?: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseUp?: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
@@ -45,7 +37,6 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		size,
 		offset = CONNECTOR_DEFAULT.offset,
 		styles,
-		animations,
 		onMouseDown,
 		onMouseUp,
 		onMouseOver,
@@ -128,7 +119,6 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
 				style={styles?.[ConnectPointType.Top]}
-				animation={animations?.[ConnectPointType.Top]}
 			/>
 
 			<ConnectPointDrawer
@@ -141,7 +131,6 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
 				style={styles?.[ConnectPointType.Right]}
-				animation={animations?.[ConnectPointType.Right]}
 			/>
 
 			<ConnectPointDrawer
@@ -154,7 +143,6 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
 				style={styles?.[ConnectPointType.Bottom]}
-				animation={animations?.[ConnectPointType.Bottom]}
 			/>
 
 			<ConnectPointDrawer
@@ -167,9 +155,7 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
 				style={styles?.[ConnectPointType.Left]}
-				animation={animations?.[ConnectPointType.Left]}
 			/>
 		</Group>
 	);
 };
-

@@ -1,18 +1,9 @@
 import { elementTheme } from './elementTheme';
 import { highlightBorderTheme, selectedBorderTheme, BorderStyle } from './borderTheme';
-import {
-	connectPointTheme,
-	highlightConnectPointTheme,
-	ConnectPointStyle,
-} from './connectionTheme';
+export * from './connectionTheme';
 
-export {
-	elementTheme,
-	connectPointTheme,
-	highlightConnectPointTheme,
-	highlightBorderTheme,
-	selectedBorderTheme,
-};
+export * from './animation';
 
-export type { BorderStyle, ConnectPointStyle };
+export { elementTheme, highlightBorderTheme, selectedBorderTheme };
 
+export type { BorderStyle };
