@@ -81,8 +81,16 @@ const e3: FromElement = {
 	input: [3, 3, 3, 4],
 };
 
+const e4: Element = {
+	id: 'filterElement',
+	size: 1,
+	x: 500,
+	y: 300,
+	type: ElementType.Filter,
+};
+
 const initialState: StageSlice = {
-	drawers: [e1, e2, e3],
+	drawers: [e1, e2, e3, e4],
 	connectLines: [],
 	connectPoints: [],
 	selected: [],
@@ -183,4 +191,3 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
-

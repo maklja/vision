@@ -1,24 +1,17 @@
-import { useState } from 'react';
 import Konva from 'konva';
-import { Circle, Group, Text, Label, Tag } from 'react-konva';
-import { fromSize, DRAWER_DEFAULT } from '../utils';
+import { useState } from 'react';
+import { Group, Rect, Text } from 'react-konva';
 import { elementTheme } from '../../theme';
 import { DrawerProps } from '../DrawerProps';
+import { DRAWER_DEFAULT, fromSize } from '../utils';
 
-export interface CreationOperatorDrawerProps extends DrawerProps {
-	title: string;
-	icon: string;
-}
-
-export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
+export const FilterOperatorDrawer = (props: DrawerProps) => {
 	const [textRef, setTextRef] = useState<Konva.Text | null>(null);
 	const [iconTextRef, setIconTextRef] = useState<Konva.Text | null>(null);
 
 	const {
 		x,
 		y,
-		title,
-		icon,
 		size,
 		id,
 		onMouseOver,
@@ -28,14 +21,6 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		onDragStart,
 		onDragEnd,
 	} = props;
-	const radius = fromSize(DRAWER_DEFAULT.radius, size);
-	const textFontSize = fromSize(DRAWER_DEFAULT.textFontSize, size);
-	const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
-
-	const textX = (textRef?.textWidth ?? 0) / -2;
-	const textY = (textRef?.textHeight ?? 0) / -2;
-	const iconX = -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
-	const iconY = radius * Math.cos(-45) - (iconTextRef?.textHeight ?? 0) / 2;
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => onMouseOver?.(id, e);
 
@@ -49,12 +34,20 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 
 	const handleDragEnd = (e: Konva.KonvaEventObject<MouseEvent>) => onDragEnd?.(id, e);
 
+	const width = fromSize(DRAWER_DEFAULT.width, size);
+	const height = fromSize(DRAWER_DEFAULT.height, size);
+	const textFontSize = fromSize(DRAWER_DEFAULT.textFontSize, size);
+	const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
+
+	const textX = (textRef?.textWidth ?? 0) / -2 + width / 2;
+	const textY = (textRef?.textHeight ?? 0) / -2 + height / 2;
+
 	return (
 		<Group
 			x={x}
 			y={y}
-			draggable
 			visible={Boolean(textRef)}
+			draggable
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
 			onMouseDown={handleMouseDown}
@@ -62,23 +55,16 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
-			<Circle {...elementTheme} id={id} radius={radius} />
-			<Label x={iconX} y={iconY} listening={false}>
-				<Tag fill="#eee" />
-				<Text
-					ref={(ref) => setIconTextRef(ref)}
-					text={icon}
-					fontSize={iconFontSize}
-					{...elementTheme}
-				/>
-			</Label>
+			<Rect {...elementTheme} id={id} width={width} height={height} />
 			<Text
 				ref={(ref) => setTextRef(ref)}
-				text={title}
+				text={'filter'}
 				x={textX}
 				y={textY}
 				fontSize={textFontSize}
 				listening={false}
+				letterSpacing={1.8}
+				fontFamily="serif"
 				{...elementTheme}
 			/>
 		</Group>

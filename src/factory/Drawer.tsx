@@ -19,11 +19,13 @@ import {
 } from '../theme';
 
 export interface DrawerProps {
+	x?: number;
+	y?: number;
 	element: Element;
 	children?: (stageState: StageState, appDispatch: AppDispatch) => JSX.Element;
 }
 
-export const Drawer = ({ element, children }: DrawerProps) => {
+export const Drawer = ({ element, children, x, y }: DrawerProps) => {
 	const appDispatch = useAppDispatch();
 	const stageState = useAppSelector(selectStageState);
 	const highlightedConnectPoints = useAppSelector(
@@ -33,8 +35,8 @@ export const Drawer = ({ element, children }: DrawerProps) => {
 	const highlighted = useAppSelector(isHighlightedElement(element.id));
 	const dragging = stageState === StageState.Dragging;
 
-	const width = fromSize(DRAWER_DEFAULT.width);
-	const height = fromSize(DRAWER_DEFAULT.height);
+	const width = fromSize(DRAWER_DEFAULT.width, element.size);
+	const height = fromSize(DRAWER_DEFAULT.height, element.size);
 	const borderStyle = {
 		...(highlighted ? highlightBorderTheme : {}),
 		...(selected ? selectedBorderTheme : {}),
@@ -46,8 +48,8 @@ export const Drawer = ({ element, children }: DrawerProps) => {
 				<ConnectPointsDrawer
 					{...connectPointsConnector(stageState)(appDispatch, element)}
 					id={element.id}
-					x={element.x - width / 2}
-					y={element.y - height / 2}
+					x={x ?? element.x}
+					y={y ?? element.y}
 					width={width}
 					height={height}
 					styles={{
@@ -81,11 +83,11 @@ export const Drawer = ({ element, children }: DrawerProps) => {
 
 			{selected || highlighted ? (
 				<BorderDrawer
-					x={element.x - width / 2}
-					y={element.y - height / 2}
+					x={x ?? element.x}
+					y={y ?? element.y}
 					width={width}
 					height={height}
-					padding={1}
+					padding={4}
 					style={borderStyle}
 				/>
 			) : null}
@@ -94,4 +96,3 @@ export const Drawer = ({ element, children }: DrawerProps) => {
 		</Group>
 	);
 };
-
