@@ -58,8 +58,8 @@ export interface ChangeStateAction {
 const e1: OfElement = {
 	id: 'test',
 	size: 1,
-	x: 200,
-	y: 200,
+	x: 50,
+	y: 50,
 	items: [4, 3, 2, 1],
 	type: ElementType.Of,
 };
@@ -191,3 +191,4 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
+

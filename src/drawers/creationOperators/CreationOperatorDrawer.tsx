@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Konva from 'konva';
 import { Circle, Group, Text, Label, Tag } from 'react-konva';
 import { fromSize, DRAWER_DEFAULT } from '../utils';
-import { elementTheme } from '../../theme';
+import { elementIconTheme, elementTextTheme, elementTheme } from '../../theme';
 import { DrawerProps } from '../DrawerProps';
 
 export interface CreationOperatorDrawerProps extends DrawerProps {
@@ -32,10 +32,10 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 	const textFontSize = fromSize(DRAWER_DEFAULT.textFontSize, size);
 	const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
 
-	const textX = (textRef?.textWidth ?? 0) / -2;
-	const textY = (textRef?.textHeight ?? 0) / -2;
-	const iconX = -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
-	const iconY = radius * Math.cos(-45) - (iconTextRef?.textHeight ?? 0) / 2;
+	const textX = radius + (textRef?.textWidth ?? 0) / -2;
+	const textY = radius + (textRef?.textHeight ?? 0) / -2;
+	const iconX = radius + -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
+	const iconY = radius + radius * Math.cos(-45) - (iconTextRef?.textHeight ?? 0) / 2;
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => onMouseOver?.(id, e);
 
@@ -62,14 +62,14 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
-			<Circle {...elementTheme} id={id} radius={radius} />
+			<Circle {...elementTheme} id={id} radius={radius} x={radius} y={radius} />
 			<Label x={iconX} y={iconY} listening={false}>
 				<Tag fill="#eee" />
 				<Text
 					ref={(ref) => setIconTextRef(ref)}
 					text={icon}
 					fontSize={iconFontSize}
-					{...elementTheme}
+					{...elementIconTheme}
 				/>
 			</Label>
 			<Text
@@ -79,8 +79,9 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 				y={textY}
 				fontSize={textFontSize}
 				listening={false}
-				{...elementTheme}
+				{...elementTextTheme}
 			/>
 		</Group>
 	);
 };
+

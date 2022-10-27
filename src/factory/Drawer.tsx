@@ -46,7 +46,7 @@ export const Drawer = ({ element, children, x, y }: DrawerProps) => {
 		<Group>
 			{selected && !dragging ? (
 				<ConnectPointsDrawer
-					{...connectPointsConnector(stageState)(appDispatch, element)}
+					{...connectPointsConnector(stageState)(appDispatch)}
 					id={element.id}
 					x={x ?? element.x}
 					y={y ?? element.y}
@@ -96,3 +96,4 @@ export const Drawer = ({ element, children, x, y }: DrawerProps) => {
 		</Group>
 	);
 };
+

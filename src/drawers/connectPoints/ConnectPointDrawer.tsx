@@ -35,25 +35,21 @@ export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		const { x, y } = e.currentTarget.getAbsolutePosition();
 		onMouseOver?.({ type, x, y, animations }, e);
 	};
 
 	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		const { x, y } = e.currentTarget.getAbsolutePosition();
 		onMouseOut?.({ type, x, y, animations }, e);
 	};
 
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		const { x, y } = e.currentTarget.getAbsolutePosition();
 		onMouseDown?.({ type, x, y, animations }, e);
 	};
 
 	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		const { x, y } = e.currentTarget.getAbsolutePosition();
 		onMouseUp?.({ type, x, y, animations }, e);
 	};
 
@@ -91,3 +87,4 @@ export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
 		/>
 	);
 };
+

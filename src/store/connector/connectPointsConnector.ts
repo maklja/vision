@@ -1,5 +1,4 @@
 import Konva from 'konva';
-import { Element } from '../../model';
 import { ConnectPointsDrawerEvent } from '../../drawers';
 import { AppDispatch } from '../rootState';
 import {
@@ -11,15 +10,16 @@ import {
 } from '../stageSlice';
 import { highlightConnectPoints } from '../connectPointsSlice';
 
-const selectStateDispatch = (dispatch: AppDispatch, el: Element) => ({
+const selectStateDispatch = (dispatch: AppDispatch) => ({
 	onMouseDown: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
+		const { x, y } = cEvent.element.center;
 		dispatch(
 			startConnectLineDraw({
 				sourceId: cEvent.id,
 				targetId: null,
 				points: [
-					{ x: el.x, y: el.y },
+					{ x, y },
 					{ x: cEvent.connectPoint.x, y: cEvent.connectPoint.y },
 					{ x: cEvent.connectPoint.x, y: cEvent.connectPoint.y },
 				],
@@ -47,7 +47,6 @@ const selectStateDispatch = (dispatch: AppDispatch, el: Element) => ({
 const drawConnectLineDispatch = (dispatch: AppDispatch) => ({
 	onMouseUp: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		dispatch(highlightConnectPoints([]));
 		dispatch(linkConnectLineDraw({ targetId: cEvent.id }));
 	},
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {

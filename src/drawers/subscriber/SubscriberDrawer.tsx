@@ -17,7 +17,8 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 		onDragStart,
 		onDragEnd,
 	} = props;
-	const radius = fromSize(DRAWER_DEFAULT.radius, size, 0.8);
+	const radius = fromSize(DRAWER_DEFAULT.radius, size);
+	const outerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.8);
 	const innerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.5);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => onMouseOver?.(id, e);
@@ -44,8 +45,15 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
-			<Circle {...elementTheme} id={id} radius={radius} />
-			<Circle {...elementTheme} radius={innerRadius} listening={false} fill="black" />
+			<Circle {...elementTheme} id={id} radius={outerRadius} x={radius} y={radius} />
+			<Circle
+				{...elementTheme}
+				radius={innerRadius}
+				x={radius}
+				y={radius}
+				listening={false}
+				fill="black"
+			/>
 		</Group>
 	);
 };

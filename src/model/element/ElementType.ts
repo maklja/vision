@@ -6,3 +6,7 @@ export enum ElementType {
 }
 
 export const creationOperators = [ElementType.Of, ElementType.From];
+
+export const filterOperators = [ElementType.Filter];
+
+export const pipeOperators = [...filterOperators];

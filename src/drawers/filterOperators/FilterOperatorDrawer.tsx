@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
-import { elementTheme } from '../../theme';
+import { elementTextTheme, elementTheme } from '../../theme';
 import { DrawerProps } from '../DrawerProps';
 import { DRAWER_DEFAULT, fromSize } from '../utils';
 
@@ -40,13 +40,15 @@ export const FilterOperatorDrawer = (props: DrawerProps) => {
 	const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
 
 	const textX = (textRef?.textWidth ?? 0) / -2 + width / 2;
-	const textY = (textRef?.textHeight ?? 0) / -2 + height / 2;
+	const textY = textRef?.textHeight ?? 0;
+	const iconX = (iconTextRef?.textWidth ?? 0) / -2 + width / 2;
+	const iconY = (iconTextRef?.textHeight ?? 0) / 2 + height / 2;
 
 	return (
 		<Group
 			x={x}
 			y={y}
-			visible={Boolean(textRef)}
+			visible={Boolean(textRef && iconTextRef)}
 			draggable
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
@@ -63,10 +65,19 @@ export const FilterOperatorDrawer = (props: DrawerProps) => {
 				y={textY}
 				fontSize={textFontSize}
 				listening={false}
-				letterSpacing={1.8}
-				fontFamily="serif"
-				{...elementTheme}
+				{...elementTextTheme}
+			/>
+
+			<Text
+				ref={(ref) => setIconTextRef(ref)}
+				text={'Y'}
+				x={iconX}
+				y={iconY}
+				fontSize={iconFontSize}
+				listening={false}
+				{...elementTextTheme}
 			/>
 		</Group>
 	);
 };
+
