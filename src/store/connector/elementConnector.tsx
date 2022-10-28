@@ -1,9 +1,8 @@
 import Konva from 'konva';
 import {
 	StageState,
-	highlightDrawers,
-	removeHighlightDrawers,
-	selectDrawers,
+	highlightElements,
+	selectElements,
 	moveDrawer,
 	changeState,
 } from '../stageSlice';
@@ -21,17 +20,17 @@ const changeCursorStyle = (cursorStyle: string, e: Konva.KonvaEventObject<MouseE
 const selectStateDispatch = (dispatch: AppDispatch) => ({
 	onMouseDown: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		dispatch(selectDrawers([id]));
+		dispatch(selectElements([id]));
 	},
 	onMouseOver: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		changeCursorStyle('pointer', e);
-		dispatch(highlightDrawers([id]));
+		dispatch(highlightElements([id]));
 	},
-	onMouseOut: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
+	onMouseOut: (_: string, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		changeCursorStyle('default', e);
-		dispatch(removeHighlightDrawers([id]));
+		dispatch(highlightElements([]));
 	},
 	onDragStart: (_: string, e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;

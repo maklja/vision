@@ -1,7 +1,8 @@
 import { ConnectPointType } from './ConnectPointType';
 import { ConnectPoint } from './ConnectPoint';
+import { calculateConnectPointTypes } from './connectPointRules';
 
-export { ConnectPointType };
+export { ConnectPointType, calculateConnectPointTypes };
 
 export type { ConnectPoint };
 

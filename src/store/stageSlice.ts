@@ -17,7 +17,7 @@ export enum StageState {
 }
 
 export interface StageSlice {
-	drawers: Element[];
+	elements: Element[];
 	connectLines: ConnectLine[];
 	highlightedConnectPoints: ConnectPoint[];
 	selected: string[];
@@ -26,22 +26,22 @@ export interface StageSlice {
 	draftConnectLineId: string | null;
 }
 
-export interface AddDrawersAction {
+export interface AddElementsAction {
 	type: string;
 	payload: Element[];
 }
 
-export interface SelectDrawersAction {
+export interface SelectElementsAction {
 	type: string;
 	payload: string[];
 }
 
-export interface HighlightDrawersAction {
+export interface HighlightElementsAction {
 	type: string;
 	payload: string[];
 }
 
-export interface MoveDrawerAction {
+export interface MoveElementAction {
 	type: string;
 	payload: {
 		id: string;
@@ -61,7 +61,7 @@ export interface HighlightConnectPointsAction {
 }
 
 const e1: OfElement = {
-	id: 'test',
+	id: 'ofElement',
 	size: 1,
 	x: 50,
 	y: 50,
@@ -69,19 +69,11 @@ const e1: OfElement = {
 	type: ElementType.Of,
 };
 
-const e2: Element = {
-	id: 'test1',
-	size: 1,
-	x: 240,
-	y: 240,
-	type: ElementType.Subscriber,
-};
-
 const e3: FromElement = {
 	id: 'fromElement',
 	size: 1,
-	x: 300,
-	y: 300,
+	x: 50,
+	y: 200,
 	type: ElementType.From,
 	input: [3, 3, 3, 4],
 };
@@ -89,13 +81,21 @@ const e3: FromElement = {
 const e4: Element = {
 	id: 'filterElement',
 	size: 1,
-	x: 500,
-	y: 300,
+	x: 200,
+	y: 125,
 	type: ElementType.Filter,
 };
 
+const e2: Element = {
+	id: 'subscriber',
+	size: 1,
+	x: 300,
+	y: 125,
+	type: ElementType.Subscriber,
+};
+
 const initialState: StageSlice = {
-	drawers: [e1, e2, e3, e4],
+	elements: [e1, e2, e3, e4],
 	connectLines: [],
 	highlightedConnectPoints: [],
 	selected: [],
@@ -111,19 +111,14 @@ export const stageSlice = createSlice({
 		changeState: (slice: Draft<StageSlice>, action: ChangeStateAction) => {
 			slice.state = action.payload;
 		},
-		addDrawers: (slice: Draft<StageSlice>, action: AddDrawersAction) => {
-			slice.drawers = action.payload;
+		addElements: (slice: Draft<StageSlice>, action: AddElementsAction) => {
+			slice.elements = action.payload;
 		},
-		selectDrawers: (slice: Draft<StageSlice>, action: SelectDrawersAction) => {
+		selectElements: (slice: Draft<StageSlice>, action: SelectElementsAction) => {
 			slice.selected = action.payload;
 		},
-		highlightDrawers: (slice: Draft<StageSlice>, action: HighlightDrawersAction) => {
+		highlightElements: (slice: Draft<StageSlice>, action: HighlightElementsAction) => {
 			slice.highlighted = action.payload;
-		},
-		removeHighlightDrawers: (slice: Draft<StageSlice>, action: HighlightDrawersAction) => {
-			slice.highlighted = slice.highlighted.filter(
-				(drawerId) => !action.payload.includes(drawerId),
-			);
 		},
 		highlightConnectPoints: (
 			slice: Draft<StageSlice>,
@@ -137,17 +132,17 @@ export const stageSlice = createSlice({
 		deleteConnectLineDraw: deleteConnectLineDrawReducer,
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
-		moveDrawer: (state: Draft<StageSlice>, action: MoveDrawerAction) => {
+		moveDrawer: (state: Draft<StageSlice>, action: MoveElementAction) => {
 			const { payload } = action;
-			const drawerIdx = state.drawers.findIndex((drawer) => drawer.id === payload.id);
-			if (drawerIdx === -1) {
+			const elIdx = state.elements.findIndex((el) => el.id === payload.id);
+			if (elIdx === -1) {
 				return;
 			}
 
-			const drawer = state.drawers[drawerIdx];
+			const drawer = state.elements[elIdx];
 			const dx = payload.x - drawer.x;
 			const dy = payload.y - drawer.y;
-			state.drawers[drawerIdx] = {
+			state.elements[elIdx] = {
 				...drawer,
 				x: payload.x,
 				y: payload.y,
@@ -175,10 +170,9 @@ export const stageSlice = createSlice({
 });
 
 export const {
-	addDrawers,
-	selectDrawers,
-	highlightDrawers,
-	removeHighlightDrawers,
+	addElements,
+	selectElements,
+	highlightElements,
 	moveDrawer,
 	changeState,
 	startConnectLineDraw,
@@ -203,3 +197,4 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
+

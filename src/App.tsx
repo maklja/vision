@@ -5,17 +5,17 @@ import { Stage, Layer } from 'react-konva';
 import { createDrawerElement, createConnectLineElement } from './factory';
 import {
 	StageSlice,
-	selectDrawers,
+	selectElements,
 	moveConnectLineDraw,
 	deleteConnectLineDraw,
 } from './store/stageSlice';
 import { engine } from './engine';
 
 function App() {
-	const { drawers, connectLines } = useSelector<RootState, StageSlice>((store) => store.stage);
+	const { elements, connectLines } = useSelector<RootState, StageSlice>((store) => store.stage);
 	const appDispatch = useAppDispatch();
 
-	const handleMouseDown = () => appDispatch(selectDrawers([]));
+	const handleMouseDown = () => appDispatch(selectElements([]));
 
 	const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		const stage = e.target.getStage();
@@ -33,7 +33,7 @@ function App() {
 	};
 
 	const handleClick = () => {
-		engine(drawers, connectLines);
+		engine(elements, connectLines);
 	};
 
 	return (
@@ -49,7 +49,7 @@ function App() {
 			>
 				<Layer>
 					{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
-					{drawers.map((drawer) => createDrawerElement(drawer))}
+					{elements.map((el) => createDrawerElement(el))}
 				</Layer>
 			</Stage>
 		</div>

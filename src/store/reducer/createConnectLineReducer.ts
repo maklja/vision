@@ -1,6 +1,6 @@
 import { v1 as createId } from 'uuid';
 import { Draft } from '@reduxjs/toolkit';
-import { ConnectLine } from '../../model';
+import { calculateConnectPointTypes, ConnectLine } from '../../model';
 import { StageSlice, StageState } from '../stageSlice';
 import { createBoundingBox } from '../../drawers/utils';
 
@@ -36,7 +36,17 @@ export const startConnectLineDrawReducer = (
 		id: draftConnectLineId,
 	});
 
-	slice.selected = slice.drawers.filter((d) => d.id !== action.payload.sourceId).map((d) => d.id);
+	const { sourceId } = action.payload;
+	const el = slice.elements.find((curEl) => curEl.id === sourceId);
+	if (!el) {
+		slice.selected = [];
+		return;
+	}
+
+	const allowedTypesToConnect = calculateConnectPointTypes(el.type);
+	slice.selected = slice.elements
+		.filter((curEl) => allowedTypesToConnect.includes(curEl.type) && curEl.id !== sourceId)
+		.map((d) => d.id);
 };
 
 export const moveConnectLineDrawReducer = (
@@ -91,7 +101,7 @@ export const linkConnectLineDrawReducer = (
 	}
 
 	slice.selected = [slice.connectLines[slIndex].sourceId];
-	const el = slice.drawers.find((d) => d.id === action.payload.targetId);
+	const el = slice.elements.find((curEl) => curEl.id === action.payload.targetId);
 	if (!el) {
 		slice.connectLines.splice(slIndex, 1);
 		return;
@@ -106,3 +116,4 @@ export const linkConnectLineDrawReducer = (
 		y: bb.center.y,
 	});
 };
+

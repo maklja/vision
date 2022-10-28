@@ -5,8 +5,17 @@ export enum ElementType {
 	Subscriber = 'subscriber',
 }
 
-export const creationOperators = [ElementType.Of, ElementType.From];
+export const creationOperators: readonly ElementType[] = [ElementType.Of, ElementType.From];
 
-export const filterOperators = [ElementType.Filter];
+export const filterOperators: readonly ElementType[] = [ElementType.Filter];
 
-export const pipeOperators = [...filterOperators];
+export const pipeOperators: readonly ElementType[] = [...filterOperators];
+
+export const subscriberOperators: readonly ElementType[] = [ElementType.Subscriber];
+
+export const isCreationOperatorType = (type: ElementType) => creationOperators.includes(type);
+
+export const isPipeOperatorType = (type: ElementType) => pipeOperators.includes(type);
+
+export const isSubscriberType = (type: ElementType) => type === ElementType.Subscriber;
+
