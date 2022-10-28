@@ -7,8 +7,8 @@ import {
 	unpinConnectLine,
 	linkConnectLineDraw,
 	StageState,
+	highlightConnectPoints,
 } from '../stageSlice';
-import { highlightConnectPoints } from '../connectPointsSlice';
 
 const selectStateDispatch = (dispatch: AppDispatch) => ({
 	onMouseDown: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -80,4 +80,3 @@ export const connectPointsConnector = (state: StageState) => {
 
 	return () => ({});
 };
-

@@ -1,5 +1,5 @@
 import { createSlice, Draft } from '@reduxjs/toolkit';
-import { ConnectLine, Element, ElementType, FromElement, OfElement } from '../model';
+import { ConnectLine, ConnectPoint, Element, ElementType, FromElement, OfElement } from '../model';
 import {
 	startConnectLineDrawReducer,
 	moveConnectLineDrawReducer,
@@ -19,7 +19,7 @@ export enum StageState {
 export interface StageSlice {
 	drawers: Element[];
 	connectLines: ConnectLine[];
-	connectPoints: unknown[];
+	highlightedConnectPoints: ConnectPoint[];
 	selected: string[];
 	highlighted: string[];
 	state: StageState;
@@ -53,6 +53,11 @@ export interface MoveDrawerAction {
 export interface ChangeStateAction {
 	type: string;
 	payload: StageState;
+}
+
+export interface HighlightConnectPointsAction {
+	type: string;
+	payload: ConnectPoint[];
 }
 
 const e1: OfElement = {
@@ -92,7 +97,7 @@ const e4: Element = {
 const initialState: StageSlice = {
 	drawers: [e1, e2, e3, e4],
 	connectLines: [],
-	connectPoints: [],
+	highlightedConnectPoints: [],
 	selected: [],
 	highlighted: [],
 	state: StageState.Select,
@@ -119,6 +124,12 @@ export const stageSlice = createSlice({
 			slice.highlighted = slice.highlighted.filter(
 				(drawerId) => !action.payload.includes(drawerId),
 			);
+		},
+		highlightConnectPoints: (
+			slice: Draft<StageSlice>,
+			action: HighlightConnectPointsAction,
+		) => {
+			slice.highlightedConnectPoints = action.payload;
 		},
 		startConnectLineDraw: startConnectLineDrawReducer,
 		moveConnectLineDraw: moveConnectLineDrawReducer,
@@ -176,6 +187,7 @@ export const {
 	deleteConnectLineDraw,
 	pinConnectLine,
 	unpinConnectLine,
+	highlightConnectPoints,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
@@ -184,11 +196,10 @@ export const selectStageState = (state: RootState) => state.stage.state;
 
 export const selectHighlightedConnectPointsByElementId =
 	(elementId: string) => (state: RootState) =>
-		state.connectPoints.highlighted.filter((cp) => cp.elementId === elementId);
+		state.stage.highlightedConnectPoints.filter((cp) => cp.elementId === elementId);
 
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
 	state.stage.selected.some((currentElementId) => currentElementId === elementId);
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
-

@@ -9,7 +9,6 @@ import {
 	selectStageState,
 } from '../store/stageSlice';
 import { connectPointsConnector } from '../store/connector';
-import { DRAWER_DEFAULT, fromSize } from '../drawers/utils';
 import { Group } from 'react-konva';
 import {
 	selectedBorderTheme,
@@ -35,8 +34,6 @@ export const Drawer = ({ element, children, x, y }: DrawerProps) => {
 	const highlighted = useAppSelector(isHighlightedElement(element.id));
 	const dragging = stageState === StageState.Dragging;
 
-	const width = fromSize(DRAWER_DEFAULT.width, element.size);
-	const height = fromSize(DRAWER_DEFAULT.height, element.size);
 	const borderStyle = {
 		...(highlighted ? highlightBorderTheme : {}),
 		...(selected ? selectedBorderTheme : {}),
@@ -50,8 +47,7 @@ export const Drawer = ({ element, children, x, y }: DrawerProps) => {
 					id={element.id}
 					x={x ?? element.x}
 					y={y ?? element.y}
-					width={width}
-					height={height}
+					size={element.size}
 					styles={{
 						[ConnectPointType.Top]: {
 							...connectPointTheme,
@@ -85,9 +81,8 @@ export const Drawer = ({ element, children, x, y }: DrawerProps) => {
 				<BorderDrawer
 					x={x ?? element.x}
 					y={y ?? element.y}
-					width={width}
-					height={height}
-					padding={4}
+					size={element.size}
+					padding={3}
 					style={borderStyle}
 				/>
 			) : null}
@@ -96,4 +91,3 @@ export const Drawer = ({ element, children, x, y }: DrawerProps) => {
 		</Group>
 	);
 };
-

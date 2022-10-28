@@ -2,7 +2,13 @@ import Konva from 'konva';
 import { Group } from 'react-konva';
 import { ConnectPointType } from '../../model';
 import { ConnectPointStyle } from '../../theme';
-import { BoundingBox, CONNECTOR_DEFAULT, createBoundingBox } from '../utils';
+import {
+	BoundingBox,
+	CONNECTOR_DEFAULT,
+	createBoundingBox,
+	DRAWER_DEFAULT,
+	fromSize,
+} from '../utils';
 import { ConnectPointDrawer, ConnectPointDrawerEvent } from './ConnectPointDrawer';
 
 export interface ConnectPointsDrawerEvent {
@@ -15,8 +21,6 @@ export interface ConnectPointsDrawerProps {
 	id: string;
 	x: number;
 	y: number;
-	width: number;
-	height: number;
 	size?: number;
 	offset?: number;
 	styles?: {
@@ -33,8 +37,6 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		id,
 		x,
 		y,
-		width,
-		height,
 		size,
 		offset = CONNECTOR_DEFAULT.offset,
 		styles,
@@ -43,6 +45,9 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		onMouseOver,
 		onMouseOut,
 	} = props;
+
+	const width = fromSize(DRAWER_DEFAULT.width, size);
+	const height = fromSize(DRAWER_DEFAULT.height, size);
 
 	const topX = x + width / 2;
 	const topY = y - offset;
@@ -56,7 +61,6 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 	const leftX = x - offset;
 	const leftY = y + height / 2;
 
-	console.log(createBoundingBox(x, y, size));
 	const handleOnMouseDown = (
 		cEvent: ConnectPointDrawerEvent,
 		e: Konva.KonvaEventObject<MouseEvent>,
@@ -165,4 +169,3 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		</Group>
 	);
 };
-

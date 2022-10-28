@@ -62,6 +62,7 @@ export const deleteConnectLineDrawReducer = (slice: Draft<StageSlice>) => {
 	}
 
 	slice.state = StageState.Select;
+	slice.highlightedConnectPoints = [];
 	slice.draftConnectLineId = null;
 	const slIndex = slice.connectLines.findIndex((cl) => cl.id === draftConnectLineId);
 	if (slIndex === -1) {
@@ -82,6 +83,7 @@ export const linkConnectLineDrawReducer = (
 	}
 
 	slice.state = StageState.Select;
+	slice.highlightedConnectPoints = [];
 	slice.draftConnectLineId = null;
 	const slIndex = slice.connectLines.findIndex((cl) => cl.id === draftConnectLineId);
 	if (slIndex === -1) {
@@ -104,4 +106,3 @@ export const linkConnectLineDrawReducer = (
 		y: bb.center.y,
 	});
 };
-
