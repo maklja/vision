@@ -1,41 +1,71 @@
-import { Observable } from 'rxjs';
-import { ConnectLine, Element, creationOperators, ElementType } from '../model';
-import { creationElementsFactory } from './factory';
+import { concatMap, from, Observable } from 'rxjs';
+import {
+	ConnectLine,
+	Element,
+	isSubscriberType,
+	isPipeOperatorType,
+	isCreationOperatorType,
+} from '../model';
+import { mapCreationElementFactory, mapFilterOperatorElementFactory } from './factory';
 
-const subscribeToObservable = (o: Observable<unknown>) =>
-	o.subscribe({
+interface ObservableStruct {
+	creationElement: Element | null;
+	subscriberElement: Element;
+	pipeElements: Element[];
+}
+
+interface ElementContext {
+	elements: Map<string, Element>;
+	connectLines: Map<string, string[]>;
+}
+
+const executeObservable = (observableStruct: ObservableStruct) => {
+	const { creationElement, pipeElements } = observableStruct;
+	if (!creationElement) {
+		return;
+	}
+
+	const o = mapCreationElementFactory(creationElement) as Observable<null>;
+	const pipeOperatorFuncs = pipeElements.map((el) => mapFilterOperatorElementFactory(el));
+
+	o.pipe(
+		concatMap((x) => {
+			return new Promise((resolve) => {
+				setTimeout(() => resolve(x), 5_000);
+			});
+		}),
+		...(pipeOperatorFuncs as []),
+	).subscribe({
 		next: (val) => console.log(val),
 		error: (error) => console.log(error),
 		complete: () => console.log('complete'),
 	});
-
-const executeObservable = (elements: Element[]) => {
-	const o = creationElementsFactory(elements.shift()!);
-
-	elements.forEach((element) => {
-		switch (element.type) {
-			case ElementType.Subscriber:
-				subscribeToObservable(o!);
-		}
-	});
 };
 
-const createPipe = (
-	operatorElement: Element,
-	operatorElements: Map<string, Element>,
-	connectLineMap: Map<string, string[]>,
-): Element[] => {
-	const operatorConnectElements = connectLineMap.get(operatorElement.id) ?? [];
-	if (operatorConnectElements.length === 0) {
-		return [operatorElement];
+const createObservableExecutable = (subscriberElement: Element, ctx: ElementContext) => {
+	const observableStruct: ObservableStruct = {
+		subscriberElement,
+		creationElement: null,
+		pipeElements: [],
+	};
+	let currentElement = subscriberElement;
+	while (currentElement != null) {
+		const [nextElementId] = ctx.connectLines.get(currentElement.id) ?? [];
+		const nextElement = nextElementId ? ctx.elements.get(nextElementId) : null;
+		if (!nextElement) {
+			break;
+		}
+
+		if (isPipeOperatorType(nextElement.type)) {
+			observableStruct.pipeElements.push(nextElement);
+		} else if (isCreationOperatorType(nextElement.type)) {
+			observableStruct.creationElement = nextElement;
+		}
+
+		currentElement = nextElement;
 	}
 
-	const connectedOperators = operatorConnectElements
-		.map((elementId) => operatorElements.get(elementId))
-		.filter((element): element is Element => Boolean(element))
-		.flatMap((element) => createPipe(element, operatorElements, connectLineMap));
-
-	return [operatorElement, ...connectedOperators];
+	return observableStruct;
 };
 
 export const engine = (elements: Element[], cls: ConnectLine[]) => {
@@ -44,23 +74,23 @@ export const engine = (elements: Element[], cls: ConnectLine[]) => {
 			return map;
 		}
 
-		const targetIds = map.get(cl.sourceId) ?? [];
-		return map.set(cl.sourceId, [...targetIds, cl.targetId]);
+		const sourceIds = map.get(cl.targetId) ?? [];
+		return map.set(cl.targetId, [...sourceIds, cl.sourceId]);
 	}, new Map<string, string[]>());
 
-	const operatorElementsMap = elements.reduce(
-		(map, element) =>
-			!creationOperators.includes(element.type) ? map.set(element.id, element) : map,
+	const elementsMap = elements.reduce(
+		(map, element) => map.set(element.id, element),
 		new Map<string, Element>(),
 	);
 
-	const creationOperatorElements = elements.filter((element) =>
-		creationOperators.includes(element.type),
-	);
-
-	creationOperatorElements.forEach((creationElement) => {
-		console.log(createPipe(creationElement, operatorElementsMap, connectLineMap));
-		executeObservable(createPipe(creationElement, operatorElementsMap, connectLineMap));
-	});
+	elements
+		.filter((element) => isSubscriberType(element.type))
+		.map((subscriberEl) =>
+			createObservableExecutable(subscriberEl, {
+				elements: elementsMap,
+				connectLines: connectLineMap,
+			}),
+		)
+		.filter((os) => Boolean(os.creationElement))
+		.forEach(executeObservable);
 };
-

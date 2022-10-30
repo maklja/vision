@@ -1,5 +1,13 @@
 import { createSlice, Draft } from '@reduxjs/toolkit';
-import { ConnectLine, ConnectPoint, Element, ElementType, FromElement, OfElement } from '../model';
+import {
+	ConnectLine,
+	ConnectPoint,
+	Element,
+	ElementType,
+	FilterElement,
+	FromElement,
+	OfElement,
+} from '../model';
 import {
 	startConnectLineDrawReducer,
 	moveConnectLineDrawReducer,
@@ -75,27 +83,37 @@ const e3: FromElement = {
 	x: 50,
 	y: 200,
 	type: ElementType.From,
-	input: [3, 3, 3, 4],
+	input: [3, 2, 3, 4],
 };
 
-const e4: Element = {
+const e4: FilterElement = {
 	id: 'filterElement',
 	size: 1,
 	x: 200,
 	y: 125,
 	type: ElementType.Filter,
+	expression: 'function(val) { return val % 2 === 0; }',
+};
+
+const e5: FilterElement = {
+	id: 'filterElement_1',
+	size: 1,
+	x: 300,
+	y: 125,
+	type: ElementType.Filter,
+	expression: 'function(val) { return val % 2 === 0; }',
 };
 
 const e2: Element = {
 	id: 'subscriber',
 	size: 1,
-	x: 300,
+	x: 450,
 	y: 125,
 	type: ElementType.Subscriber,
 };
 
 const initialState: StageSlice = {
-	elements: [e1, e2, e3, e4],
+	elements: [e1, e2, e3, e4, e5],
 	connectLines: [],
 	highlightedConnectPoints: [],
 	selected: [],
@@ -197,4 +215,3 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
-

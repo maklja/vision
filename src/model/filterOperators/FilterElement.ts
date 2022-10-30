@@ -1,6 +1,6 @@
-import { ElementType } from '../element';
+import { ElementType, Element } from '../element';
 
 export interface FilterElement extends Element {
-	input: string;
+	expression: string;
 	type: ElementType.Filter;
 }

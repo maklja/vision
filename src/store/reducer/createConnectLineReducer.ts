@@ -28,25 +28,46 @@ export const startConnectLineDrawReducer = (
 	slice: Draft<StageSlice>,
 	action: StartConnectLineDrawAction,
 ) => {
+	const { connectLines, elements } = slice;
 	const draftConnectLineId = createId();
 	slice.state = StageState.DrawConnectLine;
 	slice.draftConnectLineId = draftConnectLineId;
-	slice.connectLines.push({
+	connectLines.push({
 		...action.payload,
 		id: draftConnectLineId,
 	});
 
 	const { sourceId } = action.payload;
-	const el = slice.elements.find((curEl) => curEl.id === sourceId);
+	// first find an element
+	const el = elements.find((curEl) => curEl.id === sourceId);
 	if (!el) {
+		// case when element is not found for some reason
 		slice.selected = [];
 		return;
 	}
 
+	// each element can be source element only once
+	const isElementSource = connectLines.some((cl) => cl.sourceId === el.id && cl.targetId != null);
+	if (isElementSource) {
+		slice.selected = [];
+		return;
+	}
+
+	// all elements that already have a source element
+	const elementsWithSource = connectLines.reduce(
+		(set, cl) => (cl.targetId ? set.add(cl.targetId) : set),
+		new Set<string>(),
+	);
+	// allowed types to connect
 	const allowedTypesToConnect = calculateConnectPointTypes(el.type);
-	slice.selected = slice.elements
-		.filter((curEl) => allowedTypesToConnect.includes(curEl.type) && curEl.id !== sourceId)
-		.map((d) => d.id);
+	slice.selected = elements
+		.filter(
+			(curEl) =>
+				curEl.id !== sourceId &&
+				allowedTypesToConnect.has(curEl.type) &&
+				!elementsWithSource.has(curEl.id),
+		)
+		.map((curEl) => curEl.id);
 };
 
 export const moveConnectLineDrawReducer = (
@@ -116,4 +137,3 @@ export const linkConnectLineDrawReducer = (
 		y: bb.center.y,
 	});
 };
-

@@ -8,9 +8,8 @@ import {
 
 export const calculateConnectPointTypes = (sourceType: ElementType) => {
 	if (isCreationOperatorType(sourceType) || isPipeOperatorType(sourceType)) {
-		return [...pipeOperators, ...subscriberOperators];
+		return new Set<string>([...pipeOperators, ...subscriberOperators]);
 	}
 
-	return [];
+	return new Set<string>();
 };
-

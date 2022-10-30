@@ -3,4 +3,4 @@ export * from './connectLine';
 export * from './element';
 export * from './connectPoint';
 export * from './creationOperators';
-
+export * from './filterOperators';
