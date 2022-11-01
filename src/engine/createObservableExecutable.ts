@@ -1,8 +1,8 @@
-import { ConnectLine, Element, isCreationOperatorType, isPipeOperatorType } from '../model';
+import { ConnectLine, Element, isPipeOperatorType, isSubscriberType } from '../model';
 
 interface ObservableStruct {
-	creationElement: Element | null;
-	subscriberElement: Element;
+	creationElement: Element;
+	subscriberElement: Element | null;
 	pipeElements: Element[];
 	connectLines: ConnectLine[];
 }
@@ -12,27 +12,27 @@ interface ElementContext {
 	connectLines: Map<string, ConnectLine[]>;
 }
 
-export const createObservableExecutable = (subscriberElement: Element, ctx: ElementContext) => {
+export const createObservableExecutable = (creationElement: Element, ctx: ElementContext) => {
 	const observableStruct: ObservableStruct = {
-		subscriberElement,
-		creationElement: null,
+		creationElement,
+		subscriberElement: null,
 		pipeElements: [],
 		connectLines: [],
 	};
-	let currentElement = subscriberElement;
+	let currentElement = creationElement;
 	while (currentElement != null) {
 		const [cl] = ctx.connectLines.get(currentElement.id) ?? [];
-		const nextElement = cl ? ctx.elements.get(cl.sourceId) : null;
+		const nextElement = cl?.targetId != null ? ctx.elements.get(cl.targetId) : null;
 		if (!nextElement) {
 			break;
 		}
 
 		if (isPipeOperatorType(nextElement.type)) {
-			observableStruct.pipeElements.unshift(nextElement);
-		} else if (isCreationOperatorType(nextElement.type)) {
-			observableStruct.creationElement = nextElement;
+			observableStruct.pipeElements.push(nextElement);
+		} else if (isSubscriberType(nextElement.type)) {
+			observableStruct.subscriberElement = nextElement;
 		}
-		observableStruct.connectLines.unshift(cl);
+		observableStruct.connectLines.push(cl);
 
 		currentElement = nextElement;
 	}

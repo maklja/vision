@@ -1,8 +1,9 @@
-import { ConnectLine, Element, isSubscriberType } from '../model';
+import { ConnectLine, Element, isCreationOperatorType } from '../model';
 import { createObservableExecutable } from './createObservableExecutable';
 import { ObservableSimulation } from './ObservableSimulation';
 
 export const createObservableSimulation = <T = unknown>(
+	creationElementId: string,
 	elements: Element[],
 	cls: ConnectLine[],
 ) => {
@@ -11,8 +12,8 @@ export const createObservableSimulation = <T = unknown>(
 			return map;
 		}
 
-		const cls = map.get(cl.targetId) ?? [];
-		return map.set(cl.targetId, [...cls, cl]);
+		const cls = map.get(cl.sourceId) ?? [];
+		return map.set(cl.sourceId, [...cls, cl]);
 	}, new Map<string, ConnectLine[]>());
 
 	const elementsMap = elements.reduce(
@@ -20,26 +21,26 @@ export const createObservableSimulation = <T = unknown>(
 		new Map<string, Element>(),
 	);
 
-	return elements
-		.filter((element) => isSubscriberType(element.type))
-		.map((subscriberEl) =>
-			createObservableExecutable(subscriberEl, {
-				elements: elementsMap,
-				connectLines: connectLineMap,
-			}),
-		)
-		.map((os) => {
-			const { creationElement, pipeElements, connectLines, subscriberElement } = os;
-			if (!creationElement) {
-				return null;
-			}
-			return new ObservableSimulation<T>({
-				creationElement,
-				pipeElements,
-				connectLines,
-				subscriberElement,
-			});
-		})
-		.filter((os): os is ObservableSimulation<T> => Boolean(os));
+	const creationElement = elements.find(
+		(el) => el.id === creationElementId && isCreationOperatorType(el.type),
+	);
+
+	if (!creationElement) {
+		return null;
+	}
+
+	const os = createObservableExecutable(creationElement, {
+		elements: elementsMap,
+		connectLines: connectLineMap,
+	});
+	if (!os.subscriberElement) {
+		return null;
+	}
+	return new ObservableSimulation<T>({
+		creationElement: os.creationElement,
+		pipeElements: os.pipeElements,
+		connectLines: os.connectLines,
+		subscriberElement: os.subscriberElement,
+	});
 };
 

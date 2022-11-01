@@ -10,6 +10,7 @@ import {
 	deleteConnectLineDraw,
 } from './store/stageSlice';
 import { createObservableSimulation } from './engine';
+import { ResultDrawer } from './drawers';
 
 function App() {
 	const { elements, connectLines } = useSelector<RootState, StageSlice>((store) => store.stage);
@@ -33,7 +34,18 @@ function App() {
 	};
 
 	const handleClick = () => {
-		createObservableSimulation(elements, connectLines);
+		const observableSimulation = createObservableSimulation(
+			'ofElement',
+			elements,
+			connectLines,
+		);
+
+		observableSimulation?.addFlowListener({
+			onNextFlow: (event) => console.log(event),
+		});
+		observableSimulation?.start({
+			complete: () => console.log('completed'),
+		});
 	};
 
 	return (
@@ -50,6 +62,10 @@ function App() {
 				<Layer>
 					{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
 					{elements.map((el) => createDrawerElement(el))}
+					<ResultDrawer
+						startPosition={{ x: 100, y: 200 }}
+						endPosition={{ x: 200, y: 300 }}
+					/>
 				</Layer>
 			</Stage>
 		</div>

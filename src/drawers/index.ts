@@ -11,3 +11,5 @@ export * from './border';
 export * from './subscriber';
 
 export * from './filterOperators';
+
+export * from './simulation';
