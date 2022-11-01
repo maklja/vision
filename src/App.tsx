@@ -9,7 +9,7 @@ import {
 	moveConnectLineDraw,
 	deleteConnectLineDraw,
 } from './store/stageSlice';
-import { engine } from './engine';
+import { createObservableSimulation } from './engine';
 
 function App() {
 	const { elements, connectLines } = useSelector<RootState, StageSlice>((store) => store.stage);
@@ -33,7 +33,7 @@ function App() {
 	};
 
 	const handleClick = () => {
-		engine(elements, connectLines);
+		createObservableSimulation(elements, connectLines);
 	};
 
 	return (
