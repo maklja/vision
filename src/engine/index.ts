@@ -1,4 +1,4 @@
-import { concatMap, from, Observable } from 'rxjs';
+import { concatMap, Observable } from 'rxjs';
 import {
 	ConnectLine,
 	Element,
@@ -12,20 +12,28 @@ interface ObservableStruct {
 	creationElement: Element | null;
 	subscriberElement: Element;
 	pipeElements: Element[];
+	connectLines: ConnectLine[];
 }
 
 interface ElementContext {
 	elements: Map<string, Element>;
-	connectLines: Map<string, string[]>;
+	connectLines: Map<string, ConnectLine[]>;
 }
 
+const controlOperator = (cl: ConnectLine) => {
+	const map = (val: unknown) => new Promise((resolve) => resolve(val));
+
+	return concatMap((val) => new Promise((resolve) => resolve(val)));
+};
+
 const executeObservable = (observableStruct: ObservableStruct) => {
-	const { creationElement, pipeElements } = observableStruct;
+	const { creationElement, pipeElements, connectLines, subscriberElement } = observableStruct;
 	if (!creationElement) {
 		return;
 	}
 
-	const o = mapCreationElementFactory(creationElement) as Observable<null>;
+	const controlOperators = connectLines.map((cl) => () => {});
+	const o = mapCreationElementFactory(creationElement) as Observable<unknown>;
 	const pipeOperatorFuncs = pipeElements.map((el) => mapFilterOperatorElementFactory(el));
 
 	o.pipe(
@@ -47,11 +55,12 @@ const createObservableExecutable = (subscriberElement: Element, ctx: ElementCont
 		subscriberElement,
 		creationElement: null,
 		pipeElements: [],
+		connectLines: [],
 	};
 	let currentElement = subscriberElement;
 	while (currentElement != null) {
-		const [nextElementId] = ctx.connectLines.get(currentElement.id) ?? [];
-		const nextElement = nextElementId ? ctx.elements.get(nextElementId) : null;
+		const [cl] = ctx.connectLines.get(currentElement.id) ?? [];
+		const nextElement = cl ? ctx.elements.get(cl.sourceId) : null;
 		if (!nextElement) {
 			break;
 		}
@@ -61,6 +70,7 @@ const createObservableExecutable = (subscriberElement: Element, ctx: ElementCont
 		} else if (isCreationOperatorType(nextElement.type)) {
 			observableStruct.creationElement = nextElement;
 		}
+		observableStruct.connectLines.push(cl);
 
 		currentElement = nextElement;
 	}
@@ -74,9 +84,9 @@ export const engine = (elements: Element[], cls: ConnectLine[]) => {
 			return map;
 		}
 
-		const sourceIds = map.get(cl.targetId) ?? [];
-		return map.set(cl.targetId, [...sourceIds, cl.sourceId]);
-	}, new Map<string, string[]>());
+		const cls = map.get(cl.targetId) ?? [];
+		return map.set(cl.targetId, [...cls, cl]);
+	}, new Map<string, ConnectLine[]>());
 
 	const elementsMap = elements.reduce(
 		(map, element) => map.set(element.id, element),

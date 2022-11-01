@@ -3,16 +3,16 @@ import { BoundingBox } from './BoundingBox';
 export * from './BoundingBox';
 
 export const DRAWER_DEFAULT = {
-	radius: 24,
-	width: 48,
-	height: 48,
-	textFontSize: 14,
-	iconFontSize: 11,
+	radius: 30,
+	width: 60,
+	height: 60,
+	textFontSize: 15,
+	iconFontSize: 12,
 };
 
 export const CONNECTOR_DEFAULT = {
-	radius: 6,
-	offset: 10,
+	radius: 8,
+	offset: 13,
 };
 
 export const fromSize = (value: number, size = 1, factor = 1) => value * size * factor;
@@ -30,4 +30,3 @@ export const createBoundingBox = (x: number, y: number, size = 1) => {
 
 	return new BoundingBox(x, y, width, height);
 };
-
