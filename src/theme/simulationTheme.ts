@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { AnimationControls } from './animation';
+import { Animation, AnimationControl } from './animation';
 
 export const resultSimulationTheme: Konva.CircleConfig = {
 	stroke: 'green',
@@ -7,14 +7,15 @@ export const resultSimulationTheme: Konva.CircleConfig = {
 	radius: 10,
 };
 
-export const moveResultAnimation = (
-	node: Konva.Node,
-	position: { x: number; y: number },
-): AnimationControls =>
-	new Konva.Tween({
-		node,
-		duration: 0.5,
-		x: position.x,
-		y: position.y,
-	});
+export const moveResultAnimation =
+	(x: number, y: number): Animation =>
+	(node: Konva.Node): AnimationControl =>
+		new AnimationControl(
+			new Konva.Tween({
+				node,
+				duration: 2,
+				x,
+				y,
+			}),
+		);
 

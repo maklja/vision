@@ -9,11 +9,15 @@ import {
 	moveConnectLineDraw,
 	deleteConnectLineDraw,
 } from './store/stageSlice';
+import { useState } from 'react';
+import { Simulator, SimulationEvent } from './animator';
 import { createObservableSimulation } from './engine';
-import { ResultDrawer } from './drawers';
+import { ObservableEvent, setObservableEvents } from './store/simulationSlice';
 
 function App() {
 	const { elements, connectLines } = useSelector<RootState, StageSlice>((store) => store.stage);
+	const [events, setEvents] = useState<SimulationEvent[]>([]);
+	const [simulate, setSimulate] = useState(false);
 	const appDispatch = useAppDispatch();
 
 	const handleMouseDown = () => appDispatch(selectElements([]));
@@ -34,6 +38,7 @@ function App() {
 	};
 
 	const handleClick = () => {
+		const results: ObservableEvent[] = [];
 		const observableSimulation = createObservableSimulation(
 			'ofElement',
 			elements,
@@ -41,10 +46,25 @@ function App() {
 		);
 
 		observableSimulation?.addFlowListener({
-			onNextFlow: (event) => console.log(event),
+			onNextFlow: (event) => {
+				const { id, connectLineId, sourceElementId, targetElementId, value } = event;
+				const connectLine = connectLines.find((curCl) => curCl.id === connectLineId)!;
+				const sourceElement = elements.find((curEl) => curEl.id === sourceElementId)!;
+				const targetElement = elements.find((curEl) => curEl.id === targetElementId)!;
+
+				results.push({
+					id,
+					value,
+					connectLine,
+					sourceElement,
+					targetElement,
+				});
+			},
 		});
 		observableSimulation?.start({
-			complete: () => console.log('completed'),
+			complete: () => {
+				appDispatch(setObservableEvents(results));
+			},
 		});
 	};
 
@@ -62,10 +82,7 @@ function App() {
 				<Layer>
 					{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
 					{elements.map((el) => createDrawerElement(el))}
-					<ResultDrawer
-						startPosition={{ x: 100, y: 200 }}
-						endPosition={{ x: 200, y: 300 }}
-					/>
+					<Simulator events={events} />
 				</Layer>
 			</Stage>
 		</div>

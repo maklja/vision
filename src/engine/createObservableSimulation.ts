@@ -33,9 +33,11 @@ export const createObservableSimulation = <T = unknown>(
 		elements: elementsMap,
 		connectLines: connectLineMap,
 	});
+
 	if (!os.subscriberElement) {
 		return null;
 	}
+
 	return new ObservableSimulation<T>({
 		creationElement: os.creationElement,
 		pipeElements: os.pipeElements,

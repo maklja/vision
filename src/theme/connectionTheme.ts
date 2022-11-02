@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { AnimationControls } from './animation';
+import { AnimationControl } from './animation';
 
 export interface ConnectPointStyle {
 	stroke?: string;
@@ -18,12 +18,14 @@ export const highlightConnectPointTheme: ConnectPointStyle = {
 	fill: 'blue',
 };
 
-export const snapConnectPointAnimation = (node: Konva.Node): AnimationControls =>
-	new Konva.Tween({
-		node,
-		duration: 0.1,
-		fill: 'green',
-		scaleX: 1.4,
-		scaleY: 1.4,
-	});
+export const snapConnectPointAnimation = (node: Konva.Node): AnimationControl =>
+	new AnimationControl(
+		new Konva.Tween({
+			node,
+			duration: 0.1,
+			fill: 'green',
+			scaleX: 1.4,
+			scaleY: 1.4,
+		}),
+	);
 

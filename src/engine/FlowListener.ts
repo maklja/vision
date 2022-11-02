@@ -1,4 +1,5 @@
 export interface FlowListenerEvent<T> {
+	id: string;
 	value: T;
 	connectLineId: string;
 	sourceElementId: string;

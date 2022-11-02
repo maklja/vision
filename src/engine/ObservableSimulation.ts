@@ -1,19 +1,20 @@
 import { Observable, Observer, tap } from 'rxjs';
+import { v1 as createId } from 'uuid';
 import { ConnectLine, Element } from '../model';
 import { mapCreationElementFactory, mapFilterOperatorElementFactory } from './factory';
 import { FlowListener, FlowListenerEvent } from './FlowListener';
 
 const createControlOperator = <T>(cl: ConnectLine, listeners: FlowListener<T>) =>
-	tap<T>(
-		(value) =>
-			cl.targetId &&
+	tap<T>((value) => {
+		cl.targetId &&
 			listeners.onNextFlow?.({
+				id: createId(),
 				value,
 				connectLineId: cl.id,
 				sourceElementId: cl.sourceId,
 				targetElementId: cl.targetId,
-			}),
-	);
+			});
+	});
 
 export interface ObservableSimulationParams {
 	creationElement: Element;
@@ -36,11 +37,10 @@ export class ObservableSimulation<T> {
 				onNextFlow: this.onNextFlow.bind(this),
 			}),
 		);
-		const pipe = pipeOperators.flatMap((pipeOperator, i) => [
-			controlOperators[i],
-			pipeOperator,
-		]);
-
+		const pipe = controlOperators.flatMap((controlOperator, i) => {
+			const pipeOperator = pipeOperators.at(i);
+			return !pipeOperator ? [controlOperator] : [controlOperator, pipeOperator];
+		});
 		this.observable = observable.pipe(...(pipe as [])) as Observable<T>;
 	}
 

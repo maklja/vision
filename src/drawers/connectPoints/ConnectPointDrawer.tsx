@@ -2,11 +2,11 @@ import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { Circle } from 'react-konva';
 import { ConnectPointType } from '../../model';
-import { ConnectPointStyle, snapConnectPointAnimation, AnimationControls } from '../../theme';
+import { ConnectPointStyle, snapConnectPointAnimation, AnimationControl } from '../../theme';
 import { CONNECTOR_DEFAULT, fromSize } from '../utils';
 
 export interface ConnectPointAnimation {
-	snapConnectPoint: AnimationControls;
+	snapConnectPoint: AnimationControl;
 }
 
 export interface ConnectPointDrawerEvent {
@@ -66,7 +66,7 @@ export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
 
 		return () => {
 			if (animations) {
-				Object.values(animations).forEach((animation: AnimationControls) =>
+				Object.values(animations).forEach((animation: AnimationControl) =>
 					animation.destroy(),
 				);
 			}
