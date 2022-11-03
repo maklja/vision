@@ -45,9 +45,13 @@ function App() {
 		observableSimulation?.addFlowListener({
 			onNextFlow: (event) => {
 				const { id, connectLineId, sourceElementId, targetElementId, value, hash } = event;
-				const connectLine = connectLines.find((curCl) => curCl.id === connectLineId)!;
-				const sourceElement = elements.find((curEl) => curEl.id === sourceElementId)!;
-				const targetElement = elements.find((curEl) => curEl.id === targetElementId)!;
+				const connectLine = connectLines.find((curCl) => curCl.id === connectLineId);
+				const sourceElement = elements.find((curEl) => curEl.id === sourceElementId);
+				const targetElement = elements.find((curEl) => curEl.id === targetElementId);
+
+				if (!connectLine || !sourceElement || !targetElement) {
+					throw new Error();
+				}
 
 				results.push({
 					id,
