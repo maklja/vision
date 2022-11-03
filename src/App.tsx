@@ -17,7 +17,6 @@ import { ObservableEvent, setObservableEvents } from './store/simulationSlice';
 function App() {
 	const { elements, connectLines } = useSelector<RootState, StageSlice>((store) => store.stage);
 	const [events, setEvents] = useState<SimulationEvent[]>([]);
-	const [simulate, setSimulate] = useState(false);
 	const appDispatch = useAppDispatch();
 
 	const handleMouseDown = () => appDispatch(selectElements([]));
@@ -82,7 +81,7 @@ function App() {
 				<Layer>
 					{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
 					{elements.map((el) => createDrawerElement(el))}
-					<Simulator events={events} />
+					<Simulator />
 				</Layer>
 			</Stage>
 		</div>
@@ -90,4 +89,3 @@ function App() {
 }
 
 export default App;
-

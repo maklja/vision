@@ -7,15 +7,26 @@ export const resultSimulationTheme: Konva.CircleConfig = {
 	radius: 10,
 };
 
-export const moveResultAnimation =
-	(x: number, y: number): Animation =>
-	(node: Konva.Node): AnimationControl =>
+export interface MoveAnimation {
+	targetPosition: { x: number; y: number };
+	sourcePosition: { x: number; y: number };
+}
+
+export const moveResultAnimation = (moveParams: MoveAnimation): Animation => {
+	const { sourcePosition, targetPosition } = moveParams;
+	const duration =
+		Math.sqrt(
+			Math.pow(targetPosition.x - sourcePosition.x, 2) +
+				Math.pow(targetPosition.y - sourcePosition.y, 2),
+		) / 150;
+
+	return (node: Konva.Node): AnimationControl =>
 		new AnimationControl(
 			new Konva.Tween({
 				node,
-				duration: 2,
-				x,
-				y,
+				duration,
+				x: targetPosition.x,
+				y: targetPosition.y,
 			}),
 		);
-
+};

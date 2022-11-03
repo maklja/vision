@@ -1,5 +1,6 @@
 import { Observable, Observer, tap } from 'rxjs';
 import { v1 as createId } from 'uuid';
+import createHash from 'object-hash';
 import { ConnectLine, Element } from '../model';
 import { mapCreationElementFactory, mapFilterOperatorElementFactory } from './factory';
 import { FlowListener, FlowListenerEvent } from './FlowListener';
@@ -9,6 +10,7 @@ const createControlOperator = <T>(cl: ConnectLine, listeners: FlowListener<T>) =
 		cl.targetId &&
 			listeners.onNextFlow?.({
 				id: createId(),
+				hash: createHash({ value }, { algorithm: 'md5' }),
 				value,
 				connectLineId: cl.id,
 				sourceElementId: cl.sourceId,
@@ -70,4 +72,3 @@ export class ObservableSimulation<T> {
 		this.listeners.forEach((l) => l.onNextFlow?.(event));
 	}
 }
-

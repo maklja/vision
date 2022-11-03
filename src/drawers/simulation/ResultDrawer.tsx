@@ -4,8 +4,8 @@ import { Circle } from 'react-konva';
 import { resultSimulationTheme } from '../../theme';
 
 export interface ResultDrawerProps {
-	x: number;
-	y: number;
+	x?: number;
+	y?: number;
 }
 
 export const ResultDrawer = forwardRef<Konva.Circle, ResultDrawerProps>((props, ref) => {
@@ -13,4 +13,3 @@ export const ResultDrawer = forwardRef<Konva.Circle, ResultDrawerProps>((props, 
 });
 
 ResultDrawer.displayName = 'ResultDrawer';
-

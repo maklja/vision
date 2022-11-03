@@ -41,7 +41,6 @@ export const simulationSlice = createSlice({
 				return;
 			}
 
-			console.log(events[currentIdx + 1].value);
 			slice.currentEvent = events[currentIdx + 1];
 		},
 	},
@@ -52,4 +51,3 @@ export const { moveToNextObservableEvent, setObservableEvents } = simulationSlic
 export default simulationSlice.reducer;
 
 export const selectNextObservableEvent = (state: RootState) => state.simulation.currentEvent;
-

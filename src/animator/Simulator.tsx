@@ -1,12 +1,12 @@
 import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { RootState, useAppDispatch } from '../store/rootState';
+import { useAppDispatch } from '../store/rootState';
 import { ResultDrawer } from '../drawers';
-import { createObservableSimulation } from '../engine';
 import { ConnectLine, Element } from '../model';
-import { AnimationControl, moveResultAnimation } from '../theme';
+import { moveResultAnimation } from '../theme';
 import { moveToNextObservableEvent, selectNextObservableEvent } from '../store/simulationSlice';
+import { highlightElements } from '../store/stageSlice';
 
 export interface SimulationEvent {
 	connectLine: ConnectLine;
@@ -14,39 +14,40 @@ export interface SimulationEvent {
 	targetElement: Element;
 }
 
-export interface SimulatorProps {
-	events: SimulationEvent[];
-}
-
-export const Simulator = (props: SimulatorProps) => {
+export const Simulator = () => {
 	const nextObservableEvent = useSelector(selectNextObservableEvent);
 	const appDispatch = useAppDispatch();
-	const [circleRef, setCircleRef] = useState<Konva.Circle | null>(null);
+	const [resultDrawerRef, setResultDrawerRef] = useState<Konva.Node | null>(null);
 
 	useEffect(() => {
-		if (!circleRef || !nextObservableEvent) {
+		if (!resultDrawerRef || !nextObservableEvent) {
 			return;
 		}
 
-		const { targetElement } = nextObservableEvent;
-		const animationControl = moveResultAnimation(targetElement.x, targetElement.y)(circleRef);
+		const { connectLine } = nextObservableEvent;
+		appDispatch(highlightElements([connectLine.sourceId]));
+
+		const [, sourcePoint] = connectLine.points;
+		const [targetPoint] = connectLine.points.slice(-2);
+
+		resultDrawerRef.setPosition({ x: sourcePoint.x, y: sourcePoint.y });
+
+		const animationControl = moveResultAnimation({
+			targetPosition: targetPoint,
+			sourcePosition: sourcePoint,
+		})(resultDrawerRef);
 		animationControl.addFinishListener(() => {
+			appDispatch(highlightElements([connectLine.targetId ?? '']));
 			appDispatch(moveToNextObservableEvent());
 		});
 
 		animationControl.play();
-		return () => {
-			animationControl.destroy();
-		};
-	}, [nextObservableEvent, circleRef]);
+		return () => animationControl.destroy();
+	}, [nextObservableEvent, resultDrawerRef]);
 
 	if (!nextObservableEvent) {
 		return null;
 	}
 
-	const { sourceElement } = nextObservableEvent;
-	return (
-		<ResultDrawer ref={(ref) => setCircleRef(ref)} x={sourceElement.x} y={sourceElement.y} />
-	);
+	return <ResultDrawer ref={(ref) => setResultDrawerRef(ref)} />;
 };
-
