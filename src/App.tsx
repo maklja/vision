@@ -9,14 +9,12 @@ import {
 	moveConnectLineDraw,
 	deleteConnectLineDraw,
 } from './store/stageSlice';
-import { useState } from 'react';
-import { Simulator, SimulationEvent } from './animator';
+import { Simulator } from './animator';
 import { createObservableSimulation } from './engine';
 import { ObservableEvent, setObservableEvents } from './store/simulationSlice';
 
 function App() {
 	const { elements, connectLines } = useSelector<RootState, StageSlice>((store) => store.stage);
-	const [events, setEvents] = useState<SimulationEvent[]>([]);
 	const appDispatch = useAppDispatch();
 
 	const handleMouseDown = () => appDispatch(selectElements([]));
@@ -46,13 +44,14 @@ function App() {
 
 		observableSimulation?.addFlowListener({
 			onNextFlow: (event) => {
-				const { id, connectLineId, sourceElementId, targetElementId, value } = event;
+				const { id, connectLineId, sourceElementId, targetElementId, value, hash } = event;
 				const connectLine = connectLines.find((curCl) => curCl.id === connectLineId)!;
 				const sourceElement = elements.find((curEl) => curEl.id === sourceElementId)!;
 				const targetElement = elements.find((curEl) => curEl.id === targetElementId)!;
 
 				results.push({
 					id,
+					hash,
 					value,
 					connectLine,
 					sourceElement,
@@ -89,3 +88,4 @@ function App() {
 }
 
 export default App;
+

@@ -10,6 +10,7 @@ export interface SetObservableEventsAction {
 export interface ObservableEvent {
 	id: string;
 	value: unknown;
+	hash: string;
 	connectLine: ConnectLine;
 	sourceElement: Element;
 	targetElement: Element;
@@ -51,3 +52,4 @@ export const { moveToNextObservableEvent, setObservableEvents } = simulationSlic
 export default simulationSlice.reducer;
 
 export const selectNextObservableEvent = (state: RootState) => state.simulation.currentEvent;
+

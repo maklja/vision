@@ -6,7 +6,7 @@ import { ResultDrawer } from '../drawers';
 import { ConnectLine, Element } from '../model';
 import { moveResultAnimation } from '../theme';
 import { moveToNextObservableEvent, selectNextObservableEvent } from '../store/simulationSlice';
-import { highlightElements } from '../store/stageSlice';
+import { hashToColor, invertColor } from './utils';
 
 export interface SimulationEvent {
 	connectLine: ConnectLine;
@@ -25,8 +25,6 @@ export const Simulator = () => {
 		}
 
 		const { connectLine } = nextObservableEvent;
-		appDispatch(highlightElements([connectLine.sourceId]));
-
 		const [, sourcePoint] = connectLine.points;
 		const [targetPoint] = connectLine.points.slice(-2);
 
@@ -37,7 +35,6 @@ export const Simulator = () => {
 			sourcePosition: sourcePoint,
 		})(resultDrawerRef);
 		animationControl.addFinishListener(() => {
-			appDispatch(highlightElements([connectLine.targetId ?? '']));
 			appDispatch(moveToNextObservableEvent());
 		});
 
@@ -49,5 +46,14 @@ export const Simulator = () => {
 		return null;
 	}
 
-	return <ResultDrawer ref={(ref) => setResultDrawerRef(ref)} />;
+	const resultColor = hashToColor(nextObservableEvent.hash);
+	const invertResultColor = invertColor(resultColor, false);
+	return (
+		<ResultDrawer
+			ref={(ref) => setResultDrawerRef(ref)}
+			fill={resultColor}
+			stroke={invertResultColor}
+		/>
+	);
 };
+

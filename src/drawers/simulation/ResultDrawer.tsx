@@ -6,10 +6,22 @@ import { resultSimulationTheme } from '../../theme';
 export interface ResultDrawerProps {
 	x?: number;
 	y?: number;
+	fill?: string;
+	stroke?: string;
 }
 
 export const ResultDrawer = forwardRef<Konva.Circle, ResultDrawerProps>((props, ref) => {
-	return <Circle {...resultSimulationTheme} ref={ref} x={props.x} y={props.y} />;
+	return (
+		<Circle
+			{...resultSimulationTheme}
+			stroke={props.stroke}
+			fill={props.fill}
+			ref={ref}
+			x={props.x}
+			y={props.y}
+		/>
+	);
 });
 
 ResultDrawer.displayName = 'ResultDrawer';
+
