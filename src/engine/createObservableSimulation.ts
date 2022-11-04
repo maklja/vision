@@ -29,7 +29,7 @@ const createObservableExecutable = (creationElement: Element, ctx: ElementContex
 	let currentElement = creationElement;
 	while (currentElement != null) {
 		const [cl] = ctx.connectLines.get(currentElement.id) ?? [];
-		const nextElement = cl?.targetId != null ? ctx.elements.get(cl.targetId) : null;
+		const nextElement = cl != null ? ctx.elements.get(cl.targetId) : null;
 		if (!nextElement) {
 			break;
 		}
@@ -53,10 +53,6 @@ export const createObservableSimulation = <T = unknown>(
 	cls: ConnectLine[],
 ) => {
 	const connectLineMap = cls.reduce((map, cl) => {
-		if (!cl.targetId) {
-			return map;
-		}
-
 		const cls = map.get(cl.sourceId) ?? [];
 		return map.set(cl.sourceId, [...cls, cl]);
 	}, new Map<string, ConnectLine[]>());
@@ -90,4 +86,3 @@ export const createObservableSimulation = <T = unknown>(
 		subscriberElement: os.subscriberElement,
 	});
 };
-

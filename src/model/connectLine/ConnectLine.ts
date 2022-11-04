@@ -1,10 +1,9 @@
-import Konva from 'konva';
+import { Point } from '../common';
 
 export interface ConnectLine {
 	id: string;
 	sourceId: string;
-	targetId: string | null;
-	points: Konva.Vector2d[];
+	targetId: string;
+	points: Point[];
 	locked: boolean;
 }
-

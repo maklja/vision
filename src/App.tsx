@@ -9,12 +9,15 @@ import {
 	moveConnectLineDraw,
 	deleteConnectLineDraw,
 } from './store/stageSlice';
-import { Simulator } from './animator';
+import { Simulator } from './simulator';
 import { createObservableSimulation } from './engine';
 import { ObservableEvent, setObservableEvents } from './store/simulationSlice';
+import { ConnectLineDrawer } from './drawers';
 
 function App() {
-	const { elements, connectLines } = useSelector<RootState, StageSlice>((store) => store.stage);
+	const { elements, connectLines, draftConnectLine } = useSelector<RootState, StageSlice>(
+		(store) => store.stage,
+	);
 	const appDispatch = useAppDispatch();
 
 	const handleMouseDown = () => appDispatch(selectElements([]));
@@ -83,6 +86,12 @@ function App() {
 			>
 				<Layer>
 					{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
+					{draftConnectLine ? (
+						<ConnectLineDrawer
+							id={draftConnectLine.id}
+							points={draftConnectLine.points}
+						/>
+					) : null}
 					{elements.map((el) => createDrawerElement(el))}
 					<Simulator />
 				</Layer>
@@ -92,4 +101,3 @@ function App() {
 }
 
 export default App;
-

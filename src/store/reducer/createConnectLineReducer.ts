@@ -1,12 +1,15 @@
 import { v1 as createId } from 'uuid';
 import { Draft } from '@reduxjs/toolkit';
-import { calculateConnectPointTypes, ConnectLine } from '../../model';
+import { calculateConnectPointTypes, Point } from '../../model';
 import { StageSlice, StageState } from '../stageSlice';
 import { createBoundingBox } from '../../drawers/utils';
 
 export interface StartConnectLineDrawAction {
 	type: string;
-	payload: Omit<ConnectLine, 'id'>;
+	payload: {
+		sourceId: string;
+		points: Point[];
+	};
 }
 
 export interface MoveConnectLineDrawAction {
@@ -29,15 +32,15 @@ export const startConnectLineDrawReducer = (
 	action: StartConnectLineDrawAction,
 ) => {
 	const { connectLines, elements } = slice;
-	const draftConnectLineId = createId();
+	const { sourceId, points } = action.payload;
 	slice.state = StageState.DrawConnectLine;
-	slice.draftConnectLineId = draftConnectLineId;
-	connectLines.push({
-		...action.payload,
-		id: draftConnectLineId,
-	});
+	slice.draftConnectLine = {
+		id: createId(),
+		sourceId,
+		points,
+		locked: false,
+	};
 
-	const { sourceId } = action.payload;
 	// first find an element
 	const el = elements.find((curEl) => curEl.id === sourceId);
 	if (!el) {
@@ -47,7 +50,7 @@ export const startConnectLineDrawReducer = (
 	}
 
 	// each element can be source element only once
-	const isElementSource = connectLines.some((cl) => cl.sourceId === el.id && cl.targetId != null);
+	const isElementSource = connectLines.some((cl) => cl.sourceId === el.id);
 	if (isElementSource) {
 		slice.selected = [];
 		return;
@@ -55,7 +58,7 @@ export const startConnectLineDrawReducer = (
 
 	// all elements that already have a source element
 	const elementsWithSource = connectLines.reduce(
-		(set, cl) => (cl.targetId ? set.add(cl.targetId) : set),
+		(set, cl) => set.add(cl.targetId),
 		new Set<string>(),
 	);
 	// allowed types to connect
@@ -74,66 +77,62 @@ export const moveConnectLineDrawReducer = (
 	slice: Draft<StageSlice>,
 	action: MoveConnectLineDrawAction,
 ) => {
-	if (slice.state !== StageState.DrawConnectLine || !slice.draftConnectLineId) {
+	if (slice.state !== StageState.DrawConnectLine || !slice.draftConnectLine) {
 		return;
 	}
 
-	const cl = slice.connectLines.find((cl) => cl.id === slice.draftConnectLineId);
-	if (!cl || cl.locked) {
+	const { draftConnectLine } = slice;
+	if (draftConnectLine.locked) {
 		return;
 	}
 
-	cl.points.splice(-1, 1, { x: action.payload.x, y: action.payload.y });
+	draftConnectLine.points.splice(-1, 1, { x: action.payload.x, y: action.payload.y });
 };
 
 export const deleteConnectLineDrawReducer = (slice: Draft<StageSlice>) => {
-	const { draftConnectLineId } = slice;
-	if (slice.state !== StageState.DrawConnectLine || !draftConnectLineId) {
+	const { draftConnectLine } = slice;
+	if (slice.state !== StageState.DrawConnectLine || !draftConnectLine) {
 		return;
 	}
 
 	slice.state = StageState.Select;
 	slice.highlightedConnectPoints = [];
-	slice.draftConnectLineId = null;
-	const slIndex = slice.connectLines.findIndex((cl) => cl.id === draftConnectLineId);
-	if (slIndex === -1) {
-		return;
-	}
+	slice.draftConnectLine = null;
 
-	slice.selected = [slice.connectLines[slIndex].sourceId];
-	slice.connectLines.splice(slIndex, 1);
+	slice.selected = [draftConnectLine.sourceId];
 };
 
 export const linkConnectLineDrawReducer = (
 	slice: Draft<StageSlice>,
 	action: LinkConnectLineDrawAction,
 ) => {
-	const { draftConnectLineId } = slice;
-	if (slice.state !== StageState.DrawConnectLine || !draftConnectLineId) {
+	const { draftConnectLine } = slice;
+	if (slice.state !== StageState.DrawConnectLine || !draftConnectLine) {
 		return;
 	}
 
 	slice.state = StageState.Select;
 	slice.highlightedConnectPoints = [];
-	slice.draftConnectLineId = null;
-	const slIndex = slice.connectLines.findIndex((cl) => cl.id === draftConnectLineId);
-	if (slIndex === -1) {
-		return;
-	}
+	slice.draftConnectLine = null;
 
-	slice.selected = [slice.connectLines[slIndex].sourceId];
+	slice.selected = [draftConnectLine.sourceId];
 	const el = slice.elements.find((curEl) => curEl.id === action.payload.targetId);
 	if (!el) {
-		slice.connectLines.splice(slIndex, 1);
 		return;
 	}
 
 	const bb = createBoundingBox(el.x, el.y, el.size);
-	const cl = slice.connectLines[slIndex];
-	cl.targetId = el.id;
-	cl.locked = false;
-	cl.points.push({
-		x: bb.center.x,
-		y: bb.center.y,
+	slice.connectLines.push({
+		id: createId(),
+		locked: false,
+		sourceId: draftConnectLine.sourceId,
+		points: [
+			...draftConnectLine.points,
+			{
+				x: bb.center.x,
+				y: bb.center.y,
+			},
+		],
+		targetId: el.id,
 	});
 };

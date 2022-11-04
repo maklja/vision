@@ -7,6 +7,7 @@ import {
 	FilterElement,
 	FromElement,
 	OfElement,
+	Point,
 } from '../model';
 import {
 	startConnectLineDrawReducer,
@@ -17,6 +18,13 @@ import {
 	unpinConnectLineReducer,
 } from './reducer';
 import { RootState } from './rootState';
+
+export interface DraftConnectLine {
+	id: string;
+	sourceId: string;
+	points: Point[];
+	locked: boolean;
+}
 
 export enum StageState {
 	Select = 'select',
@@ -31,7 +39,7 @@ export interface StageSlice {
 	selected: string[];
 	highlighted: string[];
 	state: StageState;
-	draftConnectLineId: string | null;
+	draftConnectLine: DraftConnectLine | null;
 }
 
 export interface AddElementsAction {
@@ -119,7 +127,7 @@ const initialState: StageSlice = {
 	selected: [],
 	highlighted: [],
 	state: StageState.Select,
-	draftConnectLineId: null,
+	draftConnectLine: null,
 };
 
 export const stageSlice = createSlice({

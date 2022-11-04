@@ -7,15 +7,14 @@ import { FlowListener, FlowListenerEvent } from './FlowListener';
 
 const createControlOperator = <T>(cl: ConnectLine, listeners: FlowListener<T>) =>
 	tap<T>((value) => {
-		cl.targetId &&
-			listeners.onNextFlow?.({
-				id: createId(),
-				hash: createHash({ value }, { algorithm: 'md5' }),
-				value,
-				connectLineId: cl.id,
-				sourceElementId: cl.sourceId,
-				targetElementId: cl.targetId,
-			});
+		listeners.onNextFlow?.({
+			id: createId(),
+			hash: createHash({ value }, { algorithm: 'md5' }),
+			value,
+			connectLineId: cl.id,
+			sourceElementId: cl.sourceId,
+			targetElementId: cl.targetId,
+		});
 	});
 
 export interface ObservableSimulationParams {

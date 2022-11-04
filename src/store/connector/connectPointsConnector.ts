@@ -17,13 +17,11 @@ const selectStateDispatch = (dispatch: AppDispatch) => ({
 		dispatch(
 			startConnectLineDraw({
 				sourceId: cEvent.id,
-				targetId: null,
 				points: [
 					{ x, y },
 					{ x: cEvent.connectPoint.x, y: cEvent.connectPoint.y },
 					{ x: cEvent.connectPoint.x, y: cEvent.connectPoint.y },
 				],
-				locked: false,
 			}),
 		);
 	},
