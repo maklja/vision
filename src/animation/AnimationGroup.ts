@@ -3,10 +3,14 @@ import { Animation, AnimationEvent } from './Animation';
 
 export class AnimationGroup implements Animation {
 	private readonly animationEvents$: Observable<AnimationEvent>;
+    private readonly id = 10;
 	constructor(private readonly animations: Animation[]) {
 		this.animationEvents$ = zip(...this.animations.map((a) => a.observable())).pipe(
-			filter((events) => events.every((event, i, array) => event.type === array[0].type))
-            map(events),
+			filter((events) => events.every((event, i, array) => event.type === array[0].type)),
+			map((events) => ({
+                id: this.id,
+                type: events[0].type
+            })),
 		);
 	}
 
