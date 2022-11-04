@@ -3,14 +3,31 @@ import Konva from 'konva';
 export type Animation = (node: Konva.Node) => AnimationControl;
 
 export type FinishListener = (animationControl: AnimationControl) => void;
+
 export type DestroyListener = () => void;
 
-export class AnimationControl {
+export interface AnimationControl {
+	get id(): number;
+	play(): void;
+	reset(): void;
+	destroy(): void;
+	addFinishListener(l: FinishListener): void;
+	removeFinishListener(l: FinishListener): void;
+	addDestroyListener(l: DestroyListener): void;
+	removeDestroyListener(l: DestroyListener): void;
+}
+
+export class TweenAnimationControl {
 	private readonly finishListeners: FinishListener[] = [];
 	private readonly destroyListeners: DestroyListener[] = [];
 
 	constructor(private readonly animationNode: Konva.Tween) {
 		this.animationNode.onFinish = this.onFinish.bind(this);
+		console.log(this.animationNode);
+	}
+
+	get id() {
+		return this.animationNode._id;
 	}
 
 	addFinishListener(l: FinishListener) {
@@ -70,4 +87,49 @@ export class AnimationControl {
 		this.destroyListeners.forEach((l) => l());
 	}
 }
+
+export class AnimationControlGroup implements AnimationControl {
+	constructor(private readonly animations: AnimationControl[]) {
+		this.animations.forEach((a) => a.addFinishListener(this.onFinish));
+	}
+
+	get id(): number {
+		throw new Error('Method not implemented.');
+	}
+
+	play(): void {
+		this.animations.forEach((a) => a.play());
+	}
+
+	reset(): void {
+		this.animations.forEach((a) => a.reset());
+	}
+
+	destroy(): void {
+		this.animations.forEach((a) => a.destroy());
+	}
+
+	addFinishListener(l: FinishListener): void {
+		throw new Error('Method not implemented.');
+	}
+
+	removeFinishListener(l: FinishListener): void {
+		throw new Error('Method not implemented.');
+	}
+
+	addDestroyListener(l: DestroyListener): void {
+		throw new Error('Method not implemented.');
+	}
+
+	removeDestroyListener(l: DestroyListener): void {
+		throw new Error('Method not implemented.');
+	}
+
+	private onFinish(animationControl: AnimationControl) {
+		// this.finishListeners.forEach((l) => l(this));
+	}
+}
+
+export const groupAnimations = (...animations: AnimationControl[]) =>
+	new AnimationControlGroup(animations);
 

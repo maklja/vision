@@ -1,4 +1,5 @@
 import Konva from 'konva';
+import { AnimationControl, TweenAnimationControl } from './animation';
 
 export const elementTheme: Konva.ShapeConfig = {
 	stroke: 'black',
@@ -19,4 +20,15 @@ export const elementIconTheme: Konva.TextConfig = {
 	letterSpacing: 1,
 	fontFamily: 'serif',
 };
+
+export const highlightElementAnimation = (node: Konva.Node): AnimationControl =>
+	new TweenAnimationControl(
+		new Konva.Tween({
+			node,
+			duration: 2,
+			fill: 'green',
+			scaleX: 1.4,
+			scaleY: 1.4,
+		}),
+	);
 

@@ -7,6 +7,7 @@ import {
 	changeState,
 } from '../stageSlice';
 import { AppDispatch } from '../rootState';
+import { CreateOperatorDrawerAnimations } from '../../drawers';
 
 const changeCursorStyle = (cursorStyle: string, e: Konva.KonvaEventObject<MouseEvent>) => {
 	const stage = e.currentTarget.getStage();
@@ -50,6 +51,9 @@ const selectStateDispatch = (dispatch: AppDispatch) => ({
 				y: position.y,
 			}),
 		);
+	},
+	onAnimationReady: (_: string, animations: CreateOperatorDrawerAnimations) => {
+		// animations.highlight.play();
 	},
 });
 

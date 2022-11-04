@@ -1,8 +1,9 @@
 import { Line, Group, Path } from 'react-konva';
+import { Point } from '../../model';
 
 export interface ConnectLineDrawerProps {
 	id: string;
-	points: { x: number; y: number }[];
+	points: Point[];
 }
 
 const ARROW_SIZE = 15;

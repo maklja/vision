@@ -88,6 +88,7 @@ function App() {
 					{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
 					{draftConnectLine ? (
 						<ConnectLineDrawer
+							key={draftConnectLine.id}
 							id={draftConnectLine.id}
 							points={draftConnectLine.points}
 						/>
@@ -101,3 +102,4 @@ function App() {
 }
 
 export default App;
+

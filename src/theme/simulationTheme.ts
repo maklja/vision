@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { Animation, AnimationControl } from './animation';
+import { Animation, AnimationControl, TweenAnimationControl } from './animation';
 
 export const resultSimulationTheme: Konva.CircleConfig = {
 	stroke: 'green',
@@ -21,7 +21,7 @@ export const moveResultAnimation = (moveParams: MoveAnimation): Animation => {
 		) / 150;
 
 	return (node: Konva.Node): AnimationControl =>
-		new AnimationControl(
+		new TweenAnimationControl(
 			new Konva.Tween({
 				node,
 				duration,
@@ -30,3 +30,4 @@ export const moveResultAnimation = (moveParams: MoveAnimation): Animation => {
 			}),
 		);
 };
+
