@@ -7,6 +7,8 @@ import { ConnectLine, Element } from '../model';
 import { moveResultAnimation } from '../theme';
 import { moveToNextObservableEvent, selectNextObservableEvent } from '../store/simulationSlice';
 import { hashToColor, invertColor } from './utils';
+import { filter } from 'rxjs';
+import { AnimationEventType } from '../animation';
 
 export interface SimulationEvent {
 	connectLine: ConnectLine;
@@ -34,12 +36,16 @@ export const Simulator = () => {
 			targetPosition: targetPoint,
 			sourcePosition: sourcePoint,
 		})(resultDrawerRef);
-		animationControl.addFinishListener(() => {
-			appDispatch(moveToNextObservableEvent());
-		});
+		const subscription = animationControl
+			.observable()
+			.pipe(filter((event) => event.type === AnimationEventType.Finish))
+			.subscribe(() => appDispatch(moveToNextObservableEvent()));
 
 		animationControl.play();
-		return () => animationControl.destroy();
+		return () => {
+			subscription.unsubscribe();
+			animationControl.destroy();
+		};
 	}, [nextObservableEvent, resultDrawerRef]);
 
 	if (!nextObservableEvent) {
@@ -56,4 +62,3 @@ export const Simulator = () => {
 		/>
 	);
 };
-

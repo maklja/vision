@@ -53,7 +53,12 @@ const selectStateDispatch = (dispatch: AppDispatch) => ({
 		);
 	},
 	onAnimationReady: (_: string, animations: CreateOperatorDrawerAnimations) => {
-		// animations.highlight.play();
+		animations.highlight.observable().subscribe({
+			next: (val) => {
+				console.log(val);
+			},
+		});
+		animations.highlight.play();
 	},
 });
 
@@ -86,4 +91,3 @@ export const elementConnector = (state: StageState) => {
 
 	return () => ({});
 };
-

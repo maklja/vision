@@ -3,16 +3,17 @@ import Konva from 'konva';
 import { Circle, Group, Text, Label, Tag } from 'react-konva';
 import { fromSize, DRAWER_DEFAULT } from '../utils';
 import {
-	AnimationControl,
 	elementIconTheme,
 	elementTextTheme,
 	elementTheme,
 	highlightElementAnimation,
+	highlightTextAnimation,
 } from '../../theme';
 import { DrawerProps } from '../DrawerProps';
+import { Animation, AnimationGroup } from '../../animation';
 
 export interface CreateOperatorDrawerAnimations {
-	highlight: AnimationControl;
+	highlight: Animation;
 }
 
 export interface CreationOperatorDrawerProps extends DrawerProps {
@@ -67,7 +68,12 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 			return;
 		}
 
-		props.onAnimationReady?.(props.id, { highlight: highlightElementAnimation(mainShape) });
+		// TODO
+		const aa = highlightElementAnimation(mainShape);
+		const bb = highlightTextAnimation(textRef);
+		const xx = highlightTextAnimation(iconTextRef);
+		const cc = new AnimationGroup([aa, bb, xx]);
+		props.onAnimationReady?.(props.id, { highlight: cc });
 	}, [textRef, iconTextRef, mainShape]);
 
 	return (
@@ -112,4 +118,3 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		</Group>
 	);
 };
-

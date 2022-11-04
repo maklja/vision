@@ -1,21 +1,26 @@
 import { Observable } from 'rxjs';
 
 export enum AnimationEventType {
-	Update = 'update',
 	Reset = 'reset',
 	Finish = 'finish',
 	Destroy = 'destroy',
 }
 
 export interface AnimationEvent {
-	id: number;
+	id: string;
+	animation: Animation;
 	type: AnimationEventType;
 }
 
+export interface AnimationOptions {
+	autoReverse: boolean;
+}
+
 export interface Animation {
+	get id(): string;
 	observable(): Observable<AnimationEvent>;
 	play(): void;
+	reverse(): void;
 	reset(): void;
 	destroy(): void;
 }
-

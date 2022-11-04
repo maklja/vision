@@ -1,5 +1,7 @@
 import Konva from 'konva';
-import { Animation, AnimationControl, TweenAnimationControl } from './animation';
+import { Animation, TweenAnimation } from '../animation';
+import { Point } from '../model';
+// import { Animation, AnimationControl, TweenAnimationControl } from './animation';
 
 export const resultSimulationTheme: Konva.CircleConfig = {
 	stroke: 'green',
@@ -8,11 +10,11 @@ export const resultSimulationTheme: Konva.CircleConfig = {
 };
 
 export interface MoveAnimation {
-	targetPosition: { x: number; y: number };
-	sourcePosition: { x: number; y: number };
+	targetPosition: Point;
+	sourcePosition: Point;
 }
 
-export const moveResultAnimation = (moveParams: MoveAnimation): Animation => {
+export const moveResultAnimation = (moveParams: MoveAnimation) => {
 	const { sourcePosition, targetPosition } = moveParams;
 	const duration =
 		Math.sqrt(
@@ -20,14 +22,11 @@ export const moveResultAnimation = (moveParams: MoveAnimation): Animation => {
 				Math.pow(targetPosition.y - sourcePosition.y, 2),
 		) / 150;
 
-	return (node: Konva.Node): AnimationControl =>
-		new TweenAnimationControl(
-			new Konva.Tween({
-				node,
-				duration,
-				x: targetPosition.x,
-				y: targetPosition.y,
-			}),
-		);
+	return (node: Konva.Node): Animation =>
+		new TweenAnimation({
+			node,
+			duration,
+			x: targetPosition.x,
+			y: targetPosition.y,
+		});
 };
-

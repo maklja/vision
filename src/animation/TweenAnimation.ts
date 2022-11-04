@@ -1,16 +1,19 @@
 import Konva from 'konva';
 import { Subject } from 'rxjs';
-import { AnimationEventType, AnimationEvent, Animation } from './Animation';
+import { v1 } from 'uuid';
+import { AnimationEventType, AnimationEvent, Animation, AnimationOptions } from './Animation';
 
 export class TweenAnimation implements Animation {
+	public readonly id = v1();
 	private readonly animationTween: Konva.Tween;
 	private readonly events$ = new Subject<AnimationEvent>();
 
-	constructor(config: Konva.TweenConfig) {
+	constructor(config: Konva.TweenConfig, options?: AnimationOptions) {
 		this.animationTween = new Konva.Tween(config);
 		this.animationTween.onReset = this.onReset.bind(this);
-		this.animationTween.onUpdate = this.onUpdate.bind(this);
 		this.animationTween.onFinish = this.onFinish.bind(this);
+
+		this.setupAnimation(options);
 	}
 
 	observable() {
@@ -19,6 +22,10 @@ export class TweenAnimation implements Animation {
 
 	play() {
 		this.animationTween.play();
+	}
+
+	reverse(): void {
+		this.animationTween.reverse();
 	}
 
 	reset() {
@@ -31,32 +38,39 @@ export class TweenAnimation implements Animation {
 		this.events$.complete();
 	}
 
-	private onUpdate() {
-		this.events$.next({
-			id: this.animationTween._id,
-			type: AnimationEventType.Update,
+	private setupAnimation(options?: AnimationOptions) {
+		if (!options) {
+			return;
+		}
+
+		this.observable().subscribe((event) => {
+			if (options.autoReverse && event.type === AnimationEventType.Finish) {
+				this.reverse();
+			}
 		});
 	}
 
 	private onReset() {
 		this.events$.next({
-			id: this.animationTween._id,
+			id: this.id,
 			type: AnimationEventType.Reset,
+			animation: this,
 		});
 	}
 
 	private onFinish() {
 		this.events$.next({
-			id: this.animationTween._id,
+			id: this.id,
 			type: AnimationEventType.Finish,
+			animation: this,
 		});
 	}
 
 	private onDestroy() {
 		this.events$.next({
-			id: this.animationTween._id,
+			id: this.id,
 			type: AnimationEventType.Destroy,
+			animation: this,
 		});
 	}
 }
-
