@@ -212,6 +212,10 @@ export const {
 
 export default stageSlice.reducer;
 
+export const selectStage = (state: RootState) => state.stage;
+
+export const selectStageElements = (state: RootState) => state.stage.elements;
+
 export const selectStageState = (state: RootState) => state.stage.state;
 
 export const selectHighlightedConnectPointsByElementId =

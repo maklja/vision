@@ -15,6 +15,7 @@ export interface ConnectPointDrawerEvent {
 	x: number;
 	y: number;
 	animations: ConnectPointAnimation | null;
+	originalEvent: Konva.KonvaEventObject<MouseEvent>;
 }
 
 export interface ConnectPointDrawerProps {
@@ -23,10 +24,10 @@ export interface ConnectPointDrawerProps {
 	y: number;
 	size?: number;
 	style?: ConnectPointStyle;
-	onMouseDown?: (event: ConnectPointDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onMouseUp?: (event: ConnectPointDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onMouseOver?: (event: ConnectPointDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onMouseOut?: (event: ConnectPointDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseDown?: (event: ConnectPointDrawerEvent) => void;
+	onMouseUp?: (event: ConnectPointDrawerEvent) => void;
+	onMouseOver?: (event: ConnectPointDrawerEvent) => void;
+	onMouseOut?: (event: ConnectPointDrawerEvent) => void;
 }
 
 export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
@@ -36,22 +37,22 @@ export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseOver?.({ type, x, y, animations }, e);
+		onMouseOver?.({ type, x, y, animations, originalEvent: e });
 	};
 
 	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseOut?.({ type, x, y, animations }, e);
+		onMouseOut?.({ type, x, y, animations, originalEvent: e });
 	};
 
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseDown?.({ type, x, y, animations }, e);
+		onMouseDown?.({ type, x, y, animations, originalEvent: e });
 	};
 
 	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseUp?.({ type, x, y, animations }, e);
+		onMouseUp?.({ type, x, y, animations, originalEvent: e });
 	};
 
 	const radius = fromSize(CONNECTOR_DEFAULT.radius, size);

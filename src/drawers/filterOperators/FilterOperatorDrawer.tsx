@@ -6,8 +6,7 @@ import { DrawerProps } from '../DrawerProps';
 import { DRAWER_DEFAULT, fromSize } from '../utils';
 
 export const FilterOperatorDrawer = (props: DrawerProps) => {
-	const [textRef, setTextRef] = useState<Konva.Text | null>(null);
-	const [iconTextRef, setIconTextRef] = useState<Konva.Text | null>(null);
+	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 
 	const {
 		x,
@@ -37,18 +36,15 @@ export const FilterOperatorDrawer = (props: DrawerProps) => {
 	const width = fromSize(DRAWER_DEFAULT.width, size);
 	const height = fromSize(DRAWER_DEFAULT.height, size);
 	const textFontSize = fromSize(DRAWER_DEFAULT.textFontSize, size);
-	const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
 
-	const textX = (textRef?.textWidth ?? 0) / -2 + width / 2;
-	const textY = textRef?.textHeight ?? 0;
-	const iconX = (iconTextRef?.textWidth ?? 0) / -2 + width / 2;
-	const iconY = (iconTextRef?.textHeight ?? 0) / 2 + height / 2;
+	const textX = (mainTextRef?.textWidth ?? 0) / -2 + width / 2;
+	const textY = mainTextRef?.textHeight ?? 0;
 
 	return (
 		<Group
 			x={x}
 			y={y}
-			visible={Boolean(textRef && iconTextRef)}
+			visible={Boolean(mainTextRef)}
 			draggable
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
@@ -59,7 +55,7 @@ export const FilterOperatorDrawer = (props: DrawerProps) => {
 		>
 			<Rect {...elementTheme} id={id} width={width} height={height} />
 			<Text
-				ref={(ref) => setTextRef(ref)}
+				ref={(ref) => setMainTextRef(ref)}
 				text={'filter'}
 				x={textX}
 				y={textY}
@@ -67,17 +63,6 @@ export const FilterOperatorDrawer = (props: DrawerProps) => {
 				listening={false}
 				{...elementTextTheme}
 			/>
-
-			<Text
-				ref={(ref) => setIconTextRef(ref)}
-				text={'Y'}
-				x={iconX}
-				y={iconY}
-				fontSize={iconFontSize}
-				listening={false}
-				{...elementTextTheme}
-			/>
 		</Group>
 	);
 };
-

@@ -57,4 +57,3 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 		</Group>
 	);
 };
-

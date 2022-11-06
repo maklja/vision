@@ -1,23 +1,19 @@
 import Konva from 'konva';
 import { useSelector } from 'react-redux';
-import { RootState, useAppDispatch } from './store/rootState';
-import { Stage, Layer } from 'react-konva';
-import { createDrawerElement, createConnectLineElement } from './factory';
+import { useAppDispatch } from './store/rootState';
+import { Stage } from 'react-konva';
 import {
-	StageSlice,
 	selectElements,
 	moveConnectLineDraw,
 	deleteConnectLineDraw,
+	selectStage,
 } from './store/stageSlice';
 import { Simulator } from './simulator';
 import { createObservableSimulation } from './engine';
 import { ObservableEvent, setObservableEvents } from './store/simulationSlice';
-import { ConnectLineDrawer } from './drawers';
 
 function App() {
-	const { elements, connectLines, draftConnectLine } = useSelector<RootState, StageSlice>(
-		(store) => store.stage,
-	);
+	const { elements, connectLines } = useSelector(selectStage);
 	const appDispatch = useAppDispatch();
 
 	const handleMouseDown = () => appDispatch(selectElements([]));
@@ -84,22 +80,10 @@ function App() {
 				onMouseUp={handleOnMouseUp}
 				onMouseMove={handleMouseMove}
 			>
-				<Layer>
-					{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
-					{draftConnectLine ? (
-						<ConnectLineDrawer
-							key={draftConnectLine.id}
-							id={draftConnectLine.id}
-							points={draftConnectLine.points}
-						/>
-					) : null}
-					{elements.map((el) => createDrawerElement(el))}
-					<Simulator />
-				</Layer>
+				<Simulator />
 			</Stage>
 		</div>
 	);
 }
 
 export default App;
-

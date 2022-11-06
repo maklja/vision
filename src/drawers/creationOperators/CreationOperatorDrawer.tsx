@@ -1,38 +1,35 @@
 import { useEffect, useState } from 'react';
 import Konva from 'konva';
-import { Circle, Group, Text, Label, Tag } from 'react-konva';
+import { Circle, Group, Text } from 'react-konva';
 import { fromSize, DRAWER_DEFAULT } from '../utils';
 import {
-	elementIconTheme,
 	elementTextTheme,
 	elementTheme,
 	highlightElementAnimation,
 	highlightTextAnimation,
 } from '../../theme';
-import { DrawerProps } from '../DrawerProps';
-import { Animation, AnimationGroup } from '../../animation';
-
-export interface CreateOperatorDrawerAnimations {
-	highlight: Animation;
-}
+import { DrawerAnimations, DrawerProps } from '../DrawerProps';
+import { Animation, useAnimation, useAnimationGroups } from '../../animation';
 
 export interface CreationOperatorDrawerProps extends DrawerProps {
 	title: string;
-	icon: string;
-	onAnimationReady?: (id: string, animations: CreateOperatorDrawerAnimations) => void;
-	onAnimationDestroy?: (id: string) => void;
 }
 
 export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
-	const [mainShape, setMainShape] = useState<Konva.Circle | null>(null);
-	const [textRef, setTextRef] = useState<Konva.Text | null>(null);
-	const [iconTextRef, setIconTextRef] = useState<Konva.Text | null>(null);
+	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
+	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
+
+	const mainShapeHighlightAnimation = useAnimation(mainShapeRef, highlightElementAnimation);
+	const mainTextHighlightAnimation = useAnimation(mainTextRef, highlightTextAnimation);
+	const highlightAnimation = useAnimationGroups(
+		mainShapeHighlightAnimation,
+		mainTextHighlightAnimation,
+	);
 
 	const {
 		x,
 		y,
 		title,
-		icon,
 		size,
 		id,
 		onMouseOver,
@@ -44,12 +41,12 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 	} = props;
 	const radius = fromSize(DRAWER_DEFAULT.radius, size);
 	const textFontSize = fromSize(DRAWER_DEFAULT.textFontSize, size);
-	const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
+	// const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
+	// const iconX = radius + -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
+	// const iconY = radius + radius * Math.cos(-45) - (iconTextRef?.textHeight ?? 0) / 2;
 
-	const textX = radius + (textRef?.textWidth ?? 0) / -2;
-	const textY = radius + (textRef?.textHeight ?? 0) / -2;
-	const iconX = radius + -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
-	const iconY = radius + radius * Math.cos(-45) - (iconTextRef?.textHeight ?? 0) / 2;
+	const textX = radius + (mainTextRef?.textWidth ?? 0) / -2;
+	const textY = radius + (mainTextRef?.textHeight ?? 0) / -2;
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => onMouseOver?.(id, e);
 
@@ -64,24 +61,27 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 	const handleDragEnd = (e: Konva.KonvaEventObject<MouseEvent>) => onDragEnd?.(id, e);
 
 	useEffect(() => {
-		if (!textRef || !iconTextRef || !mainShape) {
+		if (!highlightAnimation) {
 			return;
 		}
 
-		// TODO
-		const aa = highlightElementAnimation(mainShape);
-		const bb = highlightTextAnimation(textRef);
-		const xx = highlightTextAnimation(iconTextRef);
-		const cc = new AnimationGroup([aa, bb, xx]);
-		props.onAnimationReady?.(props.id, { highlight: cc });
-	}, [textRef, iconTextRef, mainShape]);
+		const animations: DrawerAnimations = {
+			highlight: highlightAnimation,
+		};
+		props.onAnimationReady?.(props.id, animations);
+
+		return () => {
+			Object.values(animations).forEach((a: Animation) => a.destroy());
+			props.onAnimationDestroy?.(props.id);
+		};
+	}, [highlightAnimation]);
 
 	return (
 		<Group
 			x={x}
 			y={y}
 			draggable
-			visible={Boolean(textRef && iconTextRef && mainShape)}
+			visible={Boolean(mainTextRef && mainShapeRef)}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
 			onMouseDown={handleMouseDown}
@@ -91,24 +91,15 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		>
 			<Circle
 				{...elementTheme}
-				ref={(ref) => setMainShape(ref)}
+				ref={(ref) => setMainShapeRef(ref)}
 				id={id}
 				radius={radius}
 				x={radius}
 				y={radius}
 			/>
-			<Label x={iconX} y={iconY} listening={false}>
-				<Tag fill="#eee" />
-				<Text
-					{...elementIconTheme}
-					ref={(ref) => setIconTextRef(ref)}
-					text={icon}
-					fontSize={iconFontSize}
-				/>
-			</Label>
 			<Text
 				{...elementTextTheme}
-				ref={(ref) => setTextRef(ref)}
+				ref={(ref) => setMainTextRef(ref)}
 				text={title}
 				x={textX}
 				y={textY}

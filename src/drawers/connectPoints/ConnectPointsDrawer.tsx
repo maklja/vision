@@ -1,4 +1,3 @@
-import Konva from 'konva';
 import { Group } from 'react-konva';
 import { ConnectPointType } from '../../model';
 import { ConnectPointStyle } from '../../theme';
@@ -26,10 +25,10 @@ export interface ConnectPointsDrawerProps {
 	styles?: {
 		[key in ConnectPointType]?: ConnectPointStyle;
 	};
-	onMouseDown?: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onMouseUp?: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onMouseOver?: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onMouseOut?: (cEvent: ConnectPointsDrawerEvent, e: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
 }
 
 export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
@@ -61,60 +60,36 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 	const leftX = x - offset;
 	const leftY = y + height / 2;
 
-	const handleOnMouseDown = (
-		cEvent: ConnectPointDrawerEvent,
-		e: Konva.KonvaEventObject<MouseEvent>,
-	) => {
-		onMouseDown?.(
-			{
-				id,
-				connectPoint: cEvent,
-				element: createBoundingBox(x, y, size),
-			},
-			e,
-		);
+	const handleOnMouseDown = (cEvent: ConnectPointDrawerEvent) => {
+		onMouseDown?.({
+			id,
+			connectPoint: cEvent,
+			element: createBoundingBox(x, y, size),
+		});
 	};
 
-	const handleOnMouseUp = (
-		cEvent: ConnectPointDrawerEvent,
-		e: Konva.KonvaEventObject<MouseEvent>,
-	) => {
-		onMouseUp?.(
-			{
-				id,
-				connectPoint: cEvent,
-				element: createBoundingBox(x, y, size),
-			},
-			e,
-		);
+	const handleOnMouseUp = (cEvent: ConnectPointDrawerEvent) => {
+		onMouseUp?.({
+			id,
+			connectPoint: cEvent,
+			element: createBoundingBox(x, y, size),
+		});
 	};
 
-	const handleOnMouseOver = (
-		cEvent: ConnectPointDrawerEvent,
-		e: Konva.KonvaEventObject<MouseEvent>,
-	) => {
-		onMouseOver?.(
-			{
-				id,
-				connectPoint: cEvent,
-				element: createBoundingBox(x, y, size),
-			},
-			e,
-		);
+	const handleOnMouseOver = (cEvent: ConnectPointDrawerEvent) => {
+		onMouseOver?.({
+			id,
+			connectPoint: cEvent,
+			element: createBoundingBox(x, y, size),
+		});
 	};
 
-	const handleOnMouseOut = (
-		cEvent: ConnectPointDrawerEvent,
-		e: Konva.KonvaEventObject<MouseEvent>,
-	) => {
-		onMouseOut?.(
-			{
-				id,
-				connectPoint: cEvent,
-				element: createBoundingBox(x, y, size),
-			},
-			e,
-		);
+	const handleOnMouseOut = (cEvent: ConnectPointDrawerEvent) => {
+		onMouseOut?.({
+			id,
+			connectPoint: cEvent,
+			element: createBoundingBox(x, y, size),
+		});
 	};
 
 	return (

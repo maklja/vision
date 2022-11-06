@@ -1,4 +1,5 @@
 import Konva from 'konva';
+import { Animation } from '../animation';
 
 export interface DrawerConnectPointsProps {
 	id: string;
@@ -6,6 +7,10 @@ export interface DrawerConnectPointsProps {
 	y: number;
 	width: number;
 	height: number;
+}
+
+export interface DrawerAnimations {
+	highlight: Animation;
 }
 
 export interface DrawerProps {
@@ -19,5 +24,6 @@ export interface DrawerProps {
 	onDragStart?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onDragEnd?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
 	onDragMove?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
+	onAnimationReady?: (id: string, animations: DrawerAnimations) => void;
+	onAnimationDestroy?: (id: string) => void;
 }
-

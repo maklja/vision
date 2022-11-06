@@ -2,13 +2,17 @@ import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../store/rootState';
-import { ResultDrawer } from '../drawers';
+import { ConnectLineDrawer, ResultDrawer } from '../drawers';
 import { ConnectLine, Element } from '../model';
 import { moveResultAnimation } from '../theme';
 import { moveToNextObservableEvent, selectNextObservableEvent } from '../store/simulationSlice';
 import { hashToColor, invertColor } from './utils';
 import { filter } from 'rxjs';
 import { AnimationEventType } from '../animation';
+import { selectStage } from '../store/stageSlice';
+import { Layer } from 'react-konva';
+import { createConnectLineElement } from '../factory';
+import { DrawerLayer } from '../layers';
 
 export interface SimulationEvent {
 	connectLine: ConnectLine;
@@ -17,6 +21,7 @@ export interface SimulationEvent {
 }
 
 export const Simulator = () => {
+	const { elements, connectLines, draftConnectLine } = useSelector(selectStage);
 	const nextObservableEvent = useSelector(selectNextObservableEvent);
 	const appDispatch = useAppDispatch();
 	const [resultDrawerRef, setResultDrawerRef] = useState<Konva.Node | null>(null);
@@ -48,17 +53,29 @@ export const Simulator = () => {
 		};
 	}, [nextObservableEvent, resultDrawerRef]);
 
-	if (!nextObservableEvent) {
-		return null;
-	}
+	// if (!nextObservableEvent) {
+	// 	return null;
+	// }
 
-	const resultColor = hashToColor(nextObservableEvent.hash);
-	const invertResultColor = invertColor(resultColor, false);
+	// const resultColor = hashToColor(nextObservableEvent.hash);
+	// const invertResultColor = invertColor(resultColor, false);
+	// console.log(elements);
 	return (
-		<ResultDrawer
-			ref={(ref) => setResultDrawerRef(ref)}
-			fill={resultColor}
-			stroke={invertResultColor}
-		/>
+		<Layer>
+			{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
+			{draftConnectLine ? (
+				<ConnectLineDrawer
+					key={draftConnectLine.id}
+					id={draftConnectLine.id}
+					points={draftConnectLine.points}
+				/>
+			) : null}
+			<DrawerLayer />
+			{/* <ResultDrawer
+				ref={(ref) => setResultDrawerRef(ref)}
+				fill={resultColor}
+				stroke={invertResultColor}
+			/> */}
+		</Layer>
 	);
 };
