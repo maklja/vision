@@ -48,31 +48,68 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 	const textX = radius + (mainTextRef?.textWidth ?? 0) / -2;
 	const textY = radius + (mainTextRef?.textHeight ?? 0) / -2;
 
-	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => onMouseOver?.(id, e);
+	const createAnimation = (): DrawerAnimations => ({
+		highlight: highlightAnimation,
+	});
 
-	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => onMouseOut?.(id, e);
+	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseOver?.({
+			id,
+			originalEvent: e,
+			animations: createAnimation(),
+		});
 
-	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => onMouseDown?.(id, e);
+	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseOut?.({
+			id,
+			originalEvent: e,
+			animations: createAnimation(),
+		});
 
-	const handleDragMove = (e: Konva.KonvaEventObject<MouseEvent>) => onDragMove?.(id, e);
+	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseDown?.({
+			id,
+			originalEvent: e,
+			animations: createAnimation(),
+		});
 
-	const handleDragStart = (e: Konva.KonvaEventObject<MouseEvent>) => onDragStart?.(id, e);
+	const handleDragMove = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onDragMove?.({
+			id,
+			originalEvent: e,
+			animations: createAnimation(),
+		});
 
-	const handleDragEnd = (e: Konva.KonvaEventObject<MouseEvent>) => onDragEnd?.(id, e);
+	const handleDragStart = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onDragStart?.({
+			id,
+			originalEvent: e,
+			animations: createAnimation(),
+		});
+
+	const handleDragEnd = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onDragEnd?.({
+			id,
+			originalEvent: e,
+			animations: createAnimation(),
+		});
 
 	useEffect(() => {
 		if (!highlightAnimation) {
 			return;
 		}
 
-		const animations: DrawerAnimations = {
-			highlight: highlightAnimation,
-		};
-		props.onAnimationReady?.(props.id, animations);
+		const animations: DrawerAnimations = createAnimation();
+		props.onAnimationReady?.({
+			id,
+			animations,
+		});
 
 		return () => {
 			Object.values(animations).forEach((a: Animation) => a.destroy());
-			props.onAnimationDestroy?.(props.id);
+			props.onAnimationDestroy?.({
+				id,
+			});
 		};
 	}, [highlightAnimation]);
 

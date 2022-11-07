@@ -1,7 +1,6 @@
-import Konva from 'konva';
 import { useMemo } from 'react';
 import { Group } from 'react-konva';
-import { ConnectPointsDrawerEvent } from '../drawers';
+import { ConnectPointsDrawerEvent, DrawerEvent, DrawerEvents } from '../drawers';
 import { AppDispatch, useAppDispatch, useAppSelector } from '../store/rootState';
 import {
 	changeState,
@@ -87,57 +86,78 @@ const connectPointDrawConnectLineHandlers = (dispatch: AppDispatch) => ({
 	},
 });
 
-const drawerSelectStateHandlers = (dispatch: AppDispatch) => ({
-	onMouseDown: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		dispatch(selectElements([id]));
+const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({
+	onMouseDown: (e: DrawerEvent) => {
+		if (e.originalEvent) {
+			e.originalEvent.cancelBubble = true;
+		}
+		dispatch(selectElements([e.id]));
 	},
-	onMouseOver: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		changeCursorStyle('pointer', e);
-		dispatch(highlightElements([id]));
+	onMouseOver: (e: DrawerEvent) => {
+		const { id, originalEvent } = e;
+		if (originalEvent) {
+			originalEvent.cancelBubble = true;
+			changeCursorStyle('pointer', originalEvent);
+			dispatch(highlightElements([id]));
+		}
 	},
-	onMouseOut: (_: string, e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		changeCursorStyle('default', e);
-		dispatch(highlightElements([]));
+	onMouseOut: (e: DrawerEvent) => {
+		const { originalEvent } = e;
+		if (originalEvent) {
+			originalEvent.cancelBubble = true;
+			changeCursorStyle('default', originalEvent);
+			dispatch(highlightElements([]));
+		}
 	},
-	onDragStart: (_: string, e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
+	onDragStart: (e: DrawerEvent) => {
+		if (e.originalEvent) {
+			e.originalEvent.cancelBubble = true;
+		}
 		dispatch(changeState(StageState.Dragging));
 	},
-	onDragEnd: (_: string, e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
+	onDragEnd: (e: DrawerEvent) => {
+		if (e.originalEvent) {
+			e.originalEvent.cancelBubble = true;
+		}
 		dispatch(changeState(StageState.Select));
 	},
-	onDragMove: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		const position = e.currentTarget.getAbsolutePosition();
-		dispatch(
-			moveDrawer({
-				id,
-				x: position.x,
-				y: position.y,
-			}),
-		);
+	onDragMove: (e: DrawerEvent) => {
+		const { id, originalEvent } = e;
+		if (originalEvent) {
+			originalEvent.cancelBubble = true;
+			const position = originalEvent.currentTarget.getAbsolutePosition();
+			dispatch(
+				moveDrawer({
+					id,
+					x: position.x,
+					y: position.y,
+				}),
+			);
+		}
 	},
 });
 
-const drawerDragStateHandlers = (dispatch: AppDispatch) => ({
-	onDragEnd: (_: string, e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		dispatch(changeState(StageState.Select));
+const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({
+	onDragEnd: (e: DrawerEvent) => {
+		const { originalEvent } = e;
+		if (originalEvent) {
+			originalEvent.cancelBubble = true;
+			dispatch(changeState(StageState.Select));
+		}
 	},
-	onDragMove: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		const position = e.currentTarget.getAbsolutePosition();
-		dispatch(
-			moveDrawer({
-				id,
-				x: position.x,
-				y: position.y,
-			}),
-		);
+	onDragMove: (e: DrawerEvent) => {
+		const { id, originalEvent } = e;
+		if (originalEvent) {
+			originalEvent.cancelBubble = true;
+			const position = originalEvent.currentTarget.getAbsolutePosition();
+			dispatch(
+				moveDrawer({
+					id,
+					x: position.x,
+					y: position.y,
+				}),
+			);
+		}
 	},
 });
 
@@ -175,6 +195,20 @@ export const DrawerLayer = () => {
 		return {};
 	}, [stageState]);
 
+	const handleDrawerAnimationReady = (drawerEvent: DrawerEvent) => {
+		drawerEvent.animations?.highlight?.play();
+		// appDispatch(
+		// 	addDrawerSettings({
+		// 		id: drawerEvent.id,
+		// 		animations: drawerEvent.animations ?? null,
+		// 	}),
+		// );
+	};
+
+	const handleDrawerAnimationDestroy = (drawerEvent: DrawerEvent) => {
+		// appDispatch(removeDrawerSettings(drawerEvent.id));
+	};
+
 	return (
 		<Group>
 			{elements
@@ -199,7 +233,12 @@ export const DrawerLayer = () => {
 							onConnectPointMouseOut={connectPointHandlers.onMouseOut}
 							onConnectPointMouseOver={connectPointHandlers.onMouseOver}
 						>
-							{createElementDrawer(el, { ...el, ...elementHandlers })}
+							{createElementDrawer(el, {
+								...el,
+								...elementHandlers,
+								onAnimationReady: handleDrawerAnimationReady,
+								onAnimationDestroy: handleDrawerAnimationDestroy,
+							})}
 						</DrawerWrapper>
 					);
 				})

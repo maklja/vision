@@ -10,20 +10,29 @@ export interface DrawerConnectPointsProps {
 }
 
 export interface DrawerAnimations {
-	highlight: Animation;
+	highlight: Animation | null;
 }
 
-export interface DrawerProps {
+export interface DrawerEvent {
+	id: string;
+	animations?: DrawerAnimations;
+	originalEvent?: Konva.KonvaEventObject<MouseEvent>;
+}
+
+export interface DrawerEvents {
+	onMouseDown?: (event: DrawerEvent) => void;
+	onMouseOver?: (event: DrawerEvent) => void;
+	onMouseOut?: (event: DrawerEvent) => void;
+	onDragStart?: (event: DrawerEvent) => void;
+	onDragEnd?: (event: DrawerEvent) => void;
+	onDragMove?: (event: DrawerEvent) => void;
+	onAnimationReady?: (event: DrawerEvent) => void;
+	onAnimationDestroy?: (event: DrawerEvent) => void;
+}
+
+export interface DrawerProps extends DrawerEvents {
 	id: string;
 	x?: number;
 	y?: number;
 	size?: number;
-	onMouseDown?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onMouseOver?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onMouseOut?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onDragStart?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onDragEnd?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onDragMove?: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
-	onAnimationReady?: (id: string, animations: DrawerAnimations) => void;
-	onAnimationDestroy?: (id: string) => void;
 }

@@ -21,17 +21,41 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 	const outerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.8);
 	const innerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.5);
 
-	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => onMouseOver?.(id, e);
+	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseOver?.({
+			id,
+			originalEvent: e,
+		});
 
-	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => onMouseOut?.(id, e);
+	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseOut?.({
+			id,
+			originalEvent: e,
+		});
 
-	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => onMouseDown?.(id, e);
+	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseDown?.({
+			id,
+			originalEvent: e,
+		});
 
-	const handleDragMove = (e: Konva.KonvaEventObject<MouseEvent>) => onDragMove?.(id, e);
+	const handleDragMove = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onDragMove?.({
+			id,
+			originalEvent: e,
+		});
 
-	const handleDragStart = (e: Konva.KonvaEventObject<MouseEvent>) => onDragStart?.(id, e);
+	const handleDragStart = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onDragStart?.({
+			id,
+			originalEvent: e,
+		});
 
-	const handleDragEnd = (e: Konva.KonvaEventObject<MouseEvent>) => onDragEnd?.(id, e);
+	const handleDragEnd = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onDragEnd?.({
+			id,
+			originalEvent: e,
+		});
 
 	return (
 		<Group
