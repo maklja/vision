@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Group } from 'react-konva';
-import { ConnectPointsDrawerEvent, DrawerEvent, DrawerEvents } from '../drawers';
-import { AppDispatch, useAppDispatch, useAppSelector } from '../store/rootState';
+import { ConnectPointsDrawerEvent, DrawerEvent, DrawerEvents } from '../../drawers';
+import { addDrawerSettings, removeDrawerSettings } from '../../store/drawersSlice';
+import { AppDispatch, useAppDispatch, useAppSelector } from '../../store/rootState';
 import {
 	changeState,
 	highlightConnectPoints,
@@ -18,7 +19,7 @@ import {
 	StageState,
 	startConnectLineDraw,
 	unpinConnectLine,
-} from '../store/stageSlice';
+} from '../../store/stageSlice';
 import { createElementDrawer } from './createElementDrawer';
 import { DrawerWrapper } from './DrawerWrapper';
 import { changeCursorStyle } from './utils';
@@ -196,17 +197,16 @@ export const DrawerLayer = () => {
 	}, [stageState]);
 
 	const handleDrawerAnimationReady = (drawerEvent: DrawerEvent) => {
-		drawerEvent.animations?.highlight?.play();
-		// appDispatch(
-		// 	addDrawerSettings({
-		// 		id: drawerEvent.id,
-		// 		animations: drawerEvent.animations ?? null,
-		// 	}),
-		// );
+		appDispatch(
+			addDrawerSettings({
+				id: drawerEvent.id,
+				animations: drawerEvent.animations ?? null,
+			}),
+		);
 	};
 
 	const handleDrawerAnimationDestroy = (drawerEvent: DrawerEvent) => {
-		// appDispatch(removeDrawerSettings(drawerEvent.id));
+		appDispatch(removeDrawerSettings(drawerEvent.id));
 	};
 
 	return (
@@ -246,3 +246,4 @@ export const DrawerLayer = () => {
 		</Group>
 	);
 };
+

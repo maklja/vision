@@ -1,12 +1,12 @@
-import { ConnectPointsDrawer, BorderDrawer, ConnectPointsDrawerEvent } from '../drawers';
-import { ConnectPointType } from '../model';
+import { ConnectPointsDrawer, BorderDrawer, ConnectPointsDrawerEvent } from '../../drawers';
+import { ConnectPointType } from '../../model';
 import { Group } from 'react-konva';
 import {
 	selectedBorderTheme,
 	highlightBorderTheme,
 	connectPointTheme,
 	highlightConnectPointTheme,
-} from '../theme';
+} from '../../theme';
 import { PropsWithChildren } from 'react';
 
 export interface DrawerWrapperProps {
@@ -93,3 +93,4 @@ export const DrawerWrapper = ({
 		</Group>
 	);
 };
+

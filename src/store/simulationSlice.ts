@@ -1,5 +1,4 @@
-import { createSlice, Draft } from '@reduxjs/toolkit';
-import { ConnectLine, Element } from '../model';
+import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { RootState } from './rootState';
 
 export interface SetObservableEventsAction {
@@ -11,45 +10,33 @@ export interface ObservableEvent {
 	id: string;
 	value: unknown;
 	hash: string;
-	connectLine: ConnectLine;
-	sourceElement: Element;
-	targetElement: Element;
+	connectLineId: string;
 }
 
-export interface SimulationSlice {
-	currentEvent: ObservableEvent | null;
+export interface Simulation {
+	id: string;
+	completed: boolean;
 	events: ObservableEvent[];
 }
 
-const initialState: SimulationSlice = {
-	events: [],
-	currentEvent: null,
-};
+const simulationAdapter = createEntityAdapter<Simulation>({
+	selectId: (simulation) => simulation.id,
+});
 
-export const simulationSlice = createSlice({
-	name: 'simulation',
-	initialState: initialState,
+export const simulationsSlice = createSlice({
+	name: 'simulations',
+	initialState: simulationAdapter.getInitialState(),
 	reducers: {
-		setObservableEvents: (slice: Draft<SimulationSlice>, action: SetObservableEventsAction) => {
-			slice.events = action.payload;
-			slice.currentEvent = action.payload[0];
-		},
-		moveToNextObservableEvent: (slice: Draft<SimulationSlice>) => {
-			const { currentEvent, events } = slice;
-			const currentIdx = events.findIndex((event) => event.id === currentEvent?.id);
-			if (currentIdx === -1 || currentIdx >= events.length - 1) {
-				slice.currentEvent = null;
-				return;
-			}
-
-			slice.currentEvent = events[currentIdx + 1];
-		},
+		createSimulation: simulationAdapter.addOne,
 	},
 });
 
-export const { moveToNextObservableEvent, setObservableEvents } = simulationSlice.actions;
+export const { createSimulation } = simulationsSlice.actions;
 
-export default simulationSlice.reducer;
+export default simulationsSlice.reducer;
 
-export const selectNextObservableEvent = (state: RootState) => state.simulation.currentEvent;
+const simulationsSelector = simulationAdapter.getSelectors<RootState>((state) => state.simulations);
+
+export const selectSimulationById = (id: string) => (state: RootState) =>
+	simulationsSelector.selectById(state, id) ?? null;
 

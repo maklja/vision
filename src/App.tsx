@@ -1,19 +1,24 @@
 import Konva from 'konva';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from './store/rootState';
-import { Stage } from 'react-konva';
+import { Layer, Stage } from 'react-konva';
 import {
 	selectElements,
 	moveConnectLineDraw,
 	deleteConnectLineDraw,
 	selectStage,
 } from './store/stageSlice';
-import { Simulator } from './simulator';
 import { createObservableSimulation } from './engine';
-import { ObservableEvent, setObservableEvents } from './store/simulationSlice';
+import { ObservableEvent, createSimulation } from './store/simulationSlice';
+import { createConnectLineElement } from './factory';
+import { ConnectLineDrawer } from './drawers';
+import { DrawerLayer } from './layers/drawer';
+import { useState } from 'react';
+import { SimulationLayer } from './layers/simulation';
 
 function App() {
-	const { elements, connectLines } = useSelector(selectStage);
+	const { elements, connectLines, draftConnectLine } = useSelector(selectStage);
+	const [activeSimulationId, setActiveSimulationId] = useState<string | null>(null);
 	const appDispatch = useAppDispatch();
 
 	const handleMouseDown = () => appDispatch(selectElements([]));
@@ -43,28 +48,25 @@ function App() {
 
 		observableSimulation?.addFlowListener({
 			onNextFlow: (event) => {
-				const { id, connectLineId, sourceElementId, targetElementId, value, hash } = event;
-				const connectLine = connectLines.find((curCl) => curCl.id === connectLineId);
-				const sourceElement = elements.find((curEl) => curEl.id === sourceElementId);
-				const targetElement = elements.find((curEl) => curEl.id === targetElementId);
-
-				if (!connectLine || !sourceElement || !targetElement) {
-					throw new Error();
-				}
-
+				const { id, connectLineId, value, hash } = event;
 				results.push({
 					id,
 					hash,
 					value,
-					connectLine,
-					sourceElement,
-					targetElement,
+					connectLineId,
 				});
 			},
 		});
 		observableSimulation?.start({
 			complete: () => {
-				appDispatch(setObservableEvents(results));
+				appDispatch(
+					createSimulation({
+						id: 'test',
+						events: results,
+						completed: true,
+					}),
+				);
+				setActiveSimulationId('test');
 			},
 		});
 	};
@@ -80,10 +82,24 @@ function App() {
 				onMouseUp={handleOnMouseUp}
 				onMouseMove={handleMouseMove}
 			>
-				<Simulator />
+				<Layer>
+					{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
+					{draftConnectLine ? (
+						<ConnectLineDrawer
+							key={draftConnectLine.id}
+							id={draftConnectLine.id}
+							points={draftConnectLine.points}
+						/>
+					) : null}
+					<DrawerLayer />
+					{activeSimulationId ? (
+						<SimulationLayer simulationId={activeSimulationId} />
+					) : null}
+				</Layer>
 			</Stage>
 		</div>
 	);
 }
 
 export default App;
+

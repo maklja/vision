@@ -38,6 +38,8 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		onDragMove,
 		onDragStart,
 		onDragEnd,
+		onAnimationDestroy,
+		onAnimationReady,
 	} = props;
 	const radius = fromSize(DRAWER_DEFAULT.radius, size);
 	const textFontSize = fromSize(DRAWER_DEFAULT.textFontSize, size);
@@ -100,14 +102,14 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		}
 
 		const animations: DrawerAnimations = createAnimation();
-		props.onAnimationReady?.({
+		onAnimationReady?.({
 			id,
 			animations,
 		});
 
 		return () => {
 			Object.values(animations).forEach((a: Animation) => a.destroy());
-			props.onAnimationDestroy?.({
+			onAnimationDestroy?.({
 				id,
 			});
 		};
@@ -146,3 +148,4 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		</Group>
 	);
 };
+

@@ -27,8 +27,6 @@ export const highlightElementAnimation = (node: Konva.Node): Animation =>
 			node,
 			duration: 2,
 			fill: 'green',
-			scaleX: 1.4,
-			scaleY: 1.4,
 		},
 		{ autoReverse: true },
 	);
@@ -42,3 +40,4 @@ export const highlightTextAnimation = (node: Konva.Node): Animation =>
 		},
 		{ autoReverse: true },
 	);
+

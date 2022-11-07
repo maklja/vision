@@ -4,8 +4,8 @@ import {
 	SubscriberDrawer,
 	FilterOperatorDrawer,
 	DrawerProps,
-} from '../drawers';
-import { Element, ElementType } from '../model';
+} from '../../drawers';
+import { Element, ElementType } from '../../model';
 
 const createFromDrawer = (props: DrawerProps) => <FromOperatorDrawer {...props} />;
 
@@ -26,3 +26,4 @@ export const createElementDrawer = (el: Element, props: DrawerProps): JSX.Elemen
 	const elementFactory = elementFactories.get(el.type);
 	return elementFactory?.(props) ?? null;
 };
+

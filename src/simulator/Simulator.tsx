@@ -5,14 +5,13 @@ import { useAppDispatch } from '../store/rootState';
 import { ConnectLineDrawer, ResultDrawer } from '../drawers';
 import { ConnectLine, Element } from '../model';
 import { moveResultAnimation } from '../theme';
-import { moveToNextObservableEvent, selectNextObservableEvent } from '../store/simulationSlice';
 import { hashToColor, invertColor } from './utils';
 import { filter } from 'rxjs';
 import { AnimationEventType } from '../animation';
 import { selectStage } from '../store/stageSlice';
 import { Layer } from 'react-konva';
 import { createConnectLineElement } from '../factory';
-import { DrawerLayer } from '../layers';
+import { DrawerLayer } from '../layers/drawer';
 
 export interface SimulationEvent {
 	connectLine: ConnectLine;
@@ -22,36 +21,36 @@ export interface SimulationEvent {
 
 export const Simulator = () => {
 	const { elements, connectLines, draftConnectLine } = useSelector(selectStage);
-	const nextObservableEvent = useSelector(selectNextObservableEvent);
+	// const nextObservableEvent = useSelector(selectNextObservableEvent);
 	const appDispatch = useAppDispatch();
 	const [resultDrawerRef, setResultDrawerRef] = useState<Konva.Node | null>(null);
 
-	useEffect(() => {
-		if (!resultDrawerRef || !nextObservableEvent) {
-			return;
-		}
+	// useEffect(() => {
+	// 	if (!resultDrawerRef || !nextObservableEvent) {
+	// 		return;
+	// 	}
 
-		const { connectLine } = nextObservableEvent;
-		const [, sourcePoint] = connectLine.points;
-		const [targetPoint] = connectLine.points.slice(-2);
+	// 	const { connectLine } = nextObservableEvent;
+	// 	const [, sourcePoint] = connectLine.points;
+	// 	const [targetPoint] = connectLine.points.slice(-2);
 
-		resultDrawerRef.setPosition({ x: sourcePoint.x, y: sourcePoint.y });
+	// 	resultDrawerRef.setPosition({ x: sourcePoint.x, y: sourcePoint.y });
 
-		const animationControl = moveResultAnimation({
-			targetPosition: targetPoint,
-			sourcePosition: sourcePoint,
-		})(resultDrawerRef);
-		const subscription = animationControl
-			.observable()
-			.pipe(filter((event) => event.type === AnimationEventType.Finish))
-			.subscribe(() => appDispatch(moveToNextObservableEvent()));
+	// 	const animationControl = moveResultAnimation({
+	// 		targetPosition: targetPoint,
+	// 		sourcePosition: sourcePoint,
+	// 	})(resultDrawerRef);
+	// 	const subscription = animationControl
+	// 		.observable()
+	// 		.pipe(filter((event) => event.type === AnimationEventType.Finish))
+	// 		.subscribe(() => appDispatch(moveToNextObservableEvent()));
 
-		animationControl.play();
-		return () => {
-			subscription.unsubscribe();
-			animationControl.destroy();
-		};
-	}, [nextObservableEvent, resultDrawerRef]);
+	// 	animationControl.play();
+	// 	return () => {
+	// 		subscription.unsubscribe();
+	// 		animationControl.destroy();
+	// 	};
+	// }, [nextObservableEvent, resultDrawerRef]);
 
 	// if (!nextObservableEvent) {
 	// 	return null;
@@ -79,3 +78,4 @@ export const Simulator = () => {
 		</Layer>
 	);
 };
+
