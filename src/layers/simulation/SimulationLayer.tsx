@@ -2,7 +2,7 @@ import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { filter } from 'rxjs';
-import { AnimationEventType } from '../../animation';
+import { AnimationEventType, AnimationSequence } from '../../animation';
 import { ConnectLine } from '../../model';
 import { selectDrawerSettings } from '../../store/drawersSlice';
 import { selectSimulationById } from '../../store/simulationSlice';
@@ -51,23 +51,34 @@ export const SimulationLayer = (props: SimulatorLayerProps) => {
 		const sourceDrawerSettings = drawerSettings.find((d) => d.id === connectLine.sourceId);
 		const targetDrawerSettings = drawerSettings.find((d) => d.id === connectLine.targetId);
 
-		sourceDrawerSettings?.animations?.highlight?.play();
-		targetDrawerSettings?.animations?.highlight?.play();
+		console.log(sourceDrawerSettings, targetDrawerSettings);
 
 		const [, sourcePoint] = connectLine.points;
 		resultDrawerRef.setPosition({ x: sourcePoint.x, y: sourcePoint.y });
 		const resultDrawerAnimation = createResultDrawerAnimation(connectLine, resultDrawerRef);
-		const subscription = resultDrawerAnimation
+
+		console.log([
+			sourceDrawerSettings!.animations!.highlight!,
+			resultDrawerAnimation,
+			targetDrawerSettings!.animations!.highlight!,
+		]);
+
+		const animation = new AnimationSequence([
+			sourceDrawerSettings!.animations!.highlight!,
+			resultDrawerAnimation,
+			targetDrawerSettings!.animations!.highlight!,
+		]);
+
+		const subscription = animation
 			.observable()
-			.pipe(filter((event) => event.type === AnimationEventType.Finish))
+			.pipe(filter((event) => event.type === AnimationEventType.Reset))
 			.subscribe(() => {
 				setSimulationStep((step) => step + 1);
 			});
-		resultDrawerAnimation.play();
+		animation.play();
 
 		return () => {
 			subscription.unsubscribe();
-			resultDrawerAnimation.destroy();
 		};
 	}, [simulationStep, resultDrawerRef]);
 
@@ -86,4 +97,3 @@ export const SimulationLayer = (props: SimulatorLayerProps) => {
 		/>
 	);
 };
-

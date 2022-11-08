@@ -1,10 +1,21 @@
 import Konva from 'konva';
 import { Circle, Group } from 'react-konva';
 import { DRAWER_DEFAULT, fromSize } from '../utils';
-import { elementTheme } from '../../theme';
-import { DrawerProps } from '../DrawerProps';
+import { elementTheme, highlightElementAnimation } from '../../theme';
+import { DrawerAnimations, DrawerProps } from '../DrawerProps';
+import { useEffect, useState } from 'react';
+import { useAnimation, useAnimationGroups, Animation } from '../../animation';
 
 export const SubscriberDrawer = (props: DrawerProps) => {
+	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
+
+	const mainShapeHighlightAnimation = useAnimation(mainShapeRef, highlightElementAnimation);
+	const highlightAnimation = useAnimationGroups(mainShapeHighlightAnimation);
+
+	const createAnimation = (): DrawerAnimations => ({
+		highlight: highlightAnimation,
+	});
+
 	const {
 		x,
 		y,
@@ -16,6 +27,8 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 		onDragMove,
 		onDragStart,
 		onDragEnd,
+		onAnimationDestroy,
+		onAnimationReady,
 	} = props;
 	const radius = fromSize(DRAWER_DEFAULT.radius, size);
 	const outerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.8);
@@ -57,6 +70,25 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 			originalEvent: e,
 		});
 
+	useEffect(() => {
+		if (!highlightAnimation) {
+			return;
+		}
+
+		const animations: DrawerAnimations = createAnimation();
+		onAnimationReady?.({
+			id,
+			animations,
+		});
+
+		return () => {
+			Object.values(animations).forEach((a: Animation) => a.destroy());
+			onAnimationDestroy?.({
+				id,
+			});
+		};
+	}, [highlightAnimation]);
+
 	return (
 		<Group
 			x={x}
@@ -69,7 +101,14 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
-			<Circle {...elementTheme} id={id} radius={outerRadius} x={radius} y={radius} />
+			<Circle
+				{...elementTheme}
+				ref={(node) => setMainShapeRef(node)}
+				id={id}
+				radius={outerRadius}
+				x={radius}
+				y={radius}
+			/>
 			<Circle
 				{...elementTheme}
 				radius={innerRadius}
