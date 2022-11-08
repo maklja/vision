@@ -24,3 +24,4 @@ export interface Animation {
 	reset(): void;
 	destroy(): void;
 }
+

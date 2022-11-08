@@ -8,12 +8,12 @@ export class TweenAnimation implements Animation {
 	private readonly animationTween: Konva.Tween;
 	private readonly events$ = new Subject<AnimationEvent>();
 
-	constructor(config: Konva.TweenConfig, options?: AnimationOptions) {
+	constructor(config: Konva.TweenConfig, private options?: AnimationOptions) {
 		this.animationTween = new Konva.Tween(config);
 		this.animationTween.onReset = this.onReset.bind(this);
 		this.animationTween.onFinish = this.onFinish.bind(this);
 
-		this.setupAnimation(options);
+		this.setupAnimation();
 	}
 
 	observable() {
@@ -24,7 +24,7 @@ export class TweenAnimation implements Animation {
 		this.animationTween.play();
 	}
 
-	reverse(): void {
+	reverse() {
 		this.animationTween.reverse();
 	}
 
@@ -38,13 +38,14 @@ export class TweenAnimation implements Animation {
 		this.events$.complete();
 	}
 
-	private setupAnimation(options?: AnimationOptions) {
-		if (!options) {
+	private setupAnimation() {
+		if (!this.options) {
 			return;
 		}
 
-		this.observable().subscribe((event) => {
-			if (options.autoReverse && event.type === AnimationEventType.Finish) {
+		const { autoReverse } = this.options;
+		this.events$.subscribe((event) => {
+			if (autoReverse && event.type === AnimationEventType.Finish) {
 				this.reverse();
 			}
 		});
@@ -74,3 +75,4 @@ export class TweenAnimation implements Animation {
 		});
 	}
 }
+

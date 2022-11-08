@@ -51,17 +51,9 @@ export const SimulationLayer = (props: SimulatorLayerProps) => {
 		const sourceDrawerSettings = drawerSettings.find((d) => d.id === connectLine.sourceId);
 		const targetDrawerSettings = drawerSettings.find((d) => d.id === connectLine.targetId);
 
-		console.log(sourceDrawerSettings, targetDrawerSettings);
-
 		const [, sourcePoint] = connectLine.points;
 		resultDrawerRef.setPosition({ x: sourcePoint.x, y: sourcePoint.y });
 		const resultDrawerAnimation = createResultDrawerAnimation(connectLine, resultDrawerRef);
-
-		console.log([
-			sourceDrawerSettings!.animations!.highlight!,
-			resultDrawerAnimation,
-			targetDrawerSettings!.animations!.highlight!,
-		]);
 
 		const animation = new AnimationSequence([
 			sourceDrawerSettings!.animations!.highlight!,
@@ -97,3 +89,4 @@ export const SimulationLayer = (props: SimulatorLayerProps) => {
 		/>
 	);
 };
+

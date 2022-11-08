@@ -1,4 +1,4 @@
-import { filter, map, Observable, switchMap, zip } from 'rxjs';
+import { filter, map, merge, Observable, switchMap, zip } from 'rxjs';
 import { v1 } from 'uuid';
 import { Animation, AnimationEvent, AnimationEventType } from './Animation';
 
@@ -7,15 +7,18 @@ export class AnimationSequence implements Animation {
 	private readonly animationEvents$: Observable<AnimationEvent>;
 
 	constructor(private readonly animations: Animation[]) {
-		const [startAnimation, ...otherAnimations] = animations;
-		const nextAnimations = (otherAnimations || []).flatMap((animation) => [
-			filter<AnimationEvent>((event) => event.type === AnimationEventType.Finish),
-			switchMap(() => {
-				animation.play();
-				return animation.observable();
-			}),
-		]);
-		this.animationEvents$ = startAnimation.observable().pipe(...(nextAnimations as []));
+		this.animationEvents$ = merge(...animations.map((a) => a.observable()));
+		// const [startAnimation, ...otherAnimations] = animations;
+		// const nextAnimations =
+
+		// (otherAnimations || []).flatMap((animation) => [
+		// 	filter<AnimationEvent>((event) => event.type === AnimationEventType.Finish),
+		// 	switchMap(() => {
+		// 		animation.play();
+		// 		return animation.observable();
+		// 	}),
+		// ]);
+		// this.animationEvents$ = startAnimation.observable().pipe(...(nextAnimations as []));
 	}
 
 	observable(): Observable<AnimationEvent> {
@@ -23,6 +26,20 @@ export class AnimationSequence implements Animation {
 	}
 
 	play(): void {
+		let curAnimation = 0;
+		console.log(this.animations);
+		this.animationEvents$.subscribe((event) => {
+			console.log(event.id, event.type);
+			if (
+				event.type === AnimationEventType.Finish &&
+				this.animations[curAnimation].id === event.id
+			) {
+				console.log('next');
+				curAnimation++;
+				this.animations[curAnimation]?.play();
+			}
+		});
+
 		this.animations[0].play();
 	}
 
@@ -38,3 +55,4 @@ export class AnimationSequence implements Animation {
 		this.animations.forEach((a) => a.destroy());
 	}
 }
+
