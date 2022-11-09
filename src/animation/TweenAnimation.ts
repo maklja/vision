@@ -21,7 +21,7 @@ export class TweenAnimation implements Animation {
 	}
 
 	play() {
-		this.animationTween.play();
+		this.animationTween.reverse();
 	}
 
 	reverse() {
@@ -42,13 +42,6 @@ export class TweenAnimation implements Animation {
 		if (!this.options) {
 			return;
 		}
-
-		const { autoReverse } = this.options;
-		this.events$.subscribe((event) => {
-			if (autoReverse && event.type === AnimationEventType.Finish) {
-				this.reverse();
-			}
-		});
 	}
 
 	private onReset() {
@@ -57,6 +50,14 @@ export class TweenAnimation implements Animation {
 			type: AnimationEventType.Reset,
 			animation: this,
 		});
+
+		if (this.options?.autoReverse) {
+			this.events$.next({
+				id: this.id,
+				type: AnimationEventType.Complete,
+				animation: this,
+			});
+		}
 	}
 
 	private onFinish() {
@@ -65,6 +66,16 @@ export class TweenAnimation implements Animation {
 			type: AnimationEventType.Finish,
 			animation: this,
 		});
+
+		if (this.options?.autoReverse) {
+			this.reverse();
+		} else {
+			this.events$.next({
+				id: this.id,
+				type: AnimationEventType.Complete,
+				animation: this,
+			});
+		}
 	}
 
 	private onDestroy() {
@@ -75,4 +86,3 @@ export class TweenAnimation implements Animation {
 		});
 	}
 }
-

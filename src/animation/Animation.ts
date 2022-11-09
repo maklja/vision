@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 export enum AnimationEventType {
 	Reset = 'reset',
 	Finish = 'finish',
+	Complete = 'complete',
 	Destroy = 'destroy',
 }
 
@@ -24,4 +25,3 @@ export interface Animation {
 	reset(): void;
 	destroy(): void;
 }
-
