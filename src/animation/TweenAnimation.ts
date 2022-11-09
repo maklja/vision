@@ -1,88 +1,88 @@
 import Konva from 'konva';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { v1 } from 'uuid';
-import { AnimationEventType, AnimationEvent, Animation, AnimationOptions } from './Animation';
+import { Animation, AnimationEvent, AnimationOptions, AbstractAnimation } from './Animation';
+import {
+	animationOrchestrator,
+	FLIP_TIMELINE_PATTERNS,
+	REVERSE_SINGLE_TIMELINE_PATTERNS,
+	SINGLE_TIMELINE_PATTERNS,
+} from './animationOrchestrator';
 
-export class TweenAnimation implements Animation {
+export class TweenAnimation extends AbstractAnimation {
 	public readonly id = v1();
-	private readonly animationTween: Konva.Tween;
 	private readonly events$ = new Subject<AnimationEvent>();
+	private readonly animationTween: Konva.Tween;
 
 	constructor(config: Konva.TweenConfig, private options?: AnimationOptions) {
+		super();
 		this.animationTween = new Konva.Tween(config);
 		this.animationTween.onReset = this.onReset.bind(this);
 		this.animationTween.onFinish = this.onFinish.bind(this);
-
-		this.setupAnimation();
 	}
 
-	observable() {
+	observable(): Observable<AnimationEvent> {
 		return this.events$.asObservable();
 	}
 
-	play() {
-		this.animationTween.reverse();
+	async play(): Promise<Animation> {
+		this.animationTween.play();
+		const patterns = this.options?.autoReverse
+			? FLIP_TIMELINE_PATTERNS
+			: SINGLE_TIMELINE_PATTERNS;
+
+		this.options?.onAnimationStart?.(this);
+		await animationOrchestrator(this, patterns);
+		this.options?.onAnimationFinish?.(this);
+
+		return this;
 	}
 
-	reverse() {
+	async reverse(): Promise<Animation> {
+		if (this.options?.autoReverse) {
+			return this.play();
+		}
+
 		this.animationTween.reverse();
+		this.options?.onAnimationStart?.(this);
+		await animationOrchestrator(this, REVERSE_SINGLE_TIMELINE_PATTERNS);
+		this.options?.onAnimationFinish?.(this);
+
+		return this;
 	}
 
-	reset() {
+	reset(): void {
 		this.animationTween.reset();
 	}
 
-	destroy() {
+	finish(): void {
+		if (this.options?.autoReverse) {
+			this.animationTween.reset();
+		} else {
+			this.animationTween.finish();
+		}
+	}
+
+	destroy(): void {
 		this.onDestroy();
 		this.animationTween.destroy();
 		this.events$.complete();
 	}
 
-	private setupAnimation() {
-		if (!this.options) {
-			return;
-		}
+	private onReset(): void {
+		this.events$.next(this.resetEvent());
 	}
 
-	private onReset() {
-		this.events$.next({
-			id: this.id,
-			type: AnimationEventType.Reset,
-			animation: this,
-		});
+	private onFinish(): void {
+		this.events$.next(this.finishEvent());
 
 		if (this.options?.autoReverse) {
-			this.events$.next({
-				id: this.id,
-				type: AnimationEventType.Complete,
-				animation: this,
-			});
+			this.animationTween.reverse();
 		}
 	}
 
-	private onFinish() {
-		this.events$.next({
-			id: this.id,
-			type: AnimationEventType.Finish,
-			animation: this,
-		});
-
-		if (this.options?.autoReverse) {
-			this.reverse();
-		} else {
-			this.events$.next({
-				id: this.id,
-				type: AnimationEventType.Complete,
-				animation: this,
-			});
-		}
-	}
-
-	private onDestroy() {
-		this.events$.next({
-			id: this.id,
-			type: AnimationEventType.Destroy,
-			animation: this,
-		});
+	private onDestroy(): void {
+		this.events$.next(this.destroyEvent());
 	}
 }
+

@@ -21,12 +21,20 @@ export const moveResultAnimation = (moveParams: MoveAnimation) => {
 			Math.pow(targetPosition.x - sourcePosition.x, 2) +
 				Math.pow(targetPosition.y - sourcePosition.y, 2),
 		) / 150;
-
 	return (node: Konva.Node): Animation =>
-		new TweenAnimation({
-			node,
-			duration,
-			x: targetPosition.x,
-			y: targetPosition.y,
-		});
+		new TweenAnimation(
+			{
+				node,
+				duration,
+				x: targetPosition.x,
+				y: targetPosition.y,
+			},
+			{
+				onAnimationStart: () => {
+					node.setPosition(sourcePosition).show();
+				},
+				onAnimationFinish: () => node.hide(),
+			},
+		);
 };
+

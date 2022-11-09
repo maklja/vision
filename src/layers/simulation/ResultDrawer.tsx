@@ -8,6 +8,7 @@ export interface ResultDrawerProps {
 	y?: number;
 	fill?: string;
 	stroke?: string;
+	visible?: boolean;
 }
 
 export const ResultDrawer = forwardRef<Konva.Circle, ResultDrawerProps>((props, ref) => {
@@ -19,6 +20,7 @@ export const ResultDrawer = forwardRef<Konva.Circle, ResultDrawerProps>((props, 
 			ref={ref}
 			x={props.x}
 			y={props.y}
+			visible={props.visible ?? false}
 		/>
 	);
 });

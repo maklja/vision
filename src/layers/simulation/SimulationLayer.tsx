@@ -1,8 +1,7 @@
 import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { filter } from 'rxjs';
-import { AnimationEventType, AnimationSequence } from '../../animation';
+import { AnimationSequence } from '../../animation';
 import { ConnectLine } from '../../model';
 import { selectDrawerSettings } from '../../store/drawersSlice';
 import { selectSimulationById } from '../../store/simulationSlice';
@@ -50,9 +49,6 @@ export const SimulationLayer = (props: SimulatorLayerProps) => {
 
 		const sourceDrawerSettings = drawerSettings.find((d) => d.id === connectLine.sourceId);
 		const targetDrawerSettings = drawerSettings.find((d) => d.id === connectLine.targetId);
-
-		const [, sourcePoint] = connectLine.points;
-		resultDrawerRef.setPosition({ x: sourcePoint.x, y: sourcePoint.y });
 		const resultDrawerAnimation = createResultDrawerAnimation(connectLine, resultDrawerRef);
 
 		const animation = new AnimationSequence([
@@ -61,17 +57,7 @@ export const SimulationLayer = (props: SimulatorLayerProps) => {
 			targetDrawerSettings!.animations!.highlight!,
 		]);
 
-		const subscription = animation
-			.observable()
-			.pipe(filter((event) => event.type === AnimationEventType.Reset))
-			.subscribe(() => {
-				setSimulationStep((step) => step + 1);
-			});
-		animation.play();
-
-		return () => {
-			subscription.unsubscribe();
-		};
+		animation.play().then(() => setSimulationStep((step) => step + 1));
 	}, [simulationStep, resultDrawerRef]);
 
 	if (!simulation || simulationStep >= simulation.events.length) {
@@ -79,10 +65,16 @@ export const SimulationLayer = (props: SimulatorLayerProps) => {
 	}
 
 	const currentEvent = simulation.events[simulationStep];
+	const connectLine = connectLines.find((cl) => cl.id === currentEvent.connectLineId);
+	const [, position] = connectLine?.points ?? [];
+
 	const resultColor = hashToColor(currentEvent.hash);
 	const invertResultColor = invertColor(resultColor, false);
 	return (
 		<ResultDrawer
+			key={currentEvent.id}
+			x={position.x ?? 0}
+			y={position.y ?? 0}
 			ref={(ref) => setResultDrawerRef(ref)}
 			fill={resultColor}
 			stroke={invertResultColor}

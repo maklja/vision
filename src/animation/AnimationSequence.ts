@@ -1,50 +1,39 @@
-import { filter, map, merge, Observable, switchMap, zip } from 'rxjs';
+import { merge, Observable } from 'rxjs';
 import { v1 } from 'uuid';
-import { Animation, AnimationEvent, AnimationEventType } from './Animation';
+import { AbstractAnimation, Animation, AnimationEvent } from './Animation';
 
-export class AnimationSequence implements Animation {
+export class AnimationSequence extends AbstractAnimation {
 	public readonly id = v1();
-	private readonly animationEvents$: Observable<AnimationEvent>;
 
 	constructor(private readonly animations: Animation[]) {
-		this.animationEvents$ = merge(...animations.map((a) => a.observable()));
-		// const [startAnimation, ...otherAnimations] = animations;
-		// const nextAnimations =
-
-		// (otherAnimations || []).flatMap((animation) => [
-		// 	filter<AnimationEvent>((event) => event.type === AnimationEventType.Finish),
-		// 	switchMap(() => {
-		// 		animation.play();
-		// 		return animation.observable();
-		// 	}),
-		// ]);
-		// this.animationEvents$ = startAnimation.observable().pipe(...(nextAnimations as []));
+		super();
 	}
 
 	observable(): Observable<AnimationEvent> {
-		return this.animationEvents$;
+		return merge(...this.animations.map((a) => a.observable()));
 	}
 
-	play(): void {
-		let curAnimation = 0;
-		console.log(this.animations);
-		this.animationEvents$.subscribe((event) => {
-			console.log(event.id, event.type);
-			if (
-				event.type === AnimationEventType.Finish &&
-				this.animations[curAnimation].id === event.id
-			) {
-				console.log('next');
-				curAnimation++;
-				this.animations[curAnimation]?.play();
-			}
-		});
+	async play(): Promise<Animation> {
+		for (const animation of this.animations) {
+			animation.reset();
+			await animation.play();
+		}
 
-		this.animations[0].play();
+		return this;
 	}
 
-	reverse(): void {
-		throw new Error('Method not implemented.');
+	async reverse(): Promise<Animation> {
+		const reverseAnimations = [...this.animations].reverse();
+		for (const animation of reverseAnimations) {
+			animation.finish();
+			await animation.reverse();
+		}
+
+		return this;
+	}
+
+	finish(): void {
+		this.animations.forEach((a) => a.finish());
 	}
 
 	reset(): void {
