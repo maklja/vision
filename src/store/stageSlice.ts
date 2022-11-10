@@ -214,6 +214,13 @@ export default stageSlice.reducer;
 
 export const selectStage = (state: RootState) => state.stage;
 
+export const selectDraftConnectLine = (state: RootState) => state.stage.draftConnectLine;
+
+export const selectConnectLines = (state: RootState) => state.stage.connectLines;
+
+export const selectConnectLineById = (id: string | null) => (state: RootState) =>
+	!id ? null : state.stage.connectLines.find((cl) => cl.id === id);
+
 export const selectStageElements = (state: RootState) => state.stage.elements;
 
 export const selectStageState = (state: RootState) => state.stage.state;
@@ -227,3 +234,4 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
+

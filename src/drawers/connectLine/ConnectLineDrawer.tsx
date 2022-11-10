@@ -9,7 +9,7 @@ export interface ConnectLineDrawerProps {
 const ARROW_SIZE = 15;
 const ARROW_ANGLE = Math.PI / 6;
 
-const ConnectLineTargetArrow = (props: { points: { x: number; y: number }[] }) => {
+const ConnectLineTargetArrow = (props: { points: Point[] }) => {
 	const sourcePoint = props.points[1];
 	const targetPoint = props.points[props.points.length - 2];
 

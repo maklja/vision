@@ -24,8 +24,8 @@ export const { addDrawerSettings, removeDrawerSettings } = drawerSlice.actions;
 
 const drawersSelector = drawerSettingsAdapter.getSelectors<RootState>((state) => state.drawers);
 
-export const selectDrawerSettingsById = (id: string) => (state: RootState) =>
-	drawersSelector.selectById(state, id) ?? null;
+export const selectDrawerSettingsById = (id: string | null) => (state: RootState) =>
+	!id ? null : drawersSelector.selectById(state, id) ?? null;
 
 export const selectDrawerSettings = (state: RootState) => drawersSelector.selectAll(state);
 

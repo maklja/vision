@@ -1,11 +1,12 @@
 import { Draft } from '@reduxjs/toolkit';
+import { Point } from '../../model';
 import { StageSlice } from '../stageSlice';
 
 export interface PinConnectLineAction {
 	type: string;
 	payload: {
 		elementId: string;
-		position: { x: number; y: number };
+		position: Point;
 	};
 }
 
@@ -31,3 +32,4 @@ export const unpinConnectLineReducer = (slice: Draft<StageSlice>) => {
 
 	slice.draftConnectLine.locked = false;
 };
+

@@ -25,7 +25,7 @@ export const highlightElementAnimation = (node: Konva.Node): Animation =>
 	new TweenAnimation(
 		{
 			node,
-			duration: 0.5,
+			duration: 0.3,
 			fill: 'green',
 		},
 		{ autoReverse: true },
@@ -35,7 +35,7 @@ export const highlightTextAnimation = (node: Konva.Node): Animation =>
 	new TweenAnimation(
 		{
 			node,
-			duration: 0.5,
+			duration: 0.3,
 			stroke: 'red',
 		},
 		{ autoReverse: true },

@@ -2,6 +2,7 @@ import Konva from 'konva';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from './store/rootState';
 import { Layer, Stage } from 'react-konva';
+import { v1 } from 'uuid';
 import {
 	selectElements,
 	moveConnectLineDraw,
@@ -10,14 +11,13 @@ import {
 } from './store/stageSlice';
 import { createObservableSimulation } from './engine';
 import { ObservableEvent, createSimulation } from './store/simulationSlice';
-import { createConnectLineElement } from './factory';
-import { ConnectLineDrawer } from './drawers';
 import { DrawerLayer } from './layers/drawer';
 import { useState } from 'react';
 import { SimulationLayer } from './layers/simulation';
+import { ConnectLineLayer } from './layers/connectLine';
 
 function App() {
-	const { elements, connectLines, draftConnectLine } = useSelector(selectStage);
+	const { elements, connectLines } = useSelector(selectStage);
 	const [activeSimulationId, setActiveSimulationId] = useState<string | null>(null);
 	const appDispatch = useAppDispatch();
 
@@ -59,14 +59,15 @@ function App() {
 		});
 		observableSimulation?.start({
 			complete: () => {
+				const simulationId = v1();
 				appDispatch(
 					createSimulation({
-						id: 'test',
+						id: simulationId,
 						events: results,
 						completed: true,
 					}),
 				);
-				setActiveSimulationId('test');
+				setActiveSimulationId(simulationId);
 			},
 		});
 	};
@@ -83,14 +84,7 @@ function App() {
 				onMouseMove={handleMouseMove}
 			>
 				<Layer>
-					{connectLines.map((connectLine) => createConnectLineElement(connectLine))}
-					{draftConnectLine ? (
-						<ConnectLineDrawer
-							key={draftConnectLine.id}
-							id={draftConnectLine.id}
-							points={draftConnectLine.points}
-						/>
-					) : null}
+					<ConnectLineLayer />
 					<DrawerLayer />
 					{activeSimulationId ? (
 						<SimulationLayer simulationId={activeSimulationId} />
