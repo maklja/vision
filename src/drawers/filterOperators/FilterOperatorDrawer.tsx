@@ -2,16 +2,12 @@ import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import { useAnimation, useAnimationGroups, Animation } from '../../animation';
-import {
-	elementTextTheme,
-	elementTheme,
-	highlightElementAnimation,
-	highlightTextAnimation,
-} from '../../theme';
+import { highlightElementAnimation, highlightTextAnimation, useDrawerTheme } from '../../theme';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { DRAWER_DEFAULT, fromSize } from '../utils';
 
 export const FilterOperatorDrawer = (props: DrawerProps) => {
+	const theme = useDrawerTheme();
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 
@@ -117,20 +113,20 @@ export const FilterOperatorDrawer = (props: DrawerProps) => {
 			onDragEnd={handleDragEnd}
 		>
 			<Rect
-				{...elementTheme}
+				{...theme.drawer.element}
 				ref={(ref) => setMainShapeRef(ref)}
 				id={id}
 				width={width}
 				height={height}
 			/>
 			<Text
+				{...theme.drawer.text}
 				ref={(ref) => setMainTextRef(ref)}
 				text={'filter'}
 				x={textX}
 				y={textY}
 				fontSize={textFontSize}
 				listening={false}
-				{...elementTextTheme}
 			/>
 		</Group>
 	);

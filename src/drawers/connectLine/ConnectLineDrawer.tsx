@@ -1,5 +1,6 @@
 import { Line, Group, Path } from 'react-konva';
 import { Point } from '../../model';
+import { useDrawerTheme } from '../../theme';
 
 export interface ConnectLineDrawerProps {
 	id: string;
@@ -9,7 +10,7 @@ export interface ConnectLineDrawerProps {
 const ARROW_SIZE = 15;
 const ARROW_ANGLE = Math.PI / 6;
 
-const ConnectLineTargetArrow = (props: { points: Point[] }) => {
+const ConnectLineTargetArrow = (props: { points: Point[]; fill?: string }) => {
 	const sourcePoint = props.points[1];
 	const targetPoint = props.points[props.points.length - 2];
 
@@ -33,20 +34,23 @@ const ConnectLineTargetArrow = (props: { points: Point[] }) => {
 	const rY2 = rotateY * Math.cos(-ARROW_ANGLE) + rotateX * Math.sin(-ARROW_ANGLE) + targetPoint.y;
 	const path = `M${targetPoint.x} ${targetPoint.y} L${rX1} ${rY1} L${rX2} ${rY2} Z`;
 
-	return <Path data={path} fill="black" />;
+	return <Path data={path} fill={props.fill} />;
 };
 
 export const ConnectLineDrawer = (props: ConnectLineDrawerProps) => {
+	const theme = useDrawerTheme();
 	const drawAnArrow = props.points.length > 3;
 
 	return (
 		<Group>
 			<Line
+				{...theme.connectLine.line}
 				perfectDrawEnabled={false}
-				stroke="black"
 				points={props.points.flatMap((p) => [p.x, p.y])}
 			/>
-			{drawAnArrow ? <ConnectLineTargetArrow points={props.points} /> : null}
+			{drawAnArrow ? (
+				<ConnectLineTargetArrow {...theme.connectLine.arrow} points={props.points} />
+			) : null}
 		</Group>
 	);
 };

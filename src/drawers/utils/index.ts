@@ -3,9 +3,9 @@ import { BoundingBox } from './BoundingBox';
 export * from './BoundingBox';
 
 export const DRAWER_DEFAULT = {
-	radius: 30,
-	width: 60,
-	height: 60,
+	radius: 40,
+	width: 80,
+	height: 80,
 	textFontSize: 15,
 	iconFontSize: 12,
 };

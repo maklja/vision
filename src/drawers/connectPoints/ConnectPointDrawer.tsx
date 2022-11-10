@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Circle } from 'react-konva';
 import { Animation } from '../../animation';
 import { ConnectPointType } from '../../model';
-import { ConnectPointStyle, snapConnectPointAnimation } from '../../theme';
+import { ConnectPointTheme, snapConnectPointAnimation } from '../../theme';
 import { CONNECTOR_DEFAULT, fromSize } from '../utils';
 
 export interface ConnectPointAnimation {
@@ -23,7 +23,7 @@ export interface ConnectPointDrawerProps {
 	x: number;
 	y: number;
 	size?: number;
-	style?: ConnectPointStyle;
+	theme?: ConnectPointTheme;
 	onMouseDown?: (event: ConnectPointDrawerEvent) => void;
 	onMouseUp?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOver?: (event: ConnectPointDrawerEvent) => void;
@@ -75,7 +75,7 @@ export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
 
 	return (
 		<Circle
-			{...props.style}
+			{...props.theme}
 			ref={(node) => setCircleRef(node)}
 			x={x}
 			y={y}
@@ -87,3 +87,4 @@ export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
 		/>
 	);
 };
+

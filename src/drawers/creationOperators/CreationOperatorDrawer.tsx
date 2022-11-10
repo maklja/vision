@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react';
 import Konva from 'konva';
 import { Circle, Group, Text } from 'react-konva';
 import { fromSize, DRAWER_DEFAULT } from '../utils';
-import {
-	elementTextTheme,
-	elementTheme,
-	highlightElementAnimation,
-	highlightTextAnimation,
-} from '../../theme';
+import { highlightElementAnimation, highlightTextAnimation, useDrawerTheme } from '../../theme';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { Animation, useAnimation, useAnimationGroups } from '../../animation';
 
@@ -16,6 +11,7 @@ export interface CreationOperatorDrawerProps extends DrawerProps {
 }
 
 export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
+	const theme = useDrawerTheme();
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 
@@ -129,7 +125,7 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 			onDragEnd={handleDragEnd}
 		>
 			<Circle
-				{...elementTheme}
+				{...theme.drawer.element}
 				ref={(ref) => setMainShapeRef(ref)}
 				id={id}
 				radius={radius}
@@ -137,7 +133,7 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 				y={radius}
 			/>
 			<Text
-				{...elementTextTheme}
+				{...theme.drawer.text}
 				ref={(ref) => setMainTextRef(ref)}
 				text={title}
 				x={textX}

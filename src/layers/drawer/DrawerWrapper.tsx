@@ -1,12 +1,7 @@
 import { ConnectPointsDrawer, BorderDrawer, ConnectPointsDrawerEvent } from '../../drawers';
 import { ConnectPointType } from '../../model';
 import { Group } from 'react-konva';
-import {
-	selectedBorderTheme,
-	highlightBorderTheme,
-	connectPointTheme,
-	highlightConnectPointTheme,
-} from '../../theme';
+import { selectedBorderTheme, highlightBorderTheme, useDrawerTheme } from '../../theme';
 import { PropsWithChildren } from 'react';
 
 export interface DrawerWrapperProps {
@@ -39,6 +34,7 @@ export const DrawerWrapper = ({
 	onConnectPointMouseOver,
 	onConnectPointMouseOut,
 }: PropsWithChildren<DrawerWrapperProps>) => {
+	const { connectPoint: connectPointTheme } = useDrawerTheme();
 	const borderStyle = {
 		...(highlighted ? highlightBorderTheme : {}),
 		...(selected ? selectedBorderTheme : {}),
@@ -56,30 +52,26 @@ export const DrawerWrapper = ({
 					x={x}
 					y={y}
 					size={size}
-					styles={{
+					themes={{
 						[ConnectPointType.Top]: {
-							...connectPointTheme,
 							...(highlightedConnectPoints.includes(ConnectPointType.Top)
-								? highlightConnectPointTheme
-								: {}),
+								? connectPointTheme.highlightElement
+								: connectPointTheme.element),
 						},
 						[ConnectPointType.Bottom]: {
-							...connectPointTheme,
 							...(highlightedConnectPoints.includes(ConnectPointType.Bottom)
-								? highlightConnectPointTheme
-								: {}),
+								? connectPointTheme.highlightElement
+								: connectPointTheme.element),
 						},
 						[ConnectPointType.Left]: {
-							...connectPointTheme,
 							...(highlightedConnectPoints.includes(ConnectPointType.Left)
-								? highlightConnectPointTheme
-								: {}),
+								? connectPointTheme.highlightElement
+								: connectPointTheme.element),
 						},
 						[ConnectPointType.Right]: {
-							...connectPointTheme,
 							...(highlightedConnectPoints.includes(ConnectPointType.Right)
-								? highlightConnectPointTheme
-								: {}),
+								? connectPointTheme.highlightElement
+								: connectPointTheme.element),
 						},
 					}}
 				/>

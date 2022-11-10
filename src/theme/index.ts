@@ -1,4 +1,8 @@
-export * from './elementTheme';
+export * from './drawerTheme';
 export * from './borderTheme';
-export * from './connectionTheme';
+export * from './connectPointTheme';
 export * from './simulationTheme';
+export * from './connectLineTheme';
+export * from './colors';
+export * from './DrawerThemeContext';
+

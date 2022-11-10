@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { DependencyList, useEffect, useMemo } from 'react';
+import { DrawerTheme, useDrawerTheme } from '../theme';
 import { Animation } from './Animation';
 
 export interface AnimationsDefinition {
@@ -8,16 +9,14 @@ export interface AnimationsDefinition {
 
 export const useAnimation = (
 	node: Konva.Node | null,
-	animationFactory: (node: Konva.Node) => Animation | null,
+	animationFactory: (node: Konva.Node, theme: DrawerTheme) => Animation | null,
 	dependencies: DependencyList = [],
 ) => {
-	const animation = useMemo(() => {
-		if (!node) {
-			return null;
-		}
-
-		return animationFactory(node);
-	}, [node, ...dependencies]);
+	const theme = useDrawerTheme();
+	const animation = useMemo(
+		() => (!node ? null : animationFactory(node, theme)),
+		[node, ...dependencies],
+	);
 
 	useEffect(() => {
 		return () => {
@@ -27,3 +26,4 @@ export const useAnimation = (
 
 	return animation;
 };
+

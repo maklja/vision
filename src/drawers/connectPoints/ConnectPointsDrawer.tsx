@@ -1,6 +1,6 @@
 import { Group } from 'react-konva';
 import { ConnectPointType } from '../../model';
-import { ConnectPointStyle } from '../../theme';
+import { ConnectPointTheme } from '../../theme';
 import {
 	BoundingBox,
 	CONNECTOR_DEFAULT,
@@ -22,8 +22,8 @@ export interface ConnectPointsDrawerProps {
 	y: number;
 	size?: number;
 	offset?: number;
-	styles?: {
-		[key in ConnectPointType]?: ConnectPointStyle;
+	themes?: {
+		[key in ConnectPointType]?: ConnectPointTheme;
 	};
 	onMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
 	onMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
@@ -38,7 +38,7 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		y,
 		size,
 		offset = CONNECTOR_DEFAULT.offset,
-		styles,
+		themes,
 		onMouseDown,
 		onMouseUp,
 		onMouseOver,
@@ -103,7 +103,7 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
-				style={styles?.[ConnectPointType.Top]}
+				theme={themes?.[ConnectPointType.Top]}
 			/>
 
 			<ConnectPointDrawer
@@ -115,7 +115,7 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
-				style={styles?.[ConnectPointType.Right]}
+				theme={themes?.[ConnectPointType.Right]}
 			/>
 
 			<ConnectPointDrawer
@@ -127,7 +127,7 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
-				style={styles?.[ConnectPointType.Bottom]}
+				theme={themes?.[ConnectPointType.Bottom]}
 			/>
 
 			<ConnectPointDrawer
@@ -139,8 +139,9 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
-				style={styles?.[ConnectPointType.Left]}
+				theme={themes?.[ConnectPointType.Left]}
 			/>
 		</Group>
 	);
 };
+

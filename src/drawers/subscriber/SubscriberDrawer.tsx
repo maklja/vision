@@ -1,14 +1,14 @@
 import Konva from 'konva';
 import { Circle, Group } from 'react-konva';
 import { DRAWER_DEFAULT, fromSize } from '../utils';
-import { elementTheme, highlightElementAnimation } from '../../theme';
+import { highlightElementAnimation, useDrawerTheme } from '../../theme';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { useEffect, useState } from 'react';
 import { useAnimation, useAnimationGroups, Animation } from '../../animation';
 
 export const SubscriberDrawer = (props: DrawerProps) => {
+	const theme = useDrawerTheme();
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
-
 	const mainShapeHighlightAnimation = useAnimation(mainShapeRef, highlightElementAnimation);
 	const highlightAnimation = useAnimationGroups(mainShapeHighlightAnimation);
 
@@ -102,7 +102,7 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 			onDragEnd={handleDragEnd}
 		>
 			<Circle
-				{...elementTheme}
+				{...theme.drawer.element}
 				ref={(node) => setMainShapeRef(node)}
 				id={id}
 				radius={outerRadius}
@@ -110,13 +110,13 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 				y={radius}
 			/>
 			<Circle
-				{...elementTheme}
 				radius={innerRadius}
 				x={radius}
 				y={radius}
 				listening={false}
-				fill="black"
+				fill={theme.colors.tertiaryColor}
 			/>
 		</Group>
 	);
 };
+

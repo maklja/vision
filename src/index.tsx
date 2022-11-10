@@ -5,8 +5,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { setupStore } from './store/rootState';
-import { ElementType, FilterElement, FromElement, OfElement, Element } from './model';
+import { ElementType, FilterElement, FromElement, OfElement, Element, ConnectLine } from './model';
 import { StageState } from './store/stageSlice';
+import { DrawerThemeContext, defaultTheme } from './theme';
 
 const e1: OfElement = {
 	id: 'ofElement',
@@ -52,6 +53,19 @@ const e2: Element = {
 	type: ElementType.Subscriber,
 };
 
+const cl1: ConnectLine = {
+	id: 'test',
+	locked: false,
+	points: [
+		{ x: 90, y: 90 },
+		{ x: 143, y: 90 },
+		{ x: 187, y: 165 },
+		{ x: 240, y: 165 },
+	],
+	sourceId: 'ofElement',
+	targetId: 'filterElement',
+};
+
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
 	// <React.StrictMode>
@@ -59,7 +73,7 @@ root.render(
 		store={setupStore({
 			stage: {
 				elements: [e1, e2, e3, e4, e5],
-				connectLines: [],
+				connectLines: [cl1],
 				draftConnectLine: null,
 				highlighted: [],
 				highlightedConnectPoints: [],
@@ -68,7 +82,9 @@ root.render(
 			},
 		})}
 	>
-		<App />
+		<DrawerThemeContext.Provider value={defaultTheme}>
+			<App />
+		</DrawerThemeContext.Provider>
 	</Provider>,
 	// </React.StrictMode>,
 );

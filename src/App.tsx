@@ -15,8 +15,10 @@ import { DrawerLayer } from './layers/drawer';
 import { useState } from 'react';
 import { SimulationLayer } from './layers/simulation';
 import { ConnectLineLayer } from './layers/connectLine';
+import { useDrawerTheme } from './theme';
 
-function App() {
+const App = () => {
+	const theme = useDrawerTheme();
 	const { elements, connectLines } = useSelector(selectStage);
 	const [activeSimulationId, setActiveSimulationId] = useState<string | null>(null);
 	const appDispatch = useAppDispatch();
@@ -76,7 +78,7 @@ function App() {
 		<div>
 			<button onClick={handleClick}>Click</button>
 			<Stage
-				style={{ backgroundColor: '#eee' }}
+				style={{ backgroundColor: theme.colors.backgroundColor }}
 				width={window.innerWidth}
 				height={window.innerHeight}
 				onMouseDown={handleMouseDown}
@@ -93,7 +95,7 @@ function App() {
 			</Stage>
 		</div>
 	);
-}
+};
 
 export default App;
 
