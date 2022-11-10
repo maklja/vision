@@ -1,14 +1,5 @@
 import { createSlice, Draft } from '@reduxjs/toolkit';
-import {
-	ConnectLine,
-	ConnectPoint,
-	Element,
-	ElementType,
-	FilterElement,
-	FromElement,
-	OfElement,
-	Point,
-} from '../model';
+import { ConnectLine, ConnectPoint, Element, Point } from '../model';
 import {
 	startConnectLineDrawReducer,
 	moveConnectLineDrawReducer,
@@ -76,52 +67,8 @@ export interface HighlightConnectPointsAction {
 	payload: ConnectPoint[];
 }
 
-const e1: OfElement = {
-	id: 'ofElement',
-	size: 1,
-	x: 50,
-	y: 50,
-	items: [4, 3, 2, 1],
-	type: ElementType.Of,
-};
-
-const e3: FromElement = {
-	id: 'fromElement',
-	size: 1,
-	x: 50,
-	y: 200,
-	type: ElementType.From,
-	input: [3, 2, 3, 4],
-};
-
-const e4: FilterElement = {
-	id: 'filterElement',
-	size: 1,
-	x: 200,
-	y: 125,
-	type: ElementType.Filter,
-	expression: 'function(val) { return val % 2 === 0; }',
-};
-
-const e5: FilterElement = {
-	id: 'filterElement_1',
-	size: 1,
-	x: 300,
-	y: 125,
-	type: ElementType.Filter,
-	expression: 'function(val) { return val % 2 === 0; }',
-};
-
-const e2: Element = {
-	id: 'subscriber',
-	size: 1,
-	x: 450,
-	y: 125,
-	type: ElementType.Subscriber,
-};
-
 const initialState: StageSlice = {
-	elements: [e1, e2, e3, e4, e5],
+	elements: [],
 	connectLines: [],
 	highlightedConnectPoints: [],
 	selected: [],
