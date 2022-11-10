@@ -1,26 +1,21 @@
-import Konva from 'konva';
-import { ElementState } from '../elements';
+export interface BorderStyle {
+	stroke?: string;
+	strokeWidth?: number;
+	dash?: number[];
+	cornerRadius?: number;
+}
 
-export const selectedBorderTheme: Konva.RectConfig = {
+export const selectedBorderTheme: BorderStyle = {
 	stroke: 'blue',
-	strokeWidth: 1.5,
-	cornerRadius: 8,
+	strokeWidth: 1,
+	dash: [5, 5],
+	cornerRadius: 1,
 };
 
-export const highlightBorderTheme: Konva.RectConfig = {
+export const highlightBorderTheme: BorderStyle = {
 	stroke: 'skyblue',
 	strokeWidth: 1,
-	cornerRadius: 8,
+	dash: [5, 5],
+	cornerRadius: 1,
 };
 
-export const borderThemeByElementState = (state: ElementState): Konva.RectConfig => {
-	if (state === ElementState.Selected) {
-		return selectedBorderTheme;
-	}
-
-	if (state === ElementState.Highlight) {
-		return highlightBorderTheme;
-	}
-
-	return {};
-};
