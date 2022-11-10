@@ -2,7 +2,7 @@ import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
 import { DrawerAnimations } from '../drawers';
 import { RootState } from './rootState';
 
-interface DrawerSettings {
+export interface DrawerSettings {
 	id: string;
 	animations: DrawerAnimations | null;
 }

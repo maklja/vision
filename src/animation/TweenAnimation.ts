@@ -85,4 +85,3 @@ export class TweenAnimation extends AbstractAnimation {
 		this.events$.next(this.destroyEvent());
 	}
 }
-

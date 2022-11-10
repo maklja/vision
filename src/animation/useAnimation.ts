@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { useEffect, useMemo } from 'react';
+import { DependencyList, useEffect, useMemo } from 'react';
 import { Animation } from './Animation';
 
 export interface AnimationsDefinition {
@@ -8,7 +8,8 @@ export interface AnimationsDefinition {
 
 export const useAnimation = (
 	node: Konva.Node | null,
-	animationFactory: (node: Konva.Node) => Animation,
+	animationFactory: (node: Konva.Node) => Animation | null,
+	dependencies: DependencyList = [],
 ) => {
 	const animation = useMemo(() => {
 		if (!node) {
@@ -16,10 +17,12 @@ export const useAnimation = (
 		}
 
 		return animationFactory(node);
-	}, [node, animationFactory]);
+	}, [node, ...dependencies]);
 
 	useEffect(() => {
-		return () => animation?.destroy();
+		return () => {
+			animation?.destroy();
+		};
 	}, [animation]);
 
 	return animation;

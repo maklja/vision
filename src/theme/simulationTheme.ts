@@ -30,11 +30,8 @@ export const moveResultAnimation = (moveParams: MoveAnimation) => {
 				y: targetPosition.y,
 			},
 			{
-				onAnimationStart: () => {
-					node.setPosition(sourcePosition).show();
-				},
+				onAnimationStart: () => node.show(),
 				onAnimationFinish: () => node.hide(),
 			},
 		);
 };
-
