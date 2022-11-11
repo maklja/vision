@@ -11,10 +11,9 @@ export interface ConnectLineTheme {
 
 export const connectLineTheme = (themeColors: ColorTheme): ConnectLineTheme => ({
 	line: {
-		stroke: themeColors.tertiaryColor,
+		stroke: themeColors.secondaryColor,
 	},
 	arrow: {
-		fill: themeColors.tertiaryColor,
+		fill: themeColors.secondaryColor,
 	},
 });
-

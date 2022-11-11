@@ -1,7 +1,6 @@
-import { ConnectPointsDrawer, BorderDrawer, ConnectPointsDrawerEvent } from '../../drawers';
+import { ConnectPointsDrawer, ConnectPointsDrawerEvent } from '../../drawers';
 import { ConnectPointType } from '../../model';
 import { Group } from 'react-konva';
-import { selectedBorderTheme, highlightBorderTheme, useDrawerTheme } from '../../theme';
 import { PropsWithChildren } from 'react';
 
 export interface DrawerWrapperProps {
@@ -9,8 +8,6 @@ export interface DrawerWrapperProps {
 	x: number;
 	y: number;
 	size: number;
-	selected: boolean;
-	highlighted: boolean;
 	visibleConnectionPoints: boolean;
 	highlightedConnectPoints: ConnectPointType[];
 	onConnectPointMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
@@ -26,23 +23,15 @@ export const DrawerWrapper = ({
 	size,
 	id,
 	visibleConnectionPoints,
-	selected,
-	highlighted,
 	highlightedConnectPoints,
 	onConnectPointMouseDown,
 	onConnectPointMouseUp,
 	onConnectPointMouseOver,
 	onConnectPointMouseOut,
 }: PropsWithChildren<DrawerWrapperProps>) => {
-	const { connectPoint: connectPointTheme } = useDrawerTheme();
-	const borderStyle = {
-		...(highlighted ? highlightBorderTheme : {}),
-		...(selected ? selectedBorderTheme : {}),
-	};
-
 	return (
 		<Group>
-			{visibleConnectionPoints ? (
+			{/* {visibleConnectionPoints ? (
 				<ConnectPointsDrawer
 					onMouseDown={onConnectPointMouseDown}
 					onMouseUp={onConnectPointMouseUp}
@@ -52,37 +41,11 @@ export const DrawerWrapper = ({
 					x={x}
 					y={y}
 					size={size}
-					themes={{
-						[ConnectPointType.Top]: {
-							...(highlightedConnectPoints.includes(ConnectPointType.Top)
-								? connectPointTheme.highlightElement
-								: connectPointTheme.element),
-						},
-						[ConnectPointType.Bottom]: {
-							...(highlightedConnectPoints.includes(ConnectPointType.Bottom)
-								? connectPointTheme.highlightElement
-								: connectPointTheme.element),
-						},
-						[ConnectPointType.Left]: {
-							...(highlightedConnectPoints.includes(ConnectPointType.Left)
-								? connectPointTheme.highlightElement
-								: connectPointTheme.element),
-						},
-						[ConnectPointType.Right]: {
-							...(highlightedConnectPoints.includes(ConnectPointType.Right)
-								? connectPointTheme.highlightElement
-								: connectPointTheme.element),
-						},
-					}}
+					highlightConnectPoints={highlightedConnectPoints}
 				/>
-			) : null}
-
-			{selected || highlighted ? (
-				<BorderDrawer x={x} y={y} size={size} padding={3} style={borderStyle} />
-			) : null}
+			) : null} */}
 
 			{children}
 		</Group>
 	);
 };
-

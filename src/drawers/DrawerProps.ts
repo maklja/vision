@@ -35,4 +35,6 @@ export interface DrawerProps extends DrawerEvents {
 	x?: number;
 	y?: number;
 	size?: number;
+	highlight?: boolean;
+	select?: boolean;
 }

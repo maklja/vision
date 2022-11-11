@@ -33,4 +33,3 @@ const seaColorTheme: ColorTheme = {
 export const retrieveThemeColors = (): ColorTheme => {
 	return seaColorTheme;
 };
-

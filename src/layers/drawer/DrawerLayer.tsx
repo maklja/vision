@@ -216,17 +216,15 @@ export const DrawerLayer = () => {
 					const highlightedConnectPoints = useAppSelector(
 						selectHighlightedConnectPointsByElementId(el.id),
 					).map((cp) => cp.type);
-					const selected = useAppSelector(isSelectedElement(el.id));
-					const highlighted = useAppSelector(isHighlightedElement(el.id));
+					const select = useAppSelector(isSelectedElement(el.id));
+					const highlight = useAppSelector(isHighlightedElement(el.id));
 					const notDragging = stageState !== StageState.Dragging;
 
 					return (
 						<DrawerWrapper
 							{...el}
 							key={el.id}
-							highlighted={highlighted}
-							selected={selected}
-							visibleConnectionPoints={selected && notDragging}
+							visibleConnectionPoints={select && notDragging}
 							highlightedConnectPoints={highlightedConnectPoints}
 							onConnectPointMouseDown={connectPointHandlers.onMouseDown}
 							onConnectPointMouseUp={connectPointHandlers.onMouseUp}
@@ -236,6 +234,8 @@ export const DrawerLayer = () => {
 							{createElementDrawer(el, {
 								...el,
 								...elementHandlers,
+								highlight,
+								select,
 								onAnimationReady: handleDrawerAnimationReady,
 								onAnimationDestroy: handleDrawerAnimationDestroy,
 							})}
@@ -246,4 +246,3 @@ export const DrawerLayer = () => {
 		</Group>
 	);
 };
-

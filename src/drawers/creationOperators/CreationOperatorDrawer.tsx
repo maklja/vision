@@ -2,16 +2,24 @@ import { useEffect, useState } from 'react';
 import Konva from 'konva';
 import { Circle, Group, Text } from 'react-konva';
 import { fromSize, DRAWER_DEFAULT } from '../utils';
-import { highlightElementAnimation, highlightTextAnimation, useDrawerTheme } from '../../theme';
+import {
+	highlightElementAnimation,
+	highlightTextAnimation,
+	useElementDrawerTheme,
+} from '../../theme';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { Animation, useAnimation, useAnimationGroups } from '../../animation';
+import { ConnectPointsDrawer } from '../connectPoints';
 
 export interface CreationOperatorDrawerProps extends DrawerProps {
 	title: string;
 }
 
 export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
-	const theme = useDrawerTheme();
+	const drawerStyle = useElementDrawerTheme({
+		highlight: props.highlight,
+		select: props.select,
+	});
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 
@@ -124,8 +132,13 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
+			<ConnectPointsDrawer
+				id={id}
+				size={size}
+			/>
+
 			<Circle
-				{...theme.drawer.element}
+				{...drawerStyle.element}
 				ref={(ref) => setMainShapeRef(ref)}
 				id={id}
 				radius={radius}
@@ -133,7 +146,7 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 				y={radius}
 			/>
 			<Text
-				{...theme.drawer.text}
+				{...drawerStyle.text}
 				ref={(ref) => setMainTextRef(ref)}
 				text={title}
 				x={textX}
@@ -144,4 +157,3 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		</Group>
 	);
 };
-
