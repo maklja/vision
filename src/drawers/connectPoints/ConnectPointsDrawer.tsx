@@ -1,12 +1,6 @@
 import { Group } from 'react-konva';
 import { ConnectPointType } from '../../model';
-import {
-	BoundingBox,
-	CONNECTOR_DEFAULT,
-	createBoundingBox,
-	DRAWER_DEFAULT,
-	fromSize,
-} from '../utils';
+import { BoundingBox } from '../utils';
 import { ConnectPointDrawer, ConnectPointDrawerEvent } from './ConnectPointDrawer';
 
 export interface ConnectPointsDrawerEvent {
@@ -19,7 +13,8 @@ export interface ConnectPointsDrawerProps {
 	id: string;
 	x?: number;
 	y?: number;
-	size?: number;
+	width?: number;
+	height?: number;
 	offset?: number;
 	highlightConnectPoints?: ConnectPointType[];
 	onMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
@@ -33,17 +28,15 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		id,
 		x = 0,
 		y = 0,
-		size,
-		offset = CONNECTOR_DEFAULT.offset,
+		width = 0,
+		height = 0,
+		offset = 0,
 		highlightConnectPoints,
 		onMouseDown,
 		onMouseUp,
 		onMouseOver,
 		onMouseOut,
 	} = props;
-
-	const width = fromSize(DRAWER_DEFAULT.width, size);
-	const height = fromSize(DRAWER_DEFAULT.height, size);
 
 	const topX = x + width / 2;
 	const topY = y - offset;
@@ -61,7 +54,7 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		onMouseDown?.({
 			id,
 			connectPoint: cEvent,
-			element: createBoundingBox(x, y, size),
+			element: new BoundingBox(x, y, width, height),
 		});
 	};
 
@@ -69,7 +62,7 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		onMouseUp?.({
 			id,
 			connectPoint: cEvent,
-			element: createBoundingBox(x, y, size),
+			element: new BoundingBox(x, y, width, height),
 		});
 	};
 
@@ -77,7 +70,7 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		onMouseOver?.({
 			id,
 			connectPoint: cEvent,
-			element: createBoundingBox(x, y, size),
+			element: new BoundingBox(x, y, width, height),
 		});
 	};
 
@@ -85,7 +78,7 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		onMouseOut?.({
 			id,
 			connectPoint: cEvent,
-			element: createBoundingBox(x, y, size),
+			element: new BoundingBox(x, y, width, height),
 		});
 	};
 
@@ -95,7 +88,6 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				type={ConnectPointType.Top}
 				x={topX}
 				y={topY}
-				size={size}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
@@ -107,7 +99,6 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				type={ConnectPointType.Right}
 				x={rightX}
 				y={rightY}
-				size={size}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
@@ -119,7 +110,6 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				type={ConnectPointType.Bottom}
 				x={bottomX}
 				y={bottomY}
-				size={size}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
@@ -131,7 +121,6 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 				type={ConnectPointType.Left}
 				x={leftX}
 				y={leftY}
-				size={size}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}

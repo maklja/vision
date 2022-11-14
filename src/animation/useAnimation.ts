@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { DependencyList, useEffect, useMemo } from 'react';
-import { DrawerTheme, useDrawerTheme } from '../theme';
+import { useDrawerTheme } from '../store/stageSlice';
+import { DrawerTheme } from '../theme';
 import { Animation } from './Animation';
 
 export interface AnimationsDefinition {
@@ -26,4 +27,3 @@ export const useAnimation = (
 
 	return animation;
 };
-

@@ -1,10 +1,11 @@
 import Konva from 'konva';
 import { Circle, Group } from 'react-konva';
-import { DRAWER_DEFAULT, fromSize } from '../utils';
-import { highlightElementAnimation, useDrawerTheme, useElementDrawerTheme } from '../../theme';
+import { highlightElementAnimation } from '../../theme';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { useEffect, useState } from 'react';
 import { useAnimation, useAnimationGroups, Animation } from '../../animation';
+import { ConnectPointsDrawer } from '../connectPoints';
+import { useDrawerTheme, useElementDrawerTheme, useSizes } from '../../store/stageSlice';
 
 export const SubscriberDrawer = (props: DrawerProps) => {
 	const { colors } = useDrawerTheme();
@@ -21,10 +22,12 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 	});
 
 	const {
-		x,
-		y,
+		x = 0,
+		y = 0,
 		size,
 		id,
+		visibleConnectionPoints,
+		highlightedConnectPoints,
 		onMouseDown,
 		onMouseOut,
 		onMouseOver,
@@ -33,10 +36,14 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 		onDragEnd,
 		onAnimationDestroy,
 		onAnimationReady,
+		onConnectPointMouseDown,
+		onConnectPointMouseOut,
+		onConnectPointMouseOver,
+		onConnectPointMouseUp,
 	} = props;
-	const radius = fromSize(DRAWER_DEFAULT.radius, size);
-	const outerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.8);
-	const innerRadius = fromSize(DRAWER_DEFAULT.radius, size, 0.5);
+	const { drawerSizes } = useSizes(size);
+	const { drawerSizes: outherSizes } = useSizes(size, 0.8);
+	const { drawerSizes: innerSizes } = useSizes(size, 0.5);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -94,32 +101,54 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 	}, [highlightAnimation]);
 
 	return (
-		<Group
-			x={x}
-			y={y}
-			draggable
-			onMouseDown={handleMouseDown}
-			onMouseOver={handleMouseOver}
-			onMouseOut={handleMouseOut}
-			onDragMove={handleDragMove}
-			onDragStart={handleDragStart}
-			onDragEnd={handleDragEnd}
-		>
-			<Circle
-				{...drawerStyle.element}
-				ref={(node) => setMainShapeRef(node)}
-				id={id}
-				radius={outerRadius}
-				x={radius}
-				y={radius}
-			/>
-			<Circle
-				radius={innerRadius}
-				x={radius}
-				y={radius}
-				listening={false}
-				fill={props.highlight || props.select ? colors.primaryColor : colors.secondaryColor}
-			/>
+		<Group visible={Boolean(mainShapeRef)}>
+			{visibleConnectionPoints ? (
+				<ConnectPointsDrawer
+					id={id}
+					x={x + drawerSizes.radius / 2}
+					y={y + drawerSizes.radius / 2}
+					width={drawerSizes.radius}
+					height={drawerSizes.radius}
+					offset={24}
+					onMouseDown={onConnectPointMouseDown}
+					onMouseUp={onConnectPointMouseUp}
+					onMouseOut={onConnectPointMouseOut}
+					onMouseOver={onConnectPointMouseOver}
+					highlightConnectPoints={highlightedConnectPoints}
+				/>
+			) : null}
+
+			<Group
+				x={x}
+				y={y}
+				draggable
+				onMouseDown={handleMouseDown}
+				onMouseOver={handleMouseOver}
+				onMouseOut={handleMouseOut}
+				onDragMove={handleDragMove}
+				onDragStart={handleDragStart}
+				onDragEnd={handleDragEnd}
+			>
+				<Circle
+					{...drawerStyle.element}
+					ref={(node) => setMainShapeRef(node)}
+					id={id}
+					radius={outherSizes.radius}
+					x={drawerSizes.radius}
+					y={drawerSizes.radius}
+				/>
+				<Circle
+					radius={innerSizes.radius}
+					x={drawerSizes.radius}
+					y={drawerSizes.radius}
+					listening={false}
+					fill={
+						props.highlight || props.select
+							? colors.primaryColor
+							: colors.secondaryColor
+					}
+				/>
+			</Group>
 		</Group>
 	);
 };

@@ -21,7 +21,6 @@ import {
 	unpinConnectLine,
 } from '../../store/stageSlice';
 import { createElementDrawer } from './createElementDrawer';
-import { DrawerWrapper } from './DrawerWrapper';
 import { changeCursorStyle } from './utils';
 
 const connectPointSelectStateHandlers = (dispatch: AppDispatch) => ({
@@ -221,25 +220,22 @@ export const DrawerLayer = () => {
 					const notDragging = stageState !== StageState.Dragging;
 
 					return (
-						<DrawerWrapper
-							{...el}
-							key={el.id}
-							visibleConnectionPoints={select && notDragging}
-							highlightedConnectPoints={highlightedConnectPoints}
-							onConnectPointMouseDown={connectPointHandlers.onMouseDown}
-							onConnectPointMouseUp={connectPointHandlers.onMouseUp}
-							onConnectPointMouseOut={connectPointHandlers.onMouseOut}
-							onConnectPointMouseOver={connectPointHandlers.onMouseOver}
-						>
+						<Group key={el.id}>
 							{createElementDrawer(el, {
 								...el,
 								...elementHandlers,
 								highlight,
 								select,
+								visibleConnectionPoints: select && notDragging,
+								highlightedConnectPoints: highlightedConnectPoints,
+								onConnectPointMouseDown: connectPointHandlers.onMouseDown,
+								onConnectPointMouseUp: connectPointHandlers.onMouseUp,
+								onConnectPointMouseOut: connectPointHandlers.onMouseOut,
+								onConnectPointMouseOver: connectPointHandlers.onMouseOver,
 								onAnimationReady: handleDrawerAnimationReady,
 								onAnimationDestroy: handleDrawerAnimationDestroy,
 							})}
-						</DrawerWrapper>
+						</Group>
 					);
 				})
 				.filter((drawer) => drawer != null)}

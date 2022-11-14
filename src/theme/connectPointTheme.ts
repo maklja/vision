@@ -6,6 +6,7 @@ export interface ConnectPointElementStyle {
 	stroke: string;
 	strokeWidth: number;
 	fill: string;
+	radius: number;
 }
 
 export interface ConnectPointTheme {
@@ -18,6 +19,7 @@ export const connectPointTheme = (themeColors: ColorTheme): ConnectPointTheme =>
 		stroke: themeColors.secondaryColor,
 		fill: themeColors.backgroundColor,
 		strokeWidth: 2,
+		radius: 8,
 	};
 
 	return {

@@ -1,11 +1,18 @@
 import Konva from 'konva';
 import { Animation, TweenAnimation } from '../animation';
 import { Point } from '../model';
+import { ColorTheme } from './colors';
 
-export const resultSimulationTheme: Konva.CircleConfig = {
-	stroke: 'green',
-	fill: 'green',
-	radius: 10,
+export interface SimulationTheme {
+	stroke: string;
+	fill: string;
+}
+
+export const simulationTheme = (themeColors: ColorTheme): SimulationTheme => {
+	return {
+		fill: themeColors.secondaryColor,
+		stroke: themeColors.primaryColor,
+	};
 };
 
 export interface MoveAnimation {
@@ -34,4 +41,3 @@ export const moveResultAnimation = (moveParams: MoveAnimation) => {
 			},
 		);
 };
-

@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { Circle } from 'react-konva';
 import { Animation } from '../../animation';
 import { ConnectPointType } from '../../model';
-import { snapConnectPointAnimation, useConnectPointTheme } from '../../theme';
-import { CONNECTOR_DEFAULT, fromSize } from '../utils';
+import { useConnectPointTheme } from '../../store/stageSlice';
+import { snapConnectPointAnimation } from '../../theme';
 
 export interface ConnectPointAnimation {
 	snapConnectPoint: Animation;
@@ -22,7 +22,6 @@ export interface ConnectPointDrawerProps {
 	type: ConnectPointType;
 	x: number;
 	y: number;
-	size?: number;
 	highlight?: boolean;
 	onMouseDown?: (event: ConnectPointDrawerEvent) => void;
 	onMouseUp?: (event: ConnectPointDrawerEvent) => void;
@@ -30,18 +29,16 @@ export interface ConnectPointDrawerProps {
 	onMouseOut?: (event: ConnectPointDrawerEvent) => void;
 }
 
-export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
-	const {
-		type,
-		x,
-		y,
-		size = 1,
-		highlight,
-		onMouseDown,
-		onMouseUp,
-		onMouseOver,
-		onMouseOut,
-	} = props;
+export const ConnectPointDrawer = ({
+	type,
+	x,
+	y,
+	highlight,
+	onMouseDown,
+	onMouseUp,
+	onMouseOver,
+	onMouseOut,
+}: ConnectPointDrawerProps) => {
 	const connectPointElementTheme = useConnectPointTheme({ highlight });
 	const [circleRef, setCircleRef] = useState<Konva.Circle | null>(null);
 	const [animations, setAnimations] = useState<ConnectPointAnimation | null>(null);
@@ -66,8 +63,6 @@ export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
 		onMouseUp?.({ type, x, y, animations, originalEvent: e });
 	};
 
-	const radius = fromSize(CONNECTOR_DEFAULT.radius, size);
-
 	useEffect(() => {
 		if (!circleRef) {
 			return;
@@ -90,7 +85,6 @@ export const ConnectPointDrawer = (props: ConnectPointDrawerProps) => {
 			ref={(node) => setCircleRef(node)}
 			x={x}
 			y={y}
-			radius={radius}
 			onMouseDown={handleMouseDown}
 			onMouseUp={handleMouseUp}
 			onMouseOver={handleMouseOver}

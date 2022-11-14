@@ -1,8 +1,8 @@
 import { v1 as createId } from 'uuid';
 import { Draft } from '@reduxjs/toolkit';
 import { calculateConnectPointTypes, Point } from '../../model';
-import { StageSlice, StageState } from '../stageSlice';
-import { createBoundingBox } from '../../drawers/utils';
+import { fromSize, StageSlice, StageState } from '../stageSlice';
+import { BoundingBox } from '../../drawers/utils';
 
 export interface StartConnectLineDrawAction {
 	type: string;
@@ -121,7 +121,10 @@ export const linkConnectLineDrawReducer = (
 		return;
 	}
 
-	const bb = createBoundingBox(el.x, el.y, el.size);
+	const { drawerSizes } = slice.theme.sizes;
+	const width = fromSize(drawerSizes.width, el.size);
+	const height = fromSize(drawerSizes.height, el.size);
+	const bb = new BoundingBox(el.x, el.y, width, height);
 	slice.connectLines.push({
 		id: createId(),
 		locked: false,
@@ -136,4 +139,3 @@ export const linkConnectLineDrawReducer = (
 		targetId: el.id,
 	});
 };
-

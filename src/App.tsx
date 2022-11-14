@@ -8,6 +8,7 @@ import {
 	moveConnectLineDraw,
 	deleteConnectLineDraw,
 	selectStage,
+	useDrawerTheme,
 } from './store/stageSlice';
 import { createObservableSimulation } from './engine';
 import { ObservableEvent, createSimulation } from './store/simulationSlice';
@@ -15,7 +16,6 @@ import { DrawerLayer } from './layers/drawer';
 import { useState } from 'react';
 import { SimulationLayer } from './layers/simulation';
 import { ConnectLineLayer } from './layers/connectLine';
-import { useDrawerTheme } from './theme';
 
 const App = () => {
 	const theme = useDrawerTheme();
@@ -98,4 +98,3 @@ const App = () => {
 };
 
 export default App;
-

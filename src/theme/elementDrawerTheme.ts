@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { Animation, TweenAnimation } from '../animation';
 import { ColorTheme } from './colors';
-import { DrawerTheme } from './DrawerThemeContext';
+import { DrawerTheme } from './drawerTheme';
 
 export interface ElementDrawerStyle {
 	stroke: string;

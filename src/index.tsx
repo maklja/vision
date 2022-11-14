@@ -7,7 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import { setupStore } from './store/rootState';
 import { ElementType, FilterElement, FromElement, OfElement, Element, ConnectLine } from './model';
 import { StageState } from './store/stageSlice';
-import { DrawerThemeContext, defaultTheme } from './theme';
+import { defaultTheme } from './theme';
 
 const e1: OfElement = {
 	id: 'ofElement',
@@ -78,13 +78,12 @@ root.render(
 				highlighted: [],
 				highlightedConnectPoints: [],
 				selected: [],
+				theme: defaultTheme,
 				state: StageState.Select,
 			},
 		})}
 	>
-		<DrawerThemeContext.Provider value={defaultTheme}>
-			<App />
-		</DrawerThemeContext.Provider>
+		<App />
 	</Provider>,
 	// </React.StrictMode>,
 );
@@ -93,4 +92,3 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
-

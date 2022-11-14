@@ -1,25 +1,44 @@
 import { useEffect, useState } from 'react';
 import Konva from 'konva';
 import { Circle, Group, Text } from 'react-konva';
-import { fromSize, DRAWER_DEFAULT } from '../utils';
-import {
-	highlightElementAnimation,
-	highlightTextAnimation,
-	useElementDrawerTheme,
-} from '../../theme';
+import { highlightElementAnimation, highlightTextAnimation } from '../../theme';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { Animation, useAnimation, useAnimationGroups } from '../../animation';
 import { ConnectPointsDrawer } from '../connectPoints';
+import { useElementDrawerTheme, useSizes } from '../../store/stageSlice';
 
 export interface CreationOperatorDrawerProps extends DrawerProps {
 	title: string;
 }
 
-export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
+export const CreationOperatorDrawer = ({
+	x = 0,
+	y = 0,
+	title,
+	size,
+	highlight,
+	select,
+	id,
+	visibleConnectionPoints,
+	highlightedConnectPoints,
+	onMouseOver,
+	onMouseOut,
+	onMouseDown,
+	onDragMove,
+	onDragStart,
+	onDragEnd,
+	onAnimationDestroy,
+	onAnimationReady,
+	onConnectPointMouseDown,
+	onConnectPointMouseOut,
+	onConnectPointMouseOver,
+	onConnectPointMouseUp,
+}: CreationOperatorDrawerProps) => {
 	const drawerStyle = useElementDrawerTheme({
-		highlight: props.highlight,
-		select: props.select,
+		highlight,
+		select,
 	});
+	const { drawerSizes, fontSizes } = useSizes(size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 
@@ -30,29 +49,12 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 		mainTextHighlightAnimation,
 	);
 
-	const {
-		x,
-		y,
-		title,
-		size,
-		id,
-		onMouseOver,
-		onMouseOut,
-		onMouseDown,
-		onDragMove,
-		onDragStart,
-		onDragEnd,
-		onAnimationDestroy,
-		onAnimationReady,
-	} = props;
-	const radius = fromSize(DRAWER_DEFAULT.radius, size);
-	const textFontSize = fromSize(DRAWER_DEFAULT.textFontSize, size);
 	// const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
 	// const iconX = radius + -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
 	// const iconY = radius + radius * Math.cos(-45) - (iconTextRef?.textHeight ?? 0) / 2;
 
-	const textX = radius + (mainTextRef?.textWidth ?? 0) / -2;
-	const textY = radius + (mainTextRef?.textHeight ?? 0) / -2;
+	const textX = drawerSizes.radius + (mainTextRef?.textWidth ?? 0) / -2;
+	const textY = drawerSizes.radius + (mainTextRef?.textHeight ?? 0) / -2;
 
 	const createAnimation = (): DrawerAnimations => ({
 		highlight: highlightAnimation,
@@ -120,40 +122,52 @@ export const CreationOperatorDrawer = (props: CreationOperatorDrawerProps) => {
 	}, [highlightAnimation]);
 
 	return (
-		<Group
-			x={x}
-			y={y}
-			draggable
-			visible={Boolean(mainTextRef && mainShapeRef)}
-			onMouseOver={handleMouseOver}
-			onMouseOut={handleMouseOut}
-			onMouseDown={handleMouseDown}
-			onDragMove={handleDragMove}
-			onDragStart={handleDragStart}
-			onDragEnd={handleDragEnd}
-		>
-			<ConnectPointsDrawer
-				id={id}
-				size={size}
-			/>
+		<Group visible={Boolean(mainTextRef && mainShapeRef)}>
+			{visibleConnectionPoints ? (
+				<ConnectPointsDrawer
+					id={id}
+					x={x + drawerSizes.radius / 2}
+					y={y + drawerSizes.radius / 2}
+					width={drawerSizes.radius}
+					height={drawerSizes.radius}
+					offset={32}
+					onMouseDown={onConnectPointMouseDown}
+					onMouseUp={onConnectPointMouseUp}
+					onMouseOut={onConnectPointMouseOut}
+					onMouseOver={onConnectPointMouseOver}
+					highlightConnectPoints={highlightedConnectPoints}
+				/>
+			) : null}
 
-			<Circle
-				{...drawerStyle.element}
-				ref={(ref) => setMainShapeRef(ref)}
-				id={id}
-				radius={radius}
-				x={radius}
-				y={radius}
-			/>
-			<Text
-				{...drawerStyle.text}
-				ref={(ref) => setMainTextRef(ref)}
-				text={title}
-				x={textX}
-				y={textY}
-				fontSize={textFontSize}
-				listening={false}
-			/>
+			<Group
+				draggable
+				x={x}
+				y={y}
+				onMouseOver={handleMouseOver}
+				onMouseOut={handleMouseOut}
+				onMouseDown={handleMouseDown}
+				onDragMove={handleDragMove}
+				onDragStart={handleDragStart}
+				onDragEnd={handleDragEnd}
+			>
+				<Circle
+					{...drawerStyle.element}
+					ref={(ref) => setMainShapeRef(ref)}
+					id={id}
+					radius={drawerSizes.radius}
+					x={drawerSizes.radius}
+					y={drawerSizes.radius}
+				/>
+				<Text
+					{...drawerStyle.text}
+					ref={(ref) => setMainTextRef(ref)}
+					text={title}
+					x={textX}
+					y={textY}
+					fontSize={fontSizes.primary}
+					listening={false}
+				/>
+			</Group>
 		</Group>
 	);
 };

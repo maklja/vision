@@ -1,6 +1,6 @@
 import { Line, Group, Path } from 'react-konva';
 import { Point } from '../../model';
-import { useDrawerTheme } from '../../theme';
+import { useDrawerTheme } from '../../store/stageSlice';
 
 export interface ConnectLineDrawerProps {
 	id: string;

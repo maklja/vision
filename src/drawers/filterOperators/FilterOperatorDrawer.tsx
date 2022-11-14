@@ -2,13 +2,10 @@ import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import { useAnimation, useAnimationGroups, Animation } from '../../animation';
-import {
-	highlightElementAnimation,
-	highlightTextAnimation,
-	useElementDrawerTheme,
-} from '../../theme';
+import { useElementDrawerTheme, useSizes } from '../../store/stageSlice';
+import { highlightElementAnimation, highlightTextAnimation } from '../../theme';
+import { ConnectPointsDrawer } from '../connectPoints';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
-import { DRAWER_DEFAULT, fromSize } from '../utils';
 
 export const FilterOperatorDrawer = (props: DrawerProps) => {
 	const drawerStyle = useElementDrawerTheme({
@@ -30,10 +27,12 @@ export const FilterOperatorDrawer = (props: DrawerProps) => {
 	});
 
 	const {
-		x,
-		y,
+		x = 0,
+		y = 0,
 		size,
 		id,
+		visibleConnectionPoints,
+		highlightedConnectPoints,
 		onMouseOver,
 		onMouseOut,
 		onMouseDown,
@@ -42,6 +41,10 @@ export const FilterOperatorDrawer = (props: DrawerProps) => {
 		onDragEnd,
 		onAnimationReady,
 		onAnimationDestroy,
+		onConnectPointMouseDown,
+		onConnectPointMouseOut,
+		onConnectPointMouseOver,
+		onConnectPointMouseUp,
 	} = props;
 
 	useEffect(() => {
@@ -99,42 +102,57 @@ export const FilterOperatorDrawer = (props: DrawerProps) => {
 			originalEvent: e,
 		});
 
-	const width = fromSize(DRAWER_DEFAULT.width, size);
-	const height = fromSize(DRAWER_DEFAULT.height, size);
-	const textFontSize = fromSize(DRAWER_DEFAULT.textFontSize, size);
+	const { drawerSizes, fontSizes } = useSizes(size);
 
-	const textX = (mainTextRef?.textWidth ?? 0) / -2 + width / 2;
-	const textY = (mainTextRef?.textHeight ?? 0) / -2 + height / 2;
+	const textX = (mainTextRef?.textWidth ?? 0) / -2 + drawerSizes.width / 2;
+	const textY = (mainTextRef?.textHeight ?? 0) / -2 + drawerSizes.height / 2;
 
 	return (
-		<Group
-			x={x}
-			y={y}
-			visible={Boolean(mainTextRef)}
-			draggable
-			onMouseOver={handleMouseOver}
-			onMouseOut={handleMouseOut}
-			onMouseDown={handleMouseDown}
-			onDragMove={handleDragMove}
-			onDragStart={handleDragStart}
-			onDragEnd={handleDragEnd}
-		>
-			<Rect
-				{...drawerStyle.element}
-				ref={(ref) => setMainShapeRef(ref)}
-				id={id}
-				width={width}
-				height={height}
-			/>
-			<Text
-				{...drawerStyle.text}
-				ref={(ref) => setMainTextRef(ref)}
-				text={'filter'}
-				x={textX}
-				y={textY}
-				fontSize={textFontSize}
-				listening={false}
-			/>
+		<Group visible={Boolean(mainTextRef)}>
+			{visibleConnectionPoints ? (
+				<ConnectPointsDrawer
+					id={id}
+					x={x}
+					y={y}
+					width={drawerSizes.width}
+					height={drawerSizes.height}
+					offset={12}
+					onMouseDown={onConnectPointMouseDown}
+					onMouseUp={onConnectPointMouseUp}
+					onMouseOut={onConnectPointMouseOut}
+					onMouseOver={onConnectPointMouseOver}
+					highlightConnectPoints={highlightedConnectPoints}
+				/>
+			) : null}
+
+			<Group
+				x={x}
+				y={y}
+				draggable
+				onMouseOver={handleMouseOver}
+				onMouseOut={handleMouseOut}
+				onMouseDown={handleMouseDown}
+				onDragMove={handleDragMove}
+				onDragStart={handleDragStart}
+				onDragEnd={handleDragEnd}
+			>
+				<Rect
+					{...drawerStyle.element}
+					ref={(ref) => setMainShapeRef(ref)}
+					id={id}
+					width={drawerSizes.width}
+					height={drawerSizes.height}
+				/>
+				<Text
+					{...drawerStyle.text}
+					ref={(ref) => setMainTextRef(ref)}
+					text={'filter'}
+					x={textX}
+					y={textY}
+					fontSize={fontSizes.primary}
+					listening={false}
+				/>
+			</Group>
 		</Group>
 	);
 };
