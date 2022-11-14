@@ -17,9 +17,9 @@ export interface SizeConfig {
 
 const defaultSizeConfig: SizeConfig = {
 	drawerSizes: {
-		radius: 40,
-		width: 80,
-		height: 80,
+		radius: 35,
+		width: 70,
+		height: 70,
 	},
 	simulationSizes: {
 		radius: 8,
@@ -35,3 +35,4 @@ const defaultSizeConfig: SizeConfig = {
 export const sizesConfig = () => {
 	return defaultSizeConfig;
 };
+

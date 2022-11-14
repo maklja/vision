@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { ColorTheme, retrieveThemeColors } from './colors';
 import { connectLineTheme, ConnectLineTheme } from './connectLineTheme';
 import { connectPointTheme, ConnectPointTheme } from './connectPointTheme';
@@ -24,5 +25,74 @@ export const createThemeContext = (): ThemeContext => {
 		simulation: simulationTheme(defaultColorTheme),
 		sizes: sizesConfig(),
 	};
+};
+
+export interface DrawerThemeState {
+	highlight?: boolean;
+	select?: boolean;
+}
+
+export const useConnectPointTheme = (state: DrawerThemeState, theme: ThemeContext) => {
+	const { connectPoint } = theme;
+	if (state.highlight) {
+		return connectPoint.highlightElement;
+	}
+
+	return connectPoint.element;
+};
+
+export const useElementDrawerTheme = (state: DrawerThemeState, theme: ThemeContext) => {
+	const { drawer } = theme;
+
+	if (state.select) {
+		return {
+			element: drawer.selectElement,
+			text: drawer.selectText,
+		};
+	}
+
+	if (state.highlight) {
+		return {
+			element: drawer.highlightElement,
+			text: drawer.highlightText,
+		};
+	}
+
+	return {
+		element: drawer.element,
+		text: drawer.text,
+	};
+};
+
+export const fromSize = (value: number, size = 1, factor = 1) => value * size * factor;
+
+export const useSizes = (theme: ThemeContext, size = 1, factor = 1): SizeConfig => {
+	const { sizes } = theme;
+
+	return useMemo(() => {
+		const { connectPointSizes, drawerSizes, fontSizes, simulationSizes } = sizes;
+		const connectPointRadius = fromSize(connectPointSizes.radius, size, factor);
+		const drawerHeight = fromSize(drawerSizes.height, size, factor);
+		const drawerWidth = fromSize(drawerSizes.width, size, factor);
+		const drawerRadius = fromSize(drawerSizes.radius, size, factor);
+		const fontSizePrimary = fromSize(fontSizes.primary, size, factor);
+		const simulationRadius = fromSize(simulationSizes.radius, size, factor);
+		return {
+			connectPointSizes: {
+				radius: connectPointRadius,
+			},
+			drawerSizes: {
+				width: drawerWidth,
+				height: drawerHeight,
+				radius: drawerRadius,
+			},
+			simulationSizes: {
+				radius: simulationRadius,
+			},
+			fontSizes: {
+				primary: fontSizePrimary,
+			},
+		};
+	}, [size, factor, sizes]);
 };
 

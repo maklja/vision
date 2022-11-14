@@ -19,11 +19,17 @@ export const highlightSubscriberInnerAnimation = (
 export const useHighlightSubscriberAnimation = (
 	mainShape: Konva.Node | null,
 	innerShape: Konva.Node | null,
+	theme: ThemeContext,
 ) => {
-	const mainShapeHighlightAnimation = useAnimation(mainShape, highlightDrawerAnimation);
+	const mainShapeHighlightAnimation = useAnimation(
+		mainShape,
+		(node) => highlightDrawerAnimation(node, theme),
+		[theme],
+	);
 	const innerShapeHighlightAnimation = useAnimation(
 		innerShape,
-		highlightSubscriberInnerAnimation,
+		(node) => highlightSubscriberInnerAnimation(node, theme),
+		[theme],
 	);
 	return useAnimationGroups(mainShapeHighlightAnimation, innerShapeHighlightAnimation);
 };

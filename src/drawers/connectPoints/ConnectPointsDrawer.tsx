@@ -1,5 +1,6 @@
 import { Group } from 'react-konva';
 import { ConnectPointType } from '../../model';
+import { ThemeContext } from '../../theme';
 import { BoundingBox } from '../utils';
 import { ConnectPointDrawer, ConnectPointDrawerEvent } from './ConnectPointDrawer';
 
@@ -11,8 +12,9 @@ export interface ConnectPointsDrawerEvent {
 
 export interface ConnectPointsDrawerProps {
 	id: string;
-	x?: number;
-	y?: number;
+	x: number;
+	y: number;
+	theme: ThemeContext;
 	width?: number;
 	height?: number;
 	offset?: number;
@@ -25,11 +27,12 @@ export interface ConnectPointsDrawerProps {
 
 export const ConnectPointsDrawer = ({
 	id,
-	x = 0,
-	y = 0,
+	x,
+	y,
 	width = 0,
 	height = 0,
 	offset = 0,
+	theme,
 	highlightConnectPoints,
 	onMouseDown,
 	onMouseUp,
@@ -86,6 +89,7 @@ export const ConnectPointsDrawer = ({
 				type={ConnectPointType.Top}
 				x={topX}
 				y={topY}
+				theme={theme}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
@@ -97,6 +101,7 @@ export const ConnectPointsDrawer = ({
 				type={ConnectPointType.Right}
 				x={rightX}
 				y={rightY}
+				theme={theme}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
@@ -108,6 +113,7 @@ export const ConnectPointsDrawer = ({
 				type={ConnectPointType.Bottom}
 				x={bottomX}
 				y={bottomY}
+				theme={theme}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
@@ -119,6 +125,7 @@ export const ConnectPointsDrawer = ({
 				type={ConnectPointType.Left}
 				x={leftX}
 				y={leftY}
+				theme={theme}
 				onMouseDown={handleOnMouseDown}
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}

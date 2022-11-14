@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { Animation } from '../animation';
 import { ConnectPointType } from '../model';
+import { ThemeContext } from '../theme';
 import { ConnectPointsDrawerEvent } from './connectPoints';
 
 export interface DrawerAnimations {
@@ -35,9 +36,11 @@ export interface DrawerConnectPointsProps {
 
 export interface DrawerProps extends DrawerEvents, DrawerConnectPointsProps {
 	id: string;
-	x?: number;
-	y?: number;
-	size?: number;
+	theme: ThemeContext;
+	x: number;
+	y: number;
+	size: number;
 	highlight?: boolean;
 	select?: boolean;
 }
+

@@ -19,6 +19,7 @@ import {
 	StageState,
 	startConnectLineDraw,
 	unpinConnectLine,
+	useThemeContext,
 } from '../../store/stageSlice';
 import { createElementDrawer } from './createElementDrawer';
 import { changeCursorStyle } from './utils';
@@ -60,9 +61,9 @@ const connectPointSelectStateHandlers = (dispatch: AppDispatch) => ({
 
 const connectPointDrawConnectLineHandlers = (dispatch: AppDispatch) => ({
 	onMouseUp: (cEvent: ConnectPointsDrawerEvent) => {
-		const { connectPoint, id } = cEvent;
+		const { connectPoint, id, element } = cEvent;
 		connectPoint.originalEvent.cancelBubble = true;
-		dispatch(linkConnectLineDraw({ targetId: id }));
+		dispatch(linkConnectLineDraw({ targetId: id, targetPoint: element.center }));
 	},
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent) => {
 		const { connectPoint, id } = cEvent;
@@ -162,6 +163,7 @@ const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({
 });
 
 export const DrawerLayer = () => {
+	const themeContext = useThemeContext();
 	const elements = useAppSelector(selectStageElements);
 	const stageState = useAppSelector(selectStageState);
 	const appDispatch = useAppDispatch();
@@ -224,6 +226,7 @@ export const DrawerLayer = () => {
 							{createElementDrawer(el, {
 								...el,
 								...elementHandlers,
+								theme: themeContext,
 								highlight,
 								select,
 								visibleConnectionPoints: select && notDragging,
@@ -242,3 +245,4 @@ export const DrawerLayer = () => {
 		</Group>
 	);
 };
+

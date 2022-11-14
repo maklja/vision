@@ -4,14 +4,15 @@ import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { useEffect, useState } from 'react';
 import { Animation } from '../../animation';
 import { ConnectPointsDrawer } from '../connectPoints';
-import { useDrawerTheme, useElementDrawerTheme, useSizes } from '../../store/stageSlice';
 import { useHighlightSubscriberAnimation } from './animation/useHighlightSubscriberAnimation';
+import { useElementDrawerTheme, useSizes } from '../../theme';
 
 export const SubscriberDrawer = ({
-	x = 0,
-	y = 0,
+	x,
+	y,
 	size,
 	id,
+	theme,
 	highlight,
 	select,
 	visibleConnectionPoints,
@@ -29,22 +30,25 @@ export const SubscriberDrawer = ({
 	onConnectPointMouseOver,
 	onConnectPointMouseUp,
 }: DrawerProps) => {
-	const { colors } = useDrawerTheme();
-	const drawerStyle = useElementDrawerTheme({
-		highlight,
-		select,
-	});
+	const { colors } = theme;
+	const drawerStyle = useElementDrawerTheme(
+		{
+			highlight,
+			select,
+		},
+		theme,
+	);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [innerShapeRef, setInnerShapeRef] = useState<Konva.Circle | null>(null);
-	const highlightAnimation = useHighlightSubscriberAnimation(mainShapeRef, innerShapeRef);
+	const highlightAnimation = useHighlightSubscriberAnimation(mainShapeRef, innerShapeRef, theme);
 
 	const createAnimation = (): DrawerAnimations => ({
 		highlight: highlightAnimation,
 	});
 
-	const { drawerSizes } = useSizes(size);
-	const { drawerSizes: outerSizes } = useSizes(size, 0.8);
-	const { drawerSizes: innerSizes } = useSizes(size, 0.5);
+	const { drawerSizes } = useSizes(theme, size);
+	const { drawerSizes: outerSizes } = useSizes(theme, size, 0.8);
+	const { drawerSizes: innerSizes } = useSizes(theme, size, 0.5);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -110,6 +114,7 @@ export const SubscriberDrawer = ({
 					y={y + drawerSizes.radius / 2}
 					width={drawerSizes.radius}
 					height={drawerSizes.radius}
+					theme={theme}
 					offset={24}
 					onMouseDown={onConnectPointMouseDown}
 					onMouseUp={onConnectPointMouseUp}

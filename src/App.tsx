@@ -8,7 +8,7 @@ import {
 	moveConnectLineDraw,
 	deleteConnectLineDraw,
 	selectStage,
-	useDrawerTheme,
+	useThemeContext,
 } from './store/stageSlice';
 import { createObservableSimulation } from './engine';
 import { ObservableEvent, createSimulation } from './store/simulationSlice';
@@ -18,7 +18,7 @@ import { SimulationLayer } from './layers/simulation';
 import { ConnectLineLayer } from './layers/connectLine';
 
 const App = () => {
-	const theme = useDrawerTheme();
+	const theme = useThemeContext();
 	const { elements, connectLines } = useSelector(selectStage);
 	const [activeSimulationId, setActiveSimulationId] = useState<string | null>(null);
 	const appDispatch = useAppDispatch();
@@ -98,3 +98,4 @@ const App = () => {
 };
 
 export default App;
+

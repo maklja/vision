@@ -1,9 +1,10 @@
 import Konva from 'konva';
 import { forwardRef } from 'react';
 import { Circle } from 'react-konva';
-import { useDrawerTheme, useSizes } from '../../store/stageSlice';
+import { ThemeContext, useSizes } from '../../theme';
 
 export interface ResultDrawerProps {
+	theme: ThemeContext;
 	x?: number;
 	y?: number;
 	fill?: string;
@@ -11,20 +12,23 @@ export interface ResultDrawerProps {
 	visible?: boolean;
 }
 
-export const ResultDrawer = forwardRef<Konva.Circle, ResultDrawerProps>((props, ref) => {
-	const { simulation } = useDrawerTheme();
-	const { simulationSizes } = useSizes();
-	return (
-		<Circle
-			radius={simulationSizes.radius}
-			stroke={props.stroke ?? simulation.stroke}
-			fill={props.fill ?? simulation.fill}
-			ref={ref}
-			x={props.x}
-			y={props.y}
-			visible={props.visible ?? false}
-		/>
-	);
-});
+export const ResultDrawer = forwardRef<Konva.Circle, ResultDrawerProps>(
+	({ theme, fill, stroke, visible, x, y }, ref) => {
+		const { simulation } = theme;
+		const { simulationSizes } = useSizes(theme);
+		return (
+			<Circle
+				radius={simulationSizes.radius}
+				stroke={stroke ?? simulation.stroke}
+				fill={fill ?? simulation.fill}
+				ref={ref}
+				x={x}
+				y={y}
+				visible={visible ?? false}
+			/>
+		);
+	},
+);
 
 ResultDrawer.displayName = 'ResultDrawer';
+

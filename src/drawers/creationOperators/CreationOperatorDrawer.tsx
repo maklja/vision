@@ -4,21 +4,22 @@ import { Circle, Group, Text } from 'react-konva';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { Animation } from '../../animation';
 import { ConnectPointsDrawer } from '../connectPoints';
-import { useElementDrawerTheme, useSizes } from '../../store/stageSlice';
 import { useHighlightDrawerAnimation } from '../animation';
+import { useElementDrawerTheme, useSizes } from '../../theme';
 
 export interface CreationOperatorDrawerProps extends DrawerProps {
 	title: string;
 }
 
 export const CreationOperatorDrawer = ({
-	x = 0,
-	y = 0,
+	x,
+	y,
 	title,
 	size,
 	highlight,
 	select,
 	id,
+	theme,
 	visibleConnectionPoints,
 	highlightedConnectPoints,
 	onMouseOver,
@@ -34,15 +35,18 @@ export const CreationOperatorDrawer = ({
 	onConnectPointMouseOver,
 	onConnectPointMouseUp,
 }: CreationOperatorDrawerProps) => {
-	const drawerStyle = useElementDrawerTheme({
-		highlight,
-		select,
-	});
-	const { drawerSizes, fontSizes } = useSizes(size);
+	const drawerStyle = useElementDrawerTheme(
+		{
+			highlight,
+			select,
+		},
+		theme,
+	);
+	const { drawerSizes, fontSizes } = useSizes(theme, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 
-	const highlightAnimation = useHighlightDrawerAnimation(mainShapeRef, mainTextRef);
+	const highlightAnimation = useHighlightDrawerAnimation(mainShapeRef, mainTextRef, theme);
 
 	// const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
 	// const iconX = radius + -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
@@ -125,6 +129,7 @@ export const CreationOperatorDrawer = ({
 					y={y + drawerSizes.radius / 2}
 					width={drawerSizes.radius}
 					height={drawerSizes.radius}
+					theme={theme}
 					offset={32}
 					onMouseDown={onConnectPointMouseDown}
 					onMouseUp={onConnectPointMouseUp}

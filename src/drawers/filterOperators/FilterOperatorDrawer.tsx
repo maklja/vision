@@ -2,16 +2,17 @@ import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import { Animation } from '../../animation';
-import { useElementDrawerTheme, useSizes } from '../../store/stageSlice';
 import { ConnectPointsDrawer } from '../connectPoints';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { useHighlightDrawerAnimation } from '../animation';
+import { useElementDrawerTheme, useSizes } from '../../theme';
 
 export const FilterOperatorDrawer = ({
-	x = 0,
-	y = 0,
+	x,
+	y,
 	size,
 	id,
+	theme,
 	highlight,
 	select,
 	visibleConnectionPoints,
@@ -29,14 +30,17 @@ export const FilterOperatorDrawer = ({
 	onConnectPointMouseOver,
 	onConnectPointMouseUp,
 }: DrawerProps) => {
-	const drawerStyle = useElementDrawerTheme({
-		highlight,
-		select,
-	});
+	const drawerStyle = useElementDrawerTheme(
+		{
+			highlight,
+			select,
+		},
+		theme,
+	);
+	const { drawerSizes, fontSizes } = useSizes(theme, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
-
-	const highlightAnimation = useHighlightDrawerAnimation(mainShapeRef, mainTextRef);
+	const highlightAnimation = useHighlightDrawerAnimation(mainShapeRef, mainTextRef, theme);
 
 	const createAnimation = (): DrawerAnimations => ({
 		highlight: highlightAnimation,
@@ -97,8 +101,6 @@ export const FilterOperatorDrawer = ({
 			originalEvent: e,
 		});
 
-	const { drawerSizes, fontSizes } = useSizes(size);
-
 	const textX = (mainTextRef?.textWidth ?? 0) / -2 + drawerSizes.width / 2;
 	const textY = (mainTextRef?.textHeight ?? 0) / -2 + drawerSizes.height / 2;
 
@@ -109,6 +111,7 @@ export const FilterOperatorDrawer = ({
 					id={id}
 					x={x}
 					y={y}
+					theme={theme}
 					width={drawerSizes.width}
 					height={drawerSizes.height}
 					offset={12}

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAnimation, Animation, AnimationSequence } from '../../animation';
 import { ConnectLine } from '../../model';
 import { ObservableEvent } from '../../store/simulationSlice';
+import { useThemeContext } from '../../store/stageSlice';
 import { moveResultAnimation } from './animation/moveResultAnimation';
 import { ResultDrawer } from './ResultDrawer';
 import { hashToColor, invertColor } from './utils';
@@ -15,14 +16,14 @@ export interface SimulationStepProps {
 	onComplete?: () => void;
 }
 
-export const SimulationStep = (props: SimulationStepProps) => {
-	const {
-		connectLine,
-		observableEvent,
-		sourceDrawerAnimation,
-		targetDrawerAnimation,
-		onComplete,
-	} = props;
+export const SimulationStep = ({
+	connectLine,
+	observableEvent,
+	sourceDrawerAnimation,
+	targetDrawerAnimation,
+	onComplete,
+}: SimulationStepProps) => {
+	const theme = useThemeContext();
 	const [resultDrawerRef, setResultDrawerRef] = useState<Konva.Node | null>(null);
 	const resultAnimation = useAnimation(
 		resultDrawerRef,
@@ -61,6 +62,7 @@ export const SimulationStep = (props: SimulationStepProps) => {
 	const invertResultColor = invertColor(resultColor, false);
 	return (
 		<ResultDrawer
+			theme={theme}
 			x={position.x}
 			y={position.y}
 			ref={(ref) => setResultDrawerRef(ref)}

@@ -1,6 +1,5 @@
 import Konva from 'konva';
 import { DependencyList, useEffect, useMemo } from 'react';
-import { useDrawerTheme } from '../../store/stageSlice';
 import { ThemeContext } from '../../theme';
 import { Animation } from '../Animation';
 
@@ -10,12 +9,11 @@ export interface AnimationsDefinition {
 
 export const useAnimation = (
 	node: Konva.Node | null,
-	animationFactory: (node: Konva.Node, theme: ThemeContext) => Animation | null,
+	animationFactory: (node: Konva.Node) => Animation | null,
 	dependencies: DependencyList = [],
 ) => {
-	const theme = useDrawerTheme();
 	const animation = useMemo(
-		() => (!node ? null : animationFactory(node, theme)),
+		() => (!node ? null : animationFactory(node)),
 		[node, ...dependencies],
 	);
 
