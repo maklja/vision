@@ -1,7 +1,4 @@
-import Konva from 'konva';
-import { Animation, TweenAnimation } from '../animation';
 import { ColorTheme } from './colors';
-import { DrawerTheme } from './drawerTheme';
 
 export interface ElementDrawerStyle {
 	stroke: string;
@@ -63,22 +60,3 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 	};
 };
 
-export const highlightElementAnimation = (node: Konva.Node, theme: DrawerTheme): Animation =>
-	new TweenAnimation(
-		{
-			node,
-			duration: 0.3,
-			fill: theme.drawer.highlightElement.fill,
-		},
-		{ autoReverse: true },
-	);
-
-export const highlightTextAnimation = (node: Konva.Node, theme: DrawerTheme): Animation =>
-	new TweenAnimation(
-		{
-			node,
-			duration: 0.3,
-			stroke: theme.drawer.highlightText.stroke,
-		},
-		{ autoReverse: true },
-	);

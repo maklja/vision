@@ -1,51 +1,46 @@
 import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
-import { useAnimation, useAnimationGroups, Animation } from '../../animation';
+import { Animation } from '../../animation';
 import { useElementDrawerTheme, useSizes } from '../../store/stageSlice';
-import { highlightElementAnimation, highlightTextAnimation } from '../../theme';
 import { ConnectPointsDrawer } from '../connectPoints';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
+import { useHighlightDrawerAnimation } from '../animation';
 
-export const FilterOperatorDrawer = (props: DrawerProps) => {
+export const FilterOperatorDrawer = ({
+	x = 0,
+	y = 0,
+	size,
+	id,
+	highlight,
+	select,
+	visibleConnectionPoints,
+	highlightedConnectPoints,
+	onMouseOver,
+	onMouseOut,
+	onMouseDown,
+	onDragMove,
+	onDragStart,
+	onDragEnd,
+	onAnimationReady,
+	onAnimationDestroy,
+	onConnectPointMouseDown,
+	onConnectPointMouseOut,
+	onConnectPointMouseOver,
+	onConnectPointMouseUp,
+}: DrawerProps) => {
 	const drawerStyle = useElementDrawerTheme({
-		highlight: props.highlight,
-		select: props.select,
+		highlight,
+		select,
 	});
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 
-	const mainShapeHighlightAnimation = useAnimation(mainShapeRef, highlightElementAnimation);
-	const mainTextHighlightAnimation = useAnimation(mainTextRef, highlightTextAnimation);
-	const highlightAnimation = useAnimationGroups(
-		mainShapeHighlightAnimation,
-		mainTextHighlightAnimation,
-	);
+	const highlightAnimation = useHighlightDrawerAnimation(mainShapeRef, mainTextRef);
 
 	const createAnimation = (): DrawerAnimations => ({
 		highlight: highlightAnimation,
 	});
-
-	const {
-		x = 0,
-		y = 0,
-		size,
-		id,
-		visibleConnectionPoints,
-		highlightedConnectPoints,
-		onMouseOver,
-		onMouseOut,
-		onMouseDown,
-		onDragMove,
-		onDragStart,
-		onDragEnd,
-		onAnimationReady,
-		onAnimationDestroy,
-		onConnectPointMouseDown,
-		onConnectPointMouseOut,
-		onConnectPointMouseOver,
-		onConnectPointMouseUp,
-	} = props;
 
 	useEffect(() => {
 		if (!highlightAnimation) {
@@ -156,3 +151,4 @@ export const FilterOperatorDrawer = (props: DrawerProps) => {
 		</Group>
 	);
 };
+

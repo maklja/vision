@@ -1,6 +1,6 @@
 import { createSlice, Draft } from '@reduxjs/toolkit';
 import { ConnectLine, ConnectPoint, Element, Point } from '../model';
-import { defaultTheme, DrawerTheme } from '../theme';
+import { createThemeContext, ThemeContext } from '../theme';
 import {
 	startConnectLineDrawReducer,
 	moveConnectLineDrawReducer,
@@ -32,7 +32,7 @@ export interface StageSlice {
 	highlightedConnectPoints: ConnectPoint[];
 	selected: string[];
 	highlighted: string[];
-	theme: DrawerTheme;
+	theme: ThemeContext;
 	state: StageState;
 	draftConnectLine: DraftConnectLine | null;
 }
@@ -77,7 +77,7 @@ const initialState: StageSlice = {
 	highlightedConnectPoints: [],
 	selected: [],
 	highlighted: [],
-	theme: defaultTheme,
+	theme: createThemeContext(),
 	state: StageState.Select,
 	draftConnectLine: null,
 };
@@ -186,3 +186,4 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
+

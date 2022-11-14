@@ -23,21 +23,19 @@ export interface ConnectPointsDrawerProps {
 	onMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
 }
 
-export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
-	const {
-		id,
-		x = 0,
-		y = 0,
-		width = 0,
-		height = 0,
-		offset = 0,
-		highlightConnectPoints,
-		onMouseDown,
-		onMouseUp,
-		onMouseOver,
-		onMouseOut,
-	} = props;
-
+export const ConnectPointsDrawer = ({
+	id,
+	x = 0,
+	y = 0,
+	width = 0,
+	height = 0,
+	offset = 0,
+	highlightConnectPoints,
+	onMouseDown,
+	onMouseUp,
+	onMouseOver,
+	onMouseOut,
+}: ConnectPointsDrawerProps) => {
 	const topX = x + width / 2;
 	const topY = y - offset;
 
@@ -130,3 +128,4 @@ export const ConnectPointsDrawer = (props: ConnectPointsDrawerProps) => {
 		</Group>
 	);
 };
+

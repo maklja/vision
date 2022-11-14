@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { Circle } from 'react-konva';
 import { Animation } from '../../animation';
 import { ConnectPointType } from '../../model';
-import { useConnectPointTheme } from '../../store/stageSlice';
-import { snapConnectPointAnimation } from '../../theme';
+import { useConnectPointTheme, useDrawerTheme } from '../../store/stageSlice';
+import { snapConnectPointAnimation } from './animation/snapConnectPointAnimation';
 
 export interface ConnectPointAnimation {
 	snapConnectPoint: Animation;
@@ -39,6 +39,7 @@ export const ConnectPointDrawer = ({
 	onMouseOver,
 	onMouseOut,
 }: ConnectPointDrawerProps) => {
+	const theme = useDrawerTheme();
 	const connectPointElementTheme = useConnectPointTheme({ highlight });
 	const [circleRef, setCircleRef] = useState<Konva.Circle | null>(null);
 	const [animations, setAnimations] = useState<ConnectPointAnimation | null>(null);
@@ -69,7 +70,7 @@ export const ConnectPointDrawer = ({
 		}
 
 		setAnimations({
-			snapConnectPoint: snapConnectPointAnimation(circleRef),
+			snapConnectPoint: snapConnectPointAnimation(circleRef, theme),
 		});
 
 		return () => {
@@ -92,3 +93,4 @@ export const ConnectPointDrawer = ({
 		/>
 	);
 };
+

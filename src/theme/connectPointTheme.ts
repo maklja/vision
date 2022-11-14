@@ -1,5 +1,3 @@
-import Konva from 'konva';
-import { Animation, TweenAnimation } from '../animation';
 import { ColorTheme } from './colors';
 
 export interface ConnectPointElementStyle {
@@ -32,11 +30,3 @@ export const connectPointTheme = (themeColors: ColorTheme): ConnectPointTheme =>
 	};
 };
 
-export const snapConnectPointAnimation = (node: Konva.Node): Animation =>
-	new TweenAnimation({
-		node,
-		duration: 0.1,
-		fill: 'green',
-		scaleX: 1.4,
-		scaleY: 1.4,
-	});

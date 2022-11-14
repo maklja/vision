@@ -1,48 +1,49 @@
 import Konva from 'konva';
 import { Circle, Group } from 'react-konva';
-import { highlightElementAnimation } from '../../theme';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { useEffect, useState } from 'react';
-import { useAnimation, useAnimationGroups, Animation } from '../../animation';
+import { Animation } from '../../animation';
 import { ConnectPointsDrawer } from '../connectPoints';
 import { useDrawerTheme, useElementDrawerTheme, useSizes } from '../../store/stageSlice';
+import { useHighlightSubscriberAnimation } from './animation/useHighlightSubscriberAnimation';
 
-export const SubscriberDrawer = (props: DrawerProps) => {
+export const SubscriberDrawer = ({
+	x = 0,
+	y = 0,
+	size,
+	id,
+	highlight,
+	select,
+	visibleConnectionPoints,
+	highlightedConnectPoints,
+	onMouseDown,
+	onMouseOut,
+	onMouseOver,
+	onDragMove,
+	onDragStart,
+	onDragEnd,
+	onAnimationDestroy,
+	onAnimationReady,
+	onConnectPointMouseDown,
+	onConnectPointMouseOut,
+	onConnectPointMouseOver,
+	onConnectPointMouseUp,
+}: DrawerProps) => {
 	const { colors } = useDrawerTheme();
 	const drawerStyle = useElementDrawerTheme({
-		highlight: props.highlight,
-		select: props.select,
+		highlight,
+		select,
 	});
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
-	const mainShapeHighlightAnimation = useAnimation(mainShapeRef, highlightElementAnimation);
-	const highlightAnimation = useAnimationGroups(mainShapeHighlightAnimation);
+	const [innerShapeRef, setInnerShapeRef] = useState<Konva.Circle | null>(null);
+	const highlightAnimation = useHighlightSubscriberAnimation(mainShapeRef, innerShapeRef);
 
 	const createAnimation = (): DrawerAnimations => ({
 		highlight: highlightAnimation,
 	});
 
-	const {
-		x = 0,
-		y = 0,
-		size,
-		id,
-		visibleConnectionPoints,
-		highlightedConnectPoints,
-		onMouseDown,
-		onMouseOut,
-		onMouseOver,
-		onDragMove,
-		onDragStart,
-		onDragEnd,
-		onAnimationDestroy,
-		onAnimationReady,
-		onConnectPointMouseDown,
-		onConnectPointMouseOut,
-		onConnectPointMouseOver,
-		onConnectPointMouseUp,
-	} = props;
 	const { drawerSizes } = useSizes(size);
-	const { drawerSizes: outherSizes } = useSizes(size, 0.8);
+	const { drawerSizes: outerSizes } = useSizes(size, 0.8);
 	const { drawerSizes: innerSizes } = useSizes(size, 0.5);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
@@ -133,22 +134,20 @@ export const SubscriberDrawer = (props: DrawerProps) => {
 					{...drawerStyle.element}
 					ref={(node) => setMainShapeRef(node)}
 					id={id}
-					radius={outherSizes.radius}
+					radius={outerSizes.radius}
 					x={drawerSizes.radius}
 					y={drawerSizes.radius}
 				/>
 				<Circle
+					ref={(node) => setInnerShapeRef(node)}
 					radius={innerSizes.radius}
 					x={drawerSizes.radius}
 					y={drawerSizes.radius}
 					listening={false}
-					fill={
-						props.highlight || props.select
-							? colors.primaryColor
-							: colors.secondaryColor
-					}
+					fill={highlight || select ? colors.primaryColor : colors.secondaryColor}
 				/>
 			</Group>
 		</Group>
 	);
 };
+

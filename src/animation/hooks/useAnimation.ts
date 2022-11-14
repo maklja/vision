@@ -1,16 +1,16 @@
 import Konva from 'konva';
 import { DependencyList, useEffect, useMemo } from 'react';
-import { useDrawerTheme } from '../store/stageSlice';
-import { DrawerTheme } from '../theme';
-import { Animation } from './Animation';
+import { useDrawerTheme } from '../../store/stageSlice';
+import { ThemeContext } from '../../theme';
+import { Animation } from '../Animation';
 
 export interface AnimationsDefinition {
-	[k: string]: [Konva.Node | null, (node: Konva.Node) => Animation];
+	[k: string]: [Konva.Node | null, (node: Konva.Node, theme: ThemeContext) => Animation];
 }
 
 export const useAnimation = (
 	node: Konva.Node | null,
-	animationFactory: (node: Konva.Node, theme: DrawerTheme) => Animation | null,
+	animationFactory: (node: Konva.Node, theme: ThemeContext) => Animation | null,
 	dependencies: DependencyList = [],
 ) => {
 	const theme = useDrawerTheme();
@@ -27,3 +27,4 @@ export const useAnimation = (
 
 	return animation;
 };
+

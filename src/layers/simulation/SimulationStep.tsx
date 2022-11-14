@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAnimation, Animation, AnimationSequence } from '../../animation';
 import { ConnectLine } from '../../model';
 import { ObservableEvent } from '../../store/simulationSlice';
-import { moveResultAnimation } from '../../theme';
+import { moveResultAnimation } from './animation/moveResultAnimation';
 import { ResultDrawer } from './ResultDrawer';
 import { hashToColor, invertColor } from './utils';
 
@@ -30,10 +30,13 @@ export const SimulationStep = (props: SimulationStepProps) => {
 			const [, sourcePoint] = connectLine.points;
 			const [targetPoint] = connectLine.points.slice(-2);
 			node.position(sourcePoint);
-			return moveResultAnimation({
-				targetPosition: targetPoint,
-				sourcePosition: sourcePoint,
-			})(node);
+			return moveResultAnimation(
+				{
+					targetPosition: targetPoint,
+					sourcePosition: sourcePoint,
+				},
+				node,
+			);
 		},
 		[connectLine],
 	);

@@ -5,7 +5,7 @@ import { elementDrawerTheme, ElementDrawerTheme } from './elementDrawerTheme';
 import { simulationTheme, SimulationTheme } from './simulationTheme';
 import { SizeConfig, sizesConfig } from './sizes';
 
-export interface DrawerTheme {
+export interface ThemeContext {
 	colors: ColorTheme;
 	drawer: ElementDrawerTheme;
 	connectLine: ConnectLineTheme;
@@ -14,12 +14,15 @@ export interface DrawerTheme {
 	sizes: SizeConfig;
 }
 
-const defaultColorTheme = retrieveThemeColors();
-export const defaultTheme: DrawerTheme = {
-	colors: defaultColorTheme,
-	drawer: elementDrawerTheme(defaultColorTheme),
-	connectLine: connectLineTheme(defaultColorTheme),
-	connectPoint: connectPointTheme(defaultColorTheme),
-	simulation: simulationTheme(defaultColorTheme),
-	sizes: sizesConfig(),
+export const createThemeContext = (): ThemeContext => {
+	const defaultColorTheme = retrieveThemeColors();
+	return {
+		colors: defaultColorTheme,
+		drawer: elementDrawerTheme(defaultColorTheme),
+		connectLine: connectLineTheme(defaultColorTheme),
+		connectPoint: connectPointTheme(defaultColorTheme),
+		simulation: simulationTheme(defaultColorTheme),
+		sizes: sizesConfig(),
+	};
 };
+

@@ -7,7 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import { setupStore } from './store/rootState';
 import { ElementType, FilterElement, FromElement, OfElement, Element, ConnectLine } from './model';
 import { StageState } from './store/stageSlice';
-import { defaultTheme } from './theme';
+import { createThemeContext } from './theme';
 
 const e1: OfElement = {
 	id: 'ofElement',
@@ -78,7 +78,7 @@ root.render(
 				highlighted: [],
 				highlightedConnectPoints: [],
 				selected: [],
-				theme: defaultTheme,
+				theme: createThemeContext(),
 				state: StageState.Select,
 			},
 		})}
@@ -92,3 +92,4 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+

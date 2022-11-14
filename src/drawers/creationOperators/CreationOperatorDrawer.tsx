@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import Konva from 'konva';
 import { Circle, Group, Text } from 'react-konva';
-import { highlightElementAnimation, highlightTextAnimation } from '../../theme';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
-import { Animation, useAnimation, useAnimationGroups } from '../../animation';
+import { Animation } from '../../animation';
 import { ConnectPointsDrawer } from '../connectPoints';
 import { useElementDrawerTheme, useSizes } from '../../store/stageSlice';
+import { useHighlightDrawerAnimation } from '../animation';
 
 export interface CreationOperatorDrawerProps extends DrawerProps {
 	title: string;
@@ -42,12 +42,7 @@ export const CreationOperatorDrawer = ({
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 
-	const mainShapeHighlightAnimation = useAnimation(mainShapeRef, highlightElementAnimation);
-	const mainTextHighlightAnimation = useAnimation(mainTextRef, highlightTextAnimation);
-	const highlightAnimation = useAnimationGroups(
-		mainShapeHighlightAnimation,
-		mainTextHighlightAnimation,
-	);
+	const highlightAnimation = useHighlightDrawerAnimation(mainShapeRef, mainTextRef);
 
 	// const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
 	// const iconX = radius + -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
@@ -171,3 +166,4 @@ export const CreationOperatorDrawer = ({
 		</Group>
 	);
 };
+
