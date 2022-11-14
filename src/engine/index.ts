@@ -1,3 +1,4 @@
 export * from './ObservableSimulation';
-export * from './FlowListener';
 export * from './createObservableSimulation';
+export * from './error';
+

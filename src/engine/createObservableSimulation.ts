@@ -5,6 +5,7 @@ import {
 	isPipeOperatorType,
 	isSubscriberType,
 } from '../model';
+import { CreationNodeMissingError, SubscriberNodeMissingError } from './error';
 import { ObservableSimulation } from './ObservableSimulation';
 
 interface ObservableStruct {
@@ -67,7 +68,7 @@ export const createObservableSimulation = <T = unknown>(
 	);
 
 	if (!creationElement) {
-		return null;
+		throw new CreationNodeMissingError(creationElementId);
 	}
 
 	const os = createObservableExecutable(creationElement, {
@@ -76,7 +77,7 @@ export const createObservableSimulation = <T = unknown>(
 	});
 
 	if (!os.subscriberElement) {
-		return null;
+		throw new SubscriberNodeMissingError();
 	}
 
 	return new ObservableSimulation<T>({
@@ -86,3 +87,4 @@ export const createObservableSimulation = <T = unknown>(
 		subscriberElement: os.subscriberElement,
 	});
 };
+

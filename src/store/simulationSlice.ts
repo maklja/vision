@@ -1,9 +1,12 @@
-import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSlice, EntityState } from '@reduxjs/toolkit';
 import { RootState } from './rootState';
 
-export interface SetObservableEventsAction {
+export interface AddNextObservableEventAction {
 	type: string;
-	payload: ObservableEvent[];
+	payload: {
+		id: string;
+		nextEvent: ObservableEvent;
+	};
 }
 
 export interface ObservableEvent {
@@ -28,10 +31,17 @@ export const simulationsSlice = createSlice({
 	initialState: simulationAdapter.getInitialState(),
 	reducers: {
 		createSimulation: simulationAdapter.addOne,
+		addNextObservableEvent: (
+			slice: EntityState<Simulation>,
+			action: AddNextObservableEventAction,
+		) => {
+			const { id, nextEvent } = action.payload;
+			slice.entities[id]?.events.push(nextEvent);
+		},
 	},
 });
 
-export const { createSimulation } = simulationsSlice.actions;
+export const { createSimulation, addNextObservableEvent } = simulationsSlice.actions;
 
 export default simulationsSlice.reducer;
 
