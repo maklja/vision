@@ -11,7 +11,7 @@ import {
 	useThemeContext,
 } from './store/stageSlice';
 import { createObservableSimulation } from './engine';
-import { ObservableEvent, createSimulation } from './store/simulationSlice';
+import { ObservableEvent, createSimulation, addNextObservableEvent } from './store/simulationSlice';
 import { DrawerLayer } from './layers/drawer';
 import { useState } from 'react';
 import { SimulationLayer } from './layers/simulation';
@@ -41,37 +41,53 @@ const App = () => {
 	};
 
 	const handleClick = () => {
-		const results: ObservableEvent[] = [];
-		const observableSimulation = createObservableSimulation(
-			'ofElement',
-			elements,
-			connectLines,
+		const simulationId = v1();
+		appDispatch(
+			createSimulation({
+				id: simulationId,
+				events: [],
+				completed: false,
+			}),
 		);
+		createObservableSimulation('ofElement', elements, connectLines)
+			.start()
+			.subscribe({
+				next: (event) => {
+					appDispatch(
+						addNextObservableEvent({
+							id: simulationId,
+							nextEvent: event,
+						}),
+					);
+				},
+				error: (error) => console.log(error),
+				complete: () => console.log('done'),
+			});
 
-		observableSimulation?.addFlowListener({
-			onNextFlow: (event) => {
-				const { id, connectLineId, value, hash } = event;
-				results.push({
-					id,
-					hash,
-					value,
-					connectLineId,
-				});
-			},
-		});
-		observableSimulation?.start({
-			complete: () => {
-				const simulationId = v1();
-				appDispatch(
-					createSimulation({
-						id: simulationId,
-						events: results,
-						completed: true,
-					}),
-				);
-				setActiveSimulationId(simulationId);
-			},
-		});
+		// observableSimulation?.addFlowListener({
+		// 	onNextFlow: (event) => {
+		// 		const { id, connectLineId, value, hash } = event;
+		// 		results.push({
+		// 			id,
+		// 			hash,
+		// 			value,
+		// 			connectLineId,
+		// 		});
+		// 	},
+		// });
+		// observableSimulation?.start({
+		// 	complete: () => {
+		// 		const simulationId = v1();
+		// 		appDispatch(
+		// 			createSimulation({
+		// 				id: simulationId,
+		// 				events: results,
+		// 				completed: true,
+		// 			}),
+		// 		);
+		// 		setActiveSimulationId(simulationId);
+		// 	},
+		// });
 	};
 
 	return (
