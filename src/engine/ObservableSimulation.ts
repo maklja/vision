@@ -1,4 +1,4 @@
-import { Observable, Observer, ReplaySubject, tap } from 'rxjs';
+import { Observable, Observer, ReplaySubject, tap, Unsubscribable } from 'rxjs';
 import { v1 as createId } from 'uuid';
 import createHash from 'object-hash';
 import { ConnectLine, Element } from '../model';
@@ -35,6 +35,7 @@ export interface ObservableSimulationParams {
 export class ObservableSimulation<T> {
 	private readonly observable: Observable<T>;
 	private readonly simulationSubject = new ReplaySubject<FlowEvent<T>>(10_000);
+	private subscription: Unsubscribable | null = null;
 
 	constructor(params: ObservableSimulationParams) {
 		const { connectLines, creationElement, pipeElements } = params;
@@ -51,15 +52,26 @@ export class ObservableSimulation<T> {
 		this.observable = observable.pipe(...(pipe as [])) as Observable<T>;
 	}
 
-	start() {
-		this.observable.subscribe({
+	start(o: Partial<Observer<FlowEvent<T>>>): Unsubscribable {
+		const subscription = this.observable.subscribe({
+			next: (val) => console.log(val),
 			error: (e) => this.simulationSubject.error(e),
-			complete: () => {
-				this.simulationSubject.complete();
-			},
+			complete: () => this.simulationSubject.complete(),
 		});
 
-		return this.simulationSubject.asObservable();
+		const simulationSubscription = this.simulationSubject.asObservable().subscribe(o);
+		this.subscription = {
+			unsubscribe: () => {
+				subscription.unsubscribe();
+				simulationSubscription.unsubscribe();
+			},
+		};
+		return this.subscription;
+	}
+
+	stop() {
+		this.subscription?.unsubscribe();
+		this.subscription = null;
 	}
 }
 

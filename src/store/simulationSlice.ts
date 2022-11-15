@@ -9,6 +9,13 @@ export interface AddNextObservableEventAction {
 	};
 }
 
+export interface CompleteSimulationAction {
+	type: string;
+	payload: {
+		id: string;
+	};
+}
+
 export interface ObservableEvent {
 	id: string;
 	value: unknown;
@@ -38,10 +45,18 @@ export const simulationsSlice = createSlice({
 			const { id, nextEvent } = action.payload;
 			slice.entities[id]?.events.push(nextEvent);
 		},
+		completeSimulation: (slice: EntityState<Simulation>, action: CompleteSimulationAction) => {
+			const { id } = action.payload;
+			const simulation = slice.entities[id];
+			if (simulation) {
+				simulation.completed = true;
+			}
+		},
 	},
 });
 
-export const { createSimulation, addNextObservableEvent } = simulationsSlice.actions;
+export const { createSimulation, addNextObservableEvent, completeSimulation } =
+	simulationsSlice.actions;
 
 export default simulationsSlice.reducer;
 

@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { selectDrawerSettingsById } from '../../store/drawersSlice';
-import { selectSimulationById } from '../../store/simulationSlice';
+import { Simulation } from '../../store/simulationSlice';
 import { selectConnectLineById } from '../../store/stageSlice';
 import { SimulationStep } from './SimulationStep';
 
 export interface SimulatorLayerProps {
-	simulationId: string;
+	simulation: Simulation;
 }
 
-export const SimulationLayer = (props: SimulatorLayerProps) => {
-	const simulation = useSelector(selectSimulationById(props.simulationId));
+export const SimulationLayer = ({ simulation }: SimulatorLayerProps) => {
 	const [simulationStep, setSimulationStep] = useState(0);
 
 	useEffect(() => {
 		setSimulationStep(0);
-	}, [props.simulationId]);
+	}, [simulation.id]);
 
 	const simulationEvents = simulation?.events ?? [];
 	const prevObservableEvent = simulationEvents.at(simulationStep - 1);
@@ -36,13 +35,7 @@ export const SimulationLayer = (props: SimulatorLayerProps) => {
 		return null;
 	}
 
-	const handleComplete = () => {
-		if (simulationStep >= simulationEvents.length - 1) {
-			return;
-		}
-
-		setSimulationStep(simulationStep + 1);
-	};
+	const handleComplete = () => setSimulationStep(simulationStep + 1);
 
 	const skipSourceDrawerAnimation = prevConnectLine?.targetId === connectLine?.sourceId;
 	return (

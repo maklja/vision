@@ -1,10 +1,19 @@
-import { filter, from, of } from 'rxjs';
-import { Element, ElementType, OfElement, FromElement, FilterElement } from '../model';
+import { filter, from, interval, of } from 'rxjs';
+import {
+	Element,
+	ElementType,
+	OfElement,
+	FromElement,
+	FilterElement,
+	IntervalElement,
+} from '../model';
 
 const createOfCreationOperator = <T>(el: OfElement<T>) =>
 	el.items ? of(...el.items) : of(el.items);
 
 const createFromCreationOperator = <T>(el: FromElement<T>) => from(el.input);
+
+const createIntervalCreationOperator = (el: IntervalElement) => interval(el.period);
 
 const createFilterOperator = <T>(el: FilterElement) => {
 	const filterFn = new Function(`return ${el.expression}`);
@@ -18,6 +27,8 @@ export const mapCreationElementFactory = <T = unknown>(el: Element) => {
 			return createOfCreationOperator<T>(el as OfElement<T>);
 		case ElementType.From:
 			return createFromCreationOperator<T>(el as FromElement<T>);
+		case ElementType.Interval:
+			return createIntervalCreationOperator(el as IntervalElement);
 	}
 
 	// TODO
@@ -33,3 +44,4 @@ export const mapFilterOperatorElementFactory = <T = unknown>(el: Element) => {
 	// TODO
 	throw new Error(`Unknown pipe operator element with type ${el.type}`);
 };
+

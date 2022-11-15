@@ -5,7 +5,7 @@ import {
 	isPipeOperatorType,
 	isSubscriberType,
 } from '../model';
-import { CreationNodeMissingError, SubscriberNodeMissingError } from './error';
+import { CreationNodeMissingError, SubscriberNodeMissingError } from './errors';
 import { ObservableSimulation } from './ObservableSimulation';
 
 interface ObservableStruct {

@@ -54,7 +54,10 @@ export const SimulationStep = ({
 		);
 
 		// TODO handle error
-		animation.play().finally(() => onComplete?.());
+		animation
+			.play()
+			.catch((e) => console.log(e.message))
+			.finally(() => onComplete?.());
 	}, [resultAnimation, observableEvent.id]);
 
 	const [, position] = connectLine.points;

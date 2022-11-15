@@ -1,4 +1,4 @@
 export * from './ObservableSimulation';
 export * from './createObservableSimulation';
-export * from './error';
+export * from './errors';
 

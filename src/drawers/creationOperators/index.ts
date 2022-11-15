@@ -1,4 +1,4 @@
-import { OfOperatorDrawer } from './OfOperatorDrawer';
-import { FromOperatorDrawer } from './FromOperatorDrawer';
+export * from './OfOperatorDrawer';
+export * from './FromOperatorDrawer';
+export * from './IntervalOperatorDrawer';
 
-export { OfOperatorDrawer, FromOperatorDrawer };

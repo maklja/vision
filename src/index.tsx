@@ -5,7 +5,15 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { setupStore } from './store/rootState';
-import { ElementType, FilterElement, FromElement, OfElement, Element, ConnectLine } from './model';
+import {
+	ElementType,
+	FilterElement,
+	FromElement,
+	OfElement,
+	Element,
+	ConnectLine,
+	IntervalElement,
+} from './model';
 import { StageState } from './store/stageSlice';
 import { createThemeContext } from './theme';
 
@@ -25,6 +33,15 @@ const e3: FromElement = {
 	y: 200,
 	type: ElementType.From,
 	input: [3, 2, 3, 4],
+};
+
+const i1: IntervalElement = {
+	id: 'intervalElement',
+	size: 1,
+	x: 50,
+	y: 300,
+	type: ElementType.Interval,
+	period: 2_000,
 };
 
 const e4: FilterElement = {
@@ -72,7 +89,7 @@ root.render(
 	<Provider
 		store={setupStore({
 			stage: {
-				elements: [e1, e2, e3, e4, e5],
+				elements: [e1, e2, e3, e4, e5, i1],
 				connectLines: [cl1],
 				draftConnectLine: null,
 				highlighted: [],
