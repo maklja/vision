@@ -1,13 +1,8 @@
 import Konva from 'konva';
 import { Animation } from '../animation';
-
-export interface DrawerConnectPointsProps {
-	id: string;
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-}
+import { ConnectPointType } from '../model';
+import { ThemeContext } from '../theme';
+import { ConnectPointsDrawerEvent } from './connectPoints';
 
 export interface DrawerAnimations {
 	highlight: Animation | null;
@@ -30,9 +25,22 @@ export interface DrawerEvents {
 	onAnimationDestroy?: (event: DrawerEvent) => void;
 }
 
-export interface DrawerProps extends DrawerEvents {
-	id: string;
-	x?: number;
-	y?: number;
-	size?: number;
+export interface DrawerConnectPointsProps {
+	visibleConnectionPoints?: boolean;
+	highlightedConnectPoints?: ConnectPointType[];
+	onConnectPointMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onConnectPointMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onConnectPointMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onConnectPointMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
 }
+
+export interface DrawerProps extends DrawerEvents, DrawerConnectPointsProps {
+	id: string;
+	theme: ThemeContext;
+	x: number;
+	y: number;
+	size: number;
+	highlight?: boolean;
+	select?: boolean;
+}
+

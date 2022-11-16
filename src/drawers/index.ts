@@ -6,9 +6,6 @@ export * from './creationOperators';
 
 export * from './connectPoints';
 
-export * from './border';
-
 export * from './subscriber';
 
 export * from './filterOperators';
-

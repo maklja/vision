@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { useAnimation, Animation, AnimationSequence } from '../../animation';
 import { ConnectLine } from '../../model';
 import { ObservableEvent } from '../../store/simulationSlice';
-import { moveResultAnimation } from '../../theme';
+import { useThemeContext } from '../../store/stageSlice';
+import { moveResultAnimation } from './animation/moveResultAnimation';
 import { ResultDrawer } from './ResultDrawer';
 import { hashToColor, invertColor } from './utils';
 
@@ -15,14 +16,14 @@ export interface SimulationStepProps {
 	onComplete?: () => void;
 }
 
-export const SimulationStep = (props: SimulationStepProps) => {
-	const {
-		connectLine,
-		observableEvent,
-		sourceDrawerAnimation,
-		targetDrawerAnimation,
-		onComplete,
-	} = props;
+export const SimulationStep = ({
+	connectLine,
+	observableEvent,
+	sourceDrawerAnimation,
+	targetDrawerAnimation,
+	onComplete,
+}: SimulationStepProps) => {
+	const theme = useThemeContext();
 	const [resultDrawerRef, setResultDrawerRef] = useState<Konva.Node | null>(null);
 	const resultAnimation = useAnimation(
 		resultDrawerRef,
@@ -30,10 +31,13 @@ export const SimulationStep = (props: SimulationStepProps) => {
 			const [, sourcePoint] = connectLine.points;
 			const [targetPoint] = connectLine.points.slice(-2);
 			node.position(sourcePoint);
-			return moveResultAnimation({
-				targetPosition: targetPoint,
-				sourcePosition: sourcePoint,
-			})(node);
+			return moveResultAnimation(
+				{
+					targetPosition: targetPoint,
+					sourcePosition: sourcePoint,
+				},
+				node,
+			);
 		},
 		[connectLine],
 	);
@@ -50,7 +54,10 @@ export const SimulationStep = (props: SimulationStepProps) => {
 		);
 
 		// TODO handle error
-		animation.play().finally(() => onComplete?.());
+		animation
+			.play()
+			.catch((e) => console.log(e.message))
+			.finally(() => onComplete?.());
 	}, [resultAnimation, observableEvent.id]);
 
 	const [, position] = connectLine.points;
@@ -58,6 +65,7 @@ export const SimulationStep = (props: SimulationStepProps) => {
 	const invertResultColor = invertColor(resultColor, false);
 	return (
 		<ResultDrawer
+			theme={theme}
 			x={position.x}
 			y={position.y}
 			ref={(ref) => setResultDrawerRef(ref)}

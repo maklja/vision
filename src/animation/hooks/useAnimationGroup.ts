@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { Animation } from './Animation';
-import { AnimationGroup } from './AnimationGroup';
+import { Animation } from '../Animation';
+import { AnimationGroup } from '../AnimationGroup';
 
 export const useAnimationGroups = (...animations: (Animation | null)[]): Animation | null =>
 	useMemo(() => {

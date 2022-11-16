@@ -19,9 +19,9 @@ import {
 	StageState,
 	startConnectLineDraw,
 	unpinConnectLine,
+	useThemeContext,
 } from '../../store/stageSlice';
 import { createElementDrawer } from './createElementDrawer';
-import { DrawerWrapper } from './DrawerWrapper';
 import { changeCursorStyle } from './utils';
 
 const connectPointSelectStateHandlers = (dispatch: AppDispatch) => ({
@@ -61,9 +61,9 @@ const connectPointSelectStateHandlers = (dispatch: AppDispatch) => ({
 
 const connectPointDrawConnectLineHandlers = (dispatch: AppDispatch) => ({
 	onMouseUp: (cEvent: ConnectPointsDrawerEvent) => {
-		const { connectPoint, id } = cEvent;
+		const { connectPoint, id, element } = cEvent;
 		connectPoint.originalEvent.cancelBubble = true;
-		dispatch(linkConnectLineDraw({ targetId: id }));
+		dispatch(linkConnectLineDraw({ targetId: id, targetPoint: element.center }));
 	},
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent) => {
 		const { connectPoint, id } = cEvent;
@@ -163,6 +163,7 @@ const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({
 });
 
 export const DrawerLayer = () => {
+	const themeContext = useThemeContext();
 	const elements = useAppSelector(selectStageElements);
 	const stageState = useAppSelector(selectStageState);
 	const appDispatch = useAppDispatch();
@@ -216,30 +217,28 @@ export const DrawerLayer = () => {
 					const highlightedConnectPoints = useAppSelector(
 						selectHighlightedConnectPointsByElementId(el.id),
 					).map((cp) => cp.type);
-					const selected = useAppSelector(isSelectedElement(el.id));
-					const highlighted = useAppSelector(isHighlightedElement(el.id));
+					const select = useAppSelector(isSelectedElement(el.id));
+					const highlight = useAppSelector(isHighlightedElement(el.id));
 					const notDragging = stageState !== StageState.Dragging;
 
 					return (
-						<DrawerWrapper
-							{...el}
-							key={el.id}
-							highlighted={highlighted}
-							selected={selected}
-							visibleConnectionPoints={selected && notDragging}
-							highlightedConnectPoints={highlightedConnectPoints}
-							onConnectPointMouseDown={connectPointHandlers.onMouseDown}
-							onConnectPointMouseUp={connectPointHandlers.onMouseUp}
-							onConnectPointMouseOut={connectPointHandlers.onMouseOut}
-							onConnectPointMouseOver={connectPointHandlers.onMouseOver}
-						>
+						<Group key={el.id}>
 							{createElementDrawer(el, {
 								...el,
 								...elementHandlers,
+								theme: themeContext,
+								highlight,
+								select,
+								visibleConnectionPoints: select && notDragging,
+								highlightedConnectPoints: highlightedConnectPoints,
+								onConnectPointMouseDown: connectPointHandlers.onMouseDown,
+								onConnectPointMouseUp: connectPointHandlers.onMouseUp,
+								onConnectPointMouseOut: connectPointHandlers.onMouseOut,
+								onConnectPointMouseOver: connectPointHandlers.onMouseOver,
 								onAnimationReady: handleDrawerAnimationReady,
 								onAnimationDestroy: handleDrawerAnimationDestroy,
 							})}
-						</DrawerWrapper>
+						</Group>
 					);
 				})
 				.filter((drawer) => drawer != null)}

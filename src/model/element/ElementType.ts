@@ -1,11 +1,16 @@
 export enum ElementType {
 	Of = 'of',
 	From = 'from',
+	Interval = 'interval',
 	Filter = 'filter',
 	Subscriber = 'subscriber',
 }
 
-export const creationOperators: readonly ElementType[] = [ElementType.Of, ElementType.From];
+export const creationOperators: readonly ElementType[] = [
+	ElementType.Of,
+	ElementType.From,
+	ElementType.Interval,
+];
 
 export const filterOperators: readonly ElementType[] = [ElementType.Filter];
 

@@ -8,6 +8,7 @@ import {
 	REVERSE_SINGLE_TIMELINE_PATTERNS,
 	SINGLE_TIMELINE_PATTERNS,
 } from './animationOrchestrator';
+import { AnimationDestroyedError } from './errors';
 
 export class TweenAnimation extends AbstractAnimation {
 	public readonly id = v1();
@@ -66,7 +67,7 @@ export class TweenAnimation extends AbstractAnimation {
 	destroy(): void {
 		this.onDestroy();
 		this.animationTween.destroy();
-		this.events$.complete();
+		this.events$.error(new AnimationDestroyedError(this.id));
 	}
 
 	private onReset(): void {
@@ -85,3 +86,4 @@ export class TweenAnimation extends AbstractAnimation {
 		this.events$.next(this.destroyEvent());
 	}
 }
+
