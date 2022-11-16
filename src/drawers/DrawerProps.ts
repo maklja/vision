@@ -1,4 +1,5 @@
 import Konva from 'konva';
+import { Key } from 'react';
 import { Animation } from '../animation';
 import { ConnectPointType } from '../model';
 import { ThemeContext } from '../theme';
@@ -34,7 +35,8 @@ export interface DrawerConnectPointsProps {
 	onConnectPointMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
 }
 
-export interface DrawerProps extends DrawerEvents, DrawerConnectPointsProps {
+export interface DrawerCommonProps {
+	key?: Key;
 	id: string;
 	theme: ThemeContext;
 	x: number;
@@ -43,4 +45,6 @@ export interface DrawerProps extends DrawerEvents, DrawerConnectPointsProps {
 	highlight?: boolean;
 	select?: boolean;
 }
+
+export interface DrawerProps extends DrawerCommonProps, DrawerEvents, DrawerConnectPointsProps {}
 

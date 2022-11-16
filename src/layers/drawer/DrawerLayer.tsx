@@ -221,25 +221,22 @@ export const DrawerLayer = () => {
 					const highlight = useAppSelector(isHighlightedElement(el.id));
 					const notDragging = stageState !== StageState.Dragging;
 
-					return (
-						<Group key={el.id}>
-							{createElementDrawer(el, {
-								...el,
-								...elementHandlers,
-								theme: themeContext,
-								highlight,
-								select,
-								visibleConnectionPoints: select && notDragging,
-								highlightedConnectPoints: highlightedConnectPoints,
-								onConnectPointMouseDown: connectPointHandlers.onMouseDown,
-								onConnectPointMouseUp: connectPointHandlers.onMouseUp,
-								onConnectPointMouseOut: connectPointHandlers.onMouseOut,
-								onConnectPointMouseOver: connectPointHandlers.onMouseOver,
-								onAnimationReady: handleDrawerAnimationReady,
-								onAnimationDestroy: handleDrawerAnimationDestroy,
-							})}
-						</Group>
-					);
+					return createElementDrawer(el, {
+						...el,
+						...elementHandlers,
+						key: el.id,
+						theme: themeContext,
+						highlight,
+						select,
+						visibleConnectionPoints: select && notDragging,
+						highlightedConnectPoints: highlightedConnectPoints,
+						onConnectPointMouseDown: connectPointHandlers.onMouseDown,
+						onConnectPointMouseUp: connectPointHandlers.onMouseUp,
+						onConnectPointMouseOut: connectPointHandlers.onMouseOut,
+						onConnectPointMouseOver: connectPointHandlers.onMouseOver,
+						onAnimationReady: handleDrawerAnimationReady,
+						onAnimationDestroy: handleDrawerAnimationDestroy,
+					});
 				})
 				.filter((drawer) => drawer != null)}
 		</Group>

@@ -1,4 +1,12 @@
-import { Observable, Observer, ReplaySubject, tap, Unsubscribable } from 'rxjs';
+import {
+	catchError,
+	Observable,
+	ObservableInput,
+	Observer,
+	ReplaySubject,
+	tap,
+	Unsubscribable,
+} from 'rxjs';
 import { v1 as createId } from 'uuid';
 import createHash from 'object-hash';
 import { ConnectLine, Element } from '../model';
@@ -25,6 +33,21 @@ const createControlOperator = <T>(cl: ConnectLine, observer: Observer<FlowEvent<
 		});
 	});
 
+const createErrorControlOperator = <T>(cl: ConnectLine, observer: Observer<FlowEvent<T>>) =>
+	catchError<T, ObservableInput<unknown>>((error) => {
+		console.log(`${cl.sourceId} -> ${cl.targetId}`, error);
+
+		throw error;
+		// observer.next({
+		// 	id: createId(),
+		// 	hash: createHash({ value }, { algorithm: 'md5' }),
+		// 	value,
+		// 	connectLineId: cl.id,
+		// 	sourceElementId: cl.sourceId,
+		// 	targetElementId: cl.targetId,
+		// });
+	});
+
 export interface ObservableSimulationParams {
 	creationElement: Element;
 	subscriberElement: Element;
@@ -42,9 +65,10 @@ export class ObservableSimulation<T> {
 
 		const observable = mapCreationElementFactory<T>(creationElement);
 		const pipeOperators = pipeElements.map((el) => mapFilterOperatorElementFactory<T>(el));
-		const controlOperators = connectLines.map((cl) =>
+		const controlOperators = connectLines.flatMap((cl) => [
 			createControlOperator(cl, this.simulationSubject),
-		);
+			// createErrorControlOperator(cl, this.simulationSubject),
+		]);
 		const pipe = controlOperators.flatMap((controlOperator, i) => {
 			const pipeOperator = pipeOperators.at(i);
 			return !pipeOperator ? [controlOperator] : [controlOperator, pipeOperator];

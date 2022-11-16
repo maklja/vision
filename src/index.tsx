@@ -13,6 +13,7 @@ import {
 	Element,
 	ConnectLine,
 	IntervalElement,
+	CatchErrorElement,
 } from './model';
 import { StageState } from './store/stageSlice';
 import { createThemeContext } from './theme';
@@ -56,16 +57,30 @@ const e4: FilterElement = {
 const e5: FilterElement = {
 	id: 'filterElement_1',
 	size: 1,
-	x: 300,
+	x: 500,
 	y: 125,
 	type: ElementType.Filter,
-	expression: 'function(val) { return val % 2 === 0; }',
+	expression: `function(val) {
+		if (val > 5) {
+			throw new Error('Ups');
+		}
+
+		return val % 2 === 0; 
+	}`,
+};
+
+const ce1: CatchErrorElement = {
+	id: 'catchError_1',
+	size: 1,
+	x: 82.5,
+	y: 80,
+	type: ElementType.CatchError,
 };
 
 const e2: Element = {
 	id: 'subscriber',
 	size: 1,
-	x: 450,
+	x: 680,
 	y: 125,
 	type: ElementType.Subscriber,
 };
@@ -89,7 +104,7 @@ root.render(
 	<Provider
 		store={setupStore({
 			stage: {
-				elements: [e1, e2, e3, e4, e5, i1],
+				elements: [e1, e2, e3, e4, e5, i1, ce1],
 				connectLines: [cl1],
 				draftConnectLine: null,
 				highlighted: [],
