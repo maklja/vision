@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import { v1 } from 'uuid';
-import { createObservableSimulation, FlowEvent } from '../engine';
+import { createObservableSimulation, FlowErrorEvent, FlowValueEvent } from '../engine';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
 	addNextObservableEvent,
 	completeSimulation,
 	createSimulation,
+	ObservableEventType,
 	selectSimulationById,
 } from '../store/simulationSlice';
 import { selectStage } from '../store/stageSlice';
@@ -35,11 +36,25 @@ export const Simulator = () => {
 		);
 	}, [simulatorId]);
 
-	const dispatchNextEvent = (event: FlowEvent<unknown>) =>
+	const dispatchNextEvent = (event: FlowValueEvent<unknown>) =>
 		appDispatch(
 			addNextObservableEvent({
 				id: simulatorId,
-				nextEvent: event,
+				nextEvent: {
+					...event,
+					type: ObservableEventType.Next,
+				},
+			}),
+		);
+
+	const dispatchErrorEvent = (event: FlowErrorEvent<unknown>) =>
+		appDispatch(
+			addNextObservableEvent({
+				id: simulatorId,
+				nextEvent: {
+					...event,
+					type: ObservableEventType.Error,
+				},
 			}),
 		);
 
@@ -57,7 +72,7 @@ export const Simulator = () => {
 			connectLines,
 		).start({
 			next: (event) => dispatchNextEvent(event),
-			error: (error) => console.log(error),
+			error: (error) => dispatchErrorEvent(error),
 			complete: () => dispatchCompleteEvent(),
 		});
 		setSimulationSubscription(subscription);

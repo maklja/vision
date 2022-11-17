@@ -104,8 +104,8 @@ root.render(
 	<Provider
 		store={setupStore({
 			stage: {
-				elements: [e1, e2, e3, e4, e5, i1, ce1],
-				connectLines: [cl1],
+				elements: [e4, e5], //[e1, e2, e3, e4, e5, i1, ce1],
+				connectLines: [], //[cl1],
 				draftConnectLine: null,
 				highlighted: [],
 				highlightedConnectPoints: [],

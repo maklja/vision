@@ -2,7 +2,7 @@ import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { useAnimation, Animation, AnimationSequence } from '../../animation';
 import { ConnectLine } from '../../model';
-import { ObservableEvent } from '../../store/simulationSlice';
+import { ObservableEvent, ObservableEventType } from '../../store/simulationSlice';
 import { useThemeContext } from '../../store/stageSlice';
 import { moveResultAnimation } from './animation/moveResultAnimation';
 import { ResultDrawer } from './ResultDrawer';
@@ -47,10 +47,12 @@ export const SimulationStep = ({
 			return;
 		}
 
+		const animations =
+			observableEvent.type === ObservableEventType.Error
+				? [sourceDrawerAnimation, targetDrawerAnimation]
+				: [sourceDrawerAnimation, resultAnimation, targetDrawerAnimation];
 		const animation = new AnimationSequence(
-			[sourceDrawerAnimation, resultAnimation, targetDrawerAnimation].filter(
-				(a): a is Animation => Boolean(a),
-			),
+			animations.filter((a): a is Animation => Boolean(a)),
 		);
 
 		// TODO handle error

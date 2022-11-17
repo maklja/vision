@@ -4,7 +4,7 @@ import { Circle, Group, Text } from 'react-konva';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
 import { Animation } from '../../animation';
 import { ConnectPointsDrawer } from '../connectPoints';
-import { useHighlightDrawerAnimation } from '../animation';
+import { useErrorDrawerAnimation, useHighlightDrawerAnimation } from '../animation';
 import { useElementDrawerTheme, useSizes } from '../../theme';
 
 export interface CreationOperatorDrawerProps extends DrawerProps {
@@ -47,6 +47,7 @@ export const CreationOperatorDrawer = ({
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 
 	const highlightAnimation = useHighlightDrawerAnimation(mainShapeRef, mainTextRef, theme);
+	const errorAnimation = useErrorDrawerAnimation(mainShapeRef, mainTextRef, theme);
 
 	// const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
 	// const iconX = radius + -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
@@ -57,6 +58,7 @@ export const CreationOperatorDrawer = ({
 
 	const createAnimation = (): DrawerAnimations => ({
 		highlight: highlightAnimation,
+		error: errorAnimation,
 	});
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
@@ -102,7 +104,7 @@ export const CreationOperatorDrawer = ({
 		});
 
 	useEffect(() => {
-		if (!highlightAnimation) {
+		if (!highlightAnimation || !errorAnimation) {
 			return;
 		}
 
@@ -118,7 +120,7 @@ export const CreationOperatorDrawer = ({
 				id,
 			});
 		};
-	}, [highlightAnimation]);
+	}, [highlightAnimation, errorAnimation]);
 
 	return (
 		<Group visible={Boolean(mainTextRef && mainShapeRef)}>

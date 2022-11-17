@@ -44,6 +44,7 @@ export const SubscriberDrawer = ({
 
 	const createAnimation = (): DrawerAnimations => ({
 		highlight: highlightAnimation,
+		error: null,
 	});
 
 	const { drawerSizes } = useSizes(theme, size);

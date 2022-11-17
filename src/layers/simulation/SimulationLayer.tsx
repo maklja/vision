@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { selectDrawerSettingsById } from '../../store/drawersSlice';
-import { Simulation } from '../../store/simulationSlice';
+import { ObservableEventType, Simulation } from '../../store/simulationSlice';
 import { selectConnectLineById } from '../../store/stageSlice';
 import { SimulationStep } from './SimulationStep';
 
@@ -24,9 +24,9 @@ export const SimulationLayer = ({ simulation }: SimulatorLayerProps) => {
 	);
 	const connectLine = useSelector(selectConnectLineById(observableEvent?.connectLineId ?? null));
 
-	const sourceDrawerAnimation = useSelector(
+	const sourceDrawerAnimations = useSelector(
 		selectDrawerSettingsById(connectLine?.sourceId ?? null),
-	)?.animations?.highlight;
+	)?.animations;
 	const targetDrawerAnimation = useSelector(
 		selectDrawerSettingsById(connectLine?.targetId ?? null),
 	)?.animations?.highlight;
@@ -37,13 +37,25 @@ export const SimulationLayer = ({ simulation }: SimulatorLayerProps) => {
 
 	const handleComplete = () => setSimulationStep(simulationStep + 1);
 
-	const skipSourceDrawerAnimation = prevConnectLine?.targetId === connectLine?.sourceId;
+	const getSourceDrawerAnimation = () => {
+		if (observableEvent.type === ObservableEventType.Error) {
+			return sourceDrawerAnimations?.error;
+		}
+
+		if (prevConnectLine?.targetId === connectLine?.sourceId) {
+			return null;
+		}
+
+		return sourceDrawerAnimations?.highlight;
+	};
+
+	const skipTargetDrawerAnimation = observableEvent.type === ObservableEventType.Error;
 	return (
 		<SimulationStep
 			connectLine={connectLine}
 			observableEvent={observableEvent}
-			sourceDrawerAnimation={skipSourceDrawerAnimation ? null : sourceDrawerAnimation}
-			targetDrawerAnimation={targetDrawerAnimation}
+			sourceDrawerAnimation={getSourceDrawerAnimation()}
+			targetDrawerAnimation={skipTargetDrawerAnimation ? null : targetDrawerAnimation}
 			onComplete={handleComplete}
 		/>
 	);

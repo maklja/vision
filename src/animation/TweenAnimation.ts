@@ -17,6 +17,7 @@ export class TweenAnimation extends AbstractAnimation {
 
 	constructor(config: Konva.TweenConfig, private options?: AnimationOptions) {
 		super();
+		console.log(Konva.Tween.attrs);
 		this.animationTween = new Konva.Tween(config);
 		this.animationTween.onReset = this.onReset.bind(this);
 		this.animationTween.onFinish = this.onFinish.bind(this);

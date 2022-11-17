@@ -4,7 +4,7 @@ import { Group, Rect, Text } from 'react-konva';
 import { Animation } from '../../animation';
 import { ConnectPointsDrawer } from '../connectPoints';
 import { DrawerAnimations, DrawerProps } from '../DrawerProps';
-import { useHighlightDrawerAnimation } from '../animation';
+import { useErrorDrawerAnimation, useHighlightDrawerAnimation } from '../animation';
 import { useElementDrawerTheme, useSizes } from '../../theme';
 
 export interface PipeOperatorDrawer extends DrawerProps {
@@ -46,11 +46,14 @@ export const PipeOperatorDrawer = ({
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 	const highlightAnimation = useHighlightDrawerAnimation(mainShapeRef, mainTextRef, theme);
+	const errorAnimation = useErrorDrawerAnimation(mainShapeRef, mainTextRef, theme);
 
 	const createAnimation = (): DrawerAnimations => ({
 		highlight: highlightAnimation,
+		error: null,
 	});
 
+	console.log(`${id}_ `, highlightAnimation);
 	useEffect(() => {
 		if (!highlightAnimation) {
 			return;
@@ -62,6 +65,7 @@ export const PipeOperatorDrawer = ({
 			animations,
 		});
 
+		animations.highlight?.play();
 		return () => {
 			Object.values(animations).forEach((a: Animation) => a.destroy());
 			onAnimationDestroy?.({

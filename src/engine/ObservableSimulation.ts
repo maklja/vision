@@ -1,52 +1,7 @@
-import {
-	catchError,
-	Observable,
-	ObservableInput,
-	Observer,
-	ReplaySubject,
-	tap,
-	Unsubscribable,
-} from 'rxjs';
-import { v1 as createId } from 'uuid';
-import createHash from 'object-hash';
+import { Observable, Observer, ReplaySubject, Unsubscribable } from 'rxjs';
 import { ConnectLine, Element } from '../model';
-import { mapCreationElementFactory, mapFilterOperatorElementFactory } from './factory';
-
-export interface FlowEvent<T> {
-	id: string;
-	value: T;
-	hash: string;
-	connectLineId: string;
-	sourceElementId: string;
-	targetElementId: string;
-}
-
-const createControlOperator = <T>(cl: ConnectLine, observer: Observer<FlowEvent<T>>) =>
-	tap<T>((value) => {
-		observer.next({
-			id: createId(),
-			hash: createHash({ value }, { algorithm: 'md5' }),
-			value,
-			connectLineId: cl.id,
-			sourceElementId: cl.sourceId,
-			targetElementId: cl.targetId,
-		});
-	});
-
-const createErrorControlOperator = <T>(cl: ConnectLine, observer: Observer<FlowEvent<T>>) =>
-	catchError<T, ObservableInput<unknown>>((error) => {
-		console.log(`${cl.sourceId} -> ${cl.targetId}`, error);
-
-		throw error;
-		// observer.next({
-		// 	id: createId(),
-		// 	hash: createHash({ value }, { algorithm: 'md5' }),
-		// 	value,
-		// 	connectLineId: cl.id,
-		// 	sourceElementId: cl.sourceId,
-		// 	targetElementId: cl.targetId,
-		// });
-	});
+import { ObservableFactory } from './factory';
+import { FlowValueEvent } from './context';
 
 export interface ObservableSimulationParams {
 	creationElement: Element;
@@ -55,31 +10,20 @@ export interface ObservableSimulationParams {
 	connectLines: ConnectLine[];
 }
 
-export class ObservableSimulation<T> {
-	private readonly observable: Observable<T>;
-	private readonly simulationSubject = new ReplaySubject<FlowEvent<T>>(10_000);
+export class ObservableSimulation {
+	private readonly observable: Observable<unknown>;
+	private readonly simulationSubject = new ReplaySubject<FlowValueEvent<unknown>>(10_000);
+	private readonly observableFactory = new ObservableFactory();
 	private subscription: Unsubscribable | null = null;
 
 	constructor(params: ObservableSimulationParams) {
-		const { connectLines, creationElement, pipeElements } = params;
-
-		const observable = mapCreationElementFactory<T>(creationElement);
-		const pipeOperators = pipeElements.map((el) => mapFilterOperatorElementFactory<T>(el));
-		const controlOperators = connectLines.flatMap((cl) => [
-			createControlOperator(cl, this.simulationSubject),
-			// createErrorControlOperator(cl, this.simulationSubject),
-		]);
-		const pipe = controlOperators.flatMap((controlOperator, i) => {
-			const pipeOperator = pipeOperators.at(i);
-			return !pipeOperator ? [controlOperator] : [controlOperator, pipeOperator];
+		this.observable = this.observableFactory.createObservable(params, {
+			eventObserver: this.simulationSubject,
 		});
-		this.observable = observable.pipe(...(pipe as [])) as Observable<T>;
 	}
 
-	start(o: Partial<Observer<FlowEvent<T>>>): Unsubscribable {
+	start(o: Partial<Observer<FlowValueEvent<unknown>>>): Unsubscribable {
 		const subscription = this.observable.subscribe({
-			next: (val) => console.log(val),
-			error: (e) => this.simulationSubject.error(e),
 			complete: () => this.simulationSubject.complete(),
 		});
 

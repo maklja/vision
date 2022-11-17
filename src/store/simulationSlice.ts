@@ -16,9 +16,17 @@ export interface CompleteSimulationAction {
 	};
 }
 
+export enum ObservableEventType {
+	Next = 'next',
+	Error = 'error',
+	Complete = 'complete',
+}
+
 export interface ObservableEvent {
 	id: string;
-	value: unknown;
+	type: ObservableEventType;
+	value?: unknown;
+	error?: unknown;
 	hash: string;
 	connectLineId: string;
 }

@@ -80,7 +80,7 @@ export const createObservableSimulation = <T = unknown>(
 		throw new SubscriberNodeMissingError();
 	}
 
-	return new ObservableSimulation<T>({
+	return new ObservableSimulation({
 		creationElement: os.creationElement,
 		pipeElements: os.pipeElements,
 		connectLines: os.connectLines,

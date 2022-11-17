@@ -1,7 +1,10 @@
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { combineReducers, configureStore, PreloadedState } from '@reduxjs/toolkit';
 import stageReducer from './stageSlice';
-import simulationsSliceReducer from './simulationSlice';
+import simulationsSliceReducer, {
+	simulationsSlice,
+	addNextObservableEvent,
+} from './simulationSlice';
 import drawersSliceReducer, { drawerSlice, addDrawerSettings } from './drawersSlice';
 
 const rootReducer = combineReducers({
@@ -17,8 +20,8 @@ export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
 		middleware: (getDefaultMiddleware) =>
 			getDefaultMiddleware({
 				serializableCheck: {
-					ignoredActions: [addDrawerSettings.type],
-					ignoredPaths: [drawerSlice.name],
+					ignoredActions: [addDrawerSettings.type, addNextObservableEvent.type],
+					ignoredPaths: [drawerSlice.name, simulationsSlice.name],
 				},
 			}),
 	});

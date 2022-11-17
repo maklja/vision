@@ -7,6 +7,7 @@ import { ConnectPointsDrawerEvent } from './connectPoints';
 
 export interface DrawerAnimations {
 	highlight: Animation | null;
+	error: Animation | null;
 }
 
 export interface DrawerEvent {
