@@ -1,10 +1,9 @@
 import Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
-import { Animation } from '../../animation';
+import { useAnimationGroups, useAnimationNew } from '../../animation';
 import { ConnectPointsDrawer } from '../connectPoints';
-import { DrawerAnimations, DrawerProps } from '../DrawerProps';
-import { useErrorDrawerAnimation, useHighlightDrawerAnimation } from '../animation';
+import { DrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme, useSizes } from '../../theme';
 
 export interface PipeOperatorDrawer extends DrawerProps {
@@ -22,14 +21,15 @@ export const PipeOperatorDrawer = ({
 	title,
 	visibleConnectionPoints,
 	highlightedConnectPoints,
+	animation,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
 	onDragMove,
 	onDragStart,
 	onDragEnd,
-	onAnimationReady,
-	onAnimationDestroy,
+	onAnimationBegin,
+	onAnimationComplete,
 	onConnectPointMouseDown,
 	onConnectPointMouseOut,
 	onConnectPointMouseOver,
@@ -45,34 +45,36 @@ export const PipeOperatorDrawer = ({
 	const { drawerSizes, fontSizes } = useSizes(theme, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
-	const highlightAnimation = useHighlightDrawerAnimation(mainShapeRef, mainTextRef, theme);
-	const errorAnimation = useErrorDrawerAnimation(mainShapeRef, mainTextRef, theme);
+	const mainShapeAnimation = useAnimationNew(mainShapeRef, animation, (a) => ({
+		config: a.mainShape,
+		options: a.options,
+	}));
+	const mainTextAnimation = useAnimationNew(mainTextRef, animation, (a) => ({
+		config: a.text,
+		options: a.options,
+	}));
+	const drawerAnimation = useAnimationGroups(mainShapeAnimation, mainTextAnimation);
 
-	const createAnimation = (): DrawerAnimations => ({
-		highlight: highlightAnimation,
-		error: null,
-	});
-
-	console.log(`${id}_ `, highlightAnimation);
-	useEffect(() => {
-		if (!highlightAnimation) {
+	const playAnimation = async () => {
+		if (!drawerAnimation) {
 			return;
 		}
 
-		const animations: DrawerAnimations = createAnimation();
-		onAnimationReady?.({
-			id,
-			animations,
-		});
+		onAnimationBegin?.();
+		await drawerAnimation.play();
+		onAnimationComplete?.();
+	};
 
-		animations.highlight?.play();
+	useEffect(() => {
+		if (!drawerAnimation) {
+			return;
+		}
+
+		playAnimation();
 		return () => {
-			Object.values(animations).forEach((a: Animation) => a.destroy());
-			onAnimationDestroy?.({
-				id,
-			});
+			drawerAnimation?.destroy();
 		};
-	}, [highlightAnimation]);
+	}, [drawerAnimation]);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({

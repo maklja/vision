@@ -6,11 +6,13 @@ import simulationsSliceReducer, {
 	addNextObservableEvent,
 } from './simulationSlice';
 import drawersSliceReducer, { drawerSlice, addDrawerSettings } from './drawersSlice';
+import animationSliceReducer from './animationSlice';
 
 const rootReducer = combineReducers({
 	stage: stageReducer,
 	simulations: simulationsSliceReducer,
 	drawers: drawersSliceReducer,
+	animations: animationSliceReducer,
 });
 
 export const setupStore = (preloadedState?: PreloadedState<RootState>) => {

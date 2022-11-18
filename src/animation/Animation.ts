@@ -61,4 +61,3 @@ export abstract class AbstractAnimation implements Animation {
 		};
 	}
 }
-

@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { Group } from 'react-konva';
 import { ConnectPointsDrawerEvent, DrawerEvent, DrawerEvents } from '../../drawers';
+import { highlightDrawerAnimationNew } from '../../drawers/animation';
+import { selectDrawerAnimations } from '../../store/animationSlice';
 import { addDrawerSettings, removeDrawerSettings } from '../../store/drawersSlice';
 import { AppDispatch, useAppDispatch, useAppSelector } from '../../store/rootState';
 import {
@@ -214,6 +216,7 @@ export const DrawerLayer = () => {
 		<Group>
 			{elements
 				.map((el) => {
+					const animation = useAppSelector(selectDrawerAnimations(el.id));
 					const highlightedConnectPoints = useAppSelector(
 						selectHighlightedConnectPointsByElementId(el.id),
 					).map((cp) => cp.type);
@@ -228,6 +231,12 @@ export const DrawerLayer = () => {
 						theme: themeContext,
 						highlight,
 						select,
+						animation: animation
+							? {
+									...highlightDrawerAnimationNew(themeContext),
+									id: animation?.animationId,
+							  }
+							: null,
 						visibleConnectionPoints: select && notDragging,
 						highlightedConnectPoints: highlightedConnectPoints,
 						onConnectPointMouseDown: connectPointHandlers.onMouseDown,
@@ -235,7 +244,7 @@ export const DrawerLayer = () => {
 						onConnectPointMouseOut: connectPointHandlers.onMouseOut,
 						onConnectPointMouseOver: connectPointHandlers.onMouseOver,
 						onAnimationReady: handleDrawerAnimationReady,
-						onAnimationDestroy: handleDrawerAnimationDestroy,
+						onAnimationComplete: handleDrawerAnimationDestroy,
 					});
 				})
 				.filter((drawer) => drawer != null)}

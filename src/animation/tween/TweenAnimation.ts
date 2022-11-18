@@ -1,14 +1,14 @@
 import Konva from 'konva';
 import { Observable, Subject } from 'rxjs';
 import { v1 } from 'uuid';
-import { Animation, AnimationEvent, AnimationOptions, AbstractAnimation } from './Animation';
+import { Animation, AnimationEvent, AnimationOptions, AbstractAnimation } from '../Animation';
 import {
 	animationOrchestrator,
 	FLIP_TIMELINE_PATTERNS,
 	REVERSE_SINGLE_TIMELINE_PATTERNS,
 	SINGLE_TIMELINE_PATTERNS,
-} from './animationOrchestrator';
-import { AnimationDestroyedError } from './errors';
+} from '../animationOrchestrator';
+import { AnimationDestroyedError } from '../errors';
 
 export class TweenAnimation extends AbstractAnimation {
 	public readonly id = v1();
@@ -17,7 +17,6 @@ export class TweenAnimation extends AbstractAnimation {
 
 	constructor(config: Konva.TweenConfig, private options?: AnimationOptions) {
 		super();
-		console.log(Konva.Tween.attrs);
 		this.animationTween = new Konva.Tween(config);
 		this.animationTween.onReset = this.onReset.bind(this);
 		this.animationTween.onFinish = this.onFinish.bind(this);
