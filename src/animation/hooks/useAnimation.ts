@@ -1,21 +1,31 @@
 import Konva from 'konva';
-import { DependencyList, useEffect, useMemo } from 'react';
-import { ThemeContext } from '../../theme';
-import { Animation } from '../Animation';
-
-export interface AnimationsDefinition {
-	[k: string]: [Konva.Node | null, (node: Konva.Node, theme: ThemeContext) => Animation];
-}
+import { useEffect, useMemo } from 'react';
+import { AnimationOptions } from '../Animation';
+import { TweenAnimation, TweenAnimationInstanceConfig } from '../tween';
 
 export const useAnimation = (
 	node: Konva.Node | null,
-	animationFactory: (node: Konva.Node) => Animation | null,
-	dependencies: DependencyList = [],
+	animationConfig: TweenAnimationInstanceConfig | undefined | null,
+	mapper: (animation: TweenAnimationInstanceConfig) => {
+		config?: Konva.NodeConfig;
+		options?: AnimationOptions;
+	},
 ) => {
-	const animation = useMemo(
-		() => (!node ? null : animationFactory(node)),
-		[node, ...dependencies],
-	);
+	const animation = useMemo(() => {
+		if (!node || !animationConfig) {
+			return null;
+		}
+
+		const { config, options } = mapper(animationConfig);
+		return new TweenAnimation(
+			{
+				...config,
+				node,
+			},
+			options,
+			animationConfig?.id,
+		);
+	}, [node, animationConfig?.id]);
 
 	useEffect(() => {
 		return () => {
@@ -25,4 +35,3 @@ export const useAnimation = (
 
 	return animation;
 };
-

@@ -3,9 +3,7 @@ import { v1 } from 'uuid';
 import { Animation, AnimationEvent } from './Animation';
 
 export class AnimationGroup implements Animation {
-	public readonly id = v1();
-
-	constructor(private readonly animations: Animation[]) {}
+	constructor(private readonly animations: Animation[], public readonly id = v1()) {}
 
 	observable(): Observable<AnimationEvent> {
 		return merge(...this.animations.map((a) => a.observable()));
@@ -33,4 +31,3 @@ export class AnimationGroup implements Animation {
 		this.animations.forEach((a) => a.destroy());
 	}
 }
-

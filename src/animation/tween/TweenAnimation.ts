@@ -11,11 +11,14 @@ import {
 import { AnimationDestroyedError } from '../errors';
 
 export class TweenAnimation extends AbstractAnimation {
-	public readonly id = v1();
 	private readonly events$ = new Subject<AnimationEvent>();
 	private readonly animationTween: Konva.Tween;
 
-	constructor(config: Konva.TweenConfig, private options?: AnimationOptions) {
+	constructor(
+		config: Konva.TweenConfig,
+		private readonly options?: AnimationOptions,
+		public readonly id = v1(),
+	) {
 		super();
 		this.animationTween = new Konva.Tween(config);
 		this.animationTween.onReset = this.onReset.bind(this);
@@ -86,4 +89,3 @@ export class TweenAnimation extends AbstractAnimation {
 		this.events$.next(this.destroyEvent());
 	}
 }
-

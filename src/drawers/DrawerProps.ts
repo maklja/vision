@@ -1,26 +1,25 @@
 import Konva from 'konva';
 import { Key } from 'react';
-import { Animation, TweenAnimationInstanceConfig } from '../animation';
+import { TweenAnimationInstanceConfig } from '../animation';
 import { ConnectPointType } from '../model';
 import { ThemeContext } from '../theme';
-import { ConnectPointsDrawerEvent } from './connectPoints';
-
-export interface DrawerAnimations {
-	highlight: Animation | null;
-	error: Animation | null;
-}
+import { ConnectPointAnimations, ConnectPointsDrawerEvent } from './connectPoints';
 
 export interface DrawerEvent {
 	id: string;
-	animations?: DrawerAnimations;
 	originalEvent?: Konva.KonvaEventObject<MouseEvent>;
 }
 
+export interface DrawerAnimationEvent {
+	id: string;
+	animationId: string;
+	simulationId?: string;
+}
+
 export interface DrawerAnimationEvents {
-	// onAnimationReady?: () => void;
-	// onAnimationDestroy?: () => void;
-	onAnimationBegin?: () => void;
-	onAnimationComplete?: () => void;
+	onAnimationBegin?: (aEvent: DrawerAnimationEvent) => void;
+	onAnimationComplete?: (aEvent: DrawerAnimationEvent) => void;
+	onAnimationDestroy?: (aEvent: DrawerAnimationEvent) => void;
 }
 
 export interface DrawerEvents extends DrawerAnimationEvents {
@@ -30,13 +29,12 @@ export interface DrawerEvents extends DrawerAnimationEvents {
 	onDragStart?: (event: DrawerEvent) => void;
 	onDragEnd?: (event: DrawerEvent) => void;
 	onDragMove?: (event: DrawerEvent) => void;
-	onAnimationReady?: (event: DrawerEvent) => void;
-	onAnimationDestroy?: (event: DrawerEvent) => void;
 }
 
 export interface DrawerConnectPointsProps {
 	visibleConnectionPoints?: boolean;
 	highlightedConnectPoints?: ConnectPointType[];
+	connectPointAnimations?: ConnectPointAnimations;
 	onConnectPointMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
 	onConnectPointMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
 	onConnectPointMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
@@ -56,4 +54,3 @@ export interface DrawerCommonProps {
 }
 
 export interface DrawerProps extends DrawerCommonProps, DrawerEvents, DrawerConnectPointsProps {}
-
