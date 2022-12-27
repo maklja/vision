@@ -1,22 +1,26 @@
 import { merge, Observable } from 'rxjs';
 import { v1 } from 'uuid';
-import { Animation, AnimationEvent } from './Animation';
+import { AbstractAnimation, Animation, AnimationEvent } from './Animation';
 
-export class AnimationGroup implements Animation {
-	constructor(private readonly animations: Animation[], public readonly id = v1()) {}
+export class AnimationGroup extends AbstractAnimation {
+	constructor(private readonly animations: Animation[], public readonly id = v1()) {
+		super();
+	}
 
 	observable(): Observable<AnimationEvent> {
 		return merge(...this.animations.map((a) => a.observable()));
 	}
 
-	async play(): Promise<Animation> {
+	async play(): Promise<void> {
+		this.onAnimationBegin?.(this);
 		await Promise.all(this.animations.map((a) => a.play()));
-		return this;
+		this.onAnimationComplete?.(this);
 	}
 
-	async reverse(): Promise<Animation> {
+	async reverse(): Promise<void> {
+		this.onAnimationBegin?.(this);
 		await Promise.all(this.animations.map((a) => a.reverse()));
-		return this;
+		this.onAnimationComplete?.(this);
 	}
 
 	reset(): void {
@@ -29,5 +33,6 @@ export class AnimationGroup implements Animation {
 
 	destroy(): void {
 		this.animations.forEach((a) => a.destroy());
+		this.onAnimationDestroy?.(this);
 	}
 }

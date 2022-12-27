@@ -11,4 +11,5 @@ export interface TweenAnimationConfig {
 export interface TweenAnimationInstanceConfig extends TweenAnimationConfig {
 	id: string;
 	simulationId?: string;
+	dispose: boolean;
 }

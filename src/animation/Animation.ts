@@ -14,15 +14,19 @@ export interface AnimationEvent {
 
 export interface AnimationOptions {
 	autoReverse?: boolean;
-	onAnimationStart?: (animation: Animation) => void;
-	onAnimationFinish?: (animation: Animation) => void;
 }
+
+export type AnimationEventCallback = null | ((animation: Animation) => void);
 
 export interface Animation {
 	get id(): string;
+	onAnimationBegin?: AnimationEventCallback;
+	onAnimationComplete?: AnimationEventCallback;
+	onAnimationDestroy?: AnimationEventCallback;
 	observable(): Observable<AnimationEvent>;
-	play(): Promise<Animation>;
-	reverse(): Promise<Animation>;
+	play(): Promise<void>;
+	reverse(): Promise<void>;
+	// TODO async for reset and finish?
 	reset(): void;
 	finish(): void;
 	destroy(): void;
@@ -31,11 +35,14 @@ export interface Animation {
 export abstract class AbstractAnimation implements Animation {
 	abstract get id(): string;
 	abstract observable(): Observable<AnimationEvent>;
-	abstract play(): Promise<Animation>;
-	abstract reverse(): Promise<Animation>;
+	abstract play(): Promise<void>;
+	abstract reverse(): Promise<void>;
 	abstract reset(): void;
 	abstract finish(): void;
 	abstract destroy(): void;
+	onAnimationBegin?: AnimationEventCallback;
+	onAnimationComplete?: AnimationEventCallback;
+	onAnimationDestroy?: AnimationEventCallback;
 
 	protected resetEvent(): AnimationEvent {
 		return {

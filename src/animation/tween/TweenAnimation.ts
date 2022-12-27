@@ -1,22 +1,22 @@
 import Konva from 'konva';
 import { Observable, Subject } from 'rxjs';
 import { v1 } from 'uuid';
-import { Animation, AnimationEvent, AnimationOptions, AbstractAnimation } from '../Animation';
+import { AnimationEvent, AnimationOptions, AbstractAnimation } from '../Animation';
 import {
 	animationOrchestrator,
 	FLIP_TIMELINE_PATTERNS,
 	REVERSE_SINGLE_TIMELINE_PATTERNS,
 	SINGLE_TIMELINE_PATTERNS,
 } from '../animationOrchestrator';
-import { AnimationDestroyedError } from '../errors';
 
 export class TweenAnimation extends AbstractAnimation {
 	private readonly events$ = new Subject<AnimationEvent>();
 	private readonly animationTween: Konva.Tween;
+	private destroyed = false;
 
 	constructor(
 		config: Konva.TweenConfig,
-		private readonly options?: AnimationOptions,
+		private readonly options: AnimationOptions = {},
 		public readonly id = v1(),
 	) {
 		super();
@@ -29,48 +29,57 @@ export class TweenAnimation extends AbstractAnimation {
 		return this.events$.asObservable();
 	}
 
-	async play(): Promise<Animation> {
+	async play(): Promise<void> {
+		if (this.destroyed) {
+			return;
+		}
+
 		this.animationTween.play();
-		const patterns = this.options?.autoReverse
+		const patterns = this.options.autoReverse
 			? FLIP_TIMELINE_PATTERNS
 			: SINGLE_TIMELINE_PATTERNS;
 
-		this.options?.onAnimationStart?.(this);
+		this.onAnimationBegin?.(this);
 		await animationOrchestrator(this, patterns);
-		this.options?.onAnimationFinish?.(this);
-
-		return this;
+		this.onAnimationComplete?.(this);
 	}
 
-	async reverse(): Promise<Animation> {
-		if (this.options?.autoReverse) {
+	async reverse(): Promise<void> {
+		if (this.destroyed) {
+			return;
+		}
+
+		if (this.options.autoReverse) {
 			return this.play();
 		}
 
 		this.animationTween.reverse();
-		this.options?.onAnimationStart?.(this);
+		this.onAnimationBegin?.(this);
 		await animationOrchestrator(this, REVERSE_SINGLE_TIMELINE_PATTERNS);
-		this.options?.onAnimationFinish?.(this);
-
-		return this;
+		this.onAnimationComplete?.(this);
 	}
 
 	reset(): void {
-		this.animationTween.reset();
+		if (!this.destroyed) {
+			this.animationTween.reset();
+		}
 	}
 
 	finish(): void {
-		if (this.options?.autoReverse) {
-			this.animationTween.reset();
-		} else {
-			this.animationTween.finish();
+		if (!this.destroyed) {
+			this.options.autoReverse ? this.animationTween.reset() : this.animationTween.finish();
 		}
 	}
 
 	destroy(): void {
+		if (this.destroyed) {
+			return;
+		}
+
 		this.onDestroy();
 		this.animationTween.destroy();
-		this.events$.error(new AnimationDestroyedError(this.id));
+		this.onAnimationDestroy?.(this);
+		this.events$.complete();
 	}
 
 	private onReset(): void {
@@ -80,7 +89,7 @@ export class TweenAnimation extends AbstractAnimation {
 	private onFinish(): void {
 		this.events$.next(this.finishEvent());
 
-		if (this.options?.autoReverse) {
+		if (this.options.autoReverse) {
 			this.animationTween.reverse();
 		}
 	}

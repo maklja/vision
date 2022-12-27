@@ -2,6 +2,7 @@ import { merge, Observable } from 'rxjs';
 import { v1 } from 'uuid';
 import { AbstractAnimation, Animation, AnimationEvent } from './Animation';
 
+// TODO remove?
 export class AnimationSequence extends AbstractAnimation {
 	public readonly id = v1();
 
@@ -13,23 +14,19 @@ export class AnimationSequence extends AbstractAnimation {
 		return merge(...this.animations.map((a) => a.observable()));
 	}
 
-	async play(): Promise<Animation> {
+	async play(): Promise<void> {
 		for (const animation of this.animations) {
 			animation.reset();
 			await animation.play();
 		}
-
-		return this;
 	}
 
-	async reverse(): Promise<Animation> {
+	async reverse(): Promise<void> {
 		const reverseAnimations = [...this.animations].reverse();
 		for (const animation of reverseAnimations) {
 			animation.finish();
 			await animation.reverse();
 		}
-
-		return this;
 	}
 
 	finish(): void {
@@ -44,4 +41,3 @@ export class AnimationSequence extends AbstractAnimation {
 		this.animations.forEach((a) => a.destroy());
 	}
 }
-

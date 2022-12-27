@@ -27,10 +27,37 @@ export const useAnimation = (
 		);
 	}, [node, animationConfig?.id]);
 
-	useEffect(() => {
-		return () => {
+	const disposeAnimation = async () => {
+		try {
+			await animation?.reverse();
 			animation?.destroy();
-		};
+		} catch {
+			// no need to handle this error if animation dispose fails
+		}
+	};
+
+	const startAnimation = async () => {
+		try {
+			await animation?.play();
+		} catch {
+			// no need to handle this error if animation play fails
+		}
+	};
+
+	useEffect(() => {
+		if (!animationConfig) {
+			return;
+		}
+
+		if (animationConfig.dispose) {
+			disposeAnimation();
+		} else {
+			startAnimation();
+		}
+	}, [animationConfig?.dispose]);
+
+	useEffect(() => {
+		return () => animation?.destroy();
 	}, [animation]);
 
 	return animation;
