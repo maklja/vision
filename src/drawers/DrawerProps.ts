@@ -1,9 +1,7 @@
 import Konva from 'konva';
 import { Key } from 'react';
 import { TweenAnimationInstanceConfig } from '../animation';
-import { ConnectPointType } from '../model';
 import { ThemeContext } from '../theme';
-import { ConnectPointAnimations, ConnectPointsDrawerEvent } from './connectPoints';
 
 export interface DrawerEvent {
 	id: string;
@@ -11,7 +9,7 @@ export interface DrawerEvent {
 }
 
 export interface DrawerAnimationEvent {
-	id: string;
+	drawerId: string;
 	animationId: string;
 	simulationId?: string;
 }
@@ -31,16 +29,6 @@ export interface DrawerEvents extends DrawerAnimationEvents {
 	onDragMove?: (event: DrawerEvent) => void;
 }
 
-export interface DrawerConnectPointsProps {
-	visibleConnectionPoints?: boolean;
-	highlightedConnectPoints?: ConnectPointType[];
-	connectPointAnimations?: ConnectPointAnimations;
-	onConnectPointMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onConnectPointMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onConnectPointMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onConnectPointMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
-}
-
 export interface DrawerCommonProps {
 	key?: Key;
 	id: string;
@@ -53,4 +41,4 @@ export interface DrawerCommonProps {
 	animation?: TweenAnimationInstanceConfig | null;
 }
 
-export interface DrawerProps extends DrawerCommonProps, DrawerEvents, DrawerConnectPointsProps {}
+export interface DrawerProps extends DrawerCommonProps, DrawerEvents {}

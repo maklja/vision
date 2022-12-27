@@ -1,8 +1,14 @@
 import { Group } from 'react-konva';
+import { TweenAnimationInstanceConfig } from '../../animation';
 import { ConnectPointType } from '../../model';
 import { ThemeContext } from '../../theme';
+import { DrawerAnimationEvents } from '../DrawerProps';
 import { BoundingBox } from '../utils';
 import { ConnectPointDrawer, ConnectPointDrawerEvent } from './ConnectPointDrawer';
+
+export type ConnectPointAnimations = {
+	[key in ConnectPointType]?: TweenAnimationInstanceConfig | null;
+};
 
 export interface ConnectPointsDrawerEvent {
 	id: string;
@@ -10,7 +16,14 @@ export interface ConnectPointsDrawerEvent {
 	element: BoundingBox;
 }
 
-export interface ConnectPointsDrawerProps {
+export interface ConnectPointsDrawerEvents extends DrawerAnimationEvents {
+	onMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
+}
+
+export interface ConnectPointsDrawerProps extends ConnectPointsDrawerEvents {
 	id: string;
 	x: number;
 	y: number;
@@ -18,12 +31,12 @@ export interface ConnectPointsDrawerProps {
 	width?: number;
 	height?: number;
 	offset?: number;
-	highlightConnectPoints?: ConnectPointType[];
-	onMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
+	connectPointAnimations?: ConnectPointAnimations;
+	highlightedConnectPoints?: ConnectPointType[];
 }
+
+export const createConnectPointDrawerId = (drawerId: string, connectPointType: ConnectPointType) =>
+	`${drawerId}_${connectPointType}`;
 
 export const ConnectPointsDrawer = ({
 	id,
@@ -33,11 +46,15 @@ export const ConnectPointsDrawer = ({
 	height = 0,
 	offset = 0,
 	theme,
-	highlightConnectPoints,
+	connectPointAnimations,
+	highlightedConnectPoints,
 	onMouseDown,
 	onMouseUp,
 	onMouseOver,
 	onMouseOut,
+	onAnimationBegin,
+	onAnimationComplete,
+	onAnimationDestroy,
 }: ConnectPointsDrawerProps) => {
 	const topX = x + width / 2;
 	const topY = y - offset;
@@ -86,6 +103,7 @@ export const ConnectPointsDrawer = ({
 	return (
 		<Group>
 			<ConnectPointDrawer
+				id={createConnectPointDrawerId(id, ConnectPointType.Top)}
 				type={ConnectPointType.Top}
 				x={topX}
 				y={topY}
@@ -94,10 +112,15 @@ export const ConnectPointsDrawer = ({
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
-				highlight={highlightConnectPoints?.includes(ConnectPointType.Top)}
+				onAnimationBegin={onAnimationBegin}
+				onAnimationComplete={onAnimationComplete}
+				onAnimationDestroy={onAnimationDestroy}
+				highlight={highlightedConnectPoints?.includes(ConnectPointType.Top)}
+				animation={connectPointAnimations?.[ConnectPointType.Top]}
 			/>
 
 			<ConnectPointDrawer
+				id={createConnectPointDrawerId(id, ConnectPointType.Right)}
 				type={ConnectPointType.Right}
 				x={rightX}
 				y={rightY}
@@ -106,10 +129,15 @@ export const ConnectPointsDrawer = ({
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
-				highlight={highlightConnectPoints?.includes(ConnectPointType.Right)}
+				onAnimationBegin={onAnimationBegin}
+				onAnimationComplete={onAnimationComplete}
+				onAnimationDestroy={onAnimationDestroy}
+				highlight={highlightedConnectPoints?.includes(ConnectPointType.Right)}
+				animation={connectPointAnimations?.[ConnectPointType.Right]}
 			/>
 
 			<ConnectPointDrawer
+				id={createConnectPointDrawerId(id, ConnectPointType.Bottom)}
 				type={ConnectPointType.Bottom}
 				x={bottomX}
 				y={bottomY}
@@ -118,10 +146,15 @@ export const ConnectPointsDrawer = ({
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
-				highlight={highlightConnectPoints?.includes(ConnectPointType.Bottom)}
+				onAnimationBegin={onAnimationBegin}
+				onAnimationComplete={onAnimationComplete}
+				onAnimationDestroy={onAnimationDestroy}
+				highlight={highlightedConnectPoints?.includes(ConnectPointType.Bottom)}
+				animation={connectPointAnimations?.[ConnectPointType.Bottom]}
 			/>
 
 			<ConnectPointDrawer
+				id={createConnectPointDrawerId(id, ConnectPointType.Left)}
 				type={ConnectPointType.Left}
 				x={leftX}
 				y={leftY}
@@ -130,9 +163,12 @@ export const ConnectPointsDrawer = ({
 				onMouseUp={handleOnMouseUp}
 				onMouseOver={handleOnMouseOver}
 				onMouseOut={handleOnMouseOut}
-				highlight={highlightConnectPoints?.includes(ConnectPointType.Left)}
+				onAnimationBegin={onAnimationBegin}
+				onAnimationComplete={onAnimationComplete}
+				onAnimationDestroy={onAnimationDestroy}
+				highlight={highlightedConnectPoints?.includes(ConnectPointType.Left)}
+				animation={connectPointAnimations?.[ConnectPointType.Left]}
 			/>
 		</Group>
 	);
 };
-

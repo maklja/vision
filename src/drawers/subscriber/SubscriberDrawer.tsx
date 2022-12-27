@@ -1,10 +1,8 @@
 import Konva from 'konva';
 import { Circle, Group } from 'react-konva';
-import { DrawerAnimations, DrawerProps } from '../DrawerProps';
-import { useEffect, useState } from 'react';
-import { Animation } from '../../animation';
-import { ConnectPointsDrawer } from '../connectPoints';
-import { useHighlightSubscriberAnimation } from './animation/useHighlightSubscriberAnimation';
+import { DrawerProps } from '../DrawerProps';
+import { useState } from 'react';
+import { useAnimationEffect, useAnimationGroups } from '../../animation';
 import { useElementDrawerTheme, useSizes } from '../../theme';
 
 export const SubscriberDrawer = ({
@@ -15,20 +13,16 @@ export const SubscriberDrawer = ({
 	theme,
 	highlight,
 	select,
-	visibleConnectionPoints,
-	highlightedConnectPoints,
+	animation,
 	onMouseDown,
 	onMouseOut,
 	onMouseOver,
 	onDragMove,
 	onDragStart,
 	onDragEnd,
+	onAnimationBegin,
+	onAnimationComplete,
 	onAnimationDestroy,
-	onAnimationReady,
-	onConnectPointMouseDown,
-	onConnectPointMouseOut,
-	onConnectPointMouseOver,
-	onConnectPointMouseUp,
 }: DrawerProps) => {
 	const { colors } = theme;
 	const drawerStyle = useElementDrawerTheme(
@@ -40,12 +34,22 @@ export const SubscriberDrawer = ({
 	);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [innerShapeRef, setInnerShapeRef] = useState<Konva.Circle | null>(null);
-	const highlightAnimation = useHighlightSubscriberAnimation(mainShapeRef, innerShapeRef, theme);
-
-	const createAnimation = (): DrawerAnimations => ({
-		highlight: highlightAnimation,
-		error: null,
-	});
+	const drawerAnimation = useAnimationGroups(animation, [
+		{
+			node: mainShapeRef,
+			mapper: (a) => ({
+				config: a.mainShape,
+				options: a.options,
+			}),
+		},
+		{
+			node: innerShapeRef,
+			mapper: (a) => ({
+				config: a.secondaryShape,
+				options: a.options,
+			}),
+		},
+	]);
 
 	const { drawerSizes } = useSizes(theme, size);
 	const { drawerSizes: outerSizes } = useSizes(theme, size, 0.8);
@@ -87,44 +91,16 @@ export const SubscriberDrawer = ({
 			originalEvent: e,
 		});
 
-	useEffect(() => {
-		if (!highlightAnimation) {
-			return;
-		}
-
-		const animations: DrawerAnimations = createAnimation();
-		onAnimationReady?.({
-			id,
-			animations,
-		});
-
-		return () => {
-			Object.values(animations).forEach((a: Animation) => a.destroy());
-			onAnimationDestroy?.({
-				id,
-			});
-		};
-	}, [highlightAnimation]);
+	useAnimationEffect(drawerAnimation, {
+		onAnimationBegin,
+		onAnimationComplete,
+		onAnimationDestroy,
+		drawerId: id,
+		simulationId: animation?.simulationId,
+	});
 
 	return (
 		<Group visible={Boolean(mainShapeRef)}>
-			{visibleConnectionPoints ? (
-				<ConnectPointsDrawer
-					id={id}
-					x={x + drawerSizes.radius / 2}
-					y={y + drawerSizes.radius / 2}
-					width={drawerSizes.radius}
-					height={drawerSizes.radius}
-					theme={theme}
-					offset={24}
-					onMouseDown={onConnectPointMouseDown}
-					onMouseUp={onConnectPointMouseUp}
-					onMouseOut={onConnectPointMouseOut}
-					onMouseOver={onConnectPointMouseOver}
-					highlightConnectPoints={highlightedConnectPoints}
-				/>
-			) : null}
-
 			<Group
 				x={x}
 				y={y}
@@ -156,4 +132,3 @@ export const SubscriberDrawer = ({
 		</Group>
 	);
 };
-

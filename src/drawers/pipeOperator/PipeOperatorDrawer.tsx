@@ -1,8 +1,7 @@
 import Konva from 'konva';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
-import { useAnimationGroups, useAnimationNew } from '../../animation';
-import { ConnectPointsDrawer } from '../connectPoints';
+import { useAnimationEffect, useAnimationGroups } from '../../animation';
 import { DrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme, useSizes } from '../../theme';
 
@@ -19,8 +18,6 @@ export const PipeOperatorDrawer = ({
 	highlight,
 	select,
 	title,
-	visibleConnectionPoints,
-	highlightedConnectPoints,
 	animation,
 	onMouseOver,
 	onMouseOut,
@@ -30,10 +27,7 @@ export const PipeOperatorDrawer = ({
 	onDragEnd,
 	onAnimationBegin,
 	onAnimationComplete,
-	onConnectPointMouseDown,
-	onConnectPointMouseOut,
-	onConnectPointMouseOver,
-	onConnectPointMouseUp,
+	onAnimationDestroy,
 }: PipeOperatorDrawer) => {
 	const drawerStyle = useElementDrawerTheme(
 		{
@@ -45,36 +39,30 @@ export const PipeOperatorDrawer = ({
 	const { drawerSizes, fontSizes } = useSizes(theme, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
-	const mainShapeAnimation = useAnimationNew(mainShapeRef, animation, (a) => ({
-		config: a.mainShape,
-		options: a.options,
-	}));
-	const mainTextAnimation = useAnimationNew(mainTextRef, animation, (a) => ({
-		config: a.text,
-		options: a.options,
-	}));
-	const drawerAnimation = useAnimationGroups(mainShapeAnimation, mainTextAnimation);
+	const drawerAnimation = useAnimationGroups(animation, [
+		{
+			node: mainShapeRef,
+			mapper: (a) => ({
+				config: a.mainShape,
+				options: a.options,
+			}),
+		},
+		{
+			node: mainTextRef,
+			mapper: (a) => ({
+				config: a.text,
+				options: a.options,
+			}),
+		},
+	]);
 
-	const playAnimation = async () => {
-		if (!drawerAnimation) {
-			return;
-		}
-
-		onAnimationBegin?.();
-		await drawerAnimation.play();
-		onAnimationComplete?.();
-	};
-
-	useEffect(() => {
-		if (!drawerAnimation) {
-			return;
-		}
-
-		playAnimation();
-		return () => {
-			drawerAnimation?.destroy();
-		};
-	}, [drawerAnimation]);
+	useAnimationEffect(drawerAnimation, {
+		onAnimationBegin,
+		onAnimationComplete,
+		onAnimationDestroy,
+		simulationId: animation?.simulationId,
+		drawerId: id,
+	});
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -117,23 +105,6 @@ export const PipeOperatorDrawer = ({
 
 	return (
 		<Group visible={Boolean(mainTextRef)}>
-			{visibleConnectionPoints ? (
-				<ConnectPointsDrawer
-					id={id}
-					x={x}
-					y={y}
-					theme={theme}
-					width={drawerSizes.width}
-					height={drawerSizes.height}
-					offset={12}
-					onMouseDown={onConnectPointMouseDown}
-					onMouseUp={onConnectPointMouseUp}
-					onMouseOut={onConnectPointMouseOut}
-					onMouseOver={onConnectPointMouseOver}
-					highlightConnectPoints={highlightedConnectPoints}
-				/>
-			) : null}
-
 			<Group
 				x={x}
 				y={y}
@@ -165,4 +136,3 @@ export const PipeOperatorDrawer = ({
 		</Group>
 	);
 };
-

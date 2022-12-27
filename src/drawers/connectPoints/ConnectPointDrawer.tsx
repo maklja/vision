@@ -1,29 +1,28 @@
 import Konva from 'konva';
 import { useState } from 'react';
 import { Circle } from 'react-konva';
-import { Animation, useAnimation } from '../../animation';
+import { TweenAnimationInstanceConfig, useAnimation, useAnimationEffect } from '../../animation';
 import { ConnectPointType } from '../../model';
 import { ThemeContext, useConnectPointTheme } from '../../theme';
-import { snapConnectPointAnimation } from './animation/snapConnectPointAnimation';
-
-export interface ConnectPointAnimation {
-	snapConnectPoint: Animation;
-}
+import { DrawerAnimationEvents } from '../DrawerProps';
 
 export interface ConnectPointDrawerEvent {
+	id: string;
 	type: ConnectPointType;
 	x: number;
 	y: number;
-	animations: ConnectPointAnimation | null;
 	originalEvent: Konva.KonvaEventObject<MouseEvent>;
+	animation?: TweenAnimationInstanceConfig | null;
 }
 
-export interface ConnectPointDrawerProps {
+export interface ConnectPointDrawerProps extends DrawerAnimationEvents {
+	id: string;
 	type: ConnectPointType;
 	x: number;
 	y: number;
 	theme: ThemeContext;
 	highlight?: boolean;
+	animation?: TweenAnimationInstanceConfig | null;
 	onMouseDown?: (event: ConnectPointDrawerEvent) => void;
 	onMouseUp?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOver?: (event: ConnectPointDrawerEvent) => void;
@@ -31,58 +30,60 @@ export interface ConnectPointDrawerProps {
 }
 
 export const ConnectPointDrawer = ({
+	id,
 	type,
 	x,
 	y,
 	highlight,
+	animation,
 	theme,
 	onMouseDown,
 	onMouseUp,
 	onMouseOver,
 	onMouseOut,
+	onAnimationBegin,
+	onAnimationComplete,
+	onAnimationDestroy,
 }: ConnectPointDrawerProps) => {
 	const connectPointElementTheme = useConnectPointTheme({ highlight }, theme);
-	const [circleRef, setCircleRef] = useState<Konva.Circle | null>(null);
-	const snapConnectPointAnimationRef = useAnimation(
-		circleRef,
-		(node) => snapConnectPointAnimation(node, theme),
-		[theme],
-	);
-
-	const createAnimations = (): ConnectPointAnimation | null => {
-		if (!snapConnectPointAnimationRef) {
-			return null;
-		}
-
-		return {
-			snapConnectPoint: snapConnectPointAnimationRef,
-		};
-	};
+	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
+	const mainShapeAnimation = useAnimation(mainShapeRef, animation, (a) => ({
+		config: a.mainShape,
+		options: a.options,
+	}));
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseOver?.({ type, x, y, animations: createAnimations(), originalEvent: e });
+		onMouseOver?.({ id, type, x, y, animation, originalEvent: e });
 	};
 
 	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseOut?.({ type, x, y, animations: createAnimations(), originalEvent: e });
+		onMouseOut?.({ id, type, x, y, animation, originalEvent: e });
 	};
 
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseDown?.({ type, x, y, animations: createAnimations(), originalEvent: e });
+		onMouseDown?.({ id, type, x, y, animation, originalEvent: e });
 	};
 
 	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseUp?.({ type, x, y, animations: createAnimations(), originalEvent: e });
+		onMouseUp?.({ id, type, x, y, animation, originalEvent: e });
 	};
+
+	useAnimationEffect(mainShapeAnimation, {
+		onAnimationBegin,
+		onAnimationComplete,
+		onAnimationDestroy,
+		simulationId: animation?.simulationId,
+		drawerId: id,
+	});
 
 	return (
 		<Circle
 			{...connectPointElementTheme}
-			ref={(node) => setCircleRef(node)}
+			ref={(node) => setMainShapeRef(node)}
 			x={x}
 			y={y}
 			onMouseDown={handleMouseDown}
@@ -92,4 +93,3 @@ export const ConnectPointDrawer = ({
 		/>
 	);
 };
-
