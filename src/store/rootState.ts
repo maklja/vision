@@ -5,14 +5,14 @@ import simulationsSliceReducer, {
 	simulationsSlice,
 	addNextObservableEvent,
 } from './simulationSlice';
-import drawersSliceReducer, { drawerSlice, addDrawerSettings } from './drawersSlice';
-import animationSliceReducer from './animationSlice';
+import drawerAnimationsOldSliceReducer from './drawerAnimationOldSlice';
+import drawerAnimationsSlice from './drawerAnimationsSlice';
 
 const rootReducer = combineReducers({
 	stage: stageReducer,
 	simulations: simulationsSliceReducer,
-	drawers: drawersSliceReducer,
-	animations: animationSliceReducer,
+	drawerAnimations: drawerAnimationsOldSliceReducer,
+	dAnimations: drawerAnimationsSlice,
 });
 
 export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
@@ -22,8 +22,8 @@ export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
 		middleware: (getDefaultMiddleware) =>
 			getDefaultMiddleware({
 				serializableCheck: {
-					ignoredActions: [addDrawerSettings.type, addNextObservableEvent.type],
-					ignoredPaths: [drawerSlice.name, simulationsSlice.name],
+					ignoredActions: [addNextObservableEvent.type],
+					ignoredPaths: [simulationsSlice.name],
 				},
 			}),
 	});
@@ -35,4 +35,3 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppStore = ReturnType<typeof setupStore>;
 export type AppDispatch = AppStore['dispatch'];
-

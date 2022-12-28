@@ -55,10 +55,7 @@ export const CreationOperatorDrawer = ({
 			}),
 		},
 	]);
-	// const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
-	// const iconX = radius + -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
-	// const iconY = radius + radius * Math.cos(-45) - (iconTextRef?.textHeight ?? 0) / 2;
-
+	
 	const textX = drawerSizes.radius + (mainTextRef?.textWidth ?? 0) / -2;
 	const textY = drawerSizes.radius + (mainTextRef?.textHeight ?? 0) / -2;
 
