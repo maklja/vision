@@ -11,7 +11,7 @@ export interface DrawerAnimation {
 
 export interface DrawerAnimations {
 	drawerId: string;
-	animations: DrawerAnimation[];
+	queue: DrawerAnimation[];
 }
 
 export interface AddDrawerAnimationAction {
@@ -46,20 +46,26 @@ export interface DisposeDrawerAnimationAction {
 	};
 }
 
+export interface DrawerAnimationState {
+	animations: EntityState<DrawerAnimations>;
+}
+
 const animationsAdapter = createEntityAdapter<DrawerAnimations>({
 	selectId: (drawerAnimation) => drawerAnimation.drawerId,
 });
 
+const initialState: DrawerAnimationState = {
+	animations: animationsAdapter.getInitialState(),
+};
+
 export const drawerAnimationsSlice = createSlice({
 	name: 'drawerAnimations',
-	initialState: animationsAdapter.getInitialState(),
+	initialState,
 	reducers: {
-		addDrawerAnimation: (
-			slice: EntityState<DrawerAnimations>,
-			action: AddDrawerAnimationAction,
-		) => {
+		addDrawerAnimation: (slice: DrawerAnimationState, action: AddDrawerAnimationAction) => {
+			const { animations } = slice;
 			const { drawerId, key } = action.payload;
-			const drawerAnimations = slice.entities[drawerId];
+			const drawerAnimations = animations.entities[drawerId];
 
 			const newAnimation = {
 				id: v1(),
@@ -67,28 +73,29 @@ export const drawerAnimationsSlice = createSlice({
 				dispose: false,
 			};
 
-			return drawerAnimations
-				? animationsAdapter.updateOne(slice, {
+			slice.animations = drawerAnimations
+				? animationsAdapter.updateOne(animations, {
 						id: drawerId,
 						changes: {
-							animations: [...drawerAnimations.animations, newAnimation],
+							queue: [...drawerAnimations.queue, newAnimation],
 						},
 				  })
-				: animationsAdapter.addOne(slice, {
+				: animationsAdapter.addOne(animations, {
 						drawerId,
-						animations: [newAnimation],
+						queue: [newAnimation],
 				  });
 		},
 		refreshDrawerAnimation: (
-			slice: EntityState<DrawerAnimations>,
+			slice: DrawerAnimationState,
 			action: RefreshDrawerAnimationAction,
 		) => {
+			const { animations } = slice;
 			const { drawerId, key } = action.payload;
-			const drawerAnimations = slice.entities[drawerId];
+			const drawerAnimations = animations.entities[drawerId];
 			if (!drawerAnimations) {
-				return animationsAdapter.addOne(slice, {
+				slice.animations = animationsAdapter.addOne(animations, {
 					drawerId,
-					animations: [
+					queue: [
 						{
 							id: v1(),
 							key,
@@ -96,25 +103,27 @@ export const drawerAnimationsSlice = createSlice({
 						},
 					],
 				});
+				return;
 			}
 
-			const { animations } = drawerAnimations;
-			const [currentAnimation] = animations;
+			const { queue } = drawerAnimations;
+			const [currentAnimation] = queue;
 			if (currentAnimation.key === key) {
-				const [, ...otherAnimations] = animations;
-				return animationsAdapter.updateOne(slice, {
+				const [, ...otherAnimations] = queue;
+				slice.animations = animationsAdapter.updateOne(animations, {
 					id: drawerId,
 					changes: {
-						animations: [{ ...currentAnimation, dispose: false }, ...otherAnimations],
+						queue: [{ ...currentAnimation, dispose: false }, ...otherAnimations],
 					},
 				});
+				return;
 			}
 
-			return animationsAdapter.updateOne(slice, {
+			slice.animations = animationsAdapter.updateOne(animations, {
 				id: drawerId,
 				changes: {
-					animations: [
-						...animations,
+					queue: [
+						...queue,
 						{
 							id: v1(),
 							key,
@@ -125,16 +134,17 @@ export const drawerAnimationsSlice = createSlice({
 			});
 		},
 		disposeDrawerAnimation: (
-			slice: EntityState<DrawerAnimations>,
+			slice: DrawerAnimationState,
 			action: DisposeDrawerAnimationAction,
 		) => {
+			const { animations } = slice;
 			const { drawerId, animationId } = action.payload;
-			const drawerAnimations = slice.entities[drawerId];
+			const drawerAnimations = animations.entities[drawerId];
 			if (!drawerAnimations) {
 				return;
 			}
 
-			const updatedAnimations = drawerAnimations.animations.map((a) =>
+			const updatedQueue = drawerAnimations.queue.map((a) =>
 				a.id === animationId
 					? {
 							...a,
@@ -142,35 +152,35 @@ export const drawerAnimationsSlice = createSlice({
 					  }
 					: a,
 			);
-			return animationsAdapter.updateOne(slice, {
+			slice.animations = animationsAdapter.updateOne(animations, {
 				id: drawerId,
 				changes: {
-					animations: updatedAnimations,
+					queue: updatedQueue,
 				},
 			});
 		},
 		removeDrawerAnimation: (
-			slice: EntityState<DrawerAnimations>,
+			slice: DrawerAnimationState,
 			action: RemoveDrawerAnimationAction,
 		) => {
+			const { animations } = slice;
 			const { animationId, drawerId } = action.payload;
-			const drawerAnimations = slice.entities[drawerId];
+			const drawerAnimations = animations.entities[drawerId];
 			if (!drawerAnimations) {
 				return;
 			}
 
-			const updatedAnimations = drawerAnimations.animations.filter(
-				(a) => a.id !== animationId,
-			);
+			const updatedQueue = drawerAnimations.queue.filter((a) => a.id !== animationId);
 
-			if (updatedAnimations.length === 0) {
-				return animationsAdapter.removeOne(slice, drawerId);
+			if (updatedQueue.length === 0) {
+				slice.animations = animationsAdapter.removeOne(animations, drawerId);
+				return;
 			}
 
-			return animationsAdapter.updateOne(slice, {
+			slice.animations = animationsAdapter.updateOne(animations, {
 				id: drawerId,
 				changes: {
-					animations: updatedAnimations,
+					queue: updatedQueue,
 				},
 			});
 		},
@@ -185,7 +195,7 @@ export const {
 } = drawerAnimationsSlice.actions;
 
 const drawerAnimationsSelector = animationsAdapter.getSelectors<RootState>(
-	(state) => state.dAnimations,
+	(state) => state.dAnimations.animations,
 );
 
 export const selectDrawerAnimationById =
@@ -197,7 +207,7 @@ export const selectDrawerAnimationById =
 			return null;
 		}
 
-		return drawerAnimations.animations.at(0) ?? null;
+		return drawerAnimations.queue.at(0) ?? null;
 	};
 
 export default drawerAnimationsSlice.reducer;

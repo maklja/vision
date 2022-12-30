@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import { v1 } from 'uuid';
 import { createObservableSimulation, FlowErrorEvent, FlowValueEvent } from '../engine';
-import { AnimationExecutionType, createAnimationSimulation } from '../store/animationSlice';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
 	addNextObservableEvent,
@@ -35,27 +34,6 @@ export const Simulator = () => {
 				completed: false,
 			}),
 		);
-
-		setTimeout(() => {
-			appDispatch(
-				createAnimationSimulation({
-					id: v1(),
-					executionType: AnimationExecutionType.Group,
-					animations: [
-						{
-							animationId: v1(),
-							animationName: '',
-							id: 'filterElement',
-						},
-						{
-							animationId: v1(),
-							animationName: '',
-							id: 'filterElement_1',
-						},
-					],
-				}),
-			);
-		}, 5_000);
 	}, [simulatorId]);
 
 	const dispatchNextEvent = (event: FlowValueEvent<unknown>) =>
@@ -120,4 +98,3 @@ export const Simulator = () => {
 		</div>
 	);
 };
-

@@ -5,13 +5,11 @@ import simulationsSliceReducer, {
 	simulationsSlice,
 	addNextObservableEvent,
 } from './simulationSlice';
-import drawerAnimationsOldSliceReducer from './drawerAnimationOldSlice';
 import drawerAnimationsSlice from './drawerAnimationsSlice';
 
 const rootReducer = combineReducers({
 	stage: stageReducer,
 	simulations: simulationsSliceReducer,
-	drawerAnimations: drawerAnimationsOldSliceReducer,
 	dAnimations: drawerAnimationsSlice,
 });
 
