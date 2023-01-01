@@ -2,9 +2,7 @@ import Konva from 'konva';
 import { Layer, Stage } from 'react-konva';
 import { ConnectLineLayer } from '../layers/connectLine';
 import { DrawerLayer } from '../layers/drawer';
-import { SimulationLayer } from '../layers/simulation';
 import { useAppDispatch } from '../store/rootState';
-import { Simulation } from '../store/simulationSlice';
 import {
 	deleteConnectLineDraw,
 	moveConnectLineDraw,
@@ -12,17 +10,7 @@ import {
 	useThemeContext,
 } from '../store/stageSlice';
 
-export enum StageState {
-	Draft = 'draft',
-	Simulation = 'simulation',
-}
-
-export interface SimulatorStageProps {
-	simulation: Simulation;
-	state?: StageState;
-}
-
-export const SimulatorStage = ({ simulation, state = StageState.Draft }: SimulatorStageProps) => {
+export const SimulatorStage = () => {
 	const { colors } = useThemeContext();
 	const appDispatch = useAppDispatch();
 
@@ -57,11 +45,7 @@ export const SimulatorStage = ({ simulation, state = StageState.Draft }: Simulat
 			<Layer>
 				<ConnectLineLayer />
 				<DrawerLayer />
-				{state === StageState.Simulation ? (
-					<SimulationLayer simulation={simulation} />
-				) : null}
 			</Layer>
 		</Stage>
 	);
 };
-

@@ -52,7 +52,10 @@ export const connectPointDrawConnectLineStateHandlers = (
 	},
 	onAnimationDestroy: (aEvent) => {
 		dispatch(
-			removeDrawerAnimation({ drawerId: aEvent.drawerId, animationId: aEvent.animationId }),
+			removeDrawerAnimation({
+				drawerId: aEvent.drawerId,
+				animationId: aEvent.animationId,
+			}),
 		);
 	},
 });

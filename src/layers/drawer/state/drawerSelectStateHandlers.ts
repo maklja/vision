@@ -1,5 +1,8 @@
 import { DrawerEvent, DrawerEvents } from '../../../drawers';
-import { disposeDrawerAnimation, removeDrawerAnimation } from '../../../store/drawerAnimationsSlice';
+import {
+	disposeDrawerAnimation,
+	removeDrawerAnimation,
+} from '../../../store/drawerAnimationsSlice';
 import { AppDispatch } from '../../../store/rootState';
 import {
 	changeState,
@@ -66,7 +69,10 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 	},
 	onAnimationDestroy: (aEvent) => {
 		dispatch(
-			removeDrawerAnimation({ drawerId: aEvent.drawerId, animationId: aEvent.animationId }),
+			removeDrawerAnimation({
+				drawerId: aEvent.drawerId,
+				animationId: aEvent.animationId,
+			}),
 		);
 	},
 });
