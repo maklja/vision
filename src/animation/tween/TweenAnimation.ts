@@ -1,7 +1,12 @@
 import Konva from 'konva';
 import { Observable, Subject } from 'rxjs';
 import { v1 } from 'uuid';
-import { AnimationEvent, AnimationOptions, AbstractAnimation } from '../Animation';
+import {
+	AnimationEvent,
+	AnimationOptions,
+	AbstractAnimation,
+	AnimationEventType,
+} from '../Animation';
 import {
 	animationOrchestrator,
 	FLIP_TIMELINE_PATTERNS,
@@ -34,13 +39,14 @@ export class TweenAnimation extends AbstractAnimation {
 			return;
 		}
 
-		this.animationTween.play();
 		const patterns = this.options.autoReverse
 			? FLIP_TIMELINE_PATTERNS
 			: SINGLE_TIMELINE_PATTERNS;
 
+		const oPromise = animationOrchestrator(this, patterns);
 		this.onAnimationBegin?.(this);
-		await animationOrchestrator(this, patterns);
+		this.animationTween.play();
+		await oPromise;
 		this.onAnimationComplete?.(this);
 	}
 
@@ -53,22 +59,33 @@ export class TweenAnimation extends AbstractAnimation {
 			return this.play();
 		}
 
-		this.animationTween.reverse();
+		const oPromise = animationOrchestrator(this, REVERSE_SINGLE_TIMELINE_PATTERNS);
 		this.onAnimationBegin?.(this);
-		await animationOrchestrator(this, REVERSE_SINGLE_TIMELINE_PATTERNS);
+		this.animationTween.reverse();
+		await oPromise;
 		this.onAnimationComplete?.(this);
 	}
 
-	reset(): void {
-		if (!this.destroyed) {
-			this.animationTween.reset();
+	async reset(): Promise<void> {
+		if (this.destroyed) {
+			return;
 		}
+
+		const oPromise = animationOrchestrator(this, [[AnimationEventType.Reset]]);
+		this.animationTween.reset();
+		await oPromise;
 	}
 
-	finish(): void {
-		if (!this.destroyed) {
-			this.options.autoReverse ? this.animationTween.reset() : this.animationTween.finish();
+	async finish(): Promise<void> {
+		if (this.destroyed) {
+			return;
 		}
+
+		const oPromise = animationOrchestrator(this, [
+			this.options.autoReverse ? [AnimationEventType.Reset] : [AnimationEventType.Finish],
+		]);
+		this.options.autoReverse ? this.animationTween.reset() : this.animationTween.finish();
+		await oPromise;
 	}
 
 	destroy(): void {

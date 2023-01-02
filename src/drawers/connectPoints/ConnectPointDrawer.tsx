@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { useState } from 'react';
 import { Circle } from 'react-konva';
-import { TweenAnimationInstanceConfig, useAnimation, useAnimationEffect } from '../../animation';
+import { DrawerAnimationTemplate, useAnimation, useAnimationEffect } from '../../animation';
 import { ConnectPointType } from '../../model';
 import { ThemeContext, useConnectPointTheme } from '../../theme';
 import { DrawerAnimationEvents } from '../DrawerProps';
@@ -12,7 +12,7 @@ export interface ConnectPointDrawerEvent {
 	x: number;
 	y: number;
 	originalEvent: Konva.KonvaEventObject<MouseEvent>;
-	animation?: TweenAnimationInstanceConfig | null;
+	animation?: DrawerAnimationTemplate | null;
 }
 
 export interface ConnectPointDrawerProps extends DrawerAnimationEvents {
@@ -22,7 +22,7 @@ export interface ConnectPointDrawerProps extends DrawerAnimationEvents {
 	y: number;
 	theme: ThemeContext;
 	highlight?: boolean;
-	animation?: TweenAnimationInstanceConfig | null;
+	animation?: DrawerAnimationTemplate | null;
 	onMouseDown?: (event: ConnectPointDrawerEvent) => void;
 	onMouseUp?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOver?: (event: ConnectPointDrawerEvent) => void;
@@ -49,7 +49,6 @@ export const ConnectPointDrawer = ({
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const mainShapeAnimation = useAnimation(mainShapeRef, animation, (a) => ({
 		config: a.mainShape,
-		options: a.options,
 	}));
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {

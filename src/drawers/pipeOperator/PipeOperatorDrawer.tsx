@@ -44,14 +44,12 @@ export const PipeOperatorDrawer = ({
 			node: mainShapeRef,
 			mapper: (a) => ({
 				config: a.mainShape,
-				options: a.options,
 			}),
 		},
 		{
 			node: mainTextRef,
 			mapper: (a) => ({
 				config: a.text,
-				options: a.options,
 			}),
 		},
 	]);

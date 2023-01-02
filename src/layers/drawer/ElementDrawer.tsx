@@ -40,7 +40,10 @@ export const ElementDrawer = ({ element }: ElementDrawerProps) => {
 		theme,
 		animation: animation
 			? {
-					...animationRegistry.retrieveAnimationConfig(animation.key)(theme),
+					...animationRegistry.retrieveAnimationConfig(animation.key)(
+						theme,
+						animation.data,
+					),
 					id: animation.id,
 					dispose: animation.dispose,
 			  }

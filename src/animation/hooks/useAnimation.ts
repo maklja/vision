@@ -1,35 +1,38 @@
 import Konva from 'konva';
 import { useEffect, useMemo } from 'react';
-import { AnimationOptions } from '../Animation';
-import { TweenAnimation, TweenAnimationInstanceConfig } from '../tween';
+import { TweenAnimation } from '../tween';
+import { DrawerAnimationTemplate } from '../AnimationTemplate';
 
 export const useAnimation = (
 	node: Konva.Node | null,
-	animationConfig: TweenAnimationInstanceConfig | undefined | null,
-	mapper: (animation: TweenAnimationInstanceConfig) => {
+	animationTemplate: DrawerAnimationTemplate | undefined | null,
+	mapper: (animation: DrawerAnimationTemplate) => {
 		config?: Konva.NodeConfig;
-		options?: AnimationOptions;
 	},
 ) => {
 	const animation = useMemo(() => {
-		if (!node || !animationConfig) {
+		if (!node || !animationTemplate) {
 			return null;
 		}
 
-		const { config, options } = mapper(animationConfig);
+		const { config } = mapper(animationTemplate);
 		return new TweenAnimation(
 			{
 				...config,
 				node,
 			},
-			options,
-			animationConfig?.id,
+			animationTemplate.options,
+			animationTemplate?.id,
 		);
-	}, [node, animationConfig?.id]);
+	}, [node, animationTemplate?.id]);
 
 	const disposeAnimation = async () => {
 		try {
-			await animation?.reverse();
+			if (animationTemplate?.options?.autoReverse) {
+				await animation?.reverse();
+			} else {
+				await animation?.reset();
+			}
 			animation?.destroy();
 		} catch {
 			// no need to handle this error if animation dispose fails
@@ -45,16 +48,16 @@ export const useAnimation = (
 	};
 
 	useEffect(() => {
-		if (!animationConfig) {
+		if (!animationTemplate) {
 			return;
 		}
 
-		if (animationConfig.dispose) {
+		if (animationTemplate.dispose) {
 			disposeAnimation();
 		} else {
 			startAnimation();
 		}
-	}, [animationConfig?.dispose]);
+	}, [animationTemplate?.dispose]);
 
 	useEffect(() => {
 		return () => animation?.destroy();

@@ -1,37 +1,37 @@
 import Konva from 'konva';
 import { useEffect, useMemo } from 'react';
-import { Animation, AnimationOptions } from '../Animation';
+import { Animation } from '../Animation';
 import { AnimationGroup } from '../AnimationGroup';
-import { TweenAnimation, TweenAnimationInstanceConfig } from '../tween';
+import { TweenAnimation } from '../tween';
+import { DrawerAnimationTemplate } from '../AnimationTemplate';
 
 export interface AnimationGroupFactory {
 	node: Konva.Node | null;
-	mapper: (animation: TweenAnimationInstanceConfig) => {
+	mapper: (animation: DrawerAnimationTemplate) => {
 		config?: Konva.NodeConfig;
-		options?: AnimationOptions;
 	};
 }
 
 export const useAnimationGroups = (
-	animationConfig: TweenAnimationInstanceConfig | undefined | null,
+	animationTemplate: DrawerAnimationTemplate | undefined | null,
 	animationFactories: AnimationGroupFactory[],
 ): Animation | null => {
 	const animations = animationFactories.map(({ node, mapper }) =>
 		useMemo(() => {
-			if (!node || !animationConfig) {
+			if (!node || !animationTemplate) {
 				return null;
 			}
 
-			const { config, options } = mapper(animationConfig);
+			const { config } = mapper(animationTemplate);
 			return new TweenAnimation(
 				{
 					...config,
 					node,
 				},
-				options,
-				animationConfig?.id,
+				animationTemplate?.options,
+				animationTemplate?.id,
 			);
-		}, [node, animationConfig?.id]),
+		}, [node, animationTemplate?.id]),
 	);
 
 	const animation = useMemo(() => {
@@ -39,16 +39,16 @@ export const useAnimationGroups = (
 			return null;
 		}
 
-		return new AnimationGroup(animations as Animation[], animationConfig?.id);
-	}, [...animations, animationConfig?.id]);
+		return new AnimationGroup(animations as Animation[], animationTemplate?.id);
+	}, [...animations, animationTemplate?.id]);
 
 	useEffect(() => {
-		if (!animationConfig) {
+		if (!animationTemplate) {
 			return;
 		}
 
-		animationConfig.dispose ? animation?.destroy() : animation?.play();
-	}, [animationConfig?.dispose]);
+		animationTemplate.dispose ? animation?.destroy() : animation?.play();
+	}, [animationTemplate?.dispose]);
 
 	return animation;
 };

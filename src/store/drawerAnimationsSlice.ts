@@ -3,11 +3,12 @@ import { v1 } from 'uuid';
 import { AnimationKey } from '../animation';
 import { RootState } from './rootState';
 
-export interface DrawerAnimation {
+export interface DrawerAnimation<D = unknown> {
 	id: string;
 	key: AnimationKey;
 	dispose: boolean;
 	simulationId?: string;
+	data?: D;
 }
 
 export interface SimulationAnimation extends DrawerAnimation {
@@ -29,6 +30,7 @@ export interface AddDrawerAnimationActionPayload {
 	key: AnimationKey;
 	animationId?: string;
 	simulationId?: string;
+	data?: unknown;
 }
 
 export interface AddDrawerAnimationAction {
@@ -62,7 +64,7 @@ export interface AddSimulationAnimationsAction {
 	type: string;
 	payload: {
 		simulationId: string;
-		animations: { drawerId: string; key: AnimationKey; animationId?: string }[];
+		animations: { drawerId: string; key: AnimationKey; animationId?: string; data?: unknown }[];
 	};
 }
 
@@ -133,7 +135,7 @@ export const drawerAnimationsSlice = createSlice({
 	reducers: {
 		addDrawerAnimation: (slice: DrawerAnimationState, action: AddDrawerAnimationAction) => {
 			const { animations } = slice;
-			const { drawerId, key, simulationId, animationId = v1() } = action.payload;
+			const { drawerId, key, simulationId, animationId = v1(), data } = action.payload;
 			const drawerAnimations = animations.entities[drawerId];
 
 			const newAnimation = {
@@ -141,6 +143,7 @@ export const drawerAnimationsSlice = createSlice({
 				key,
 				dispose: false,
 				simulationId,
+				data,
 			};
 
 			slice.animations = drawerAnimations
@@ -273,6 +276,7 @@ export const drawerAnimationsSlice = createSlice({
 				key: a.key,
 				simulationId,
 				dispose: false,
+				data: a.data,
 			}));
 
 			slice.simulations = !simulation
@@ -291,7 +295,7 @@ export const drawerAnimationsSlice = createSlice({
 			slice: DrawerAnimationState,
 			action: AddSimulationAnimationAction,
 		) => {
-			const { simulationId = v1(), animationId = v1(), drawerId, key } = action.payload;
+			const { simulationId = v1(), animationId = v1(), drawerId, key, data } = action.payload;
 			const { simulations } = slice;
 			const simulation = simulations.entities[simulationId];
 
@@ -301,6 +305,7 @@ export const drawerAnimationsSlice = createSlice({
 				key,
 				simulationId,
 				dispose: false,
+				data,
 			};
 
 			slice.simulations = !simulation

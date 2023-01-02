@@ -41,4 +41,3 @@ export const invertColor = (hex: string, bw: boolean) => {
 	// pad each with zeros and return
 	return '#' + padZero(rStr) + padZero(gStr) + padZero(bStr);
 };
-

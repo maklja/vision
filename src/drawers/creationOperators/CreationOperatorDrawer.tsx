@@ -44,18 +44,16 @@ export const CreationOperatorDrawer = ({
 			node: mainShapeRef,
 			mapper: (a) => ({
 				config: a.mainShape,
-				options: a.options,
 			}),
 		},
 		{
 			node: mainTextRef,
 			mapper: (a) => ({
 				config: a.text,
-				options: a.options,
 			}),
 		},
 	]);
-	
+
 	const textX = drawerSizes.radius + (mainTextRef?.textWidth ?? 0) / -2;
 	const textY = drawerSizes.radius + (mainTextRef?.textHeight ?? 0) / -2;
 

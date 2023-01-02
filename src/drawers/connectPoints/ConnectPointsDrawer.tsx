@@ -1,5 +1,5 @@
 import { Group } from 'react-konva';
-import { TweenAnimationInstanceConfig } from '../../animation';
+import { DrawerAnimationTemplate } from '../../animation';
 import { ConnectPointType } from '../../model';
 import { ThemeContext } from '../../theme';
 import { DrawerAnimationEvents } from '../DrawerProps';
@@ -7,7 +7,7 @@ import { BoundingBox } from '../utils';
 import { ConnectPointDrawer, ConnectPointDrawerEvent } from './ConnectPointDrawer';
 
 export type ConnectPointAnimations = {
-	[key in ConnectPointType]?: TweenAnimationInstanceConfig | null;
+	[key in ConnectPointType]?: DrawerAnimationTemplate | null;
 };
 
 export interface ConnectPointsDrawerEvent {

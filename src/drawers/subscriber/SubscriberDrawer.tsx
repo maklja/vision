@@ -39,14 +39,12 @@ export const SubscriberDrawer = ({
 			node: mainShapeRef,
 			mapper: (a) => ({
 				config: a.mainShape,
-				options: a.options,
 			}),
 		},
 		{
 			node: innerShapeRef,
 			mapper: (a) => ({
 				config: a.secondaryShape,
-				options: a.options,
 			}),
 		},
 	]);

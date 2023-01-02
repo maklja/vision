@@ -1,13 +1,16 @@
-import { TweenAnimationConfig } from '..';
 import { ThemeContext } from '../../theme';
+import { AnimationTemplate } from '../AnimationTemplate';
 
 export class AnimationRegistry {
 	private readonly animationRegistry = new Map<
 		string,
-		(theme: ThemeContext) => TweenAnimationConfig
+		(theme: ThemeContext, data?: unknown) => AnimationTemplate
 	>();
 
-	register(animationKey: string, animationConfig: (theme: ThemeContext) => TweenAnimationConfig) {
+	register(
+		animationKey: string,
+		animationConfig: (theme: ThemeContext, data?: unknown) => AnimationTemplate,
+	) {
 		this.animationRegistry.set(animationKey, animationConfig);
 
 		return this;

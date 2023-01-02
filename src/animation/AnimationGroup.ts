@@ -23,12 +23,12 @@ export class AnimationGroup extends AbstractAnimation {
 		this.onAnimationComplete?.(this);
 	}
 
-	reset(): void {
-		this.animations.forEach((a) => a.reset());
+	async reset(): Promise<void> {
+		await Promise.all(this.animations.map((a) => a.reset()));
 	}
 
-	finish(): void {
-		this.animations.forEach((a) => a.finish());
+	async finish(): Promise<void> {
+		await Promise.all(this.animations.map((a) => a.finish()));
 	}
 
 	destroy(): void {

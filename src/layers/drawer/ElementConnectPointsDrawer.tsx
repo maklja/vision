@@ -1,4 +1,4 @@
-import { TweenAnimationInstanceConfig, animationRegistry } from '../../animation';
+import { DrawerAnimationTemplate, animationRegistry } from '../../animation';
 import {
 	ConnectPointAnimations,
 	ConnectPointsDrawer,
@@ -78,7 +78,7 @@ const createPosition = (
 const createAnimationConfig = (
 	animation: DrawerAnimation | null,
 	theme: ThemeContext,
-): TweenAnimationInstanceConfig | null => {
+): DrawerAnimationTemplate | null => {
 	if (!animation) {
 		return null;
 	}

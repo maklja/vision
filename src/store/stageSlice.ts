@@ -42,6 +42,11 @@ export interface AddElementsAction {
 	payload: Element[];
 }
 
+export interface AddElementAction {
+	type: string;
+	payload: Element;
+}
+
 export interface SelectElementsAction {
 	type: string;
 	payload: string[];
@@ -88,6 +93,9 @@ export const stageSlice = createSlice({
 	reducers: {
 		changeState: (slice: Draft<StageSlice>, action: ChangeStateAction) => {
 			slice.state = action.payload;
+		},
+		addElement: (slice: Draft<StageSlice>, action: AddElementAction) => {
+			slice.elements = [...slice.elements, action.payload];
 		},
 		addElements: (slice: Draft<StageSlice>, action: AddElementsAction) => {
 			slice.elements = action.payload;
@@ -148,6 +156,7 @@ export const stageSlice = createSlice({
 });
 
 export const {
+	addElement,
 	addElements,
 	selectElements,
 	highlightElements,

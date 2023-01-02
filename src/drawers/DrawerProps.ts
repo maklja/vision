@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { Key } from 'react';
-import { TweenAnimationInstanceConfig } from '../animation';
+import { DrawerAnimationTemplate } from '../animation';
 import { ThemeContext } from '../theme';
 
 export interface DrawerEvent {
@@ -38,7 +38,7 @@ export interface DrawerCommonProps {
 	size: number;
 	highlight?: boolean;
 	select?: boolean;
-	animation?: TweenAnimationInstanceConfig | null;
+	animation?: DrawerAnimationTemplate | null;
 }
 
 export interface DrawerProps extends DrawerCommonProps, DrawerEvents {}

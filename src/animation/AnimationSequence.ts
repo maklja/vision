@@ -29,11 +29,11 @@ export class AnimationSequence extends AbstractAnimation {
 		}
 	}
 
-	finish(): void {
+	async finish(): Promise<void> {
 		this.animations.forEach((a) => a.finish());
 	}
 
-	reset(): void {
+	async reset(): Promise<void> {
 		this.animations.forEach((a) => a.reset());
 	}
 

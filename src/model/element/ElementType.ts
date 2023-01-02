@@ -5,6 +5,7 @@ export enum ElementType {
 	Filter = 'filter',
 	Subscriber = 'subscriber',
 	CatchError = 'catchError',
+	Result = 'result',
 }
 
 export const creationOperators: readonly ElementType[] = [
@@ -28,4 +29,3 @@ export const isPipeOperatorType = (type: ElementType) => pipeOperators.includes(
 export const isSubscriberType = (type: ElementType) => type === ElementType.Subscriber;
 
 export const isErrorHandlerType = (type: ElementType) => errorHandlerOperators.includes(type);
-

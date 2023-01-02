@@ -26,9 +26,8 @@ export interface Animation {
 	observable(): Observable<AnimationEvent>;
 	play(): Promise<void>;
 	reverse(): Promise<void>;
-	// TODO async for reset and finish?
-	reset(): void;
-	finish(): void;
+	reset(): Promise<void>;
+	finish(): Promise<void>;
 	destroy(): void;
 }
 
@@ -37,8 +36,8 @@ export abstract class AbstractAnimation implements Animation {
 	abstract observable(): Observable<AnimationEvent>;
 	abstract play(): Promise<void>;
 	abstract reverse(): Promise<void>;
-	abstract reset(): void;
-	abstract finish(): void;
+	abstract reset(): Promise<void>;
+	abstract finish(): Promise<void>;
 	abstract destroy(): void;
 	onAnimationBegin?: AnimationEventCallback;
 	onAnimationComplete?: AnimationEventCallback;
