@@ -7,7 +7,7 @@ import { AppDispatch } from '../../../store/rootState';
 import {
 	changeState,
 	highlightElements,
-	moveDrawer,
+	moveElement,
 	selectElements,
 	StageState,
 } from '../../../store/stageSlice';
@@ -54,7 +54,7 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 			originalEvent.cancelBubble = true;
 			const position = originalEvent.currentTarget.getAbsolutePosition();
 			dispatch(
-				moveDrawer({
+				moveElement({
 					id,
 					x: position.x,
 					y: position.y,

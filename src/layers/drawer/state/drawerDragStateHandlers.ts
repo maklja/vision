@@ -4,7 +4,7 @@ import {
 	disposeDrawerAnimation,
 } from '../../../store/drawerAnimationsSlice';
 import { AppDispatch } from '../../../store/rootState';
-import { changeState, moveDrawer, StageState } from '../../../store/stageSlice';
+import { changeState, moveElement, StageState } from '../../../store/stageSlice';
 
 export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({
 	onDragEnd: (e: DrawerEvent) => {
@@ -20,7 +20,7 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 			originalEvent.cancelBubble = true;
 			const position = originalEvent.currentTarget.getAbsolutePosition();
 			dispatch(
-				moveDrawer({
+				moveElement({
 					id,
 					x: position.x,
 					y: position.y,

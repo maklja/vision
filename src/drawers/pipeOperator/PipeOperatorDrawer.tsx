@@ -17,6 +17,7 @@ export const PipeOperatorDrawer = ({
 	theme,
 	highlight,
 	select,
+	visible = true,
 	title,
 	animation,
 	onMouseOver,
@@ -102,7 +103,7 @@ export const PipeOperatorDrawer = ({
 	const textY = (mainTextRef?.textHeight ?? 0) / -2 + drawerSizes.height / 2;
 
 	return (
-		<Group visible={Boolean(mainTextRef)}>
+		<Group visible={visible && Boolean(mainTextRef)}>
 			<Group
 				x={x}
 				y={y}

@@ -25,6 +25,7 @@ const e1: OfElement = {
 	y: 50,
 	items: [4, 3, 2, 1],
 	type: ElementType.Of,
+	visible: true,
 };
 
 const e3: FromElement = {
@@ -34,6 +35,7 @@ const e3: FromElement = {
 	y: 200,
 	type: ElementType.From,
 	input: [3, 2, 3, 4],
+	visible: true,
 };
 
 const i1: IntervalElement = {
@@ -43,6 +45,7 @@ const i1: IntervalElement = {
 	y: 300,
 	type: ElementType.Interval,
 	period: 2_000,
+	visible: true,
 };
 
 const e4: FilterElement = {
@@ -52,6 +55,7 @@ const e4: FilterElement = {
 	y: 125,
 	type: ElementType.Filter,
 	expression: 'function(val) { return val % 2 === 0; }',
+	visible: true,
 };
 
 const e5: FilterElement = {
@@ -67,6 +71,7 @@ const e5: FilterElement = {
 
 		return val % 2 === 0; 
 	}`,
+	visible: true,
 };
 
 const ce1: CatchErrorElement = {
@@ -75,6 +80,7 @@ const ce1: CatchErrorElement = {
 	x: 82.5,
 	y: 80,
 	type: ElementType.CatchError,
+	visible: true,
 };
 
 const e2: Element = {
@@ -83,6 +89,7 @@ const e2: Element = {
 	x: 680,
 	y: 125,
 	type: ElementType.Subscriber,
+	visible: true,
 };
 
 const cl1: ConnectLine = {

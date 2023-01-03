@@ -15,6 +15,7 @@ export const ResultDrawer = ({
 	theme,
 	x,
 	y,
+	visible = true,
 	hash,
 	animation,
 	onAnimationBegin,
@@ -41,6 +42,7 @@ export const ResultDrawer = ({
 	const invertResultColor = invertColor(resultColor, false);
 	return (
 		<Circle
+			visible={visible}
 			ref={(node) => setMainShapeRef(node)}
 			radius={simulationSizes.radius}
 			fill={resultColor}

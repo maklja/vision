@@ -11,14 +11,21 @@ import {
 	ObservableEventType,
 	selectSimulationById,
 } from '../store/simulationSlice';
-import { selectStage } from '../store/stageSlice';
+import {
+	addElement,
+	moveElement,
+	removeElement,
+	selectStage,
+	updateElement,
+} from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
 import {
 	addDrawerAnimation,
 	addSimulationAnimations,
 	selectSimulationNextAnimation,
 } from '../store/drawerAnimationsSlice';
-import { AnimationKey } from '../animation';
+import { AnimationKey, MoveAnimation } from '../animation';
+import { ElementType } from '../model';
 
 export const Simulator = () => {
 	const [simulatorId] = useState(v1());
@@ -32,10 +39,12 @@ export const Simulator = () => {
 	const appDispatch = useAppDispatch();
 
 	useEffect(() => {
+		// case when simulation changes
 		if (simulation?.id === simulatorId) {
 			return;
 		}
 
+		// create a new simulation
 		appDispatch(
 			createSimulation({
 				id: simulatorId,
@@ -43,6 +52,27 @@ export const Simulator = () => {
 				completed: false,
 			}),
 		);
+
+		// create result drawer for simulation
+		appDispatch(
+			addElement({
+				id: simulatorId,
+				size: 1,
+				x: 0,
+				y: 0,
+				type: ElementType.Result,
+				visible: false,
+			}),
+		);
+
+		return () => {
+			// clean up result drawer from  simulation
+			appDispatch(
+				removeElement({
+					id: simulatorId,
+				}),
+			);
+		};
 	}, [simulatorId]);
 
 	useEffect(() => {
@@ -55,9 +85,12 @@ export const Simulator = () => {
 			return;
 		}
 
+		// create simulation animations for each drawer that is affected by events
 		const animations = events
 			.slice(simulationStep.current)
 			.reduce((group: (ObservableEvent | null)[][], currentEvent, i) => {
+				// group simulation events by [previousEvent, currentEvent]
+				// so you could determine if it required to show previous drawer animation
 				const prevEvent = events[simulationStep.current + i - 1];
 				if (!prevEvent) {
 					return [...group, [null, currentEvent]];
@@ -70,12 +103,28 @@ export const Simulator = () => {
 				if (!currentEvent) {
 					return [];
 				}
-				const { sourceElementId, targetElementId, type } = currentEvent;
+				const { sourceElementId, targetElementId, type, connectLineId } = currentEvent;
+				const connectLine = connectLines.find((cl) => cl.id === connectLineId);
+				if (!connectLine) {
+					return [];
+				}
+
+				const [, sourcePosition] = connectLine.points;
+				const [targetPosition] = connectLine.points.slice(-2);
+				// if not equals do not show previous drawer animation otherwise do show it
 				return prevEvent?.targetElementId !== sourceElementId
 					? [
 							{
 								drawerId: sourceElementId,
 								key: AnimationKey.HighlightDrawer,
+							},
+							{
+								drawerId: simulatorId,
+								key: AnimationKey.MoveDrawer,
+								data: {
+									sourcePosition,
+									targetPosition,
+								},
 							},
 							{
 								drawerId: targetElementId,
@@ -87,6 +136,14 @@ export const Simulator = () => {
 					  ]
 					: [
 							{
+								drawerId: simulatorId,
+								key: AnimationKey.MoveDrawer,
+								data: {
+									sourcePosition,
+									targetPosition,
+								},
+							},
+							{
 								drawerId: targetElementId,
 								key:
 									type === ObservableEventType.Error
@@ -97,6 +154,7 @@ export const Simulator = () => {
 			})
 			.flat();
 
+		// queue simulation animations
 		appDispatch(
 			addSimulationAnimations({
 				animations,
@@ -111,13 +169,41 @@ export const Simulator = () => {
 			return;
 		}
 
-		const { drawerId, key, id, simulationId } = nextAnimation;
+		const { drawerId, key, id, simulationId, data } = nextAnimation;
+		// when current animation drawer is result drawer, show it and move it to right position
+		// otherwise just hide it
+		if (drawerId === simulatorId) {
+			const moveParams = data as MoveAnimation;
+			appDispatch(
+				updateElement({
+					id: simulatorId,
+					visible: true,
+				}),
+			);
+			appDispatch(
+				moveElement({
+					id: simulatorId,
+					x: moveParams.sourcePosition.x,
+					y: moveParams.sourcePosition.y,
+				}),
+			);
+		} else {
+			appDispatch(
+				updateElement({
+					id: simulatorId,
+					visible: false,
+				}),
+			);
+		}
+
+		// start drawer animation
 		appDispatch(
 			addDrawerAnimation({
 				animationId: id,
 				drawerId,
 				key,
 				simulationId,
+				data,
 			}),
 		);
 	}, [nextAnimation?.id]);

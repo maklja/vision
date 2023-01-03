@@ -14,6 +14,7 @@ export const SubscriberDrawer = ({
 	highlight,
 	select,
 	animation,
+	visible,
 	onMouseDown,
 	onMouseOut,
 	onMouseOver,
@@ -98,7 +99,7 @@ export const SubscriberDrawer = ({
 	});
 
 	return (
-		<Group visible={Boolean(mainShapeRef)}>
+		<Group visible={visible && Boolean(mainShapeRef)}>
 			<Group
 				x={x}
 				y={y}

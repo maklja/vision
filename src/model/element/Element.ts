@@ -6,5 +6,6 @@ export interface Element {
 	x: number;
 	y: number;
 	size: number;
+	visible: boolean;
 }
 

@@ -16,6 +16,7 @@ export const CreationOperatorDrawer = ({
 	size,
 	highlight,
 	select,
+	visible = true,
 	id,
 	theme,
 	animation,
@@ -102,7 +103,7 @@ export const CreationOperatorDrawer = ({
 	});
 
 	return (
-		<Group visible={Boolean(mainTextRef && mainShapeRef)}>
+		<Group visible={visible && Boolean(mainTextRef && mainShapeRef)}>
 			<Group
 				draggable
 				x={x}

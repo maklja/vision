@@ -47,6 +47,22 @@ export interface AddElementAction {
 	payload: Element;
 }
 
+export interface RemoveElementAction {
+	type: string;
+	payload: {
+		id: string;
+	};
+}
+
+export interface UpdateElementAction {
+	type: string;
+	payload: {
+		id: string;
+		visible?: boolean;
+		size?: number;
+	};
+}
+
 export interface SelectElementsAction {
 	type: string;
 	payload: string[];
@@ -97,6 +113,23 @@ export const stageSlice = createSlice({
 		addElement: (slice: Draft<StageSlice>, action: AddElementAction) => {
 			slice.elements = [...slice.elements, action.payload];
 		},
+		removeElement: (slice: Draft<StageSlice>, action: RemoveElementAction) => {
+			slice.elements = slice.elements.filter((el) => el.id !== action.payload.id);
+		},
+		updateElement: (slice: Draft<StageSlice>, action: UpdateElementAction) => {
+			const { payload } = action;
+			const elIdx = slice.elements.findIndex((el) => el.id === payload.id);
+			if (elIdx === -1) {
+				return;
+			}
+
+			const el = slice.elements[elIdx];
+			slice.elements[elIdx] = {
+				...el,
+				size: payload.size ?? el.size,
+				visible: payload.visible ?? el.visible,
+			};
+		},
 		addElements: (slice: Draft<StageSlice>, action: AddElementsAction) => {
 			slice.elements = action.payload;
 		},
@@ -118,7 +151,7 @@ export const stageSlice = createSlice({
 		deleteConnectLineDraw: deleteConnectLineDrawReducer,
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
-		moveDrawer: (state: Draft<StageSlice>, action: MoveElementAction) => {
+		moveElement: (state: Draft<StageSlice>, action: MoveElementAction) => {
 			const { payload } = action;
 			const elIdx = state.elements.findIndex((el) => el.id === payload.id);
 			if (elIdx === -1) {
@@ -157,10 +190,12 @@ export const stageSlice = createSlice({
 
 export const {
 	addElement,
+	removeElement,
+	updateElement,
 	addElements,
 	selectElements,
 	highlightElements,
-	moveDrawer,
+	moveElement,
 	changeState,
 	startConnectLineDraw,
 	moveConnectLineDraw,
