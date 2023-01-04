@@ -23,9 +23,9 @@ const e1: OfElement = {
 	size: 1,
 	x: 50,
 	y: 50,
-	items: [4, 3, 2, 1],
 	type: ElementType.Of,
 	visible: true,
+	properties: { items: [4, 3, 2, 1] },
 };
 
 const e3: FromElement = {
@@ -34,8 +34,10 @@ const e3: FromElement = {
 	x: 50,
 	y: 200,
 	type: ElementType.From,
-	input: [3, 2, 3, 4],
 	visible: true,
+	properties: {
+		input: [3, 2, 3, 4],
+	},
 };
 
 const i1: IntervalElement = {
@@ -44,8 +46,8 @@ const i1: IntervalElement = {
 	x: 50,
 	y: 300,
 	type: ElementType.Interval,
-	period: 2_000,
 	visible: true,
+	properties: { period: 2_000 },
 };
 
 const e4: FilterElement = {
@@ -54,8 +56,10 @@ const e4: FilterElement = {
 	x: 200,
 	y: 125,
 	type: ElementType.Filter,
-	expression: 'function(val) { return val % 2 === 0; }',
 	visible: true,
+	properties: {
+		expression: 'function(val) { return val % 2 === 0; }',
+	},
 };
 
 const e5: FilterElement = {
@@ -64,14 +68,16 @@ const e5: FilterElement = {
 	x: 500,
 	y: 125,
 	type: ElementType.Filter,
-	expression: `function(val) {
-		if (val > 5) {
-			throw new Error('Ups');
-		}
-
-		return val % 2 === 0; 
-	}`,
 	visible: true,
+	properties: {
+		expression: `function(val) {
+			if (val > 5) {
+				throw new Error('Ups');
+			}
+	
+			return val % 2 === 0; 
+		}`,
+	},
 };
 
 const ce1: CatchErrorElement = {
@@ -81,6 +87,7 @@ const ce1: CatchErrorElement = {
 	y: 80,
 	type: ElementType.CatchError,
 	visible: true,
+	properties: {},
 };
 
 const e2: Element = {
@@ -90,6 +97,7 @@ const e2: Element = {
 	y: 125,
 	type: ElementType.Subscriber,
 	visible: true,
+	properties: {},
 };
 
 const cl1: ConnectLine = {

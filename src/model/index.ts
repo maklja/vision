@@ -6,3 +6,4 @@ export * from './connectPoint';
 export * from './creationOperators';
 export * from './filterOperators';
 export * from './errorHandlerOperators';
+export * from './result';

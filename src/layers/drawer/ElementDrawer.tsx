@@ -10,7 +10,7 @@ import {
 	selectStageState,
 	useThemeContext,
 } from '../../store/stageSlice';
-import { findElementDrawer } from './createElementDrawer';
+import { findElementDrawerFactory } from './createElementDrawer';
 import { ElementConnectPointsDrawer } from './ElementConnectPointsDrawer';
 import { useElementDrawerHandlers } from './state';
 
@@ -25,30 +25,33 @@ export const ElementDrawer = ({ element }: ElementDrawerProps) => {
 	const select = useAppSelector(isSelectedElement(element.id));
 	const highlight = useAppSelector(isHighlightedElement(element.id));
 	const stageState = useAppSelector(selectStageState);
-	const drawerFactory = findElementDrawer(element.type);
+	const drawerFactory = findElementDrawerFactory(element.type);
 	const dragging = stageState === StageState.Dragging;
 
 	if (!drawerFactory) {
 		return null;
 	}
 
-	const drawer = drawerFactory({
-		...element,
-		...drawerHandlers,
-		select,
-		highlight,
-		theme,
-		animation: animation
-			? {
-					...animationRegistry.retrieveAnimationConfig(animation.key)(
-						theme,
-						animation.data,
-					),
-					id: animation.id,
-					dispose: animation.dispose,
-			  }
-			: null,
-	});
+	const drawer = drawerFactory(
+		{
+			...element,
+			...drawerHandlers,
+			select,
+			highlight,
+			theme,
+			animation: animation
+				? {
+						...animationRegistry.retrieveAnimationConfig(animation.key)(
+							theme,
+							animation.data,
+						),
+						id: animation.id,
+						dispose: animation.dispose,
+				  }
+				: null,
+		},
+		element,
+	);
 	return (
 		<Group>
 			{!select || dragging ? null : <ElementConnectPointsDrawer element={element} />}

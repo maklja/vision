@@ -54,12 +54,13 @@ export interface RemoveElementAction {
 	};
 }
 
-export interface UpdateElementAction {
+export interface UpdateElementAction<P = unknown> {
 	type: string;
 	payload: {
 		id: string;
 		visible?: boolean;
 		size?: number;
+		properties?: P;
 	};
 }
 
@@ -128,6 +129,7 @@ export const stageSlice = createSlice({
 				...el,
 				size: payload.size ?? el.size,
 				visible: payload.visible ?? el.visible,
+				properties: payload.properties ?? el.properties,
 			};
 		},
 		addElements: (slice: Draft<StageSlice>, action: AddElementsAction) => {

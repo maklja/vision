@@ -62,6 +62,7 @@ export const Simulator = () => {
 				y: 0,
 				type: ElementType.Result,
 				visible: false,
+				properties: {},
 			}),
 		);
 
@@ -103,7 +104,8 @@ export const Simulator = () => {
 				if (!currentEvent) {
 					return [];
 				}
-				const { sourceElementId, targetElementId, type, connectLineId } = currentEvent;
+				const { sourceElementId, targetElementId, type, connectLineId, hash } =
+					currentEvent;
 				const connectLine = connectLines.find((cl) => cl.id === connectLineId);
 				if (!connectLine) {
 					return [];
@@ -111,6 +113,23 @@ export const Simulator = () => {
 
 				const [, sourcePosition] = connectLine.points;
 				const [targetPosition] = connectLine.points.slice(-2);
+
+				const resultDrawerAnimation = {
+					drawerId: simulatorId,
+					key: AnimationKey.MoveDrawer,
+					data: {
+						sourcePosition,
+						targetPosition,
+						hash,
+					},
+				};
+				const targetAnimation = {
+					drawerId: targetElementId,
+					key:
+						type === ObservableEventType.Error
+							? AnimationKey.ErrorDrawer
+							: AnimationKey.HighlightDrawer,
+				};
 				// if not equals do not show previous drawer animation otherwise do show it
 				return prevEvent?.targetElementId !== sourceElementId
 					? [
@@ -118,39 +137,10 @@ export const Simulator = () => {
 								drawerId: sourceElementId,
 								key: AnimationKey.HighlightDrawer,
 							},
-							{
-								drawerId: simulatorId,
-								key: AnimationKey.MoveDrawer,
-								data: {
-									sourcePosition,
-									targetPosition,
-								},
-							},
-							{
-								drawerId: targetElementId,
-								key:
-									type === ObservableEventType.Error
-										? AnimationKey.ErrorDrawer
-										: AnimationKey.HighlightDrawer,
-							},
+							resultDrawerAnimation,
+							targetAnimation,
 					  ]
-					: [
-							{
-								drawerId: simulatorId,
-								key: AnimationKey.MoveDrawer,
-								data: {
-									sourcePosition,
-									targetPosition,
-								},
-							},
-							{
-								drawerId: targetElementId,
-								key:
-									type === ObservableEventType.Error
-										? AnimationKey.ErrorDrawer
-										: AnimationKey.HighlightDrawer,
-							},
-					  ];
+					: [resultDrawerAnimation, targetAnimation];
 			})
 			.flat();
 
@@ -173,11 +163,15 @@ export const Simulator = () => {
 		// when current animation drawer is result drawer, show it and move it to right position
 		// otherwise just hide it
 		if (drawerId === simulatorId) {
-			const moveParams = data as MoveAnimation;
+			// TODO find a better way
+			const moveParams = data as MoveAnimation & { hash: string };
 			appDispatch(
 				updateElement({
 					id: simulatorId,
 					visible: true,
+					properties: {
+						hash: moveParams.hash,
+					},
 				}),
 			);
 			appDispatch(

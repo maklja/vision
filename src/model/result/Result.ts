@@ -1,6 +1,9 @@
 import { Element, ElementType } from '../element';
 
-export interface Result extends Element {
-	type: ElementType.Result;
+export interface ResultProperties {
 	hash: string;
+}
+
+export interface Result extends Element<ResultProperties> {
+	type: ElementType.Result;
 }

@@ -33,9 +33,8 @@ export class DefaultPipeOperatorFactory<T = unknown> implements PipeOperatorFact
 
 	private createFilterOperator(el: Element): OperatorFunction<T, unknown> {
 		const filterEl = el as FilterElement;
-		const filterFn = new Function(`return ${filterEl.expression}`);
+		const filterFn = new Function(`return ${filterEl.properties.expression}`);
 
 		return filter<T>(filterFn());
 	}
 }
-

@@ -30,17 +30,17 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory<u
 
 	private createOfCreationOperator(el: Element) {
 		const ofEl = el as OfElement<unknown>;
-		return ofEl.items ? of(...ofEl.items) : of(ofEl.items);
+		const { items } = ofEl.properties;
+		return items ? of(...items) : of(items);
 	}
 
 	private createFromCreationOperator(el: Element) {
 		const fromEl = el as FromElement<unknown>;
-		return from(fromEl.input);
+		return from(fromEl.properties.input);
 	}
 
 	private createIntervalCreationOperator(el: Element) {
 		const intervalEl = el as IntervalElement;
-		return interval(intervalEl.period);
+		return interval(intervalEl.properties.period);
 	}
 }
-

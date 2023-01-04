@@ -7,7 +7,7 @@ import Konva from 'konva';
 import { useAnimation, useAnimationEffect } from '../../animation';
 
 export interface ResultDrawerProps extends DrawerProps {
-	hash?: string;
+	hash: string;
 }
 
 export const ResultDrawer = ({
