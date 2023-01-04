@@ -1,40 +1,36 @@
 import Konva from 'konva';
-import { Animation } from '../animation';
-import { ConnectPointType } from '../model';
+import { Key } from 'react';
+import { DrawerAnimationTemplate } from '../animation';
 import { ThemeContext } from '../theme';
-import { ConnectPointsDrawerEvent } from './connectPoints';
-
-export interface DrawerAnimations {
-	highlight: Animation | null;
-}
 
 export interface DrawerEvent {
 	id: string;
-	animations?: DrawerAnimations;
 	originalEvent?: Konva.KonvaEventObject<MouseEvent>;
 }
 
-export interface DrawerEvents {
+export interface DrawerAnimationEvent {
+	drawerId: string;
+	animationId: string;
+	simulationId?: string;
+}
+
+export interface DrawerAnimationEvents {
+	onAnimationBegin?: (aEvent: DrawerAnimationEvent) => void;
+	onAnimationComplete?: (aEvent: DrawerAnimationEvent) => void;
+	onAnimationDestroy?: (aEvent: DrawerAnimationEvent) => void;
+}
+
+export interface DrawerEvents extends DrawerAnimationEvents {
 	onMouseDown?: (event: DrawerEvent) => void;
 	onMouseOver?: (event: DrawerEvent) => void;
 	onMouseOut?: (event: DrawerEvent) => void;
 	onDragStart?: (event: DrawerEvent) => void;
 	onDragEnd?: (event: DrawerEvent) => void;
 	onDragMove?: (event: DrawerEvent) => void;
-	onAnimationReady?: (event: DrawerEvent) => void;
-	onAnimationDestroy?: (event: DrawerEvent) => void;
 }
 
-export interface DrawerConnectPointsProps {
-	visibleConnectionPoints?: boolean;
-	highlightedConnectPoints?: ConnectPointType[];
-	onConnectPointMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onConnectPointMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onConnectPointMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onConnectPointMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
-}
-
-export interface DrawerProps extends DrawerEvents, DrawerConnectPointsProps {
+export interface DrawerCommonProps {
+	key?: Key;
 	id: string;
 	theme: ThemeContext;
 	x: number;
@@ -42,5 +38,8 @@ export interface DrawerProps extends DrawerEvents, DrawerConnectPointsProps {
 	size: number;
 	highlight?: boolean;
 	select?: boolean;
+	visible?: boolean;
+	animation?: DrawerAnimationTemplate | null;
 }
 
+export interface DrawerProps extends DrawerCommonProps, DrawerEvents {}

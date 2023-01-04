@@ -21,6 +21,8 @@ export interface ElementDrawerTheme {
 	highlightText: ElementDrawerTextStyle;
 	selectElement: ElementDrawerStyle;
 	selectText: ElementDrawerTextStyle;
+	errorElement: ElementDrawerStyle;
+	errorText: ElementDrawerTextStyle;
 }
 
 export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme => {
@@ -56,6 +58,14 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 		selectText: {
 			...textDefault,
 			stroke: themeColors.textColor,
+		},
+		errorElement: {
+			...elementDefault,
+			fill: themeColors.errorPrimaryColor,
+			stroke: themeColors.errorSecondaryColor,
+		},
+		errorText: {
+			...textDefault,
 		},
 	};
 };

@@ -4,6 +4,8 @@ export enum ElementType {
 	Interval = 'interval',
 	Filter = 'filter',
 	Subscriber = 'subscriber',
+	CatchError = 'catchError',
+	Result = 'result',
 }
 
 export const creationOperators: readonly ElementType[] = [
@@ -14,7 +16,9 @@ export const creationOperators: readonly ElementType[] = [
 
 export const filterOperators: readonly ElementType[] = [ElementType.Filter];
 
-export const pipeOperators: readonly ElementType[] = [...filterOperators];
+export const errorHandlerOperators: readonly ElementType[] = [ElementType.CatchError];
+
+export const pipeOperators: readonly ElementType[] = [...filterOperators, ...errorHandlerOperators];
 
 export const subscriberOperators: readonly ElementType[] = [ElementType.Subscriber];
 
@@ -24,3 +28,4 @@ export const isPipeOperatorType = (type: ElementType) => pipeOperators.includes(
 
 export const isSubscriberType = (type: ElementType) => type === ElementType.Subscriber;
 
+export const isErrorHandlerType = (type: ElementType) => errorHandlerOperators.includes(type);

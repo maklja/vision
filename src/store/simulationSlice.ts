@@ -16,11 +16,21 @@ export interface CompleteSimulationAction {
 	};
 }
 
+export enum ObservableEventType {
+	Next = 'next',
+	Error = 'error',
+	Complete = 'complete',
+}
+
 export interface ObservableEvent {
 	id: string;
-	value: unknown;
+	type: ObservableEventType;
+	value?: unknown;
+	error?: unknown;
 	hash: string;
 	connectLineId: string;
+	sourceElementId: string;
+	targetElementId: string;
 }
 
 export interface Simulation {
@@ -43,14 +53,30 @@ export const simulationsSlice = createSlice({
 			action: AddNextObservableEventAction,
 		) => {
 			const { id, nextEvent } = action.payload;
-			slice.entities[id]?.events.push(nextEvent);
+			const simulation = slice.entities[id];
+			if (!simulation) {
+				return;
+			}
+
+			return simulationAdapter.updateOne(slice, {
+				id,
+				changes: {
+					events: [...simulation.events, nextEvent],
+				},
+			});
 		},
 		completeSimulation: (slice: EntityState<Simulation>, action: CompleteSimulationAction) => {
 			const { id } = action.payload;
 			const simulation = slice.entities[id];
-			if (simulation) {
-				simulation.completed = true;
+			if (!simulation) {
+				return;
 			}
+			return simulationAdapter.updateOne(slice, {
+				id,
+				changes: {
+					completed: true,
+				},
+			});
 		},
 	},
 });
@@ -64,4 +90,3 @@ const simulationsSelector = simulationAdapter.getSelectors<RootState>((state) =>
 
 export const selectSimulationById = (id: string) => (state: RootState) =>
 	simulationsSelector.selectById(state, id) ?? null;
-

@@ -30,6 +30,7 @@ export const createThemeContext = (): ThemeContext => {
 export interface DrawerThemeState {
 	highlight?: boolean;
 	select?: boolean;
+	error?: boolean;
 }
 
 export const useConnectPointTheme = (state: DrawerThemeState, theme: ThemeContext) => {
@@ -43,6 +44,13 @@ export const useConnectPointTheme = (state: DrawerThemeState, theme: ThemeContex
 
 export const useElementDrawerTheme = (state: DrawerThemeState, theme: ThemeContext) => {
 	const { drawer } = theme;
+
+	// if (state.error) {
+	// 	return {
+	// 		element: drawer.errorElement,
+	// 		text: drawer.errorText,
+	// 	};
+	// }
 
 	if (state.select) {
 		return {

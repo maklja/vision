@@ -7,13 +7,14 @@ export interface ConnectLineDrawerProps {
 	id: string;
 	points: Point[];
 	theme: ThemeContext;
+	visible?: boolean;
 }
 
-export const ConnectLineDrawer = ({ points, theme }: ConnectLineDrawerProps) => {
+export const ConnectLineDrawer = ({ points, theme, visible = true }: ConnectLineDrawerProps) => {
 	const drawAnArrow = points.length > 3;
 
 	return (
-		<Group>
+		<Group visible={visible}>
 			<Line
 				{...theme.connectLine.line}
 				perfectDrawEnabled={false}
@@ -23,4 +24,3 @@ export const ConnectLineDrawer = ({ points, theme }: ConnectLineDrawerProps) => 
 		</Group>
 	);
 };
-

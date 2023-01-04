@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Konva from 'konva';
 import { Circle, Group, Text } from 'react-konva';
-import { DrawerAnimations, DrawerProps } from '../DrawerProps';
-import { Animation } from '../../animation';
-import { ConnectPointsDrawer } from '../connectPoints';
-import { useHighlightDrawerAnimation } from '../animation';
+import { DrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme, useSizes } from '../../theme';
+import { useAnimationEffect, useAnimationGroups } from '../../animation';
 
 export interface CreationOperatorDrawerProps extends DrawerProps {
 	title: string;
@@ -18,10 +16,10 @@ export const CreationOperatorDrawer = ({
 	size,
 	highlight,
 	select,
+	visible = true,
 	id,
 	theme,
-	visibleConnectionPoints,
-	highlightedConnectPoints,
+	animation,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
@@ -29,11 +27,8 @@ export const CreationOperatorDrawer = ({
 	onDragStart,
 	onDragEnd,
 	onAnimationDestroy,
-	onAnimationReady,
-	onConnectPointMouseDown,
-	onConnectPointMouseOut,
-	onConnectPointMouseOver,
-	onConnectPointMouseUp,
+	onAnimationBegin,
+	onAnimationComplete,
 }: CreationOperatorDrawerProps) => {
 	const drawerStyle = useElementDrawerTheme(
 		{
@@ -45,100 +40,70 @@ export const CreationOperatorDrawer = ({
 	const { drawerSizes, fontSizes } = useSizes(theme, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
-
-	const highlightAnimation = useHighlightDrawerAnimation(mainShapeRef, mainTextRef, theme);
-
-	// const iconFontSize = fromSize(DRAWER_DEFAULT.iconFontSize, size);
-	// const iconX = radius + -1 * radius * Math.sin(-45) - (iconTextRef?.textWidth ?? 0) / 2;
-	// const iconY = radius + radius * Math.cos(-45) - (iconTextRef?.textHeight ?? 0) / 2;
+	const drawerAnimation = useAnimationGroups(animation, [
+		{
+			node: mainShapeRef,
+			mapper: (a) => ({
+				config: a.mainShape,
+			}),
+		},
+		{
+			node: mainTextRef,
+			mapper: (a) => ({
+				config: a.text,
+			}),
+		},
+	]);
 
 	const textX = drawerSizes.radius + (mainTextRef?.textWidth ?? 0) / -2;
 	const textY = drawerSizes.radius + (mainTextRef?.textHeight ?? 0) / -2;
-
-	const createAnimation = (): DrawerAnimations => ({
-		highlight: highlightAnimation,
-	});
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
 			id,
 			originalEvent: e,
-			animations: createAnimation(),
 		});
 
 	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOut?.({
 			id,
 			originalEvent: e,
-			animations: createAnimation(),
 		});
 
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseDown?.({
 			id,
 			originalEvent: e,
-			animations: createAnimation(),
 		});
 
 	const handleDragMove = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onDragMove?.({
 			id,
 			originalEvent: e,
-			animations: createAnimation(),
 		});
 
 	const handleDragStart = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onDragStart?.({
 			id,
 			originalEvent: e,
-			animations: createAnimation(),
 		});
 
 	const handleDragEnd = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onDragEnd?.({
 			id,
 			originalEvent: e,
-			animations: createAnimation(),
 		});
 
-	useEffect(() => {
-		if (!highlightAnimation) {
-			return;
-		}
-
-		const animations: DrawerAnimations = createAnimation();
-		onAnimationReady?.({
-			id,
-			animations,
-		});
-
-		return () => {
-			Object.values(animations).forEach((a: Animation) => a.destroy());
-			onAnimationDestroy?.({
-				id,
-			});
-		};
-	}, [highlightAnimation]);
+	useAnimationEffect(drawerAnimation, {
+		onAnimationBegin,
+		onAnimationComplete,
+		onAnimationDestroy,
+		drawerId: id,
+		simulationId: animation?.simulationId,
+	});
 
 	return (
-		<Group visible={Boolean(mainTextRef && mainShapeRef)}>
-			{visibleConnectionPoints ? (
-				<ConnectPointsDrawer
-					id={id}
-					x={x + drawerSizes.radius / 2}
-					y={y + drawerSizes.radius / 2}
-					width={drawerSizes.radius}
-					height={drawerSizes.radius}
-					theme={theme}
-					offset={32}
-					onMouseDown={onConnectPointMouseDown}
-					onMouseUp={onConnectPointMouseUp}
-					onMouseOut={onConnectPointMouseOut}
-					onMouseOver={onConnectPointMouseOver}
-					highlightConnectPoints={highlightedConnectPoints}
-				/>
-			) : null}
-
+		<Group visible={visible && Boolean(mainTextRef && mainShapeRef)}>
 			<Group
 				draggable
 				x={x}
@@ -171,4 +136,3 @@ export const CreationOperatorDrawer = ({
 		</Group>
 	);
 };
-

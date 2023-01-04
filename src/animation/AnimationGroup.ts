@@ -1,36 +1,38 @@
 import { merge, Observable } from 'rxjs';
 import { v1 } from 'uuid';
-import { Animation, AnimationEvent } from './Animation';
+import { AbstractAnimation, Animation, AnimationEvent } from './Animation';
 
-export class AnimationGroup implements Animation {
-	public readonly id = v1();
-
-	constructor(private readonly animations: Animation[]) {}
+export class AnimationGroup extends AbstractAnimation {
+	constructor(private readonly animations: Animation[], public readonly id = v1()) {
+		super();
+	}
 
 	observable(): Observable<AnimationEvent> {
 		return merge(...this.animations.map((a) => a.observable()));
 	}
 
-	async play(): Promise<Animation> {
+	async play(): Promise<void> {
+		this.onAnimationBegin?.(this);
 		await Promise.all(this.animations.map((a) => a.play()));
-		return this;
+		this.onAnimationComplete?.(this);
 	}
 
-	async reverse(): Promise<Animation> {
+	async reverse(): Promise<void> {
+		this.onAnimationBegin?.(this);
 		await Promise.all(this.animations.map((a) => a.reverse()));
-		return this;
+		this.onAnimationComplete?.(this);
 	}
 
-	reset(): void {
-		this.animations.forEach((a) => a.reset());
+	async reset(): Promise<void> {
+		await Promise.all(this.animations.map((a) => a.reset()));
 	}
 
-	finish(): void {
-		this.animations.forEach((a) => a.finish());
+	async finish(): Promise<void> {
+		await Promise.all(this.animations.map((a) => a.finish()));
 	}
 
 	destroy(): void {
 		this.animations.forEach((a) => a.destroy());
+		this.onAnimationDestroy?.(this);
 	}
 }
-

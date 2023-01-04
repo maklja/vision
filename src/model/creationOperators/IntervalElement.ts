@@ -1,7 +1,9 @@
 import { Element, ElementType } from '../element';
 
-export interface IntervalElement extends Element {
+export interface IntervalElementProperties {
 	period: number;
-	type: ElementType.Interval;
 }
 
+export interface IntervalElement extends Element<IntervalElementProperties> {
+	type: ElementType.Interval;
+}
