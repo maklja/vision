@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { useState } from 'react';
 import { Circle } from 'react-konva';
-import { DrawerAnimationTemplate, useAnimation, useAnimationEffect } from '../../animation';
+import { DrawerAnimationTemplate, useAnimation } from '../../animation';
 import { ConnectPointType } from '../../model';
 import { ThemeContext, useConnectPointTheme } from '../../theme';
 import { DrawerAnimationEvents } from '../DrawerProps';
@@ -47,9 +47,17 @@ export const ConnectPointDrawer = ({
 }: ConnectPointDrawerProps) => {
 	const connectPointElementTheme = useConnectPointTheme({ highlight }, theme);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
-	const mainShapeAnimation = useAnimation(mainShapeRef, animation, (a) => ({
-		config: a.mainShape,
-	}));
+
+	useAnimation(mainShapeRef, {
+		animationTemplate: animation,
+		mapper: (a) => ({
+			config: a.mainShape,
+		}),
+		onAnimationBegin,
+		onAnimationComplete,
+		onAnimationDestroy,
+		drawerId: id,
+	});
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
@@ -70,14 +78,6 @@ export const ConnectPointDrawer = ({
 		e.cancelBubble = true;
 		onMouseUp?.({ id, type, x, y, animation, originalEvent: e });
 	};
-
-	useAnimationEffect(mainShapeAnimation, {
-		onAnimationBegin,
-		onAnimationComplete,
-		onAnimationDestroy,
-		simulationId: animation?.simulationId,
-		drawerId: id,
-	});
 
 	return (
 		<Circle

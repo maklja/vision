@@ -3,7 +3,7 @@ import Konva from 'konva';
 import { Circle, Group, Text } from 'react-konva';
 import { DrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme, useSizes } from '../../theme';
-import { useAnimationEffect, useAnimationGroups } from '../../animation';
+import { useAnimationGroups } from '../../animation';
 
 export interface CreationOperatorDrawerProps extends DrawerProps {
 	title: string;
@@ -40,20 +40,26 @@ export const CreationOperatorDrawer = ({
 	const { drawerSizes, fontSizes } = useSizes(theme, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
-	const drawerAnimation = useAnimationGroups(animation, [
-		{
-			node: mainShapeRef,
-			mapper: (a) => ({
-				config: a.mainShape,
-			}),
-		},
-		{
-			node: mainTextRef,
-			mapper: (a) => ({
-				config: a.text,
-			}),
-		},
-	]);
+	useAnimationGroups(animation, {
+		animationFactories: [
+			{
+				node: mainShapeRef,
+				mapper: (a) => ({
+					config: a.mainShape,
+				}),
+			},
+			{
+				node: mainTextRef,
+				mapper: (a) => ({
+					config: a.text,
+				}),
+			},
+		],
+		onAnimationBegin,
+		onAnimationComplete,
+		onAnimationDestroy,
+		drawerId: id,
+	});
 
 	const textX = drawerSizes.radius + (mainTextRef?.textWidth ?? 0) / -2;
 	const textY = drawerSizes.radius + (mainTextRef?.textHeight ?? 0) / -2;
@@ -93,14 +99,6 @@ export const CreationOperatorDrawer = ({
 			id,
 			originalEvent: e,
 		});
-
-	useAnimationEffect(drawerAnimation, {
-		onAnimationBegin,
-		onAnimationComplete,
-		onAnimationDestroy,
-		drawerId: id,
-		simulationId: animation?.simulationId,
-	});
 
 	return (
 		<Group visible={visible && Boolean(mainTextRef && mainShapeRef)}>

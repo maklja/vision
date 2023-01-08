@@ -87,4 +87,3 @@ export const createObservableSimulation = <T = unknown>(
 		subscriberElement: os.subscriberElement,
 	});
 };
-

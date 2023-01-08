@@ -10,7 +10,7 @@ import drawerAnimationsSlice from './drawerAnimationsSlice';
 const rootReducer = combineReducers({
 	stage: stageReducer,
 	simulations: simulationsSliceReducer,
-	dAnimations: drawerAnimationsSlice,
+	drawerAnimations: drawerAnimationsSlice,
 });
 
 export const setupStore = (preloadedState?: PreloadedState<RootState>) => {

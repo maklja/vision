@@ -10,7 +10,6 @@ import {
 import {
 	animationOrchestrator,
 	FLIP_TIMELINE_PATTERNS,
-	REVERSE_SINGLE_TIMELINE_PATTERNS,
 	SINGLE_TIMELINE_PATTERNS,
 } from '../animationOrchestrator';
 
@@ -55,11 +54,7 @@ export class TweenAnimation extends AbstractAnimation {
 			return;
 		}
 
-		if (this.options.autoReverse) {
-			return this.play();
-		}
-
-		const oPromise = animationOrchestrator(this, REVERSE_SINGLE_TIMELINE_PATTERNS);
+		const oPromise = animationOrchestrator(this, [[AnimationEventType.Reset]]);
 		this.onAnimationBegin?.(this);
 		this.animationTween.reverse();
 		await oPromise;
