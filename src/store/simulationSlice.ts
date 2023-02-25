@@ -35,7 +35,8 @@ export interface ObservableEvent {
 	value?: unknown;
 	error?: unknown;
 	hash: string;
-	connectLineId: string;
+	index: number;
+	connectLinesId: string[];
 	sourceElementId: string;
 	targetElementId: string;
 }

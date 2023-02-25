@@ -13,6 +13,7 @@ interface ObservableStruct {
 	subscriberElement: Element | null;
 	pipeElements: Element[];
 	connectLines: ConnectLine[];
+	elements: Map<string, Element>;
 }
 
 interface ElementContext {
@@ -26,9 +27,12 @@ const createObservableExecutable = (creationElement: Element, ctx: ElementContex
 		subscriberElement: null,
 		pipeElements: [],
 		connectLines: [],
+		elements: new Map<string, Element>(),
 	};
 	let currentElement = creationElement;
 	while (currentElement != null) {
+		observableStruct.elements.set(currentElement.id, currentElement);
+
 		const [cl] = ctx.connectLines.get(currentElement.id) ?? [];
 		const nextElement = cl != null ? ctx.elements.get(cl.targetId) : null;
 		if (!nextElement) {
@@ -48,7 +52,7 @@ const createObservableExecutable = (creationElement: Element, ctx: ElementContex
 	return observableStruct;
 };
 
-export const createObservableSimulation = <T = unknown>(
+export const createObservableSimulation = (
 	creationElementId: string,
 	elements: Element[],
 	cls: ConnectLine[],
@@ -85,5 +89,6 @@ export const createObservableSimulation = <T = unknown>(
 		pipeElements: os.pipeElements,
 		connectLines: os.connectLines,
 		subscriberElement: os.subscriberElement,
+		elements: os.elements,
 	});
 };

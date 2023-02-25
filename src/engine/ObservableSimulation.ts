@@ -8,6 +8,7 @@ export interface ObservableSimulationParams {
 	subscriberElement: Element;
 	pipeElements: Element[];
 	connectLines: ConnectLine[];
+	elements: Map<string, Element>;
 }
 
 export class ObservableSimulation {
@@ -15,10 +16,13 @@ export class ObservableSimulation {
 	private readonly simulationSubject = new ReplaySubject<FlowValueEvent<unknown>>(10_000);
 	private readonly observableFactory = new ObservableFactory();
 	private subscription: Unsubscribable | null = null;
+	private eventGeneratorIndex = 0;
 
 	constructor(params: ObservableSimulationParams) {
 		this.observable = this.observableFactory.createObservable(params, {
 			eventObserver: this.simulationSubject,
+			nextEventIndex: () => ++this.eventGeneratorIndex,
+			lastErrorPosition: null,
 		});
 	}
 
@@ -42,4 +46,3 @@ export class ObservableSimulation {
 		this.subscription = null;
 	}
 }
-
