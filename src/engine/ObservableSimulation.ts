@@ -1,15 +1,6 @@
 import { Observable, Observer, ReplaySubject, Unsubscribable } from 'rxjs';
-import { ConnectLine, Element } from '../model';
 import { ObservableFactory } from './factory';
-import { FlowValueEvent } from './context';
-
-export interface ObservableSimulationParams {
-	creationElement: Element;
-	subscriberElement: Element;
-	pipeElements: Element[];
-	connectLines: ConnectLine[];
-	elements: Map<string, Element>;
-}
+import { FlowValueEvent, SimulationModel } from './context';
 
 export class ObservableSimulation {
 	private readonly observable: Observable<unknown>;
@@ -18,7 +9,7 @@ export class ObservableSimulation {
 	private subscription: Unsubscribable | null = null;
 	private eventGeneratorIndex = 0;
 
-	constructor(params: ObservableSimulationParams) {
+	constructor(simModel: SimulationModel) {
 		this.observable = this.observableFactory.createObservable(params, {
 			eventObserver: this.simulationSubject,
 			nextEventIndex: () => ++this.eventGeneratorIndex,
