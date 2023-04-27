@@ -6,4 +6,6 @@ export interface SimulationModel {
 	creationElement: Element;
 	subscriberElement: Element;
 	pipeElements: readonly Element[];
+	connectLinesFlow: readonly string[];
 }
+

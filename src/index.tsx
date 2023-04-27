@@ -70,13 +70,13 @@ const e5: FilterElement = {
 	type: ElementType.Filter,
 	visible: true,
 	properties: {
-		expression: `function(val) {
-			if (val > 5) {
+		expression: `
+			if (value > 5) {
 				throw new Error('Ups');
 			}
 	
-			return val % 2 === 0; 
-		}`,
+			return value % 2 === 0; 
+		`,
 	},
 };
 
@@ -139,3 +139,4 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+

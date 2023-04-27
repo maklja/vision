@@ -33,6 +33,7 @@ const createSimulationModel = (
 	const simElements = new Map<string, Element>();
 	const simConnectLines = new Map<string, ConnectLine>();
 	const simPipeElements: Element<unknown>[] = [];
+	const simConnectLinesFlow: string[] = [];
 	let subscriberElement: Element<unknown> | null = null;
 	let currentElement = creationElement;
 	while (currentElement != null) {
@@ -44,6 +45,7 @@ const createSimulationModel = (
 			break;
 		}
 
+		simConnectLinesFlow.push(cl.id);
 		simConnectLines.set(cl.id, cl);
 
 		if (isPipeOperatorType(nextElement.type)) {
@@ -62,9 +64,10 @@ const createSimulationModel = (
 	return {
 		creationElement,
 		subscriberElement,
+		pipeElements: simPipeElements,
 		elements: simElements,
 		connectLines: simConnectLines,
-		pipeElements: simPipeElements,
+		connectLinesFlow: simConnectLinesFlow,
 	};
 };
 
@@ -75,3 +78,4 @@ export const createObservableSimulation = (
 ) => {
 	return new ObservableSimulation(createSimulationModel(creationElementId, elements, cls));
 };
+

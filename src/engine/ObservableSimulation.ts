@@ -1,20 +1,19 @@
 import { Observable, Observer, ReplaySubject, Unsubscribable } from 'rxjs';
 import { ObservableFactory } from './factory';
 import { FlowValueEvent, SimulationModel } from './context';
+import { DefaultFlowManager } from './factory/DefaultFlowManager';
 
 export class ObservableSimulation {
 	private readonly observable: Observable<unknown>;
 	private readonly simulationSubject = new ReplaySubject<FlowValueEvent<unknown>>(10_000);
-	private readonly observableFactory = new ObservableFactory();
+	private readonly observableFactory;
 	private subscription: Unsubscribable | null = null;
-	private eventGeneratorIndex = 0;
 
 	constructor(simModel: SimulationModel) {
-		this.observable = this.observableFactory.createObservable(params, {
-			eventObserver: this.simulationSubject,
-			nextEventIndex: () => ++this.eventGeneratorIndex,
-			lastErrorPosition: null,
-		});
+		this.observableFactory = new ObservableFactory(
+			new DefaultFlowManager(this.simulationSubject, simModel),
+		);
+		this.observable = this.observableFactory.createObservable(simModel);
 	}
 
 	start(o: Partial<Observer<FlowValueEvent<unknown>>>): Unsubscribable {
@@ -37,3 +36,4 @@ export class ObservableSimulation {
 		this.subscription = null;
 	}
 }
+
