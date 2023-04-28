@@ -4,7 +4,7 @@ import {
 	isPipeOperatorType,
 	pipeOperators,
 	subscriberOperators,
-} from '..';
+} from '../element';
 
 export const calculateConnectPointTypes = (sourceType: ElementType) => {
 	if (isCreationOperatorType(sourceType) || isPipeOperatorType(sourceType)) {
@@ -13,3 +13,4 @@ export const calculateConnectPointTypes = (sourceType: ElementType) => {
 
 	return new Set<string>();
 };
+
