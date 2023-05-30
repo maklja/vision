@@ -1,6 +1,6 @@
 import { v1 as createId } from 'uuid';
 import { Draft } from '@reduxjs/toolkit';
-import { calculateConnectPointTypes, Point } from '../../model';
+import { ElementDescriptor, findElementDescriptor, Point } from '../../model';
 import { StageSlice, StageState } from '../stageSlice';
 
 export interface StartConnectLineDrawAction {
@@ -49,28 +49,48 @@ export const startConnectLineDrawReducer = (
 		return;
 	}
 
-	// each element can be source element only once
-	const isElementSource = connectLines.some((cl) => cl.sourceId === el.id);
-	if (isElementSource) {
+	const {
+		output = { cardinality: 0, allowedTypes: new Set() },
+		event = { cardinality: 0, allowedTypes: new Set() },
+	}: ElementDescriptor = findElementDescriptor(el.type);
+	if (!output && !event) {
+		return;
+	}
+
+	// calculate element cardinality
+	const elementSourceCount = connectLines.reduce(
+		(sourceCount, cl) => (cl.sourceId === el.id ? sourceCount + 1 : sourceCount),
+		0,
+	);
+
+	// has element excited cardinality
+	const elCardinalityExcited = elementSourceCount >= output.cardinality + event.cardinality;
+	if (output.allowedTypes.size === 0 || elCardinalityExcited) {
 		slice.selected = [];
 		return;
 	}
 
-	// all elements that already have a source element
-	const elementsWithSource = connectLines.reduce(
-		(set, cl) => set.add(cl.targetId),
-		new Set<string>(),
-	);
-	// allowed types to connect
-	const allowedTypesToConnect = calculateConnectPointTypes(el.type);
+	// calculate other elements cardinality
+	const elementsCardinality = connectLines.reduce((elMap, cl) => {
+		const cardinality = elMap.get(cl.targetId) ?? 0;
+		return elMap.set(cl.targetId, cardinality + 1);
+	}, new Map<string, number>());
+
+	// leave only element that are allowed to connect and didn't excited cardinality
 	slice.selected = elements
-		.filter(
-			(curEl) =>
-				curEl.id !== sourceId &&
-				allowedTypesToConnect.has(curEl.type) &&
-				!elementsWithSource.has(curEl.id),
-		)
-		.map((curEl) => curEl.id);
+		.filter((curEl) => {
+			const descriptor = findElementDescriptor(curEl.type);
+			if (!descriptor.input?.allowedTypes.has(el.type)) {
+				return false;
+			}
+
+			const cardinalityNoExcited =
+				(elementsCardinality.get(curEl.id) ?? 0) < descriptor.input?.cardinality;
+			const allowedToConnect =
+				output.allowedTypes.has(curEl.type) || event.allowedTypes.has(curEl.type);
+			return cardinalityNoExcited && allowedToConnect;
+		})
+		.map((el) => el.id);
 };
 
 export const moveConnectLineDrawReducer = (

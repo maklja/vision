@@ -1,3 +1,2 @@
-import { Point } from './Point';
+export * from './Point';
 
-export type { Point };
