@@ -36,10 +36,16 @@ export interface DrawerThemeState {
 export const useConnectPointTheme = (state: DrawerThemeState, theme: ThemeContext) => {
 	const { connectPoint } = theme;
 	if (state.highlight) {
-		return connectPoint.highlightElement;
+		return {
+			element: connectPoint.highlightElement,
+			icon: connectPoint.highlightIcon,
+		};
 	}
 
-	return connectPoint.element;
+	return {
+		element: connectPoint.element,
+		icon: connectPoint.icon,
+	};
 };
 
 export const useElementDrawerTheme = (state: DrawerThemeState, theme: ThemeContext) => {

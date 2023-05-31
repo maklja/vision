@@ -27,7 +27,7 @@ const createPositionForCircularOperator = (
 	y: element.y + drawerSizes.radius / 2,
 	width: drawerSizes.radius,
 	height: drawerSizes.radius,
-	offset: 32,
+	offset: 50,
 });
 
 const createPositionForPipeElement = (
@@ -42,7 +42,7 @@ const createPositionForPipeElement = (
 	y: element.y,
 	width: drawerSizes.width,
 	height: drawerSizes.height,
-	offset: 16,
+	offset: 26,
 });
 
 const createPositionForSubscriberElement = (
@@ -57,7 +57,7 @@ const createPositionForSubscriberElement = (
 	y: element.y + drawerSizes.radius / 2,
 	width: drawerSizes.radius,
 	height: drawerSizes.radius,
-	offset: 24,
+	offset: 42,
 });
 
 const creationOperatorConnectPointFactory: ConnectPointsDrawerFactory = (

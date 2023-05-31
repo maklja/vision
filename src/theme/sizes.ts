@@ -17,15 +17,15 @@ export interface SizeConfig {
 
 const defaultSizeConfig: SizeConfig = {
 	drawerSizes: {
-		radius: 35,
-		width: 110,
-		height: 80,
+		radius: 50,
+		width: 125,
+		height: 95,
 	},
 	simulationSizes: {
-		radius: 8,
+		radius: 14,
 	},
 	connectPointSizes: {
-		radius: 8,
+		radius: 16,
 	},
 	fontSizes: {
 		primary: 15,
