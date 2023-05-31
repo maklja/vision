@@ -5,3 +5,5 @@ export * from './connectPoints';
 export * from './subscriber';
 export * from './filterOperators';
 export * from './result';
+export * from './errorHandlingOperators';
+

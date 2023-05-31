@@ -79,6 +79,10 @@ export const startConnectLineDrawReducer = (
 	// leave only element that are allowed to connect and didn't excited cardinality
 	slice.selected = elements
 		.filter((curEl) => {
+			if (curEl.id === el.id) {
+				return false;
+			}
+
 			const descriptor = findElementDescriptor(curEl.type);
 			if (!descriptor.input?.allowedTypes.has(el.type)) {
 				return false;

@@ -17,7 +17,7 @@ export const connectPointTheme = (themeColors: ColorTheme): ConnectPointTheme =>
 		stroke: themeColors.secondaryColor,
 		fill: themeColors.backgroundColor,
 		strokeWidth: 2,
-		radius: 8,
+		radius: 10,
 	};
 
 	return {
