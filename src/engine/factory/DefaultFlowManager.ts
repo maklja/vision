@@ -62,6 +62,7 @@ export class DefaultFlowManager implements FlowManager {
 			targetElementId: lastConnectLine.targetId,
 		});
 	}
+
 	handleFatalError(flowValue: FlowValue, cl: ConnectLine): void {
 		const [errorCl] = this.retrieveFlowValuePath(flowValue.id) ?? [cl];
 		this.eventObserver.error({
