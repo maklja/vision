@@ -1,10 +1,13 @@
 import Konva from 'konva';
 import { useState } from 'react';
-import { Circle } from 'react-konva';
+import { Circle, Group } from 'react-konva';
 import { DrawerAnimationTemplate, useAnimation } from '../../animation';
 import { ConnectPointType } from '../../model';
-import { ThemeContext, useConnectPointTheme } from '../../theme';
+import { ThemeContext, useConnectPointTheme, useSizes } from '../../theme';
 import { DrawerAnimationEvents } from '../DrawerProps';
+import { EventIconDrawer } from './EventIconDrawer';
+import { InputIconDrawer } from './InputIconDrawer';
+import { OutputIconDrawer } from './OutputIconDrawer';
 
 export interface ConnectPointDrawerEvent {
 	id: string;
@@ -46,6 +49,7 @@ export const ConnectPointDrawer = ({
 	onAnimationDestroy,
 }: ConnectPointDrawerProps) => {
 	const connectPointElementTheme = useConnectPointTheme({ highlight }, theme);
+	const { connectPointSizes } = useSizes(theme);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 
 	useAnimation(mainShapeRef, {
@@ -80,15 +84,20 @@ export const ConnectPointDrawer = ({
 	};
 
 	return (
-		<Circle
-			{...connectPointElementTheme}
-			ref={(node) => setMainShapeRef(node)}
-			x={x}
-			y={y}
-			onMouseDown={handleMouseDown}
-			onMouseUp={handleMouseUp}
-			onMouseOver={handleMouseOver}
-			onMouseOut={handleMouseOut}
-		/>
+		<Group x={x} y={y} visible={Boolean(mainShapeRef)}>
+			<Circle
+				{...connectPointElementTheme.element}
+				radius={connectPointSizes.radius}
+				ref={(node) => setMainShapeRef(node)}
+				onMouseDown={handleMouseDown}
+				onMouseUp={handleMouseUp}
+				onMouseOver={handleMouseOver}
+				onMouseOut={handleMouseOut}
+			/>
+			<InputIconDrawer theme={theme} highlight={highlight} />
+			{/* <EventIconDrawer theme={theme} highlight={highlight} /> */}
+			{/* <OutputIconDrawer theme={theme} highlight={highlight} /> */}
+		</Group>
 	);
 };
+

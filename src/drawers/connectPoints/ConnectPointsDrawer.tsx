@@ -1,4 +1,4 @@
-import { Group } from 'react-konva';
+import { Group, Line } from 'react-konva';
 import { DrawerAnimationTemplate } from '../../animation';
 import { ConnectPointType } from '../../model';
 import { ThemeContext } from '../../theme';
@@ -62,17 +62,20 @@ export const ConnectPointsDrawer = ({
 	onAnimationComplete,
 	onAnimationDestroy,
 }: ConnectPointsDrawerProps) => {
-	const topX = x + width / 2;
+	const centerX = x + width / 2;
+	const centerY = y + height / 2;
+
+	const topX = centerX;
 	const topY = y - offset;
 
 	const rightX = x + width + offset;
-	const rightY = y + height / 2;
+	const rightY = centerY;
 
-	const bottomX = x + width / 2;
+	const bottomX = centerX;
 	const bottomY = y + height + offset;
 
 	const leftX = x - offset;
-	const leftY = y + height / 2;
+	const leftY = centerY;
 
 	const handleOnMouseDown = (cEvent: ConnectPointDrawerEvent) => {
 		onMouseDown?.({
@@ -110,6 +113,13 @@ export const ConnectPointsDrawer = ({
 	return (
 		<Group>
 			{top && (
+				<Line
+					{...theme.connectLine.line}
+					points={[topX, topY, centerX, centerY]}
+					perfectDrawEnabled={false}
+				></Line>
+			)}
+			{top && (
 				<ConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointType.Top)}
 					type={ConnectPointType.Top}
@@ -126,6 +136,14 @@ export const ConnectPointsDrawer = ({
 					highlight={highlightedConnectPoints?.includes(ConnectPointType.Top)}
 					animation={connectPointAnimations?.[ConnectPointType.Top]}
 				/>
+			)}
+
+			{right && (
+				<Line
+					{...theme.connectLine.line}
+					points={[rightX, rightY, centerX, centerY]}
+					perfectDrawEnabled={false}
+				></Line>
 			)}
 
 			{right && (
@@ -148,6 +166,14 @@ export const ConnectPointsDrawer = ({
 			)}
 
 			{bottom && (
+				<Line
+					{...theme.connectLine.line}
+					points={[bottomX, bottomY, centerX, centerY]}
+					perfectDrawEnabled={false}
+				></Line>
+			)}
+
+			{bottom && (
 				<ConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointType.Bottom)}
 					type={ConnectPointType.Bottom}
@@ -164,6 +190,14 @@ export const ConnectPointsDrawer = ({
 					highlight={highlightedConnectPoints?.includes(ConnectPointType.Bottom)}
 					animation={connectPointAnimations?.[ConnectPointType.Bottom]}
 				/>
+			)}
+
+			{left && (
+				<Line
+					{...theme.connectLine.line}
+					points={[leftX, leftY, centerX, centerY]}
+					perfectDrawEnabled={false}
+				></Line>
 			)}
 
 			{left && (
