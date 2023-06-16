@@ -2,16 +2,36 @@ import Konva from 'konva';
 import { useState } from 'react';
 import { Circle, Group } from 'react-konva';
 import { DrawerAnimationTemplate, useAnimation } from '../../animation';
-import { ConnectPointType } from '../../model';
+import { ConnectPointPosition, ConnectPointType } from '../../model';
 import { ThemeContext, useConnectPointTheme, useSizes } from '../../theme';
 import { DrawerAnimationEvents } from '../DrawerProps';
 import { EventIconDrawer } from './EventIconDrawer';
 import { InputIconDrawer } from './InputIconDrawer';
 import { OutputIconDrawer } from './OutputIconDrawer';
 
+interface ConnectPointIconDrawerProps {
+	type: ConnectPointType;
+	theme: ThemeContext;
+	highlight?: boolean;
+}
+
+const ConnectPointIconDrawer = ({ type, theme, highlight }: ConnectPointIconDrawerProps) => {
+	switch (type) {
+		case ConnectPointType.Input:
+			return <InputIconDrawer theme={theme} highlight={highlight} />;
+		case ConnectPointType.Output:
+			return <OutputIconDrawer theme={theme} highlight={highlight} />;
+		case ConnectPointType.Event:
+			return <EventIconDrawer theme={theme} highlight={highlight} />;
+		default:
+			return null;
+	}
+};
+
 export interface ConnectPointDrawerEvent {
 	id: string;
 	type: ConnectPointType;
+	position: ConnectPointPosition;
 	x: number;
 	y: number;
 	originalEvent: Konva.KonvaEventObject<MouseEvent>;
@@ -21,6 +41,7 @@ export interface ConnectPointDrawerEvent {
 export interface ConnectPointDrawerProps extends DrawerAnimationEvents {
 	id: string;
 	type: ConnectPointType;
+	position: ConnectPointPosition;
 	x: number;
 	y: number;
 	theme: ThemeContext;
@@ -35,6 +56,7 @@ export interface ConnectPointDrawerProps extends DrawerAnimationEvents {
 export const ConnectPointDrawer = ({
 	id,
 	type,
+	position,
 	x,
 	y,
 	highlight,
@@ -65,22 +87,22 @@ export const ConnectPointDrawer = ({
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseOver?.({ id, type, x, y, animation, originalEvent: e });
+		onMouseOver?.({ id, type, position, x, y, animation, originalEvent: e });
 	};
 
 	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseOut?.({ id, type, x, y, animation, originalEvent: e });
+		onMouseOut?.({ id, type, position, x, y, animation, originalEvent: e });
 	};
 
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseDown?.({ id, type, x, y, animation, originalEvent: e });
+		onMouseDown?.({ id, type, position, x, y, animation, originalEvent: e });
 	};
 
 	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseUp?.({ id, type, x, y, animation, originalEvent: e });
+		onMouseUp?.({ id, type, position, x, y, animation, originalEvent: e });
 	};
 
 	return (
@@ -94,9 +116,8 @@ export const ConnectPointDrawer = ({
 				onMouseOver={handleMouseOver}
 				onMouseOut={handleMouseOut}
 			/>
-			<InputIconDrawer theme={theme} highlight={highlight} />
-			{/* <EventIconDrawer theme={theme} highlight={highlight} /> */}
-			{/* <OutputIconDrawer theme={theme} highlight={highlight} /> */}
+
+			<ConnectPointIconDrawer type={type} theme={theme} highlight={highlight} />
 		</Group>
 	);
 };

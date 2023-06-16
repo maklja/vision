@@ -1,6 +1,6 @@
 import { DrawerAnimationTemplate, animationRegistry } from '../../animation';
 import { ConnectPointAnimations, createConnectPointDrawerId } from '../../drawers';
-import { ConnectPointType, Element } from '../../model';
+import { ConnectPointPosition, Element } from '../../model';
 import { DrawerAnimation, selectDrawerAnimationById } from '../../store/drawerAnimationsSlice';
 import { useAppSelector } from '../../store/rootState';
 import { selectHighlightedConnectPointsByElementId, useThemeContext } from '../../store/stageSlice';
@@ -27,10 +27,10 @@ const retrieveConnectPointAnimation = (
 	drawerId: string,
 	theme: ThemeContext,
 ): ConnectPointAnimations => {
-	const leftAnimationId = createConnectPointDrawerId(drawerId, ConnectPointType.Left);
-	const rightAnimationId = createConnectPointDrawerId(drawerId, ConnectPointType.Right);
-	const topAnimationId = createConnectPointDrawerId(drawerId, ConnectPointType.Top);
-	const bottomAnimationId = createConnectPointDrawerId(drawerId, ConnectPointType.Bottom);
+	const leftAnimationId = createConnectPointDrawerId(drawerId, ConnectPointPosition.Left);
+	const rightAnimationId = createConnectPointDrawerId(drawerId, ConnectPointPosition.Right);
+	const topAnimationId = createConnectPointDrawerId(drawerId, ConnectPointPosition.Top);
+	const bottomAnimationId = createConnectPointDrawerId(drawerId, ConnectPointPosition.Bottom);
 
 	const leftAnimation = useAppSelector(selectDrawerAnimationById(leftAnimationId));
 	const rightAnimation = useAppSelector(selectDrawerAnimationById(rightAnimationId));
@@ -38,10 +38,10 @@ const retrieveConnectPointAnimation = (
 	const bottomAnimation = useAppSelector(selectDrawerAnimationById(bottomAnimationId));
 
 	return {
-		[ConnectPointType.Left]: createAnimationConfig(leftAnimation, theme),
-		[ConnectPointType.Right]: createAnimationConfig(rightAnimation, theme),
-		[ConnectPointType.Top]: createAnimationConfig(topAnimation, theme),
-		[ConnectPointType.Bottom]: createAnimationConfig(bottomAnimation, theme),
+		[ConnectPointPosition.Left]: createAnimationConfig(leftAnimation, theme),
+		[ConnectPointPosition.Right]: createAnimationConfig(rightAnimation, theme),
+		[ConnectPointPosition.Top]: createAnimationConfig(topAnimation, theme),
+		[ConnectPointPosition.Bottom]: createAnimationConfig(bottomAnimation, theme),
 	};
 };
 
@@ -54,7 +54,7 @@ export const ElementConnectPointsDrawer = ({ element }: ElementConnectPointsDraw
 	const connectPointsHandlers = useConnectPointHandlers();
 	const highlightedConnectPoints = useAppSelector(
 		selectHighlightedConnectPointsByElementId(element.id),
-	).map((cp) => cp.type);
+	).map((cp) => cp.position);
 	const connectPointDrawerFactory = findConnectPointsDrawerFactory(element.type);
 
 	return connectPointDrawerFactory

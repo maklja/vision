@@ -28,6 +28,7 @@ export const connectPointSelectStateHandlers = (
 			highlightConnectPoints([
 				{
 					elementId: id,
+					position: connectPoint.position,
 					type: connectPoint.type,
 				},
 			]),
@@ -38,3 +39,4 @@ export const connectPointSelectStateHandlers = (
 		dispatch(highlightConnectPoints([]));
 	},
 });
+

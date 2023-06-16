@@ -1,5 +1,6 @@
 import { ConnectPointsDrawerProps, ConnectPointsDrawer } from '../../drawers';
 import {
+	ConnectPointType,
 	Element,
 	ElementType,
 	creationOperators,
@@ -60,31 +61,43 @@ const createPositionForSubscriberElement = (
 	offset: 42,
 });
 
+const createPropsByElementDescriptor = (elType: ElementType) => {
+	const { input, event, output } = findElementDescriptor(elType);
+
+	const inputVisible = Boolean(input?.cardinality);
+	const outputVisible = Boolean(output?.cardinality);
+	const eventsVisible = Boolean(event?.cardinality);
+	return {
+		visibleConnectPoints: {
+			left: inputVisible,
+			right: outputVisible,
+			bottom: eventsVisible,
+			top: eventsVisible,
+		},
+		connectionPointTypes: {
+			left: inputVisible ? ConnectPointType.Input : null,
+			right: outputVisible ? ConnectPointType.Output : null,
+			top: eventsVisible ? ConnectPointType.Event : null,
+			bottom: eventsVisible ? ConnectPointType.Event : null,
+		},
+	};
+};
+
 const creationOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
 	props: ConnectPointsDrawerProps,
 	el: Element,
 	sizeConfig: SizeConfig,
 ) => {
 	const position = createPositionForCircularOperator(el, sizeConfig.drawerSizes);
-	const { input, event, output } = findElementDescriptor(el.type);
-
-	const inputVisible = Boolean(input?.cardinality);
-	const outputVisible = Boolean(output?.cardinality);
-	const eventsVisible = Boolean(event?.cardinality);
 	return (
 		<ConnectPointsDrawer
 			{...props}
+			{...createPropsByElementDescriptor(el.type)}
 			x={position.x}
 			y={position.y}
 			width={position.width}
 			height={position.height}
 			offset={position.offset}
-			visibleConnectPoints={{
-				left: inputVisible,
-				right: outputVisible,
-				bottom: eventsVisible,
-				top: eventsVisible,
-			}}
 		/>
 	);
 };
@@ -95,25 +108,15 @@ const pipeOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
 	sizeConfig: SizeConfig,
 ) => {
 	const position = createPositionForPipeElement(el, sizeConfig.drawerSizes);
-	const { input, event, output } = findElementDescriptor(el.type);
-
-	const inputVisible = Boolean(input?.cardinality);
-	const outputVisible = Boolean(output?.cardinality);
-	const eventsVisible = Boolean(event?.cardinality);
 	return (
 		<ConnectPointsDrawer
 			{...props}
+			{...createPropsByElementDescriptor(el.type)}
 			x={position.x}
 			y={position.y}
 			width={position.width}
 			height={position.height}
 			offset={position.offset}
-			visibleConnectPoints={{
-				left: inputVisible,
-				right: outputVisible,
-				bottom: eventsVisible,
-				top: eventsVisible,
-			}}
 		/>
 	);
 };
@@ -124,25 +127,15 @@ const subscriberOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
 	sizeConfig: SizeConfig,
 ) => {
 	const position = createPositionForSubscriberElement(el, sizeConfig.drawerSizes);
-	const { input, event, output } = findElementDescriptor(el.type);
-
-	const inputVisible = Boolean(input?.cardinality);
-	const outputVisible = Boolean(output?.cardinality);
-	const eventsVisible = Boolean(event?.cardinality);
 	return (
 		<ConnectPointsDrawer
 			{...props}
+			{...createPropsByElementDescriptor(el.type)}
 			x={position.x}
 			y={position.y}
 			width={position.width}
 			height={position.height}
 			offset={position.offset}
-			visibleConnectPoints={{
-				left: inputVisible,
-				right: outputVisible,
-				bottom: eventsVisible,
-				top: eventsVisible,
-			}}
 		/>
 	);
 };
