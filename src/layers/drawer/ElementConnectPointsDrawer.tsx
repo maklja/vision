@@ -3,7 +3,11 @@ import { ConnectPointAnimations, createConnectPointDrawerId } from '../../drawer
 import { ConnectPointPosition, Element } from '../../model';
 import { DrawerAnimation, selectDrawerAnimationById } from '../../store/drawerAnimationsSlice';
 import { useAppSelector } from '../../store/rootState';
-import { selectHighlightedConnectPointsByElementId, useThemeContext } from '../../store/stageSlice';
+import {
+	selectElementSelection,
+	selectHighlightedConnectPointsByElementId,
+	useThemeContext,
+} from '../../store/stageSlice';
 import { ThemeContext, useSizes } from '../../theme';
 import { findConnectPointsDrawerFactory } from './createConnectPointsDrawer';
 import { useConnectPointHandlers } from './state';
@@ -55,20 +59,26 @@ export const ElementConnectPointsDrawer = ({ element }: ElementConnectPointsDraw
 	const highlightedConnectPoints = useAppSelector(
 		selectHighlightedConnectPointsByElementId(element.id),
 	).map((cp) => cp.position);
+	const elSelection = useAppSelector(selectElementSelection(element.id));
 	const connectPointDrawerFactory = findConnectPointsDrawerFactory(element.type);
+	const sizeConfig = useSizes(theme, element.size);
+	const connectPointAnimations = retrieveConnectPointAnimation(element.id, theme);
 
-	return connectPointDrawerFactory
-		? connectPointDrawerFactory(
-				{
-					...connectPointsHandlers,
-					id: element.id,
-					theme: theme,
-					connectPointAnimations: retrieveConnectPointAnimation(element.id, theme),
-					highlightedConnectPoints,
-				},
-				element,
-				useSizes(theme, element.size),
-		  )
-		: null;
+	if (!elSelection || !connectPointDrawerFactory) {
+		return null;
+	}
+
+	return connectPointDrawerFactory(
+		{
+			...connectPointsHandlers,
+			id: element.id,
+			theme,
+			connectPointAnimations,
+			highlightedConnectPoints,
+		},
+		element,
+		sizeConfig,
+		elSelection.visibleConnectPoints,
+	);
 };
 

@@ -1,5 +1,12 @@
 import { createSlice, Draft } from '@reduxjs/toolkit';
-import { ConnectLine, ConnectPoint, Element, Point } from '../model';
+import {
+	ConnectLine,
+	ConnectPoint,
+	ConnectPointTypeVisibility,
+	Element,
+	Point,
+	ConnectedElement,
+} from '../model';
 import { createThemeContext, ThemeContext } from '../theme';
 import {
 	startConnectLineDrawReducer,
@@ -15,9 +22,14 @@ export * from './hooks/theme';
 
 export interface DraftConnectLine {
 	id: string;
-	sourceId: string;
+	source: ConnectedElement;
 	points: Point[];
 	locked: boolean;
+}
+
+export interface SelectedElement {
+	id: string;
+	visibleConnectPoints: ConnectPointTypeVisibility;
 }
 
 export enum StageState {
@@ -30,7 +42,7 @@ export interface StageSlice {
 	elements: Element[];
 	connectLines: ConnectLine[];
 	highlightedConnectPoints: ConnectPoint[];
-	selected: string[];
+	selected: SelectedElement[];
 	highlighted: string[];
 	theme: ThemeContext;
 	state: StageState;
@@ -66,7 +78,7 @@ export interface UpdateElementAction<P = unknown> {
 
 export interface SelectElementsAction {
 	type: string;
-	payload: string[];
+	payload: SelectedElement[];
 }
 
 export interface HighlightElementsAction {
@@ -170,7 +182,7 @@ export const stageSlice = createSlice({
 			};
 
 			state.connectLines.forEach((cl) => {
-				if (cl.sourceId === drawer.id) {
+				if (cl.source.id === drawer.id) {
 					const [p0, p1] = cl.points;
 					p0.x += dx;
 					p0.y += dy;
@@ -178,7 +190,7 @@ export const stageSlice = createSlice({
 					p1.y += dy;
 				}
 
-				if (cl.targetId === drawer.id) {
+				if (cl.target.id === drawer.id) {
 					const [p0, p1] = cl.points.slice(-2);
 					p0.x += dx;
 					p0.y += dy;
@@ -228,7 +240,11 @@ export const selectHighlightedConnectPointsByElementId =
 		state.stage.highlightedConnectPoints.filter((cp) => cp.elementId === elementId);
 
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
-	state.stage.selected.some((currentElementId) => currentElementId === elementId);
+	state.stage.selected.some(({ id }) => id === elementId);
+
+export const selectElementSelection = (elementId: string) => (state: RootState) =>
+	state.stage.selected.find(({ id }) => id === elementId) ?? null;
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
+

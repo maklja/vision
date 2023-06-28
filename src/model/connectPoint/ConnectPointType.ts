@@ -4,3 +4,7 @@ export enum ConnectPointType {
 	Event = 'event',
 }
 
+export type ConnectPointTypeVisibility = {
+	[key in ConnectPointType]?: boolean;
+};
+

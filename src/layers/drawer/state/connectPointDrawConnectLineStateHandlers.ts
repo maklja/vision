@@ -12,8 +12,15 @@ export const connectPointDrawConnectLineStateHandlers = (
 	dispatch: AppDispatch,
 ): ConnectPointsDrawerEvents => ({
 	onMouseUp: (cEvent: ConnectPointsDrawerEvent) => {
-		const { id, element } = cEvent;
-		dispatch(linkConnectLineDraw({ targetId: id, targetPoint: element.center }));
+		const { id, element, connectPoint } = cEvent;
+		dispatch(
+			linkConnectLineDraw({
+				targetId: id,
+				targetPoint: element.center,
+				targetConnectPointType: connectPoint.type,
+				targetConnectPointPosition: connectPoint.position,
+			}),
+		);
 	},
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent) => {
 		const { connectPoint, id } = cEvent;
@@ -59,3 +66,4 @@ export const connectPointDrawConnectLineStateHandlers = (
 		);
 	},
 });
+

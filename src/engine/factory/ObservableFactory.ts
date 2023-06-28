@@ -22,8 +22,8 @@ export class ObservableFactory {
 		const { creationElement, connectLines, pipeElements, subscriberElement } = simulationModel;
 
 		const connectLinesPipes = Array.from(connectLines.values()).reduce((map, cl) => {
-			const cls = map.get(cl.sourceId) ?? [];
-			return map.set(cl.sourceId, [...cls, cl]);
+			const cls = map.get(cl.source.id) ?? [];
+			return map.set(cl.source.id, [...cls, cl]);
 		}, new Map<string, ConnectLine[]>());
 
 		const flowElements = [creationElement, ...pipeElements, subscriberElement];

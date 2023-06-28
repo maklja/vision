@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -11,7 +10,6 @@ import {
 	FromElement,
 	OfElement,
 	Element,
-	ConnectLine,
 	IntervalElement,
 	CatchErrorElement,
 } from './model';
@@ -100,19 +98,6 @@ const e2: Element = {
 	properties: {},
 };
 
-const cl1: ConnectLine = {
-	id: 'test',
-	locked: false,
-	points: [
-		{ x: 90, y: 90 },
-		{ x: 143, y: 90 },
-		{ x: 187, y: 165 },
-		{ x: 240, y: 165 },
-	],
-	sourceId: 'ofElement',
-	targetId: 'filterElement',
-};
-
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
 	// <React.StrictMode>
@@ -120,7 +105,7 @@ root.render(
 		store={setupStore({
 			stage: {
 				elements: [e1, e2, e3, e4, e5, i1, ce1],
-				connectLines: [cl1],
+				connectLines: [],
 				draftConnectLine: null,
 				highlighted: [],
 				highlightedConnectPoints: [],

@@ -18,7 +18,7 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 		if (e.originalEvent) {
 			e.originalEvent.cancelBubble = true;
 		}
-		dispatch(selectElements([e.id]));
+		dispatch(selectElements([{ id: e.id, visibleConnectPoints: { input: false } }]));
 	},
 	onMouseOver: (e: DrawerEvent) => {
 		const { id, originalEvent } = e;
@@ -76,3 +76,4 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 		);
 	},
 });
+

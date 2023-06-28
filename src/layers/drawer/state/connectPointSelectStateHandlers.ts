@@ -12,6 +12,8 @@ export const connectPointSelectStateHandlers = (
 		dispatch(
 			startConnectLineDraw({
 				sourceId: id,
+				type: connectPoint.type,
+				position: connectPoint.position,
 				points: [
 					{ ...element.center },
 					{ x: connectPoint.x, y: connectPoint.y },

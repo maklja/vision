@@ -26,8 +26,8 @@ const createSimulationModel = (
 	}
 
 	const connectLinePath = cls.reduce((map, cl) => {
-		const cls = map.get(cl.sourceId) ?? [];
-		return map.set(cl.sourceId, [...cls, cl]);
+		const cls = map.get(cl.source.id) ?? [];
+		return map.set(cl.source.id, [...cls, cl]);
 	}, new Map<string, ConnectLine[]>());
 
 	const simElements = new Map<string, Element>();
@@ -40,7 +40,7 @@ const createSimulationModel = (
 		simElements.set(currentElement.id, currentElement);
 
 		const [cl] = connectLinePath.get(currentElement.id) ?? [];
-		const nextElement = cl != null ? elementsMap.get(cl.targetId) : null;
+		const nextElement = cl != null ? elementsMap.get(cl.target.id) : null;
 		if (!nextElement) {
 			break;
 		}

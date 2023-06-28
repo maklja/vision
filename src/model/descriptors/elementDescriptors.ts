@@ -68,3 +68,16 @@ export const findElementDescriptor = (elementType: ElementType): ElementDescript
 	return {};
 };
 
+export const calcConnectPointVisibility = (elType: ElementType) => {
+	const { input, event, output } = findElementDescriptor(elType);
+
+	const inputVisible = Boolean(input?.cardinality);
+	const outputVisible = Boolean(output?.cardinality);
+	const eventsVisible = Boolean(event?.cardinality);
+	return {
+		inputVisible,
+		outputVisible,
+		eventsVisible,
+	};
+};
+

@@ -12,8 +12,8 @@ export class DefaultFlowManager implements FlowManager {
 	) {}
 
 	handleNextEvent(value: FlowValue, cl: ConnectLine): void {
-		const { targetId } = cl;
-		const targetEl = this.simulationModel.elements.get(targetId);
+		const { target } = cl;
+		const targetEl = this.simulationModel.elements.get(target.id);
 
 		const cls = this.retrieveFlowValuePath(value.id);
 		cls.push(cl);
@@ -30,14 +30,14 @@ export class DefaultFlowManager implements FlowManager {
 			hash: value.hash,
 			value,
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
-			sourceElementId: firstConnectLine.sourceId,
-			targetElementId: lastConnectLine.targetId,
+			sourceElementId: firstConnectLine.source.id,
+			targetElementId: lastConnectLine.target.id,
 		});
 	}
 
 	handleError(flowValue: FlowValue, cl: ConnectLine): void {
-		const { targetId } = cl;
-		const targetEl = this.simulationModel.elements.get(targetId);
+		const { target } = cl;
+		const targetEl = this.simulationModel.elements.get(target.id);
 
 		if (!targetEl) {
 			return;
@@ -58,8 +58,8 @@ export class DefaultFlowManager implements FlowManager {
 			hash: flowValue.hash,
 			value: flowValue.value,
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
-			sourceElementId: firstConnectLine.sourceId,
-			targetElementId: lastConnectLine.targetId,
+			sourceElementId: firstConnectLine.source.id,
+			targetElementId: lastConnectLine.target.id,
 		});
 	}
 
@@ -71,8 +71,8 @@ export class DefaultFlowManager implements FlowManager {
 			hash: flowValue.hash,
 			error: flowValue.value,
 			connectLineId: errorCl.id,
-			sourceElementId: errorCl.sourceId,
-			targetElementId: errorCl.targetId,
+			sourceElementId: errorCl.source.id,
+			targetElementId: errorCl.source.id,
 		});
 	}
 
