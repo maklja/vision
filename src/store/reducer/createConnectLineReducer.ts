@@ -70,15 +70,24 @@ export const startConnectLineDrawReducer = (
 	}: ElementDescriptor = findElementDescriptor(el.type);
 
 	// calculate element cardinality
-	const elementSourceCount = connectLines.reduce(
-		(sourceCount, cl) => (cl.source.id === el.id ? sourceCount + 1 : sourceCount),
-		0,
-	);
+	const elConnectTypeCardinality = connectLines.reduce((map, cl) => {
+		if (cl.source.id !== el.id) {
+			return map;
+		}
+		const connectTypeCardinality = map.get(cl.source.connectPointType) ?? 0;
+		return map.set(cl.source.connectPointType, connectTypeCardinality + 1);
+	}, new Map<ConnectPointType, number>());
 
-	// has element excited cardinality
-	const elCardinalityExcited =
-		elementSourceCount >= sourceOutput.cardinality + sourceEvent.cardinality;
-	if (!sourceOutput.allowedTypes.size || elCardinalityExcited) {
+	// has element excited output cardinality
+	const outputCardinality = elConnectTypeCardinality.get(ConnectPointType.Output) ?? 0;
+	if (type === ConnectPointType.Output && outputCardinality >= sourceOutput.cardinality) {
+		slice.selected = [];
+		return;
+	}
+
+	// has element excited event cardinality
+	const eventCardinality = elConnectTypeCardinality.get(ConnectPointType.Event) ?? 0;
+	if (type === ConnectPointType.Event && eventCardinality >= sourceEvent.cardinality) {
 		slice.selected = [];
 		return;
 	}
@@ -104,13 +113,21 @@ export const startConnectLineDrawReducer = (
 				return false;
 			}
 
-			const { input, event } = findElementDescriptor(curEl.type);
-			const inputAllowed = input?.allowedTypes.has(el.type);
-			const eventAllowed = event?.allowedTypes.has(el.type);
-			if (!inputAllowed && !eventAllowed) {
+			if (type === ConnectPointType.Event && !sourceEvent.allowedTypes.has(curEl.type)) {
 				return false;
 			}
 
+			if (type === ConnectPointType.Output && !sourceOutput.allowedTypes.has(curEl.type)) {
+				return false;
+			}
+
+			const { input, event } = findElementDescriptor(curEl.type);
+			const inputAllowed = input?.allowedTypes.has(el.type);
+			if (type === ConnectPointType.Output) {
+				return inputAllowed;
+			}
+
+			const eventAllowed = event?.allowedTypes.has(el.type);
 			return inputAllowed || eventAllowed;
 		})
 		.reduce((selectedElements: SelectedElement[], curEl: Element) => {
@@ -124,7 +141,12 @@ export const startConnectLineDrawReducer = (
 			const eventCardinality = elCardinality?.get(ConnectPointType.Event) ?? 0;
 			const eventCardinalityNotExcited = eventCardinality < event.cardinality;
 
-			if (!inputCardinalityNotExcited && !eventCardinalityNotExcited) {
+			const inputVisible =
+				inputCardinalityNotExcited &&
+				(type === ConnectPointType.Output || type === ConnectPointType.Event);
+
+			console.log(eventCardinalityNotExcited);
+			if (!inputVisible && !eventCardinalityNotExcited) {
 				return selectedElements;
 			}
 
@@ -133,9 +155,9 @@ export const startConnectLineDrawReducer = (
 				{
 					id: curEl.id,
 					visibleConnectPoints: {
+						input: true,
 						output: false,
-						input: inputCardinalityNotExcited,
-						event: eventCardinalityNotExcited,
+						event: false,
 					},
 				},
 			];
