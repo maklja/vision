@@ -1,6 +1,7 @@
 import { v1 as createId } from 'uuid';
 import { Draft } from '@reduxjs/toolkit';
 import {
+	ConnectLine,
 	ConnectPointPosition,
 	ConnectPointType,
 	Element,
@@ -38,6 +39,28 @@ export interface LinkConnectLineDrawAction {
 	};
 }
 
+const getConnectPointDescriptor = (
+	el: Element,
+	cpType: ConnectPointType,
+	connectLines: ConnectLine[],
+) => {
+	const elDescriptor: ElementDescriptor = findElementDescriptor(el.type);
+
+	const elConnectTypeCardinality = connectLines.reduce((cardinality, cl) => {
+		if (cl.source.id !== el.id || cl.source.connectPointType !== cpType) {
+			return cardinality;
+		}
+
+		return cardinality + 1;
+	}, 0);
+
+	const cpDescriptor = elDescriptor[cpType] ?? { cardinality: 0, allowedTypes: new Set() };
+	return {
+		cardinalityExcited: elConnectTypeCardinality >= cpDescriptor.cardinality,
+		allowedTypes: cpDescriptor.allowedTypes,
+	};
+};
+
 export const startConnectLineDrawReducer = (
 	slice: Draft<StageSlice>,
 	action: StartConnectLineDrawAction,
@@ -64,30 +87,9 @@ export const startConnectLineDrawReducer = (
 		return;
 	}
 
-	const {
-		output: sourceOutput = { cardinality: 0, allowedTypes: new Set() },
-		event: sourceEvent = { cardinality: 0, allowedTypes: new Set() },
-	}: ElementDescriptor = findElementDescriptor(el.type);
-
-	// calculate element cardinality
-	const elConnectTypeCardinality = connectLines.reduce((map, cl) => {
-		if (cl.source.id !== el.id) {
-			return map;
-		}
-		const connectTypeCardinality = map.get(cl.source.connectPointType) ?? 0;
-		return map.set(cl.source.connectPointType, connectTypeCardinality + 1);
-	}, new Map<ConnectPointType, number>());
-
-	// has element excited output cardinality
-	const outputCardinality = elConnectTypeCardinality.get(ConnectPointType.Output) ?? 0;
-	if (type === ConnectPointType.Output && outputCardinality >= sourceOutput.cardinality) {
-		slice.selected = [];
-		return;
-	}
-
-	// has element excited event cardinality
-	const eventCardinality = elConnectTypeCardinality.get(ConnectPointType.Event) ?? 0;
-	if (type === ConnectPointType.Event && eventCardinality >= sourceEvent.cardinality) {
+	const sourceCpDescriptor = getConnectPointDescriptor(el, type, connectLines);
+	// has element excited cardinality
+	if (sourceCpDescriptor.cardinalityExcited) {
 		slice.selected = [];
 		return;
 	}
@@ -113,44 +115,25 @@ export const startConnectLineDrawReducer = (
 				return false;
 			}
 
-			if (type === ConnectPointType.Event && !sourceEvent.allowedTypes.has(curEl.type)) {
+			if (!sourceCpDescriptor.allowedTypes.has(curEl.type)) {
 				return false;
 			}
 
-			if (type === ConnectPointType.Output && !sourceOutput.allowedTypes.has(curEl.type)) {
+			if (type === ConnectPointType.Input) {
 				return false;
 			}
 
-			const { input, event } = findElementDescriptor(curEl.type);
-			const inputAllowed = input?.allowedTypes.has(el.type);
-			if (type === ConnectPointType.Output) {
-				return inputAllowed;
-			}
-
-			const eventAllowed = event?.allowedTypes.has(el.type);
-			return inputAllowed || eventAllowed;
-		})
-		.reduce((selectedElements: SelectedElement[], curEl: Element) => {
-			const {
-				input = { cardinality: 0, allowedTypes: new Set() },
-				event = { cardinality: 0, allowedTypes: new Set() },
-			} = findElementDescriptor(curEl.type);
+			const { input = { cardinality: 0, allowedTypes: new Set() } } = findElementDescriptor(
+				curEl.type,
+			);
 			const elCardinality = elementsCardinality.get(curEl.id);
 			const inputCardinality = elCardinality?.get(ConnectPointType.Input) ?? 0;
 			const inputCardinalityNotExcited = inputCardinality < input.cardinality;
-			const eventCardinality = elCardinality?.get(ConnectPointType.Event) ?? 0;
-			const eventCardinalityNotExcited = eventCardinality < event.cardinality;
 
-			const inputVisible =
-				inputCardinalityNotExcited &&
-				(type === ConnectPointType.Output || type === ConnectPointType.Event);
-
-			console.log(eventCardinalityNotExcited);
-			if (!inputVisible && !eventCardinalityNotExcited) {
-				return selectedElements;
-			}
-
-			return [
+			return inputCardinalityNotExcited && input.allowedTypes.has(el.type);
+		})
+		.reduce(
+			(selectedElements: SelectedElement[], curEl: Element) => [
 				...selectedElements,
 				{
 					id: curEl.id,
@@ -160,8 +143,9 @@ export const startConnectLineDrawReducer = (
 						event: false,
 					},
 				},
-			];
-		}, []);
+			],
+			[],
+		);
 };
 
 export const moveConnectLineDrawReducer = (
@@ -239,4 +223,3 @@ export const linkConnectLineDrawReducer = (
 		},
 	});
 };
-
