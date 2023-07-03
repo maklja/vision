@@ -95,18 +95,10 @@ export const startConnectLineDrawReducer = (
 	}
 
 	// calculate other elements cardinality
-	const elementsCardinality = connectLines.reduce((elMap, cl) => {
-		let connectTypeMap = elMap.get(cl.target.id);
-		if (!connectTypeMap) {
-			connectTypeMap = new Map<ConnectPointType, number>();
-			elMap.set(cl.target.id, connectTypeMap);
-		}
-
-		const cardinality = connectTypeMap.get(cl.target.connectPointType) ?? 0;
-		connectTypeMap.set(cl.target.connectPointType, cardinality + 1);
-
-		return elMap;
-	}, new Map<string, Map<ConnectPointType, number>>());
+	const elInputCardinality = connectLines.reduce((elMap, cl) => {
+		const elCardinality = elMap.get(cl.target.id) ?? 0;
+		return elMap.set(cl.target.id, elCardinality + 1);
+	}, new Map<string, number>());
 
 	// leave only element that are allowed to connect and didn't excited cardinality
 	slice.selected = elements
@@ -126,8 +118,7 @@ export const startConnectLineDrawReducer = (
 			const { input = { cardinality: 0, allowedTypes: new Set() } } = findElementDescriptor(
 				curEl.type,
 			);
-			const elCardinality = elementsCardinality.get(curEl.id);
-			const inputCardinality = elCardinality?.get(ConnectPointType.Input) ?? 0;
+			const inputCardinality = elInputCardinality.get(curEl.id) ?? 0;
 			const inputCardinalityNotExcited = inputCardinality < input.cardinality;
 
 			return inputCardinalityNotExcited && input.allowedTypes.has(el.type);
@@ -223,3 +214,4 @@ export const linkConnectLineDrawReducer = (
 		},
 	});
 };
+
