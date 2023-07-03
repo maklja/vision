@@ -30,6 +30,7 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 
 	private createCatchErrorOperator(): OperatorFunction<FlowValue, FlowValue> {
 		return catchError<FlowValue, ObservableInput<FlowValue>>(() =>
+			// TODO next step pass correct observable pipeline
 			of(1).pipe(
 				map((value) => ({
 					id: 'test',
@@ -42,6 +43,7 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 
 	private createFilterOperator(el: Element): OperatorFunction<FlowValue, FlowValue> {
 		const filterEl = el as FilterElement;
+		// TODO let user define his own function
 		const filterFn = new Function('value', 'index', filterEl.properties.expression);
 
 		return filter((flowValue, index) => filterFn(flowValue.value, index));
