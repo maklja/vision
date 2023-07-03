@@ -76,6 +76,13 @@ export interface RemoveSimulationAnimationAction {
 	};
 }
 
+export interface RemoveSimulationAction {
+	type: string;
+	payload: {
+		simulationId: string;
+	};
+}
+
 export interface DisposeDrawerAnimationAction {
 	type: string;
 	payload: {
@@ -330,6 +337,16 @@ export const drawerAnimationsSlice = createSlice({
 				action.payload.simulationId,
 			);
 		},
+		removeSimulation: (slice: DrawerAnimationState, action: RemoveSimulationAction) => {
+			const { simulationId } = action.payload;
+			const { simulations } = slice;
+			const simulation = simulations.entities[simulationId];
+			if (!simulation) {
+				return;
+			}
+
+			simulationsAdapter.removeOne(slice.simulations, simulationId);
+		},
 	},
 });
 
@@ -341,14 +358,15 @@ export const {
 	addSimulationAnimation,
 	addSimulationAnimations,
 	removeSimulationAnimation,
+	removeSimulation,
 } = drawerAnimationsSlice.actions;
 
 const drawerAnimationsSelector = animationsAdapter.getSelectors<RootState>(
-	(state) => state.dAnimations.animations,
+	(state) => state.drawerAnimations.animations,
 );
 
 const simulationsSelector = simulationsAdapter.getSelectors<RootState>(
-	(state) => state.dAnimations.simulations,
+	(state) => state.drawerAnimations.simulations,
 );
 
 export const selectDrawerAnimationById =

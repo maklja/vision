@@ -6,8 +6,8 @@ import {
 	DrawerProps,
 	IntervalOperatorDrawer,
 	ResultDrawer,
+	CatchErrorOperatorDrawer,
 } from '../../drawers';
-import { CatchErrorOperatorDrawer } from '../../drawers/errorHandlingOperators';
 import { Element, ElementType, Result } from '../../model';
 
 const createFromDrawer = (props: DrawerProps) => <FromOperatorDrawer {...props} />;
@@ -27,7 +27,9 @@ const createResultDrawer = (props: DrawerProps, el: Element) => {
 	return <ResultDrawer {...props} hash={resultElement.properties.hash} />;
 };
 
-const elementFactories = new Map<ElementType, (props: DrawerProps, el: Element) => JSX.Element>([
+export type ElementDrawerFactory = (props: DrawerProps, el: Element) => JSX.Element;
+
+const elementFactories = new Map<ElementType, ElementDrawerFactory>([
 	[ElementType.Of, createOfDrawer],
 	[ElementType.From, createFromDrawer],
 	[ElementType.Interval, createIntervalDrawer],
@@ -37,8 +39,7 @@ const elementFactories = new Map<ElementType, (props: DrawerProps, el: Element) 
 	[ElementType.Result, createResultDrawer],
 ]);
 
-export type ElementDrawerFactory = ((props: DrawerProps, el: Element) => JSX.Element) | null;
-
-export const findElementDrawerFactory = (elementType: ElementType): ElementDrawerFactory => {
+export const findElementDrawerFactory = (elementType: ElementType): ElementDrawerFactory | null => {
 	return elementFactories.get(elementType) ?? null;
 };
+

@@ -1,7 +1,10 @@
 export enum ConnectPointType {
-	Top = 'top',
-	Right = 'right',
-	Bottom = 'bottom',
-	Left = 'left',
+	Input = 'input',
+	Output = 'output',
+	Event = 'event',
 }
+
+export type ConnectPointTypeVisibility = {
+	[key in ConnectPointType]?: boolean;
+};
 

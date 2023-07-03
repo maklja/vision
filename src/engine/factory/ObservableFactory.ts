@@ -1,8 +1,6 @@
-import createHash from 'object-hash';
-import { catchError, Observable, tap } from 'rxjs';
-import { v1 } from 'uuid';
-import { ConnectLine, Element, isErrorHandlerType } from '../../model';
-import { SimulationContext } from '../context';
+import { catchError, Observable, ObservableInput, OperatorFunction, tap } from 'rxjs';
+import { ConnectLine, Element, isPipeOperatorType, isSubscriberType } from '../../model';
+import { FlowManager, FlowValue, SimulationModel } from '../context';
 import { DefaultCreationOperatorFactory } from './DefaultCreationOperatorFactory';
 import { DefaultPipeOperatorFactory } from './DefaultPipeOperatorFactory';
 
@@ -11,57 +9,70 @@ export interface CreateObservableParams {
 	subscriberElement: Element;
 	pipeElements: Element[];
 	connectLines: ConnectLine[];
+	elements: Map<string, Element>;
 }
 
 export class ObservableFactory {
 	private readonly creationOperatorFactory = new DefaultCreationOperatorFactory();
 	private readonly pipeOperatorFactory = new DefaultPipeOperatorFactory();
 
-	createObservable(createParams: CreateObservableParams, ctx: SimulationContext<unknown>) {
-		const { creationElement, connectLines, pipeElements } = createParams;
-		const hasErrorHandlers = pipeElements.filter((el) => isErrorHandlerType(el.type));
+	constructor(private readonly flowManager: FlowManager) {}
+
+	createObservable(simulationModel: SimulationModel) {
+		const { creationElement, connectLines, pipeElements, subscriberElement } = simulationModel;
+
+		const connectLinesPipes = Array.from(connectLines.values()).reduce((map, cl) => {
+			const cls = map.get(cl.source.id) ?? [];
+			return map.set(cl.source.id, [...cls, cl]);
+		}, new Map<string, ConnectLine[]>());
+
+		const flowElements = [creationElement, ...pipeElements, subscriberElement];
 
 		const observable = this.creationOperatorFactory.create(creationElement);
-		const pipe = connectLines.flatMap((cl, i) => {
-			const pipeElement = pipeElements.at(i);
-			const pipeOperator = pipeElement ? this.pipeOperatorFactory.create(pipeElement) : null;
+		const pipeOperators: OperatorFunction<FlowValue, FlowValue>[] = [];
+		for (const curFlowEl of flowElements) {
+			const [cl] = connectLinesPipes.get(curFlowEl.id) ?? [];
+			if (!cl) {
+				continue;
+			}
 
-			return pipeOperator
-				? [
-						this.createErrorControlOperator(cl, ctx),
-						this.createControlOperator(cl, ctx),
-						pipeOperator,
-				  ]
-				: [this.createErrorControlOperator(cl, ctx), this.createControlOperator(cl, ctx)];
-		});
-		return observable.pipe(...(pipe as [])) as Observable<unknown>;
+			if (isPipeOperatorType(curFlowEl.type)) {
+				pipeOperators.push(this.pipeOperatorFactory.create(curFlowEl));
+			}
+
+			if (isSubscriberType(curFlowEl.type)) {
+				pipeOperators.push(
+					this.createControlOperator(cl),
+					this.createUnhandledErrorOperator(cl),
+				);
+			} else {
+				pipeOperators.push(
+					this.createControlOperator(cl),
+					this.createErrorTrackerOperator(cl),
+				);
+			}
+		}
+
+		return observable.pipe(...(pipeOperators as [])) as Observable<unknown>;
 	}
 
-	private createControlOperator(cl: ConnectLine, ctx: SimulationContext<unknown>) {
-		return tap((value) => {
-			ctx.eventObserver.next({
-				id: v1(),
-				hash: createHash({ value }, { algorithm: 'md5' }),
-				value,
-				connectLineId: cl.id,
-				sourceElementId: cl.sourceId,
-				targetElementId: cl.targetId,
-			});
+	private createControlOperator(cl: ConnectLine) {
+		return tap<FlowValue>((value) => this.flowManager.handleNextEvent(value, cl));
+	}
+
+	private createErrorTrackerOperator(cl: ConnectLine): OperatorFunction<FlowValue, FlowValue> {
+		return catchError<FlowValue, ObservableInput<FlowValue>>((error: unknown) => {
+			const flowValueError = error instanceof FlowValue ? error : new FlowValue(error);
+			this.flowManager.handleError(flowValueError, cl);
+			throw flowValueError;
 		});
 	}
 
-	private createErrorControlOperator(cl: ConnectLine, ctx: SimulationContext<unknown>) {
-		return catchError((error) => {
-			ctx.eventObserver.error({
-				id: v1(),
-				hash: createHash({ error }, { algorithm: 'md5' }),
-				error,
-				connectLineId: cl.id,
-				sourceElementId: cl.sourceId,
-				targetElementId: cl.targetId,
-			});
-
-			throw error;
+	private createUnhandledErrorOperator(cl: ConnectLine) {
+		return catchError<FlowValue, ObservableInput<FlowValue>>((error: unknown) => {
+			const flowValueError = error instanceof FlowValue ? error : new FlowValue(error);
+			this.flowManager.handleFatalError(flowValueError, cl);
+			throw flowValueError.value;
 		});
 	}
 }

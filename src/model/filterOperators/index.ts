@@ -1,3 +1,2 @@
-import { FilterElement } from './FilterElement';
+export * from './FilterElement';
 
-export type { FilterElement };

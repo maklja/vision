@@ -4,6 +4,7 @@ import { Animation } from '../Animation';
 import { AnimationGroup } from '../AnimationGroup';
 import { TweenAnimation } from '../tween';
 import { DrawerAnimationTemplate } from '../AnimationTemplate';
+import { AnimationEffectEvent, useAnimationEffect } from './useAnimationEffect';
 
 export interface AnimationGroupFactory {
 	node: Konva.Node | null;
@@ -14,8 +15,21 @@ export interface AnimationGroupFactory {
 
 export const useAnimationGroups = (
 	animationTemplate: DrawerAnimationTemplate | undefined | null,
-	animationFactories: AnimationGroupFactory[],
+	options: {
+		drawerId: string;
+		animationFactories: AnimationGroupFactory[];
+		onAnimationBegin?: (event: AnimationEffectEvent) => void;
+		onAnimationComplete?: (event: AnimationEffectEvent) => void;
+		onAnimationDestroy?: (event: AnimationEffectEvent) => void;
+	},
 ): Animation | null => {
+	const {
+		animationFactories,
+		drawerId,
+		onAnimationBegin,
+		onAnimationComplete,
+		onAnimationDestroy,
+	} = options;
 	const animations = animationFactories.map(({ node, mapper }) =>
 		useMemo(() => {
 			if (!node || !animationTemplate) {
@@ -42,13 +56,50 @@ export const useAnimationGroups = (
 		return new AnimationGroup(animations as Animation[], animationTemplate?.id);
 	}, [...animations, animationTemplate?.id]);
 
+	useAnimationEffect(animation, {
+		onAnimationBegin,
+		onAnimationComplete,
+		onAnimationDestroy,
+		simulationId: animationTemplate?.simulationId,
+		drawerId,
+	});
+
+	const disposeAnimation = async () => {
+		try {
+			if (animationTemplate?.options?.autoReverse) {
+				await animation?.reverse();
+			} else {
+				await animation?.reset();
+			}
+			animation?.destroy();
+		} catch {
+			// no need to handle this error if animation dispose fails
+		}
+	};
+
+	const startAnimation = async () => {
+		try {
+			await animation?.play();
+		} catch {
+			// no need to handle this error if animation play fails
+		}
+	};
+
 	useEffect(() => {
 		if (!animationTemplate) {
 			return;
 		}
 
-		animationTemplate.dispose ? animation?.destroy() : animation?.play();
+		if (animationTemplate.dispose) {
+			disposeAnimation();
+		} else {
+			startAnimation();
+		}
 	}, [animationTemplate?.dispose]);
+
+	useEffect(() => {
+		return () => animation?.destroy();
+	}, [animation]);
 
 	return animation;
 };

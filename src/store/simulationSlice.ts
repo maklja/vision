@@ -9,6 +9,13 @@ export interface AddNextObservableEventAction {
 	};
 }
 
+export interface ResetSimulationAction {
+	type: string;
+	payload: {
+		id: string;
+	};
+}
+
 export interface CompleteSimulationAction {
 	type: string;
 	payload: {
@@ -28,7 +35,8 @@ export interface ObservableEvent {
 	value?: unknown;
 	error?: unknown;
 	hash: string;
-	connectLineId: string;
+	index: number;
+	connectLinesId: string[];
 	sourceElementId: string;
 	targetElementId: string;
 }
@@ -48,6 +56,17 @@ export const simulationsSlice = createSlice({
 	initialState: simulationAdapter.getInitialState(),
 	reducers: {
 		createSimulation: simulationAdapter.addOne,
+		resetSimulation: (slice: EntityState<Simulation>, action: ResetSimulationAction) => {
+			const { id } = action.payload;
+
+			return simulationAdapter.updateOne(slice, {
+				id,
+				changes: {
+					events: [],
+					completed: false,
+				},
+			});
+		},
 		addNextObservableEvent: (
 			slice: EntityState<Simulation>,
 			action: AddNextObservableEventAction,
@@ -81,7 +100,7 @@ export const simulationsSlice = createSlice({
 	},
 });
 
-export const { createSimulation, addNextObservableEvent, completeSimulation } =
+export const { createSimulation, resetSimulation, addNextObservableEvent, completeSimulation } =
 	simulationsSlice.actions;
 
 export default simulationsSlice.reducer;

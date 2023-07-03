@@ -1,13 +1,21 @@
-import { Group } from 'react-konva';
+import { Group, Line } from 'react-konva';
 import { DrawerAnimationTemplate } from '../../animation';
-import { ConnectPointType } from '../../model';
+import { ConnectPointPosition, ConnectPointType } from '../../model';
 import { ThemeContext } from '../../theme';
 import { DrawerAnimationEvents } from '../DrawerProps';
 import { BoundingBox } from '../utils';
 import { ConnectPointDrawer, ConnectPointDrawerEvent } from './ConnectPointDrawer';
 
 export type ConnectPointAnimations = {
-	[key in ConnectPointType]?: DrawerAnimationTemplate | null;
+	[key in ConnectPointPosition]?: DrawerAnimationTemplate | null;
+};
+
+export type ConnectPointTypes = {
+	[key in ConnectPointPosition]?: ConnectPointType | null;
+};
+
+export type ConnectPointVisibility = {
+	[key in ConnectPointPosition]?: boolean;
 };
 
 export interface ConnectPointsDrawerEvent {
@@ -25,29 +33,35 @@ export interface ConnectPointsDrawerEvents extends DrawerAnimationEvents {
 
 export interface ConnectPointsDrawerProps extends ConnectPointsDrawerEvents {
 	id: string;
-	x: number;
-	y: number;
 	theme: ThemeContext;
+	x?: number;
+	y?: number;
 	width?: number;
 	height?: number;
 	offset?: number;
 	connectPointAnimations?: ConnectPointAnimations;
-	highlightedConnectPoints?: ConnectPointType[];
+	connectionPointTypes?: ConnectPointTypes;
+	highlightedConnectPoints?: ConnectPointPosition[];
+	visibleConnectPoints?: ConnectPointVisibility;
 }
 
-export const createConnectPointDrawerId = (drawerId: string, connectPointType: ConnectPointType) =>
-	`${drawerId}_${connectPointType}`;
+export const createConnectPointDrawerId = (
+	drawerId: string,
+	connectPointPosition: ConnectPointPosition,
+) => `${drawerId}_${connectPointPosition}`;
 
 export const ConnectPointsDrawer = ({
 	id,
-	x,
-	y,
+	x = 0,
+	y = 0,
 	width = 0,
 	height = 0,
 	offset = 0,
 	theme,
+	connectionPointTypes,
 	connectPointAnimations,
 	highlightedConnectPoints,
+	visibleConnectPoints = {},
 	onMouseDown,
 	onMouseUp,
 	onMouseOver,
@@ -56,17 +70,20 @@ export const ConnectPointsDrawer = ({
 	onAnimationComplete,
 	onAnimationDestroy,
 }: ConnectPointsDrawerProps) => {
-	const topX = x + width / 2;
+	const centerX = x + width / 2;
+	const centerY = y + height / 2;
+
+	const topX = centerX;
 	const topY = y - offset;
 
 	const rightX = x + width + offset;
-	const rightY = y + height / 2;
+	const rightY = centerY;
 
-	const bottomX = x + width / 2;
+	const bottomX = centerX;
 	const bottomY = y + height + offset;
 
 	const leftX = x - offset;
-	const leftY = y + height / 2;
+	const leftY = centerY;
 
 	const handleOnMouseDown = (cEvent: ConnectPointDrawerEvent) => {
 		onMouseDown?.({
@@ -100,75 +117,120 @@ export const ConnectPointsDrawer = ({
 		});
 	};
 
+	const { top = true, left = true, bottom = true, right = true } = visibleConnectPoints;
 	return (
 		<Group>
-			<ConnectPointDrawer
-				id={createConnectPointDrawerId(id, ConnectPointType.Top)}
-				type={ConnectPointType.Top}
-				x={topX}
-				y={topY}
-				theme={theme}
-				onMouseDown={handleOnMouseDown}
-				onMouseUp={handleOnMouseUp}
-				onMouseOver={handleOnMouseOver}
-				onMouseOut={handleOnMouseOut}
-				onAnimationBegin={onAnimationBegin}
-				onAnimationComplete={onAnimationComplete}
-				onAnimationDestroy={onAnimationDestroy}
-				highlight={highlightedConnectPoints?.includes(ConnectPointType.Top)}
-				animation={connectPointAnimations?.[ConnectPointType.Top]}
-			/>
+			{top && connectionPointTypes?.top && (
+				<Line
+					{...theme.connectLine.line}
+					points={[topX, topY, centerX, centerY]}
+					perfectDrawEnabled={false}
+				></Line>
+			)}
+			{top && connectionPointTypes?.top && (
+				<ConnectPointDrawer
+					id={createConnectPointDrawerId(id, ConnectPointPosition.Top)}
+					type={connectionPointTypes?.top}
+					position={ConnectPointPosition.Top}
+					x={topX}
+					y={topY}
+					theme={theme}
+					onMouseDown={handleOnMouseDown}
+					onMouseUp={handleOnMouseUp}
+					onMouseOver={handleOnMouseOver}
+					onMouseOut={handleOnMouseOut}
+					onAnimationBegin={onAnimationBegin}
+					onAnimationComplete={onAnimationComplete}
+					onAnimationDestroy={onAnimationDestroy}
+					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Top)}
+					animation={connectPointAnimations?.[ConnectPointPosition.Top]}
+				/>
+			)}
 
-			<ConnectPointDrawer
-				id={createConnectPointDrawerId(id, ConnectPointType.Right)}
-				type={ConnectPointType.Right}
-				x={rightX}
-				y={rightY}
-				theme={theme}
-				onMouseDown={handleOnMouseDown}
-				onMouseUp={handleOnMouseUp}
-				onMouseOver={handleOnMouseOver}
-				onMouseOut={handleOnMouseOut}
-				onAnimationBegin={onAnimationBegin}
-				onAnimationComplete={onAnimationComplete}
-				onAnimationDestroy={onAnimationDestroy}
-				highlight={highlightedConnectPoints?.includes(ConnectPointType.Right)}
-				animation={connectPointAnimations?.[ConnectPointType.Right]}
-			/>
+			{right && connectionPointTypes?.right && (
+				<Line
+					{...theme.connectLine.line}
+					points={[rightX, rightY, centerX, centerY]}
+					perfectDrawEnabled={false}
+				></Line>
+			)}
 
-			<ConnectPointDrawer
-				id={createConnectPointDrawerId(id, ConnectPointType.Bottom)}
-				type={ConnectPointType.Bottom}
-				x={bottomX}
-				y={bottomY}
-				theme={theme}
-				onMouseDown={handleOnMouseDown}
-				onMouseUp={handleOnMouseUp}
-				onMouseOver={handleOnMouseOver}
-				onMouseOut={handleOnMouseOut}
-				onAnimationBegin={onAnimationBegin}
-				onAnimationComplete={onAnimationComplete}
-				onAnimationDestroy={onAnimationDestroy}
-				highlight={highlightedConnectPoints?.includes(ConnectPointType.Bottom)}
-				animation={connectPointAnimations?.[ConnectPointType.Bottom]}
-			/>
+			{right && connectionPointTypes?.right && (
+				<ConnectPointDrawer
+					id={createConnectPointDrawerId(id, ConnectPointPosition.Right)}
+					type={connectionPointTypes.right}
+					position={ConnectPointPosition.Right}
+					x={rightX}
+					y={rightY}
+					theme={theme}
+					onMouseDown={handleOnMouseDown}
+					onMouseUp={handleOnMouseUp}
+					onMouseOver={handleOnMouseOver}
+					onMouseOut={handleOnMouseOut}
+					onAnimationBegin={onAnimationBegin}
+					onAnimationComplete={onAnimationComplete}
+					onAnimationDestroy={onAnimationDestroy}
+					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Right)}
+					animation={connectPointAnimations?.[ConnectPointPosition.Right]}
+				/>
+			)}
 
-			<ConnectPointDrawer
-				id={createConnectPointDrawerId(id, ConnectPointType.Left)}
-				type={ConnectPointType.Left}
-				x={leftX}
-				y={leftY}
-				theme={theme}
-				onMouseDown={handleOnMouseDown}
-				onMouseUp={handleOnMouseUp}
-				onMouseOver={handleOnMouseOver}
-				onMouseOut={handleOnMouseOut}
-				onAnimationBegin={onAnimationBegin}
-				onAnimationComplete={onAnimationComplete}
-				onAnimationDestroy={onAnimationDestroy}
-				highlight={highlightedConnectPoints?.includes(ConnectPointType.Left)}
-				animation={connectPointAnimations?.[ConnectPointType.Left]}
-			/>
+			{bottom && connectionPointTypes?.bottom && (
+				<Line
+					{...theme.connectLine.line}
+					points={[bottomX, bottomY, centerX, centerY]}
+					perfectDrawEnabled={false}
+				></Line>
+			)}
+
+			{bottom && connectionPointTypes?.bottom && (
+				<ConnectPointDrawer
+					id={createConnectPointDrawerId(id, ConnectPointPosition.Bottom)}
+					type={connectionPointTypes.bottom}
+					position={ConnectPointPosition.Bottom}
+					x={bottomX}
+					y={bottomY}
+					theme={theme}
+					onMouseDown={handleOnMouseDown}
+					onMouseUp={handleOnMouseUp}
+					onMouseOver={handleOnMouseOver}
+					onMouseOut={handleOnMouseOut}
+					onAnimationBegin={onAnimationBegin}
+					onAnimationComplete={onAnimationComplete}
+					onAnimationDestroy={onAnimationDestroy}
+					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Bottom)}
+					animation={connectPointAnimations?.[ConnectPointPosition.Bottom]}
+				/>
+			)}
+
+			{left && connectionPointTypes?.left && (
+				<Line
+					{...theme.connectLine.line}
+					points={[leftX, leftY, centerX, centerY]}
+					perfectDrawEnabled={false}
+				></Line>
+			)}
+
+			{left && connectionPointTypes?.left && (
+				<ConnectPointDrawer
+					id={createConnectPointDrawerId(id, ConnectPointPosition.Left)}
+					type={connectionPointTypes.left}
+					position={ConnectPointPosition.Left}
+					x={leftX}
+					y={leftY}
+					theme={theme}
+					onMouseDown={handleOnMouseDown}
+					onMouseUp={handleOnMouseUp}
+					onMouseOver={handleOnMouseOver}
+					onMouseOut={handleOnMouseOut}
+					onAnimationBegin={onAnimationBegin}
+					onAnimationComplete={onAnimationComplete}
+					onAnimationDestroy={onAnimationDestroy}
+					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Left)}
+					animation={connectPointAnimations?.[ConnectPointPosition.Left]}
+				/>
+			)}
 		</Group>
 	);
 };
+

@@ -1,12 +1,22 @@
 import { v1 as createId } from 'uuid';
 import { Draft } from '@reduxjs/toolkit';
-import { calculateConnectPointTypes, Point } from '../../model';
-import { StageSlice, StageState } from '../stageSlice';
+import {
+	ConnectLine,
+	ConnectPointPosition,
+	ConnectPointType,
+	Element,
+	ElementDescriptor,
+	findElementDescriptor,
+	Point,
+} from '../../model';
+import { SelectedElement, StageSlice, StageState } from '../stageSlice';
 
 export interface StartConnectLineDrawAction {
 	type: string;
 	payload: {
 		sourceId: string;
+		type: ConnectPointType;
+		position: ConnectPointPosition;
 		points: Point[];
 	};
 }
@@ -24,19 +34,47 @@ export interface LinkConnectLineDrawAction {
 	payload: {
 		targetId: string;
 		targetPoint: Point;
+		targetConnectPointType: ConnectPointType;
+		targetConnectPointPosition: ConnectPointPosition;
 	};
 }
+
+const getConnectPointDescriptor = (
+	el: Element,
+	cpType: ConnectPointType,
+	connectLines: ConnectLine[],
+) => {
+	const elDescriptor: ElementDescriptor = findElementDescriptor(el.type);
+
+	const elConnectTypeCardinality = connectLines.reduce((cardinality, cl) => {
+		if (cl.source.id !== el.id || cl.source.connectPointType !== cpType) {
+			return cardinality;
+		}
+
+		return cardinality + 1;
+	}, 0);
+
+	const cpDescriptor = elDescriptor[cpType] ?? { cardinality: 0, allowedTypes: new Set() };
+	return {
+		cardinalityExcited: elConnectTypeCardinality >= cpDescriptor.cardinality,
+		allowedTypes: cpDescriptor.allowedTypes,
+	};
+};
 
 export const startConnectLineDrawReducer = (
 	slice: Draft<StageSlice>,
 	action: StartConnectLineDrawAction,
 ) => {
 	const { connectLines, elements } = slice;
-	const { sourceId, points } = action.payload;
+	const { sourceId, points, type, position } = action.payload;
 	slice.state = StageState.DrawConnectLine;
 	slice.draftConnectLine = {
 		id: createId(),
-		sourceId,
+		source: {
+			id: sourceId,
+			connectPointType: type,
+			connectPosition: position,
+		},
 		points,
 		locked: false,
 	};
@@ -49,28 +87,56 @@ export const startConnectLineDrawReducer = (
 		return;
 	}
 
-	// each element can be source element only once
-	const isElementSource = connectLines.some((cl) => cl.sourceId === el.id);
-	if (isElementSource) {
+	const sourceCpDescriptor = getConnectPointDescriptor(el, type, connectLines);
+	// has element excited cardinality
+	if (sourceCpDescriptor.cardinalityExcited) {
 		slice.selected = [];
 		return;
 	}
 
-	// all elements that already have a source element
-	const elementsWithSource = connectLines.reduce(
-		(set, cl) => set.add(cl.targetId),
-		new Set<string>(),
-	);
-	// allowed types to connect
-	const allowedTypesToConnect = calculateConnectPointTypes(el.type);
+	// calculate other elements cardinality
+	const elInputCardinality = connectLines.reduce((elMap, cl) => {
+		const elCardinality = elMap.get(cl.target.id) ?? 0;
+		return elMap.set(cl.target.id, elCardinality + 1);
+	}, new Map<string, number>());
+
+	// leave only element that are allowed to connect and didn't excited cardinality
 	slice.selected = elements
-		.filter(
-			(curEl) =>
-				curEl.id !== sourceId &&
-				allowedTypesToConnect.has(curEl.type) &&
-				!elementsWithSource.has(curEl.id),
-		)
-		.map((curEl) => curEl.id);
+		.filter((curEl) => {
+			if (curEl.id === el.id) {
+				return false;
+			}
+
+			if (!sourceCpDescriptor.allowedTypes.has(curEl.type)) {
+				return false;
+			}
+
+			if (type === ConnectPointType.Input) {
+				return false;
+			}
+
+			const { input = { cardinality: 0, allowedTypes: new Set() } } = findElementDescriptor(
+				curEl.type,
+			);
+			const inputCardinality = elInputCardinality.get(curEl.id) ?? 0;
+			const inputCardinalityNotExcited = inputCardinality < input.cardinality;
+
+			return inputCardinalityNotExcited && input.allowedTypes.has(el.type);
+		})
+		.reduce(
+			(selectedElements: SelectedElement[], curEl: Element) => [
+				...selectedElements,
+				{
+					id: curEl.id,
+					visibleConnectPoints: {
+						input: true,
+						output: false,
+						event: false,
+					},
+				},
+			],
+			[],
+		);
 };
 
 export const moveConnectLineDrawReducer = (
@@ -99,13 +165,21 @@ export const deleteConnectLineDrawReducer = (slice: Draft<StageSlice>) => {
 	slice.highlightedConnectPoints = [];
 	slice.draftConnectLine = null;
 
-	slice.selected = [draftConnectLine.sourceId];
+	slice.selected = [
+		{
+			id: draftConnectLine.source.id,
+			visibleConnectPoints: {
+				input: false,
+			},
+		},
+	];
 };
 
 export const linkConnectLineDrawReducer = (
 	slice: Draft<StageSlice>,
 	action: LinkConnectLineDrawAction,
 ) => {
+	const { payload } = action;
 	const { draftConnectLine } = slice;
 	if (slice.state !== StageState.DrawConnectLine || !draftConnectLine) {
 		return;
@@ -115,8 +189,15 @@ export const linkConnectLineDrawReducer = (
 	slice.highlightedConnectPoints = [];
 	slice.draftConnectLine = null;
 
-	slice.selected = [draftConnectLine.sourceId];
-	const el = slice.elements.find((curEl) => curEl.id === action.payload.targetId);
+	slice.selected = [
+		{
+			id: draftConnectLine.source.id,
+			visibleConnectPoints: {
+				input: false,
+			},
+		},
+	];
+	const el = slice.elements.find((curEl) => curEl.id === payload.targetId);
 	if (!el) {
 		return;
 	}
@@ -124,9 +205,13 @@ export const linkConnectLineDrawReducer = (
 	slice.connectLines.push({
 		id: createId(),
 		locked: false,
-		sourceId: draftConnectLine.sourceId,
 		points: [...draftConnectLine.points, action.payload.targetPoint],
-		targetId: el.id,
+		source: draftConnectLine.source,
+		target: {
+			id: el.id,
+			connectPointType: payload.targetConnectPointType,
+			connectPosition: payload.targetConnectPointPosition,
+		},
 	});
 };
 

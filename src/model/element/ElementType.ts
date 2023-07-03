@@ -8,24 +8,32 @@ export enum ElementType {
 	Result = 'result',
 }
 
-export const creationOperators: readonly ElementType[] = [
+export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Of,
 	ElementType.From,
 	ElementType.Interval,
-];
+]);
 
-export const filterOperators: readonly ElementType[] = [ElementType.Filter];
+export const filterOperators: ReadonlySet<ElementType> = new Set([ElementType.Filter]);
 
-export const errorHandlerOperators: readonly ElementType[] = [ElementType.CatchError];
+export const errorHandlerOperators: ReadonlySet<ElementType> = new Set([ElementType.CatchError]);
 
-export const pipeOperators: readonly ElementType[] = [...filterOperators, ...errorHandlerOperators];
+export const pipeOperators: ReadonlySet<ElementType> = new Set([
+	...filterOperators,
+	...errorHandlerOperators,
+]);
 
-export const subscriberOperators: readonly ElementType[] = [ElementType.Subscriber];
+export const eventPipeOperators: ReadonlySet<ElementType> = new Set([...errorHandlerOperators]);
 
-export const isCreationOperatorType = (type: ElementType) => creationOperators.includes(type);
+export const subscriberOperators: ReadonlySet<ElementType> = new Set([ElementType.Subscriber]);
 
-export const isPipeOperatorType = (type: ElementType) => pipeOperators.includes(type);
+export const isCreationOperatorType = (type: ElementType) => creationOperators.has(type);
 
-export const isSubscriberType = (type: ElementType) => type === ElementType.Subscriber;
+export const isPipeOperatorType = (type: ElementType) => pipeOperators.has(type);
 
-export const isErrorHandlerType = (type: ElementType) => errorHandlerOperators.includes(type);
+export const isEventPipeOperatorType = (type: ElementType) => eventPipeOperators.has(type);
+
+export const isSubscriberType = (type: ElementType) => subscriberOperators.has(type);
+
+export const isErrorHandlerType = (type: ElementType) => errorHandlerOperators.has(type);
+

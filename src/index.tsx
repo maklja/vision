@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -11,7 +10,6 @@ import {
 	FromElement,
 	OfElement,
 	Element,
-	ConnectLine,
 	IntervalElement,
 	CatchErrorElement,
 } from './model';
@@ -70,13 +68,13 @@ const e5: FilterElement = {
 	type: ElementType.Filter,
 	visible: true,
 	properties: {
-		expression: `function(val) {
-			if (val > 5) {
+		expression: `
+			if (value > 5) {
 				throw new Error('Ups');
 			}
 	
-			return val % 2 === 0; 
-		}`,
+			return value % 2 === 0; 
+		`,
 	},
 };
 
@@ -100,19 +98,6 @@ const e2: Element = {
 	properties: {},
 };
 
-const cl1: ConnectLine = {
-	id: 'test',
-	locked: false,
-	points: [
-		{ x: 90, y: 90 },
-		{ x: 143, y: 90 },
-		{ x: 187, y: 165 },
-		{ x: 240, y: 165 },
-	],
-	sourceId: 'ofElement',
-	targetId: 'filterElement',
-};
-
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
 	// <React.StrictMode>
@@ -120,7 +105,7 @@ root.render(
 		store={setupStore({
 			stage: {
 				elements: [e1, e2, e3, e4, e5, i1, ce1],
-				connectLines: [cl1],
+				connectLines: [],
 				draftConnectLine: null,
 				highlighted: [],
 				highlightedConnectPoints: [],
@@ -139,3 +124,4 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+

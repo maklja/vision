@@ -1,8 +1,4 @@
-import { ConnectPointType } from './ConnectPointType';
-import { ConnectPoint } from './ConnectPoint';
-import { calculateConnectPointTypes } from './connectPointRules';
-
-export { ConnectPointType, calculateConnectPointTypes };
-
-export type { ConnectPoint };
+export * from './ConnectPointPosition';
+export * from './ConnectPointType';
+export * from './ConnectPoint';
 

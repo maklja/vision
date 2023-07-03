@@ -12,6 +12,8 @@ export const connectPointSelectStateHandlers = (
 		dispatch(
 			startConnectLineDraw({
 				sourceId: id,
+				type: connectPoint.type,
+				position: connectPoint.position,
 				points: [
 					{ ...element.center },
 					{ x: connectPoint.x, y: connectPoint.y },
@@ -28,6 +30,7 @@ export const connectPointSelectStateHandlers = (
 			highlightConnectPoints([
 				{
 					elementId: id,
+					position: connectPoint.position,
 					type: connectPoint.type,
 				},
 			]),
@@ -38,3 +41,4 @@ export const connectPointSelectStateHandlers = (
 		dispatch(highlightConnectPoints([]));
 	},
 });
+

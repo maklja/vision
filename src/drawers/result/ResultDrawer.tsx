@@ -4,7 +4,7 @@ import { DrawerProps } from '../DrawerProps';
 import { hashToColor, invertColor } from '../utils';
 import { useState } from 'react';
 import Konva from 'konva';
-import { useAnimation, useAnimationEffect } from '../../animation';
+import { useAnimation } from '../../animation';
 
 export interface ResultDrawerProps extends DrawerProps {
 	hash: string;
@@ -26,15 +26,14 @@ export const ResultDrawer = ({
 	const { simulationSizes } = useSizes(theme);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 
-	const drawerAnimation = useAnimation(mainShapeRef, animation, (a) => ({
-		config: a.mainShape,
-	}));
-
-	useAnimationEffect(drawerAnimation, {
+	useAnimation(mainShapeRef, {
+		animationTemplate: animation,
+		mapper: (a) => ({
+			config: a.mainShape,
+		}),
 		onAnimationBegin,
 		onAnimationComplete,
 		onAnimationDestroy,
-		simulationId: animation?.simulationId,
 		drawerId: id,
 	});
 

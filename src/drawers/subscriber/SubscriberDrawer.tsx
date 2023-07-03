@@ -2,7 +2,7 @@ import Konva from 'konva';
 import { Circle, Group } from 'react-konva';
 import { DrawerProps } from '../DrawerProps';
 import { useState } from 'react';
-import { useAnimationEffect, useAnimationGroups } from '../../animation';
+import { useAnimationGroups } from '../../animation';
 import { useElementDrawerTheme, useSizes } from '../../theme';
 
 export const SubscriberDrawer = ({
@@ -35,20 +35,26 @@ export const SubscriberDrawer = ({
 	);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [innerShapeRef, setInnerShapeRef] = useState<Konva.Circle | null>(null);
-	const drawerAnimation = useAnimationGroups(animation, [
-		{
-			node: mainShapeRef,
-			mapper: (a) => ({
-				config: a.mainShape,
-			}),
-		},
-		{
-			node: innerShapeRef,
-			mapper: (a) => ({
-				config: a.secondaryShape,
-			}),
-		},
-	]);
+	useAnimationGroups(animation, {
+		animationFactories: [
+			{
+				node: mainShapeRef,
+				mapper: (a) => ({
+					config: a.mainShape,
+				}),
+			},
+			{
+				node: innerShapeRef,
+				mapper: (a) => ({
+					config: a.secondaryShape,
+				}),
+			},
+		],
+		onAnimationBegin,
+		onAnimationComplete,
+		onAnimationDestroy,
+		drawerId: id,
+	});
 
 	const { drawerSizes } = useSizes(theme, size);
 	const { drawerSizes: outerSizes } = useSizes(theme, size, 0.8);
@@ -89,14 +95,6 @@ export const SubscriberDrawer = ({
 			id,
 			originalEvent: e,
 		});
-
-	useAnimationEffect(drawerAnimation, {
-		onAnimationBegin,
-		onAnimationComplete,
-		onAnimationDestroy,
-		drawerId: id,
-		simulationId: animation?.simulationId,
-	});
 
 	return (
 		<Group visible={visible && Boolean(mainShapeRef)}>

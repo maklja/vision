@@ -9,3 +9,4 @@ export interface Element<P extends unknown | Record<string, unknown> = unknown> 
 	visible: boolean;
 	properties: P;
 }
+

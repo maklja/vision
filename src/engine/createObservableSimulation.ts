@@ -5,86 +5,77 @@ import {
 	isPipeOperatorType,
 	isSubscriberType,
 } from '../model';
+import { SimulationModel } from './context';
 import { CreationNodeMissingError, SubscriberNodeMissingError } from './errors';
 import { ObservableSimulation } from './ObservableSimulation';
 
-interface ObservableStruct {
-	creationElement: Element;
-	subscriberElement: Element | null;
-	pipeElements: Element[];
-	connectLines: ConnectLine[];
-}
-
-interface ElementContext {
-	elements: Map<string, Element>;
-	connectLines: Map<string, ConnectLine[]>;
-}
-
-const createObservableExecutable = (creationElement: Element, ctx: ElementContext) => {
-	const observableStruct: ObservableStruct = {
-		creationElement,
-		subscriberElement: null,
-		pipeElements: [],
-		connectLines: [],
-	};
-	let currentElement = creationElement;
-	while (currentElement != null) {
-		const [cl] = ctx.connectLines.get(currentElement.id) ?? [];
-		const nextElement = cl != null ? ctx.elements.get(cl.targetId) : null;
-		if (!nextElement) {
-			break;
-		}
-
-		if (isPipeOperatorType(nextElement.type)) {
-			observableStruct.pipeElements.push(nextElement);
-		} else if (isSubscriberType(nextElement.type)) {
-			observableStruct.subscriberElement = nextElement;
-		}
-		observableStruct.connectLines.push(cl);
-
-		currentElement = nextElement;
-	}
-
-	return observableStruct;
-};
-
-export const createObservableSimulation = <T = unknown>(
+const createSimulationModel = (
 	creationElementId: string,
 	elements: Element[],
 	cls: ConnectLine[],
-) => {
-	const connectLineMap = cls.reduce((map, cl) => {
-		const cls = map.get(cl.sourceId) ?? [];
-		return map.set(cl.sourceId, [...cls, cl]);
-	}, new Map<string, ConnectLine[]>());
-
+): SimulationModel => {
 	const elementsMap = elements.reduce(
 		(map, element) => map.set(element.id, element),
 		new Map<string, Element>(),
 	);
 
-	const creationElement = elements.find(
-		(el) => el.id === creationElementId && isCreationOperatorType(el.type),
-	);
+	const creationElement = elementsMap.get(creationElementId);
 
-	if (!creationElement) {
+	if (!creationElement || !isCreationOperatorType(creationElement.type)) {
 		throw new CreationNodeMissingError(creationElementId);
 	}
 
-	const os = createObservableExecutable(creationElement, {
-		elements: elementsMap,
-		connectLines: connectLineMap,
-	});
+	const connectLinePath = cls.reduce((map, cl) => {
+		const cls = map.get(cl.source.id) ?? [];
+		return map.set(cl.source.id, [...cls, cl]);
+	}, new Map<string, ConnectLine[]>());
 
-	if (!os.subscriberElement) {
+	const simElements = new Map<string, Element>();
+	const simConnectLines = new Map<string, ConnectLine>();
+	const simPipeElements: Element<unknown>[] = [];
+	const simConnectLinesFlow: string[] = [];
+	let subscriberElement: Element<unknown> | null = null;
+	let currentElement = creationElement;
+	while (currentElement != null) {
+		simElements.set(currentElement.id, currentElement);
+
+		const [cl] = connectLinePath.get(currentElement.id) ?? [];
+		const nextElement = cl != null ? elementsMap.get(cl.target.id) : null;
+		if (!nextElement) {
+			break;
+		}
+
+		simConnectLinesFlow.push(cl.id);
+		simConnectLines.set(cl.id, cl);
+
+		if (isPipeOperatorType(nextElement.type)) {
+			simPipeElements.push(nextElement);
+		} else if (isSubscriberType(nextElement.type)) {
+			subscriberElement = nextElement;
+		}
+
+		currentElement = nextElement;
+	}
+
+	if (!subscriberElement) {
 		throw new SubscriberNodeMissingError();
 	}
 
-	return new ObservableSimulation({
-		creationElement: os.creationElement,
-		pipeElements: os.pipeElements,
-		connectLines: os.connectLines,
-		subscriberElement: os.subscriberElement,
-	});
+	return {
+		creationElement,
+		subscriberElement,
+		pipeElements: simPipeElements,
+		elements: simElements,
+		connectLines: simConnectLines,
+		connectLinesFlow: simConnectLinesFlow,
+	};
+};
+
+export const createObservableSimulation = (
+	creationElementId: string,
+	elements: Element[],
+	cls: ConnectLine[],
+) => {
+	return new ObservableSimulation(createSimulationModel(creationElementId, elements, cls));
 };
 

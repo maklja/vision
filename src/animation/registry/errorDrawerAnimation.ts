@@ -14,6 +14,6 @@ export const errorDrawerAnimation = {
 			duration: 0.3,
 			stroke: theme.drawer.errorText.stroke,
 		},
-		options: { autoReverse: true },
+		options: { autoReverse: false },
 	}),
 };

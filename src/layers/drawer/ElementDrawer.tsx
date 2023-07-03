@@ -54,8 +54,9 @@ export const ElementDrawer = ({ element }: ElementDrawerProps) => {
 	);
 	return (
 		<Group>
-			{!select || dragging ? null : <ElementConnectPointsDrawer element={element} />}
+			{dragging ? null : <ElementConnectPointsDrawer element={element} />}
 			{drawer}
 		</Group>
 	);
 };
+

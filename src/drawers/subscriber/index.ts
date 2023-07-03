@@ -1,3 +1,2 @@
-import { SubscriberDrawer } from './SubscriberDrawer';
+export * from './SubscriberDrawer';
 
-export { SubscriberDrawer };

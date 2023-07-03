@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
-import { useAnimationEffect, useAnimationGroups } from '../../animation';
+import { useAnimationGroups } from '../../animation';
 import { DrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme, useSizes } from '../../theme';
 
@@ -40,26 +40,24 @@ export const PipeOperatorDrawer = ({
 	const { drawerSizes, fontSizes } = useSizes(theme, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
-	const drawerAnimation = useAnimationGroups(animation, [
-		{
-			node: mainShapeRef,
-			mapper: (a) => ({
-				config: a.mainShape,
-			}),
-		},
-		{
-			node: mainTextRef,
-			mapper: (a) => ({
-				config: a.text,
-			}),
-		},
-	]);
-
-	useAnimationEffect(drawerAnimation, {
+	useAnimationGroups(animation, {
+		animationFactories: [
+			{
+				node: mainShapeRef,
+				mapper: (a) => ({
+					config: a.mainShape,
+				}),
+			},
+			{
+				node: mainTextRef,
+				mapper: (a) => ({
+					config: a.text,
+				}),
+			},
+		],
 		onAnimationBegin,
 		onAnimationComplete,
 		onAnimationDestroy,
-		simulationId: animation?.simulationId,
 		drawerId: id,
 	});
 

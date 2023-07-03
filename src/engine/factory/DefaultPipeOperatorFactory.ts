@@ -1,11 +1,12 @@
-import { catchError, filter, ObservableInput, of, OperatorFunction } from 'rxjs';
+import { catchError, filter, map, ObservableInput, of, OperatorFunction } from 'rxjs';
 import { Element, ElementType, FilterElement } from '../../model';
 import { PipeOperatorFactory } from './OperatorFactory';
+import { FlowValue } from '../context';
 
-type PipeOperatorFunctionFactory<T> = (el: Element) => OperatorFunction<T, unknown>;
+type PipeOperatorFunctionFactory = (el: Element) => OperatorFunction<FlowValue, FlowValue>;
 
-export class DefaultPipeOperatorFactory<T = unknown> implements PipeOperatorFactory<T> {
-	private readonly supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory<T>>;
+export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
+	private readonly supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory>;
 
 	constructor() {
 		this.supportedOperators = new Map([
@@ -14,7 +15,7 @@ export class DefaultPipeOperatorFactory<T = unknown> implements PipeOperatorFact
 		]);
 	}
 
-	create(el: Element): OperatorFunction<T, unknown> {
+	create(el: Element): OperatorFunction<FlowValue, FlowValue> {
 		const factory = this.supportedOperators.get(el.type);
 		if (!factory) {
 			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
@@ -27,14 +28,25 @@ export class DefaultPipeOperatorFactory<T = unknown> implements PipeOperatorFact
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createCatchErrorOperator(): OperatorFunction<T, unknown> {
-		return catchError<T, ObservableInput<unknown>>(() => of(1));
+	private createCatchErrorOperator(): OperatorFunction<FlowValue, FlowValue> {
+		return catchError<FlowValue, ObservableInput<FlowValue>>(() =>
+			// TODO next step pass correct observable pipeline
+			of(1).pipe(
+				map((value) => ({
+					id: 'test',
+					hash: 'test',
+					value,
+				})),
+			),
+		);
 	}
 
-	private createFilterOperator(el: Element): OperatorFunction<T, unknown> {
+	private createFilterOperator(el: Element): OperatorFunction<FlowValue, FlowValue> {
 		const filterEl = el as FilterElement;
-		const filterFn = new Function(`return ${filterEl.properties.expression}`);
+		// TODO let user define his own function
+		const filterFn = new Function('value', 'index', filterEl.properties.expression);
 
-		return filter<T>(filterFn());
+		return filter((flowValue, index) => filterFn(flowValue.value, index));
 	}
 }
+

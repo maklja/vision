@@ -9,6 +9,7 @@ import {
 	createSimulation,
 	ObservableEvent,
 	ObservableEventType,
+	resetSimulation,
 	selectSimulationById,
 } from '../store/simulationSlice';
 import {
@@ -22,10 +23,12 @@ import { SimulatorStage } from './SimulatorStage';
 import {
 	addDrawerAnimation,
 	addSimulationAnimations,
+	removeSimulation,
 	selectSimulationNextAnimation,
 } from '../store/drawerAnimationsSlice';
-import { AnimationKey, MoveAnimation } from '../animation';
+import { MoveAnimation } from '../animation';
 import { ElementType } from '../model';
+import { createAnimations } from './createAnimations';
 
 export const Simulator = () => {
 	const [simulatorId] = useState(v1());
@@ -100,47 +103,7 @@ export const Simulator = () => {
 				return [...group, [prevEvent, currentEvent]];
 			}, [])
 			.map((eventsPair) => {
-				const [prevEvent, currentEvent] = eventsPair;
-				if (!currentEvent) {
-					return [];
-				}
-				const { sourceElementId, targetElementId, type, connectLineId, hash } =
-					currentEvent;
-				const connectLine = connectLines.find((cl) => cl.id === connectLineId);
-				if (!connectLine) {
-					return [];
-				}
-
-				const [, sourcePosition] = connectLine.points;
-				const [targetPosition] = connectLine.points.slice(-2);
-
-				const resultDrawerAnimation = {
-					drawerId: simulatorId,
-					key: AnimationKey.MoveDrawer,
-					data: {
-						sourcePosition,
-						targetPosition,
-						hash,
-					},
-				};
-				const targetAnimation = {
-					drawerId: targetElementId,
-					key:
-						type === ObservableEventType.Error
-							? AnimationKey.ErrorDrawer
-							: AnimationKey.HighlightDrawer,
-				};
-				// if not equals do not show previous drawer animation otherwise do show it
-				return prevEvent?.targetElementId !== sourceElementId
-					? [
-							{
-								drawerId: sourceElementId,
-								key: AnimationKey.HighlightDrawer,
-							},
-							resultDrawerAnimation,
-							targetAnimation,
-					  ]
-					: [resultDrawerAnimation, targetAnimation];
+				return createAnimations(eventsPair, connectLines, simulatorId);
 			})
 			.flat();
 
@@ -249,6 +212,22 @@ export const Simulator = () => {
 		setSimulationSubscription(null);
 	};
 
+	const handleSimulationReset = () => {
+		simulationSubscription?.unsubscribe();
+		setSimulationSubscription(null);
+
+		appDispatch(
+			resetSimulation({
+				id: simulatorId,
+			}),
+		);
+		appDispatch(
+			removeSimulation({
+				simulationId: simulatorId,
+			}),
+		);
+	};
+
 	if (!simulation) {
 		return null;
 	}
@@ -257,6 +236,7 @@ export const Simulator = () => {
 		<div>
 			<button onClick={handleSimulationStart}>Start simulation</button>
 			<button onClick={handleSimulationStop}>Stop simulation</button>
+			<button onClick={handleSimulationReset}>Reset simulation</button>
 			<SimulatorStage />
 		</div>
 	);
