@@ -44,7 +44,7 @@ export const eventPipeElementDescriptor: ElementDescriptor = {
 export const subscriberElementDescriptor: ElementDescriptor = {
 	input: {
 		allowedTypes: new Set<ElementType>([...creationOperators, ...pipeOperators]),
-		cardinality: 1,
+		cardinality: Number.POSITIVE_INFINITY,
 	},
 };
 

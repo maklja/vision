@@ -56,7 +56,7 @@ const e4: FilterElement = {
 	type: ElementType.Filter,
 	visible: true,
 	properties: {
-		expression: 'function(val) { return val % 2 === 0; }',
+		expression: 'return val % 2 === 0;',
 	},
 };
 
