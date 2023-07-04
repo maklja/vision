@@ -28,7 +28,7 @@ export class SimulationGraph {
 		private readonly cls: ReadonlyMap<string, ConnectLine[]>,
 	) {}
 
-	createObservableGraph(elementId: string) {
+	createObservableGraph(elementId: string): ReadonlyMap<string, GraphBranch> {
 		const nodes = new Map<string, GraphBranch>();
 
 		this.createGraph(elementId, nodes);
@@ -41,7 +41,6 @@ export class SimulationGraph {
 		}
 
 		const nodes = this.createGraphBranch(elementId);
-
 		const refNodeIds = nodes
 			.flatMap((node) => node.edges)
 			.filter((edge) => edge.type === GraphNodeType.Reference)

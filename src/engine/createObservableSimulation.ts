@@ -1,16 +1,10 @@
-import {
-	ConnectLine,
-	Element,
-	isCreationOperatorType,
-	isPipeOperatorType,
-	isSubscriberType,
-} from '../model';
+import { ConnectLine, Element, isCreationOperatorType } from '../model';
 import { SimulationModel } from './context';
-import { CreationNodeMissingError, SubscriberNodeMissingError } from './errors';
 import { ObservableSimulation } from './ObservableSimulation';
+import { SimulationGraph } from './simulationGraph';
 
 const createSimulationModel = (
-	creationElementId: string,
+	entryElementId: string,
 	elements: Element[],
 	cls: ConnectLine[],
 ): SimulationModel => {
@@ -18,64 +12,35 @@ const createSimulationModel = (
 		(map, element) => map.set(element.id, element),
 		new Map<string, Element>(),
 	);
-
-	const creationElement = elementsMap.get(creationElementId);
-
-	if (!creationElement || !isCreationOperatorType(creationElement.type)) {
-		throw new CreationNodeMissingError(creationElementId);
-	}
-
 	const connectLinePath = cls.reduce((map, cl) => {
 		const cls = map.get(cl.source.id) ?? [];
 		return map.set(cl.source.id, [...cls, cl]);
 	}, new Map<string, ConnectLine[]>());
 
-	const simElements = new Map<string, Element>();
-	const simConnectLines = new Map<string, ConnectLine>();
-	const simPipeElements: Element<unknown>[] = [];
-	const simConnectLinesFlow: string[] = [];
-	let subscriberElement: Element<unknown> | null = null;
-	let currentElement = creationElement;
-	while (currentElement != null) {
-		simElements.set(currentElement.id, currentElement);
-
-		const [cl] = connectLinePath.get(currentElement.id) ?? [];
-		const nextElement = cl != null ? elementsMap.get(cl.target.id) : null;
-		if (!nextElement) {
-			break;
-		}
-
-		simConnectLinesFlow.push(cl.id);
-		simConnectLines.set(cl.id, cl);
-
-		if (isPipeOperatorType(nextElement.type)) {
-			simPipeElements.push(nextElement);
-		} else if (isSubscriberType(nextElement.type)) {
-			subscriberElement = nextElement;
-		}
-
-		currentElement = nextElement;
+	const entryElement = elementsMap.get(entryElementId);
+	if (!entryElement || !isCreationOperatorType(entryElement.type)) {
+		throw new Error(`Invalid entry element. Only creation elements are allowed`);
 	}
 
-	if (!subscriberElement) {
-		throw new SubscriberNodeMissingError();
-	}
+	const simulationGraph = new SimulationGraph(elementsMap, connectLinePath);
+	const simulationGraphBranches = simulationGraph.createObservableGraph(entryElementId);
 
 	return {
-		creationElement,
-		subscriberElement,
-		pipeElements: simPipeElements,
-		elements: simElements,
-		connectLines: simConnectLines,
-		connectLinesFlow: simConnectLinesFlow,
+		entryElementId,
+		elements: elementsMap,
+		connectLines: cls.reduce(
+			(clsMap, cl) => clsMap.set(cl.id, cl),
+			new Map<string, ConnectLine>(),
+		),
+		graphBranches: simulationGraphBranches,
 	};
 };
 
 export const createObservableSimulation = (
-	creationElementId: string,
+	entryElementId: string,
 	elements: Element[],
 	cls: ConnectLine[],
 ) => {
-	return new ObservableSimulation(createSimulationModel(creationElementId, elements, cls));
+	return new ObservableSimulation(createSimulationModel(entryElementId, elements, cls));
 };
 
