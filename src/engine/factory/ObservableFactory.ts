@@ -85,18 +85,17 @@ export class ObservableFactory {
 					};
 				});
 			const operator = this.createOperator(el, refObservables);
-			if (operator) {
-				pipeOperators.push(operator);
-			}
+			pipeOperators.push(...operator);
 
 			const clOperators = currentNode.edges
 				.filter((edge) => edge.type === GraphNodeType.Direct)
-				.flatMap((edge) =>
-					this.createConnectLinePipeOperators(
-						el,
+				.flatMap((edge) => {
+					const nextEl = simulationModel.getElement(edge.targetNodeId);
+					return this.createConnectLinePipeOperators(
+						nextEl,
 						simulationModel.getConnectLine(edge.id),
-					),
-				);
+					);
+				});
 			pipeOperators.push(...clOperators);
 		}
 
@@ -104,34 +103,30 @@ export class ObservableFactory {
 	}
 
 	private createOperator(el: Element, refObservablesData: ReferenceObservableData[]) {
-		if (!isPipeOperatorType(el.type)) {
-			return null;
+		if (isPipeOperatorType(el.type)) {
+			return [
+				this.pipeOperatorFactory.create(el, {
+					referenceObservables: refObservablesData.map((refObservable) => ({
+						observable: refObservable.observable,
+						invokeTrigger: (value: FlowValue) =>
+							this.flowManager.handleNextEvent(value, refObservable.connectLine),
+					})),
+				}),
+			];
 		}
 
-		return this.pipeOperatorFactory.create(el, {
-			referenceObservables: refObservablesData.map((refObservable) => ({
-				observable: refObservable.observable,
-				invokeTrigger: (error: FlowValue) =>
-					this.flowManager.handleNextEvent(error, refObservable.connectLine),
-			})),
-		});
+		return [];
 	}
 
 	private createConnectLinePipeOperators(
 		el: Element,
 		cl: ConnectLine,
 	): OperatorFunction<FlowValue, FlowValue>[] {
-		const pipeOperators: OperatorFunction<FlowValue, FlowValue>[] = [];
 		if (isSubscriberType(el.type)) {
-			pipeOperators.push(
-				this.createControlOperator(cl),
-				this.createUnhandledErrorOperator(cl),
-			);
-		} else {
-			pipeOperators.push(this.createControlOperator(cl), this.createErrorTrackerOperator(cl));
+			return [this.createControlOperator(cl), this.createUnhandledErrorOperator(cl)];
 		}
 
-		return pipeOperators;
+		return [this.createControlOperator(cl), this.createErrorTrackerOperator(cl)];
 	}
 
 	private createControlOperator(cl: ConnectLine) {
