@@ -25,15 +25,12 @@ const createSimulationModel = (
 	const simulationGraph = new SimulationGraph(elementsMap, connectLinePath);
 	const simulationGraphBranches = simulationGraph.createObservableGraph(entryElementId);
 
-	return {
+	return new SimulationModel(
 		entryElementId,
-		elements: elementsMap,
-		connectLines: cls.reduce(
-			(clsMap, cl) => clsMap.set(cl.id, cl),
-			new Map<string, ConnectLine>(),
-		),
-		graphBranches: simulationGraphBranches,
-	};
+		elementsMap,
+		cls.reduce((clsMap, cl) => clsMap.set(cl.id, cl), new Map<string, ConnectLine>()),
+		simulationGraphBranches,
+	);
 };
 
 export const createObservableSimulation = (
