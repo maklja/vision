@@ -12,6 +12,7 @@ import {
 	Element,
 	IntervalElement,
 	CatchErrorElement,
+	IifElement,
 } from './model';
 import { StageState } from './store/stageSlice';
 import { createThemeContext } from './theme';
@@ -35,6 +36,18 @@ const e3: FromElement = {
 	visible: true,
 	properties: {
 		input: [3, 2, 3, 4],
+	},
+};
+
+const iifElement: IifElement = {
+	id: 'iifElement',
+	size: 1,
+	x: 50,
+	y: 400,
+	type: ElementType.IIf,
+	visible: true,
+	properties: {
+		conditionExpression: 'true',
 	},
 };
 
@@ -114,7 +127,7 @@ root.render(
 	<Provider
 		store={setupStore({
 			stage: {
-				elements: [e1, subscriber1, subscriber2, e3, e4, e5, i1, ce1],
+				elements: [e1, subscriber1, subscriber2, e3, e4, e5, i1, ce1, iifElement],
 				connectLines: [],
 				draftConnectLine: null,
 				highlighted: [],

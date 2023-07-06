@@ -1,6 +1,7 @@
 export enum ElementType {
 	Of = 'of',
 	From = 'from',
+	IIf = 'iif',
 	Interval = 'interval',
 	Filter = 'filter',
 	Subscriber = 'subscriber',
@@ -12,6 +13,7 @@ export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Of,
 	ElementType.From,
 	ElementType.Interval,
+	ElementType.IIf,
 ]);
 
 export const filterOperators: ReadonlySet<ElementType> = new Set([ElementType.Filter]);

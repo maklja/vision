@@ -1,10 +1,11 @@
 import {
 	OfOperatorDrawer,
 	FromOperatorDrawer,
+	IntervalOperatorDrawer,
+	IifOperatorDrawer,
 	SubscriberDrawer,
 	FilterOperatorDrawer,
 	DrawerProps,
-	IntervalOperatorDrawer,
 	ResultDrawer,
 	CatchErrorOperatorDrawer,
 } from '../../drawers';
@@ -15,6 +16,8 @@ const createFromDrawer = (props: DrawerProps) => <FromOperatorDrawer {...props} 
 const createOfDrawer = (props: DrawerProps) => <OfOperatorDrawer {...props} />;
 
 const createIntervalDrawer = (props: DrawerProps) => <IntervalOperatorDrawer {...props} />;
+
+const createIifDrawer = (props: DrawerProps) => <IifOperatorDrawer {...props} />;
 
 const createFilterOperatorDrawer = (props: DrawerProps) => <FilterOperatorDrawer {...props} />;
 
@@ -33,6 +36,7 @@ const elementFactories = new Map<ElementType, ElementDrawerFactory>([
 	[ElementType.Of, createOfDrawer],
 	[ElementType.From, createFromDrawer],
 	[ElementType.Interval, createIntervalDrawer],
+	[ElementType.IIf, createIifDrawer],
 	[ElementType.Filter, createFilterOperatorDrawer],
 	[ElementType.Subscriber, createSubscriberDrawer],
 	[ElementType.CatchError, createCatchErrorDrawer],

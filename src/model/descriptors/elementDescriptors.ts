@@ -22,6 +22,14 @@ export const creationElementDescriptor: ElementDescriptor = {
 	},
 };
 
+export const iifElementDescriptor: ElementDescriptor = {
+	...creationElementDescriptor,
+	event: {
+		allowedTypes: new Set<ElementType>([...creationOperators]),
+		cardinality: 2,
+	},
+};
+
 export const pipeElementDescriptor: ElementDescriptor = {
 	input: {
 		allowedTypes: new Set<ElementType>([...creationOperators, ...pipeOperators]),
@@ -48,9 +56,18 @@ export const subscriberElementDescriptor: ElementDescriptor = {
 	},
 };
 
+const findCreationElementDescriptor = (elementType: ElementType): ElementDescriptor => {
+	switch (elementType) {
+		case ElementType.IIf:
+			return iifElementDescriptor;
+		default:
+			return creationElementDescriptor;
+	}
+};
+
 export const findElementDescriptor = (elementType: ElementType): ElementDescriptor => {
 	if (isCreationOperatorType(elementType)) {
-		return creationElementDescriptor;
+		return findCreationElementDescriptor(elementType);
 	}
 
 	if (isSubscriberType(elementType)) {
