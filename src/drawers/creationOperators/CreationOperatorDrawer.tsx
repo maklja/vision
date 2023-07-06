@@ -101,36 +101,36 @@ export const CreationOperatorDrawer = ({
 		});
 
 	return (
-		<Group visible={visible && Boolean(mainTextRef && mainShapeRef)}>
-			<Group
-				draggable
-				x={x}
-				y={y}
-				onMouseOver={handleMouseOver}
-				onMouseOut={handleMouseOut}
-				onMouseDown={handleMouseDown}
-				onDragMove={handleDragMove}
-				onDragStart={handleDragStart}
-				onDragEnd={handleDragEnd}
-			>
-				<Circle
-					{...drawerStyle.element}
-					ref={(ref) => setMainShapeRef(ref)}
-					id={id}
-					radius={drawerSizes.radius}
-					x={drawerSizes.radius}
-					y={drawerSizes.radius}
-				/>
-				<Text
-					{...drawerStyle.text}
-					ref={(ref) => setMainTextRef(ref)}
-					text={title}
-					x={textX}
-					y={textY}
-					fontSize={fontSizes.primary}
-					listening={false}
-				/>
-			</Group>
+		<Group
+			visible={visible && Boolean(mainTextRef && mainShapeRef)}
+			draggable
+			x={x}
+			y={y}
+			onMouseOver={handleMouseOver}
+			onMouseOut={handleMouseOut}
+			onMouseDown={handleMouseDown}
+			onDragMove={handleDragMove}
+			onDragStart={handleDragStart}
+			onDragEnd={handleDragEnd}
+		>
+			<Circle
+				{...drawerStyle.element}
+				ref={(ref) => setMainShapeRef(ref)}
+				id={id}
+				radius={drawerSizes.radius}
+				x={drawerSizes.radius}
+				y={drawerSizes.radius}
+			/>
+			<Text
+				{...drawerStyle.text}
+				ref={(ref) => setMainTextRef(ref)}
+				text={title}
+				x={textX}
+				y={textY}
+				fontSize={fontSizes.primary}
+				listening={false}
+			/>
 		</Group>
 	);
 };
+
