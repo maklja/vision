@@ -1,4 +1,10 @@
-import { ConnectPointsDrawerProps, ConnectPointsDrawer } from '../../drawers';
+import {
+	ConnectPointsDrawerProps,
+	ConnectPointsDrawer,
+	ConnectPointsOptions,
+	CheckIconDrawer,
+	CloseIconDrawer,
+} from '../../drawers';
 import {
 	ConnectPointType,
 	Element,
@@ -63,26 +69,68 @@ const createPositionForSubscriberElement = (
 	offset: 42,
 });
 
+const createDefaultElementProps = (
+	elType: ElementType,
+	cpVisibility: ConnectPointTypeVisibility,
+): ConnectPointsOptions => {
+	const { inputVisible, eventsVisible, outputVisible } = calcConnectPointVisibility(elType);
+	return {
+		left: {
+			type: ConnectPointType.Input,
+			visible: inputVisible && (cpVisibility.input ?? true),
+		},
+		right: {
+			type: ConnectPointType.Output,
+			visible: outputVisible && (cpVisibility.output ?? true),
+		},
+		top: {
+			type: ConnectPointType.Event,
+			visible: eventsVisible && (cpVisibility.event ?? true),
+		},
+		bottom: {
+			type: ConnectPointType.Event,
+			visible: eventsVisible && (cpVisibility.event ?? true),
+		},
+	};
+};
+
+const createIifOperatorProps = (
+	elType: ElementType,
+	cpVisibility: ConnectPointTypeVisibility,
+): ConnectPointsOptions => {
+	const { inputVisible, eventsVisible, outputVisible } = calcConnectPointVisibility(elType);
+	return {
+		left: {
+			type: ConnectPointType.Input,
+			visible: inputVisible && (cpVisibility.input ?? true),
+		},
+		right: {
+			type: ConnectPointType.Output,
+			visible: outputVisible && (cpVisibility.output ?? true),
+		},
+		top: {
+			type: ConnectPointType.Event,
+			visible: eventsVisible && (cpVisibility.event ?? true),
+			createIcon: (props) => <CheckIconDrawer {...props} />,
+		},
+		bottom: {
+			type: ConnectPointType.Event,
+			visible: eventsVisible && (cpVisibility.event ?? true),
+			createIcon: (props) => <CloseIconDrawer {...props} />,
+		},
+	};
+};
+
 const createPropsByElementDescriptor = (
 	elType: ElementType,
 	cpVisibility: ConnectPointTypeVisibility,
-) => {
-	const { inputVisible, eventsVisible, outputVisible } = calcConnectPointVisibility(elType);
-	const visibleConnectPoints = {
-		left: inputVisible && (cpVisibility.input ?? true),
-		right: outputVisible && (cpVisibility.output ?? true),
-		bottom: eventsVisible && (cpVisibility.event ?? true),
-		top: eventsVisible && (cpVisibility.event ?? true),
-	};
-	return {
-		visibleConnectPoints,
-		connectionPointTypes: {
-			left: inputVisible ? ConnectPointType.Input : null,
-			right: outputVisible ? ConnectPointType.Output : null,
-			top: eventsVisible ? ConnectPointType.Event : null,
-			bottom: eventsVisible ? ConnectPointType.Event : null,
-		},
-	};
+): ConnectPointsOptions => {
+	switch (elType) {
+		case ElementType.IIf:
+			return createIifOperatorProps(elType, cpVisibility);
+		default:
+			return createDefaultElementProps(elType, cpVisibility);
+	}
 };
 
 const creationOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
@@ -95,7 +143,7 @@ const creationOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
 	return (
 		<ConnectPointsDrawer
 			{...props}
-			{...createPropsByElementDescriptor(el.type, cpVisibility)}
+			connectPointsOptions={createPropsByElementDescriptor(el.type, cpVisibility)}
 			x={position.x}
 			y={position.y}
 			width={position.width}
@@ -115,7 +163,7 @@ const pipeOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
 	return (
 		<ConnectPointsDrawer
 			{...props}
-			{...createPropsByElementDescriptor(el.type, cpVisibility)}
+			connectPointsOptions={createPropsByElementDescriptor(el.type, cpVisibility)}
 			x={position.x}
 			y={position.y}
 			width={position.width}
@@ -135,7 +183,7 @@ const subscriberOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
 	return (
 		<ConnectPointsDrawer
 			{...props}
-			{...createPropsByElementDescriptor(el.type, cpVisibility)}
+			connectPointsOptions={createPropsByElementDescriptor(el.type, cpVisibility)}
 			x={position.x}
 			y={position.y}
 			width={position.width}

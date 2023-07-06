@@ -1,13 +1,14 @@
 import { Path } from 'react-konva';
 import { ThemeContext, useConnectPointTheme, useSizes } from '../../theme';
 
-export interface EventIconDrawerProps {
+export interface CloseIconDrawerProps {
 	theme: ThemeContext;
 	highlight?: boolean;
 }
 
-const ICON_SCALE_CORRECTION = 1.2;
-export const EventIconDrawer = ({ theme, highlight }: EventIconDrawerProps) => {
+const ICON_SCALE_CORRECTION = 1.8;
+
+export const CloseIconDrawer = ({ theme, highlight }: CloseIconDrawerProps) => {
 	const connectPointElementTheme = useConnectPointTheme({ highlight }, theme);
 	const { connectPointSizes } = useSizes(theme);
 	const scaleFactor = (connectPointSizes.radius / 16) * ICON_SCALE_CORRECTION;
@@ -18,7 +19,7 @@ export const EventIconDrawer = ({ theme, highlight }: EventIconDrawerProps) => {
 			x={(-connectPointSizes.radius / 2) * ICON_SCALE_CORRECTION}
 			y={(-connectPointSizes.radius / 2) * ICON_SCALE_CORRECTION}
 			scale={{ x: scaleFactor, y: scaleFactor }}
-			data="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"
+			data="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
 		/>
 	);
 };

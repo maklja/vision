@@ -25,7 +25,10 @@ export const pipeOperators: ReadonlySet<ElementType> = new Set([
 	...errorHandlerOperators,
 ]);
 
-export const eventPipeOperators: ReadonlySet<ElementType> = new Set([...errorHandlerOperators]);
+export const eventPipeOperators: ReadonlySet<ElementType> = new Set([
+	...errorHandlerOperators,
+	ElementType.IIf,
+]);
 
 export const subscriberOperators: ReadonlySet<ElementType> = new Set([ElementType.Subscriber]);
 

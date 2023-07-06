@@ -1,7 +1,7 @@
 import { ElementType } from '../element';
 
 export interface ConnectPointDescriptor {
-	allowedTypes: Set<ElementType>;
+	allowedTypes: ReadonlySet<ElementType>;
 	cardinality: number;
 }
 
