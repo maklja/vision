@@ -16,7 +16,7 @@ export type ConnectPointAnimations = {
 };
 
 export type ConnectPointsOptions = {
-	[key in ConnectPointPosition]?: {
+	[key in ConnectPointPosition]: {
 		type: ConnectPointType;
 		visible: boolean;
 		createIcon?: (props: ConnectPointIconDrawerProps) => ReactNode;
@@ -122,14 +122,14 @@ export const ConnectPointsDrawer = ({
 
 	return (
 		<Group>
-			{connectPointsOptions?.top?.visible && (
+			{connectPointsOptions?.top.visible && (
 				<Line
 					{...theme.connectLine.line}
 					points={[topX, topY, centerX, centerY]}
 					perfectDrawEnabled={false}
 				/>
 			)}
-			{connectPointsOptions?.top?.visible && (
+			{connectPointsOptions?.top.visible && (
 				<ConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Top)}
 					type={connectPointsOptions?.top.type}
@@ -150,7 +150,7 @@ export const ConnectPointsDrawer = ({
 				/>
 			)}
 
-			{connectPointsOptions?.right?.visible && (
+			{connectPointsOptions?.right.visible && (
 				<Line
 					{...theme.connectLine.line}
 					points={[rightX, rightY, centerX, centerY]}
@@ -158,7 +158,7 @@ export const ConnectPointsDrawer = ({
 				/>
 			)}
 
-			{connectPointsOptions?.right?.visible && (
+			{connectPointsOptions?.right.visible && (
 				<ConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Right)}
 					type={connectPointsOptions.right.type}
@@ -179,7 +179,7 @@ export const ConnectPointsDrawer = ({
 				/>
 			)}
 
-			{connectPointsOptions?.bottom?.visible && (
+			{connectPointsOptions?.bottom.visible && (
 				<Line
 					{...theme.connectLine.line}
 					points={[bottomX, bottomY, centerX, centerY]}
@@ -187,7 +187,7 @@ export const ConnectPointsDrawer = ({
 				/>
 			)}
 
-			{connectPointsOptions?.bottom?.visible && (
+			{connectPointsOptions?.bottom.visible && (
 				<ConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Bottom)}
 					type={connectPointsOptions.bottom.type}
@@ -208,7 +208,7 @@ export const ConnectPointsDrawer = ({
 				/>
 			)}
 
-			{connectPointsOptions?.left?.visible && (
+			{connectPointsOptions?.left.visible && (
 				<Line
 					{...theme.connectLine.line}
 					points={[leftX, leftY, centerX, centerY]}
@@ -216,7 +216,7 @@ export const ConnectPointsDrawer = ({
 				/>
 			)}
 
-			{connectPointsOptions?.left?.visible && (
+			{connectPointsOptions?.left.visible && (
 				<ConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Left)}
 					type={connectPointsOptions.left.type}

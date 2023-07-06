@@ -1,6 +1,15 @@
 import { DrawerAnimationTemplate, animationRegistry } from '../../animation';
-import { ConnectPointAnimations, createConnectPointDrawerId } from '../../drawers';
-import { ConnectPointPosition, Element } from '../../model';
+import {
+	ConnectPointAnimations,
+	ConnectPointsOptions,
+	createConnectPointDrawerId,
+} from '../../drawers';
+import {
+	ConnectPointPosition,
+	ConnectPointTypeVisibility,
+	Element,
+	ElementType,
+} from '../../model';
 import { DrawerAnimation, selectDrawerAnimationById } from '../../store/drawerAnimationsSlice';
 import { useAppSelector } from '../../store/rootState';
 import {
@@ -11,6 +20,7 @@ import {
 import { ThemeContext, useSizes } from '../../theme';
 import { findConnectPointsDrawerFactory } from './createConnectPointsDrawer';
 import { useConnectPointHandlers } from './state';
+import { createConnectPointsProps } from './connectPoints';
 
 const createAnimationConfig = (
 	animation: DrawerAnimation | null,
@@ -49,6 +59,36 @@ const retrieveConnectPointAnimation = (
 	};
 };
 
+const createConnectPointsOptions = (
+	elType: ElementType,
+	cpVisibility: ConnectPointTypeVisibility = {
+		input: false,
+		event: false,
+		output: false,
+	},
+): ConnectPointsOptions => {
+	const defaultProps = createConnectPointsProps(elType);
+	return {
+		...defaultProps,
+		left: {
+			...defaultProps.left,
+			visible: defaultProps.left.visible && (cpVisibility.input ?? true),
+		},
+		right: {
+			...defaultProps.right,
+			visible: defaultProps.right.visible && (cpVisibility.output ?? true),
+		},
+		top: {
+			...defaultProps.top,
+			visible: defaultProps.top.visible && (cpVisibility.event ?? true),
+		},
+		bottom: {
+			...defaultProps.bottom,
+			visible: defaultProps.bottom.visible && (cpVisibility.event ?? true),
+		},
+	};
+};
+
 export interface ElementConnectPointsDrawerProps {
 	element: Element;
 }
@@ -60,11 +100,15 @@ export const ElementConnectPointsDrawer = ({ element }: ElementConnectPointsDraw
 		selectHighlightedConnectPointsByElementId(element.id),
 	).map((cp) => cp.position);
 	const elSelection = useAppSelector(selectElementSelection(element.id));
+	const connectPointsOptions = createConnectPointsOptions(
+		element.type,
+		elSelection?.visibleConnectPoints,
+	);
 	const connectPointDrawerFactory = findConnectPointsDrawerFactory(element.type);
 	const sizeConfig = useSizes(theme, element.size);
 	const connectPointAnimations = retrieveConnectPointAnimation(element.id, theme);
 
-	if (!elSelection || !connectPointDrawerFactory) {
+	if (!connectPointDrawerFactory) {
 		return null;
 	}
 
@@ -75,10 +119,10 @@ export const ElementConnectPointsDrawer = ({ element }: ElementConnectPointsDraw
 			theme,
 			connectPointAnimations,
 			highlightedConnectPoints,
+			connectPointsOptions,
 		},
 		element,
 		sizeConfig,
-		elSelection.visibleConnectPoints,
 	);
 };
 

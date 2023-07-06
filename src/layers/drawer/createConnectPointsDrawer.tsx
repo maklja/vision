@@ -1,19 +1,10 @@
+import { ConnectPointsDrawerProps, ConnectPointsDrawer } from '../../drawers';
 import {
-	ConnectPointsDrawerProps,
-	ConnectPointsDrawer,
-	ConnectPointsOptions,
-	CheckIconDrawer,
-	CloseIconDrawer,
-} from '../../drawers';
-import {
-	ConnectPointType,
 	Element,
 	ElementType,
 	creationOperators,
-	calcConnectPointVisibility,
 	pipeOperators,
 	subscriberOperators,
-	ConnectPointTypeVisibility,
 } from '../../model';
 import { SizeConfig } from '../../theme/sizes';
 
@@ -21,7 +12,6 @@ export type ConnectPointsDrawerFactory = (
 	props: ConnectPointsDrawerProps,
 	el: Element,
 	sizeConfig: SizeConfig,
-	cpVisibility: ConnectPointTypeVisibility,
 ) => JSX.Element;
 
 const createPositionForCircularOperator = (
@@ -69,81 +59,15 @@ const createPositionForSubscriberElement = (
 	offset: 42,
 });
 
-const createDefaultElementProps = (
-	elType: ElementType,
-	cpVisibility: ConnectPointTypeVisibility,
-): ConnectPointsOptions => {
-	const { inputVisible, eventsVisible, outputVisible } = calcConnectPointVisibility(elType);
-	return {
-		left: {
-			type: ConnectPointType.Input,
-			visible: inputVisible && (cpVisibility.input ?? true),
-		},
-		right: {
-			type: ConnectPointType.Output,
-			visible: outputVisible && (cpVisibility.output ?? true),
-		},
-		top: {
-			type: ConnectPointType.Event,
-			visible: eventsVisible && (cpVisibility.event ?? true),
-		},
-		bottom: {
-			type: ConnectPointType.Event,
-			visible: eventsVisible && (cpVisibility.event ?? true),
-		},
-	};
-};
-
-const createIifOperatorProps = (
-	elType: ElementType,
-	cpVisibility: ConnectPointTypeVisibility,
-): ConnectPointsOptions => {
-	const { inputVisible, eventsVisible, outputVisible } = calcConnectPointVisibility(elType);
-	return {
-		left: {
-			type: ConnectPointType.Input,
-			visible: inputVisible && (cpVisibility.input ?? true),
-		},
-		right: {
-			type: ConnectPointType.Output,
-			visible: outputVisible && (cpVisibility.output ?? true),
-		},
-		top: {
-			type: ConnectPointType.Event,
-			visible: eventsVisible && (cpVisibility.event ?? true),
-			createIcon: (props) => <CheckIconDrawer {...props} />,
-		},
-		bottom: {
-			type: ConnectPointType.Event,
-			visible: eventsVisible && (cpVisibility.event ?? true),
-			createIcon: (props) => <CloseIconDrawer {...props} />,
-		},
-	};
-};
-
-const createPropsByElementDescriptor = (
-	elType: ElementType,
-	cpVisibility: ConnectPointTypeVisibility,
-): ConnectPointsOptions => {
-	switch (elType) {
-		case ElementType.IIf:
-			return createIifOperatorProps(elType, cpVisibility);
-		default:
-			return createDefaultElementProps(elType, cpVisibility);
-	}
-};
-
 const creationOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
 	props: ConnectPointsDrawerProps,
 	el: Element,
 	sizeConfig: SizeConfig,
-	cpVisibility: ConnectPointTypeVisibility,
 ) => {
 	const position = createPositionForCircularOperator(el, sizeConfig.drawerSizes);
 	return (
 		<ConnectPointsDrawer
 			{...props}
-			connectPointsOptions={createPropsByElementDescriptor(el.type, cpVisibility)}
 			x={position.x}
 			y={position.y}
 			width={position.width}
@@ -157,13 +81,11 @@ const pipeOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
 	props: ConnectPointsDrawerProps,
 	el: Element,
 	sizeConfig: SizeConfig,
-	cpVisibility: ConnectPointTypeVisibility,
 ) => {
 	const position = createPositionForPipeElement(el, sizeConfig.drawerSizes);
 	return (
 		<ConnectPointsDrawer
 			{...props}
-			connectPointsOptions={createPropsByElementDescriptor(el.type, cpVisibility)}
 			x={position.x}
 			y={position.y}
 			width={position.width}
@@ -177,13 +99,11 @@ const subscriberOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
 	props: ConnectPointsDrawerProps,
 	el: Element,
 	sizeConfig: SizeConfig,
-	cpVisibility: ConnectPointTypeVisibility,
 ) => {
 	const position = createPositionForSubscriberElement(el, sizeConfig.drawerSizes);
 	return (
 		<ConnectPointsDrawer
 			{...props}
-			connectPointsOptions={createPropsByElementDescriptor(el.type, cpVisibility)}
 			x={position.x}
 			y={position.y}
 			width={position.width}
