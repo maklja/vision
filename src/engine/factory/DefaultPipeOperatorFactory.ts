@@ -1,9 +1,21 @@
-import { catchError, filter, map, ObservableInput, of, OperatorFunction } from 'rxjs';
+import { catchError, filter, Observable, ObservableInput, OperatorFunction } from 'rxjs';
 import { Element, ElementType, FilterElement } from '../../model';
 import { PipeOperatorFactory } from './OperatorFactory';
 import { FlowValue } from '../context';
 
-type PipeOperatorFunctionFactory = (el: Element) => OperatorFunction<FlowValue, FlowValue>;
+export interface ObservableOptions {
+	observable: Observable<FlowValue>;
+	invokeTrigger?: (value: FlowValue) => void;
+}
+
+export interface PipeOperatorOptions {
+	referenceObservables: readonly ObservableOptions[];
+}
+
+type PipeOperatorFunctionFactory = (
+	el: Element,
+	options: PipeOperatorOptions,
+) => OperatorFunction<FlowValue, FlowValue>;
 
 export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 	private readonly supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory>;
@@ -15,30 +27,39 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 		]);
 	}
 
-	create(el: Element): OperatorFunction<FlowValue, FlowValue> {
+	create(
+		el: Element,
+		options: PipeOperatorOptions = { referenceObservables: [] },
+	): OperatorFunction<FlowValue, FlowValue> {
 		const factory = this.supportedOperators.get(el.type);
 		if (!factory) {
 			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
 		}
 
-		return factory(el);
+		return factory(el, options);
 	}
 
 	isSupported(el: Element): boolean {
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createCatchErrorOperator(): OperatorFunction<FlowValue, FlowValue> {
-		return catchError<FlowValue, ObservableInput<FlowValue>>(() =>
-			// TODO next step pass correct observable pipeline
-			of(1).pipe(
-				map((value) => ({
-					id: 'test',
-					hash: 'test',
-					value,
-				})),
-			),
-		);
+	private createCatchErrorOperator(
+		_el: Element,
+		options: PipeOperatorOptions,
+	): OperatorFunction<FlowValue, FlowValue> {
+		if (options.referenceObservables.length === 0) {
+			throw new Error('Reference observable is required for catchError operator');
+		}
+
+		if (options.referenceObservables.length > 1) {
+			throw new Error('Too many reference observables for catchError operator');
+		}
+
+		const [refObservable] = options.referenceObservables;
+		return catchError<FlowValue, ObservableInput<FlowValue>>((error) => {
+			refObservable.invokeTrigger?.(error);
+			return refObservable.observable;
+		});
 	}
 
 	private createFilterOperator(el: Element): OperatorFunction<FlowValue, FlowValue> {

@@ -3,6 +3,12 @@ import { ConnectLine, Element, isPipeOperatorType, isSubscriberType } from '../.
 import { FlowManager, FlowValue, SimulationModel } from '../context';
 import { DefaultCreationOperatorFactory } from './DefaultCreationOperatorFactory';
 import { DefaultPipeOperatorFactory } from './DefaultPipeOperatorFactory';
+import { GraphBranch, GraphNodeType } from '../simulationGraph';
+
+interface ReferenceObservableData {
+	observable: Observable<FlowValue>;
+	connectLine: ConnectLine;
+}
 
 export interface CreateObservableParams {
 	creationElement: Element;
@@ -19,41 +25,107 @@ export class ObservableFactory {
 	constructor(private readonly flowManager: FlowManager) {}
 
 	createObservable(simulationModel: SimulationModel) {
-		const { creationElement, connectLines, pipeElements, subscriberElement } = simulationModel;
+		const { entryElementId } = simulationModel;
 
-		const connectLinesPipes = Array.from(connectLines.values()).reduce((map, cl) => {
-			const cls = map.get(cl.source.id) ?? [];
-			return map.set(cl.source.id, [...cls, cl]);
-		}, new Map<string, ConnectLine[]>());
+		const observables = new Map<string, Observable<FlowValue>>();
+		const graphBranchesDependencyQueue: string[] = [entryElementId];
+		while (graphBranchesDependencyQueue.length > 0) {
+			const curElId = graphBranchesDependencyQueue[0];
+			const graphBranch = simulationModel.getGraphBranch(curElId);
 
-		const flowElements = [creationElement, ...pipeElements, subscriberElement];
-
-		const observable = this.creationOperatorFactory.create(creationElement);
-		const pipeOperators: OperatorFunction<FlowValue, FlowValue>[] = [];
-		for (const curFlowEl of flowElements) {
-			const [cl] = connectLinesPipes.get(curFlowEl.id) ?? [];
-			if (!cl) {
+			const missingNodeIds = [...graphBranch.refNodeIds].filter(
+				(elId) => !observables.has(elId),
+			);
+			if (missingNodeIds.length > 0) {
+				graphBranchesDependencyQueue.unshift(...missingNodeIds);
 				continue;
 			}
 
-			if (isPipeOperatorType(curFlowEl.type)) {
-				pipeOperators.push(this.pipeOperatorFactory.create(curFlowEl));
-			}
-
-			if (isSubscriberType(curFlowEl.type)) {
-				pipeOperators.push(
-					this.createControlOperator(cl),
-					this.createUnhandledErrorOperator(cl),
-				);
-			} else {
-				pipeOperators.push(
-					this.createControlOperator(cl),
-					this.createErrorTrackerOperator(cl),
-				);
-			}
+			observables.set(
+				curElId,
+				this.createBranchObservable(graphBranch, simulationModel, observables),
+			);
+			graphBranchesDependencyQueue.shift();
 		}
 
-		return observable.pipe(...(pipeOperators as [])) as Observable<unknown>;
+		const mainObservable = observables.get(entryElementId);
+		if (!mainObservable) {
+			throw new Error(`Failed to generate observable for element with id ${entryElementId}`);
+		}
+
+		return mainObservable;
+	}
+
+	private createBranchObservable(
+		graphBranch: GraphBranch,
+		simulationModel: SimulationModel,
+		observables: Map<string, Observable<FlowValue>>,
+	): Observable<FlowValue> {
+		const startNode = graphBranch.nodes[0];
+		const creationElement = simulationModel.getElement(startNode.id);
+		const observable = this.creationOperatorFactory.create(creationElement);
+		const pipeOperators: OperatorFunction<FlowValue, FlowValue>[] = [];
+
+		for (const currentNode of graphBranch.nodes) {
+			const el = simulationModel.getElement(currentNode.id);
+			const refObservables: ReferenceObservableData[] = currentNode.edges
+				.filter((edge) => edge.type === GraphNodeType.Reference)
+				.map((refEdge) => {
+					const refObservable = observables.get(refEdge.targetNodeId);
+					const connectLine = simulationModel.getConnectLine(refEdge.id);
+					if (!refObservable) {
+						throw new Error(
+							`Observable for element with id not found ${refEdge.targetNodeId}`,
+						);
+					}
+
+					return {
+						observable: refObservable,
+						connectLine,
+					};
+				});
+			pipeOperators.push(...this.createOperator(el, refObservables));
+
+			const clOperators = currentNode.edges
+				.filter((edge) => edge.type === GraphNodeType.Direct)
+				.flatMap((edge) => {
+					const nextEl = simulationModel.getElement(edge.targetNodeId);
+					return this.createConnectLinePipeOperators(
+						nextEl,
+						simulationModel.getConnectLine(edge.id),
+					);
+				});
+			pipeOperators.push(...clOperators);
+		}
+
+		return observable.pipe(...(pipeOperators as [])) as Observable<FlowValue>;
+	}
+
+	private createOperator(el: Element, refObservablesData: ReferenceObservableData[]) {
+		if (isPipeOperatorType(el.type)) {
+			return [
+				this.pipeOperatorFactory.create(el, {
+					referenceObservables: refObservablesData.map((refObservable) => ({
+						observable: refObservable.observable,
+						invokeTrigger: (value: FlowValue) =>
+							this.flowManager.handleNextEvent(value, refObservable.connectLine),
+					})),
+				}),
+			];
+		}
+
+		return [];
+	}
+
+	private createConnectLinePipeOperators(
+		el: Element,
+		cl: ConnectLine,
+	): OperatorFunction<FlowValue, FlowValue>[] {
+		if (isSubscriberType(el.type)) {
+			return [this.createControlOperator(cl), this.createUnhandledErrorOperator(cl)];
+		}
+
+		return [this.createControlOperator(cl), this.createErrorTrackerOperator(cl)];
 	}
 
 	private createControlOperator(cl: ConnectLine) {

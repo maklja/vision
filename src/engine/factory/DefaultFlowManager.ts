@@ -13,12 +13,12 @@ export class DefaultFlowManager implements FlowManager {
 
 	handleNextEvent(value: FlowValue, cl: ConnectLine): void {
 		const { target } = cl;
-		const targetEl = this.simulationModel.elements.get(target.id);
+		const targetEl = this.simulationModel.getElement(target.id);
 
 		const cls = this.retrieveFlowValuePath(value.id);
 		cls.push(cl);
 
-		if (targetEl && isErrorHandlerType(targetEl.type)) {
+		if (isErrorHandlerType(targetEl.type)) {
 			return;
 		}
 
@@ -37,12 +37,7 @@ export class DefaultFlowManager implements FlowManager {
 
 	handleError(flowValue: FlowValue, cl: ConnectLine): void {
 		const { target } = cl;
-		const targetEl = this.simulationModel.elements.get(target.id);
-
-		if (!targetEl) {
-			return;
-		}
-
+		const targetEl = this.simulationModel.getElement(target.id);
 		const cls = this.retrieveFlowValuePath(flowValue.id);
 		cls.push(cl);
 
@@ -64,7 +59,8 @@ export class DefaultFlowManager implements FlowManager {
 	}
 
 	handleFatalError(flowValue: FlowValue, cl: ConnectLine): void {
-		const [errorCl] = this.retrieveFlowValuePath(flowValue.id) ?? [cl];
+		const errorCls = this.retrieveFlowValuePath(flowValue.id);
+		const [errorCl] = errorCls.length > 0 ? errorCls : [cl];
 		this.eventObserver.error({
 			id: flowValue.id,
 			index: ++this.eventIndex,

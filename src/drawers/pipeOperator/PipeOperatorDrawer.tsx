@@ -101,35 +101,35 @@ export const PipeOperatorDrawer = ({
 	const textY = (mainTextRef?.textHeight ?? 0) / -2 + drawerSizes.height / 2;
 
 	return (
-		<Group visible={visible && Boolean(mainTextRef)}>
-			<Group
-				x={x}
-				y={y}
-				draggable
-				onMouseOver={handleMouseOver}
-				onMouseOut={handleMouseOut}
-				onMouseDown={handleMouseDown}
-				onDragMove={handleDragMove}
-				onDragStart={handleDragStart}
-				onDragEnd={handleDragEnd}
-			>
-				<Rect
-					{...drawerStyle.element}
-					ref={(ref) => setMainShapeRef(ref)}
-					id={id}
-					width={drawerSizes.width}
-					height={drawerSizes.height}
-				/>
-				<Text
-					{...drawerStyle.text}
-					ref={(ref) => setMainTextRef(ref)}
-					text={title}
-					x={textX}
-					y={textY}
-					fontSize={fontSizes.primary}
-					listening={false}
-				/>
-			</Group>
+		<Group
+			visible={visible && Boolean(mainTextRef)}
+			x={x}
+			y={y}
+			draggable
+			onMouseOver={handleMouseOver}
+			onMouseOut={handleMouseOut}
+			onMouseDown={handleMouseDown}
+			onDragMove={handleDragMove}
+			onDragStart={handleDragStart}
+			onDragEnd={handleDragEnd}
+		>
+			<Rect
+				{...drawerStyle.element}
+				ref={(ref) => setMainShapeRef(ref)}
+				id={id}
+				width={drawerSizes.width}
+				height={drawerSizes.height}
+			/>
+			<Text
+				{...drawerStyle.text}
+				ref={(ref) => setMainTextRef(ref)}
+				text={title}
+				x={textX}
+				y={textY}
+				fontSize={fontSizes.primary}
+				listening={false}
+			/>
 		</Group>
 	);
 };
+

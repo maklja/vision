@@ -56,7 +56,7 @@ const e4: FilterElement = {
 	type: ElementType.Filter,
 	visible: true,
 	properties: {
-		expression: 'function(val) { return val % 2 === 0; }',
+		expression: 'return value % 2 === 0;',
 	},
 };
 
@@ -88,11 +88,21 @@ const ce1: CatchErrorElement = {
 	properties: {},
 };
 
-const e2: Element = {
+const subscriber1: Element = {
 	id: 'subscriber',
 	size: 1,
 	x: 680,
 	y: 125,
+	type: ElementType.Subscriber,
+	visible: true,
+	properties: {},
+};
+
+const subscriber2: Element = {
+	id: 'subscriber_1',
+	size: 1,
+	x: 680,
+	y: 325,
 	type: ElementType.Subscriber,
 	visible: true,
 	properties: {},
@@ -104,7 +114,7 @@ root.render(
 	<Provider
 		store={setupStore({
 			stage: {
-				elements: [e1, e2, e3, e4, e5, i1, ce1],
+				elements: [e1, subscriber1, subscriber2, e3, e4, e5, i1, ce1],
 				connectLines: [],
 				draftConnectLine: null,
 				highlighted: [],

@@ -57,8 +57,8 @@ export const SubscriberDrawer = ({
 	});
 
 	const { drawerSizes } = useSizes(theme, size);
-	const { drawerSizes: outerSizes } = useSizes(theme, size, 0.8);
-	const { drawerSizes: innerSizes } = useSizes(theme, size, 0.5);
+	const { drawerSizes: outerSizes } = useSizes(theme, size, 0.4);
+	const { drawerSizes: innerSizes } = useSizes(theme, size, 0.2);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -97,35 +97,35 @@ export const SubscriberDrawer = ({
 		});
 
 	return (
-		<Group visible={visible && Boolean(mainShapeRef)}>
-			<Group
-				x={x}
-				y={y}
-				draggable
-				onMouseDown={handleMouseDown}
-				onMouseOver={handleMouseOver}
-				onMouseOut={handleMouseOut}
-				onDragMove={handleDragMove}
-				onDragStart={handleDragStart}
-				onDragEnd={handleDragEnd}
-			>
-				<Circle
-					{...drawerStyle.element}
-					ref={(node) => setMainShapeRef(node)}
-					id={id}
-					radius={outerSizes.radius}
-					x={drawerSizes.radius}
-					y={drawerSizes.radius}
-				/>
-				<Circle
-					ref={(node) => setInnerShapeRef(node)}
-					radius={innerSizes.radius}
-					x={drawerSizes.radius}
-					y={drawerSizes.radius}
-					listening={false}
-					fill={highlight || select ? colors.primaryColor : colors.secondaryColor}
-				/>
-			</Group>
+		<Group
+			visible={visible && Boolean(mainShapeRef)}
+			x={x}
+			y={y}
+			draggable
+			onMouseDown={handleMouseDown}
+			onMouseOver={handleMouseOver}
+			onMouseOut={handleMouseOut}
+			onDragMove={handleDragMove}
+			onDragStart={handleDragStart}
+			onDragEnd={handleDragEnd}
+		>
+			<Circle
+				{...drawerStyle.element}
+				ref={(node) => setMainShapeRef(node)}
+				id={id}
+				radius={outerSizes.radius}
+				x={drawerSizes.radius}
+				y={drawerSizes.radius}
+			/>
+			<Circle
+				ref={(node) => setInnerShapeRef(node)}
+				radius={innerSizes.radius}
+				x={drawerSizes.radius}
+				y={drawerSizes.radius}
+				listening={false}
+				fill={highlight || select ? colors.primaryColor : colors.secondaryColor}
+			/>
 		</Group>
 	);
 };
+
