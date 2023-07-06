@@ -11,14 +11,11 @@ import {
 	ConnectPointIconDrawerProps,
 } from './ConnectPointDrawer';
 
-export type ConnectPointAnimations = {
-	[key in ConnectPointPosition]?: DrawerAnimationTemplate | null;
-};
-
 export type ConnectPointsOptions = {
 	[key in ConnectPointPosition]: {
 		type: ConnectPointType;
 		visible: boolean;
+		animation?: DrawerAnimationTemplate | null;
 		createIcon?: (props: ConnectPointIconDrawerProps) => ReactNode;
 	};
 };
@@ -44,7 +41,6 @@ export interface ConnectPointsDrawerProps extends ConnectPointsDrawerEvents {
 	width?: number;
 	height?: number;
 	offset?: number;
-	connectPointAnimations?: ConnectPointAnimations;
 	connectPointsOptions?: ConnectPointsOptions;
 	highlightedConnectPoints?: ConnectPointPosition[];
 }
@@ -63,7 +59,6 @@ export const ConnectPointsDrawer = ({
 	offset = 0,
 	theme,
 	connectPointsOptions,
-	connectPointAnimations,
 	highlightedConnectPoints,
 	onMouseDown,
 	onMouseUp,
@@ -146,7 +141,7 @@ export const ConnectPointsDrawer = ({
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Top)}
-					animation={connectPointAnimations?.[ConnectPointPosition.Top]}
+					animation={connectPointsOptions?.top.animation}
 				/>
 			)}
 
@@ -175,7 +170,7 @@ export const ConnectPointsDrawer = ({
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Right)}
-					animation={connectPointAnimations?.[ConnectPointPosition.Right]}
+					animation={connectPointsOptions?.right.animation}
 				/>
 			)}
 
@@ -204,7 +199,7 @@ export const ConnectPointsDrawer = ({
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Bottom)}
-					animation={connectPointAnimations?.[ConnectPointPosition.Bottom]}
+					animation={connectPointsOptions?.bottom.animation}
 				/>
 			)}
 
@@ -233,7 +228,7 @@ export const ConnectPointsDrawer = ({
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Left)}
-					animation={connectPointAnimations?.[ConnectPointPosition.Left]}
+					animation={connectPointsOptions?.left.animation}
 				/>
 			)}
 		</Group>
