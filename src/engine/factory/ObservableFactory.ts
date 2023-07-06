@@ -84,8 +84,7 @@ export class ObservableFactory {
 						connectLine,
 					};
 				});
-			const operator = this.createOperator(el, refObservables);
-			pipeOperators.push(...operator);
+			pipeOperators.push(...this.createOperator(el, refObservables));
 
 			const clOperators = currentNode.edges
 				.filter((edge) => edge.type === GraphNodeType.Direct)
