@@ -1,27 +1,23 @@
-import { Observable, Observer, ReplaySubject, Unsubscribable } from 'rxjs';
+import { Observer, Unsubscribable } from 'rxjs';
 import { ObservableFactory } from './factory';
 import { FlowValueEvent, SimulationModel } from './context';
 import { DefaultFlowManager } from './factory/DefaultFlowManager';
 
 export class ObservableSimulation {
-	private readonly observable: Observable<unknown>;
-	private readonly simulationSubject = new ReplaySubject<FlowValueEvent<unknown>>(10_000);
-	private readonly observableFactory;
 	private subscription: Unsubscribable | null = null;
 
-	constructor(simModel: SimulationModel) {
-		this.observableFactory = new ObservableFactory(
-			new DefaultFlowManager(this.simulationSubject, simModel),
-		);
-		this.observable = this.observableFactory.createObservable(simModel);
-	}
+	constructor(private readonly simulationModel: SimulationModel) {}
 
 	start(o: Partial<Observer<FlowValueEvent<unknown>>>): Unsubscribable {
-		const subscription = this.observable.subscribe({
-			complete: () => this.simulationSubject.complete(),
+		const flowManager = new DefaultFlowManager(this.simulationModel);
+		const observableFactory = new ObservableFactory(this.simulationModel, flowManager);
+		const observable = observableFactory.createObservable();
+
+		const subscription = observable.subscribe({
+			complete: () => flowManager.handleComplete(),
 		});
 
-		const simulationSubscription = this.simulationSubject.asObservable().subscribe(o);
+		const simulationSubscription = flowManager.asObservable().subscribe(o);
 		this.subscription = {
 			unsubscribe: () => {
 				subscription.unsubscribe();

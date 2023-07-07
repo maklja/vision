@@ -47,7 +47,7 @@ const iifElement: IifElement = {
 	type: ElementType.IIf,
 	visible: true,
 	properties: {
-		conditionExpression: 'true',
+		conditionExpression: '() => { return false; }',
 	},
 };
 
@@ -102,7 +102,7 @@ const ce1: CatchErrorElement = {
 };
 
 const subscriber1: Element = {
-	id: 'subscriber',
+	id: 'subscriber_0',
 	size: 1,
 	x: 680,
 	y: 125,
@@ -121,13 +121,45 @@ const subscriber2: Element = {
 	properties: {},
 };
 
+const subscriber3: Element = {
+	id: 'subscriber_2',
+	size: 1,
+	x: 780,
+	y: 125,
+	type: ElementType.Subscriber,
+	visible: true,
+	properties: {},
+};
+
+const subscriber4: Element = {
+	id: 'subscriber_3',
+	size: 1,
+	x: 780,
+	y: 325,
+	type: ElementType.Subscriber,
+	visible: true,
+	properties: {},
+};
+
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
 	// <React.StrictMode>
 	<Provider
 		store={setupStore({
 			stage: {
-				elements: [e1, subscriber1, subscriber2, e3, e4, e5, i1, ce1, iifElement],
+				elements: [
+					e1,
+					subscriber1,
+					subscriber2,
+					subscriber3,
+					subscriber4,
+					e3,
+					e4,
+					e5,
+					i1,
+					ce1,
+					iifElement,
+				],
 				connectLines: [],
 				draftConnectLine: null,
 				highlighted: [],

@@ -1,15 +1,17 @@
-import { Observer } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 import { ConnectLine, isErrorHandlerType } from '../../model';
 import { FlowManager, FlowValue, FlowValueEvent, SimulationModel } from '../context';
 
 export class DefaultFlowManager implements FlowManager {
 	private eventIndex = 0;
+	private readonly eventObserver = new ReplaySubject<FlowValueEvent<unknown>>(10_000);
 	private readonly connectLinesPath: Map<string, ConnectLine[]> = new Map();
 
-	constructor(
-		private readonly eventObserver: Observer<FlowValueEvent<unknown>>,
-		private readonly simulationModel: SimulationModel,
-	) {}
+	constructor(private readonly simulationModel: SimulationModel) {}
+
+	asObservable(): Observable<FlowValueEvent<unknown>> {
+		return this.eventObserver.asObservable();
+	}
 
 	handleNextEvent(value: FlowValue, cl: ConnectLine): void {
 		const { target } = cl;
@@ -70,6 +72,10 @@ export class DefaultFlowManager implements FlowManager {
 			sourceElementId: errorCl.source.id,
 			targetElementId: errorCl.source.id,
 		});
+	}
+
+	handleComplete() {
+		this.eventObserver.complete();
 	}
 
 	private retrieveFlowValuePath(id: string) {

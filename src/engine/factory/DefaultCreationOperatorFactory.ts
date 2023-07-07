@@ -1,9 +1,21 @@
-import { from, interval, map, Observable, of } from 'rxjs';
-import { Element, ElementType, FromElement, IntervalElement, OfElement } from '../../model';
-import { CreationOperatorFactory } from './OperatorFactory';
+import { defer, from, iif, interval, map, Observable, of } from 'rxjs';
+import {
+	ConnectPointPosition,
+	ConnectPointType,
+	Element,
+	ElementType,
+	FromElement,
+	IifElement,
+	IntervalElement,
+	OfElement,
+} from '../../model';
+import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue } from '../context';
 
-type CreationOperatorFunctionFactory = (el: Element) => Observable<FlowValue>;
+type CreationOperatorFunctionFactory = (
+	el: Element,
+	options: OperatorOptions,
+) => Observable<FlowValue>;
 
 export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	private readonly supportedOperators: ReadonlyMap<ElementType, CreationOperatorFunctionFactory>;
@@ -13,16 +25,20 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			[ElementType.Of, this.createOfCreationOperator.bind(this)],
 			[ElementType.From, this.createFromCreationOperator.bind(this)],
 			[ElementType.Interval, this.createIntervalCreationOperator.bind(this)],
+			[ElementType.IIf, this.createIifCreationOperator.bind(this)],
 		]);
 	}
 
-	create(el: Element): Observable<FlowValue> {
+	create(
+		el: Element,
+		options: OperatorOptions = { referenceObservables: [] },
+	): Observable<FlowValue> {
 		const factory = this.supportedOperators.get(el.type);
 		if (!factory) {
 			throw new Error(`Unsupported element type ${el.type} as creation operator.`);
 		}
 
-		return factory(el);
+		return factory(el, options);
 	}
 
 	isSupported(el: Element): boolean {
@@ -46,6 +62,41 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		const intervalEl = el as IntervalElement;
 		return interval(intervalEl.properties.period).pipe(
 			map((item) => this.createFlowValue(item)),
+		);
+	}
+
+	private createIifCreationOperator(el: Element, options: OperatorOptions) {
+		const iifEl = el as IifElement;
+		const filterFn = new Function(`return ${iifEl.properties.conditionExpression}`);
+
+		const trueRefObservable = options.referenceObservables.find(
+			({ connectPoint }) =>
+				connectPoint.connectPointType === ConnectPointType.Event &&
+				connectPoint.connectPosition === ConnectPointPosition.Top,
+		);
+		if (!trueRefObservable) {
+			throw new Error('Not found true branch observable operator');
+		}
+
+		const falseRefObservable = options.referenceObservables.find(
+			({ connectPoint }) =>
+				connectPoint.connectPointType === ConnectPointType.Event &&
+				connectPoint.connectPosition === ConnectPointPosition.Bottom,
+		);
+		if (!falseRefObservable) {
+			throw new Error('Not found true branch observable operator');
+		}
+
+		return iif(
+			filterFn(),
+			defer(() => {
+				trueRefObservable.invokeTrigger?.(FlowValue.createEmptyValue());
+				return trueRefObservable.observable;
+			}),
+			defer(() => {
+				falseRefObservable.invokeTrigger?.(FlowValue.createEmptyValue());
+				return falseRefObservable.observable;
+			}),
 		);
 	}
 
