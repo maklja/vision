@@ -1,29 +1,54 @@
 import { useMemo } from 'react';
 import { ColorTheme, retrieveThemeColors } from './colors';
 import { connectLineTheme, ConnectLineTheme } from './connectLineTheme';
-import { connectPointTheme, ConnectPointTheme } from './connectPointTheme';
-import { elementDrawerTheme, ElementDrawerTheme } from './elementDrawerTheme';
+import {
+	connectPointsTheme,
+	ConnectPointsTheme,
+	ConnectPointsThemeOverride,
+} from './connectPointsTheme';
+import {
+	elementDrawerTheme,
+	ElementDrawerTheme,
+	ElementDrawerThemeOverride,
+} from './elementDrawerTheme';
 import { simulationTheme, SimulationTheme } from './simulationTheme';
 import { SizeConfig, sizesConfig } from './sizes';
+import { ConnectPointPosition, ElementType } from '../model';
+import { iifConnectPointsTheme } from './iifDrawerTheme';
 
-export interface ThemeContext {
+export interface Theme {
 	colors: ColorTheme;
 	drawer: ElementDrawerTheme;
 	connectLine: ConnectLineTheme;
-	connectPoint: ConnectPointTheme;
+	connectPoints: ConnectPointsTheme;
 	simulation: SimulationTheme;
 	sizes: SizeConfig;
 }
 
-export const createThemeContext = (): ThemeContext => {
+export interface DrawerThemeOverride {
+	drawer?: ElementDrawerThemeOverride;
+	connectPoints?: ConnectPointsThemeOverride;
+}
+
+export type ThemesContext = {
+	[key in ElementType]?: DrawerThemeOverride;
+} & { default: Theme };
+
+export const createThemeContext = (): ThemesContext => {
 	const defaultColorTheme = retrieveThemeColors();
-	return {
+	const defaultTheme = {
 		colors: defaultColorTheme,
 		drawer: elementDrawerTheme(defaultColorTheme),
 		connectLine: connectLineTheme(defaultColorTheme),
-		connectPoint: connectPointTheme(defaultColorTheme),
+		connectPoints: connectPointsTheme(defaultColorTheme),
 		simulation: simulationTheme(defaultColorTheme),
 		sizes: sizesConfig(),
+	};
+	return {
+		[ElementType.IIf]: {
+			connectPoints: iifConnectPointsTheme(defaultColorTheme),
+		},
+		default: defaultTheme,
 	};
 };
 
@@ -33,22 +58,26 @@ export interface DrawerThemeState {
 	error?: boolean;
 }
 
-export const useConnectPointTheme = (state: DrawerThemeState, theme: ThemeContext) => {
-	const { connectPoint } = theme;
+export interface ConnectPointThemeState extends DrawerThemeState {
+	position: ConnectPointPosition;
+}
+
+export const useConnectPointTheme = (state: ConnectPointThemeState, theme: Theme) => {
+	const connectPointTheme = theme.connectPoints[state.position];
 	if (state.highlight) {
 		return {
-			element: connectPoint.highlightElement,
-			icon: connectPoint.highlightIcon,
+			element: connectPointTheme.highlightElement,
+			icon: connectPointTheme.highlightIcon,
 		};
 	}
 
 	return {
-		element: connectPoint.element,
-		icon: connectPoint.icon,
+		element: connectPointTheme.element,
+		icon: connectPointTheme.icon,
 	};
 };
 
-export const useElementDrawerTheme = (state: DrawerThemeState, theme: ThemeContext) => {
+export const useElementDrawerTheme = (state: DrawerThemeState, theme: Theme) => {
 	const { drawer } = theme;
 
 	// if (state.error) {
@@ -80,7 +109,7 @@ export const useElementDrawerTheme = (state: DrawerThemeState, theme: ThemeConte
 
 export const fromSize = (value: number, size = 1, factor = 1) => value * size * factor;
 
-export const useSizes = (theme: ThemeContext, size = 1, factor = 1): SizeConfig => {
+export const useSizes = (theme: Theme, size = 1, factor = 1): SizeConfig => {
 	const { sizes } = theme;
 
 	return useMemo(() => {

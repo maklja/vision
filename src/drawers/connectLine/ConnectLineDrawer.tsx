@@ -1,12 +1,12 @@
 import { Line, Group } from 'react-konva';
 import { Point } from '../../model';
-import { ThemeContext } from '../../theme';
+import { Theme } from '../../theme';
 import { ConnectLineArrow } from './ConnectLineArrow';
 
 export interface ConnectLineDrawerProps {
 	id: string;
 	points: Point[];
-	theme: ThemeContext;
+	theme: Theme;
 	visible?: boolean;
 }
 
@@ -24,3 +24,4 @@ export const ConnectLineDrawer = ({ points, theme, visible = true }: ConnectLine
 		</Group>
 	);
 };
+

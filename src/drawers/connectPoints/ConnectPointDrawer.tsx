@@ -1,28 +1,53 @@
+import { ReactNode } from 'react';
 import Konva from 'konva';
 import { useState } from 'react';
 import { Circle, Group } from 'react-konva';
 import { DrawerAnimationTemplate, useAnimation } from '../../animation';
 import { ConnectPointPosition, ConnectPointType } from '../../model';
-import { ThemeContext, useConnectPointTheme, useSizes } from '../../theme';
+import { Theme, useConnectPointTheme, useSizes } from '../../theme';
 import { DrawerAnimationEvents } from '../DrawerProps';
 import { EventIconDrawer } from './EventIconDrawer';
 import { InputIconDrawer } from './InputIconDrawer';
 import { OutputIconDrawer } from './OutputIconDrawer';
 
-interface ConnectPointIconDrawerProps {
+export interface ConnectPointIconDrawerProps {
+	connectPointPosition: ConnectPointPosition;
 	type: ConnectPointType;
-	theme: ThemeContext;
+	theme: Theme;
 	highlight?: boolean;
 }
 
-const ConnectPointIconDrawer = ({ type, theme, highlight }: ConnectPointIconDrawerProps) => {
+const ConnectPointIconDrawer = ({
+	connectPointPosition,
+	type,
+	theme,
+	highlight,
+}: ConnectPointIconDrawerProps) => {
 	switch (type) {
 		case ConnectPointType.Input:
-			return <InputIconDrawer theme={theme} highlight={highlight} />;
+			return (
+				<InputIconDrawer
+					connectPointPosition={connectPointPosition}
+					theme={theme}
+					highlight={highlight}
+				/>
+			);
 		case ConnectPointType.Output:
-			return <OutputIconDrawer theme={theme} highlight={highlight} />;
+			return (
+				<OutputIconDrawer
+					connectPointPosition={connectPointPosition}
+					theme={theme}
+					highlight={highlight}
+				/>
+			);
 		case ConnectPointType.Event:
-			return <EventIconDrawer theme={theme} highlight={highlight} />;
+			return (
+				<EventIconDrawer
+					connectPointPosition={connectPointPosition}
+					theme={theme}
+					highlight={highlight}
+				/>
+			);
 		default:
 			return null;
 	}
@@ -44,13 +69,14 @@ export interface ConnectPointDrawerProps extends DrawerAnimationEvents {
 	position: ConnectPointPosition;
 	x: number;
 	y: number;
-	theme: ThemeContext;
+	theme: Theme;
 	highlight?: boolean;
 	animation?: DrawerAnimationTemplate | null;
 	onMouseDown?: (event: ConnectPointDrawerEvent) => void;
 	onMouseUp?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOver?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOut?: (event: ConnectPointDrawerEvent) => void;
+	createIcon?: (props: ConnectPointIconDrawerProps) => ReactNode;
 }
 
 export const ConnectPointDrawer = ({
@@ -62,6 +88,7 @@ export const ConnectPointDrawer = ({
 	highlight,
 	animation,
 	theme,
+	createIcon,
 	onMouseDown,
 	onMouseUp,
 	onMouseOver,
@@ -70,7 +97,7 @@ export const ConnectPointDrawer = ({
 	onAnimationComplete,
 	onAnimationDestroy,
 }: ConnectPointDrawerProps) => {
-	const connectPointElementTheme = useConnectPointTheme({ highlight }, theme);
+	const connectPointElementTheme = useConnectPointTheme({ position, highlight }, theme);
 	const { connectPointSizes } = useSizes(theme);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 
@@ -117,7 +144,14 @@ export const ConnectPointDrawer = ({
 				onMouseOut={handleMouseOut}
 			/>
 
-			<ConnectPointIconDrawer type={type} theme={theme} highlight={highlight} />
+			{createIcon?.({ type, theme, highlight, connectPointPosition: position }) ?? (
+				<ConnectPointIconDrawer
+					type={type}
+					theme={theme}
+					highlight={highlight}
+					connectPointPosition={position}
+				/>
+			)}
 		</Group>
 	);
 };

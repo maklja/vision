@@ -1,20 +1,11 @@
-import { catchError, filter, Observable, ObservableInput, OperatorFunction } from 'rxjs';
+import { catchError, filter, ObservableInput, OperatorFunction } from 'rxjs';
 import { Element, ElementType, FilterElement } from '../../model';
-import { PipeOperatorFactory } from './OperatorFactory';
+import { OperatorOptions, PipeOperatorFactory } from './OperatorFactory';
 import { FlowValue } from '../context';
-
-export interface ObservableOptions {
-	observable: Observable<FlowValue>;
-	invokeTrigger?: (value: FlowValue) => void;
-}
-
-export interface PipeOperatorOptions {
-	referenceObservables: readonly ObservableOptions[];
-}
 
 type PipeOperatorFunctionFactory = (
 	el: Element,
-	options: PipeOperatorOptions,
+	options: OperatorOptions,
 ) => OperatorFunction<FlowValue, FlowValue>;
 
 export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
@@ -29,7 +20,7 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 
 	create(
 		el: Element,
-		options: PipeOperatorOptions = { referenceObservables: [] },
+		options: OperatorOptions = { referenceObservables: [] },
 	): OperatorFunction<FlowValue, FlowValue> {
 		const factory = this.supportedOperators.get(el.type);
 		if (!factory) {
@@ -45,7 +36,7 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 
 	private createCatchErrorOperator(
 		_el: Element,
-		options: PipeOperatorOptions,
+		options: OperatorOptions,
 	): OperatorFunction<FlowValue, FlowValue> {
 		if (options.referenceObservables.length === 0) {
 			throw new Error('Reference observable is required for catchError operator');

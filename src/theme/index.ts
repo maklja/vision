@@ -1,7 +1,7 @@
 export * from './elementDrawerTheme';
-export * from './connectPointTheme';
+export * from './connectPointsTheme';
 export * from './simulationTheme';
 export * from './connectLineTheme';
 export * from './colors';
-export * from './themeContext';
+export * from './themesContext';
 

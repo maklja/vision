@@ -19,7 +19,7 @@ export interface ElementDrawerProps {
 }
 
 export const ElementDrawer = ({ element }: ElementDrawerProps) => {
-	const theme = useThemeContext();
+	const theme = useThemeContext(element.type);
 	const animation = useAppSelector(selectDrawerAnimationById(element.id));
 	const drawerHandlers = useElementDrawerHandlers();
 	const select = useAppSelector(isSelectedElement(element.id));

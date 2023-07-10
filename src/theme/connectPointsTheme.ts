@@ -1,3 +1,4 @@
+import { ConnectPointPosition } from '../model';
 import { ColorTheme } from './colors';
 
 export interface ConnectPointElementStyle {
@@ -19,7 +20,22 @@ export interface ConnectPointTheme {
 	highlightIcon: ConnectPointIconStyle;
 }
 
-export const connectPointTheme = (themeColors: ColorTheme): ConnectPointTheme => {
+export interface ConnectPointThemeOverride {
+	element?: Partial<ConnectPointElementStyle>;
+	icon?: Partial<ConnectPointIconStyle>;
+	highlightElement?: Partial<ConnectPointElementStyle>;
+	highlightIcon?: Partial<ConnectPointIconStyle>;
+}
+
+export type ConnectPointsTheme = {
+	[key in ConnectPointPosition]: ConnectPointTheme;
+};
+
+export type ConnectPointsThemeOverride = {
+	[key in ConnectPointPosition]?: ConnectPointThemeOverride;
+};
+
+export const connectPointsTheme = (themeColors: ColorTheme): ConnectPointsTheme => {
 	const elementDefault = {
 		stroke: themeColors.secondaryColor,
 		fill: themeColors.backgroundColor,
@@ -32,7 +48,7 @@ export const connectPointTheme = (themeColors: ColorTheme): ConnectPointTheme =>
 		strokeWidth: 0.6,
 	};
 
-	return {
+	const connectPointThemeDefault = {
 		element: elementDefault,
 		icon: iconDefault,
 		highlightElement: {
@@ -45,6 +61,13 @@ export const connectPointTheme = (themeColors: ColorTheme): ConnectPointTheme =>
 			stroke: themeColors.secondaryTextColor,
 			fill: themeColors.secondaryTextColor,
 		},
+	};
+
+	return {
+		top: connectPointThemeDefault,
+		bottom: connectPointThemeDefault,
+		left: connectPointThemeDefault,
+		right: connectPointThemeDefault,
 	};
 };
 

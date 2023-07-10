@@ -12,6 +12,7 @@ import {
 	Element,
 	IntervalElement,
 	CatchErrorElement,
+	IifElement,
 } from './model';
 import { StageState } from './store/stageSlice';
 import { createThemeContext } from './theme';
@@ -35,6 +36,18 @@ const e3: FromElement = {
 	visible: true,
 	properties: {
 		input: [3, 2, 3, 4],
+	},
+};
+
+const iifElement: IifElement = {
+	id: 'iifElement',
+	size: 1,
+	x: 50,
+	y: 400,
+	type: ElementType.IIf,
+	visible: true,
+	properties: {
+		conditionExpression: '() => { return false; }',
 	},
 };
 
@@ -89,7 +102,7 @@ const ce1: CatchErrorElement = {
 };
 
 const subscriber1: Element = {
-	id: 'subscriber',
+	id: 'subscriber_0',
 	size: 1,
 	x: 680,
 	y: 125,
@@ -108,19 +121,51 @@ const subscriber2: Element = {
 	properties: {},
 };
 
+const subscriber3: Element = {
+	id: 'subscriber_2',
+	size: 1,
+	x: 780,
+	y: 125,
+	type: ElementType.Subscriber,
+	visible: true,
+	properties: {},
+};
+
+const subscriber4: Element = {
+	id: 'subscriber_3',
+	size: 1,
+	x: 780,
+	y: 325,
+	type: ElementType.Subscriber,
+	visible: true,
+	properties: {},
+};
+
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
 	// <React.StrictMode>
 	<Provider
 		store={setupStore({
 			stage: {
-				elements: [e1, subscriber1, subscriber2, e3, e4, e5, i1, ce1],
+				elements: [
+					e1,
+					subscriber1,
+					subscriber2,
+					subscriber3,
+					subscriber4,
+					e3,
+					e4,
+					e5,
+					i1,
+					ce1,
+					iifElement,
+				],
 				connectLines: [],
 				draftConnectLine: null,
 				highlighted: [],
 				highlightedConnectPoints: [],
 				selected: [],
-				theme: createThemeContext(),
+				themes: createThemeContext(),
 				state: StageState.Select,
 			},
 		})}

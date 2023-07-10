@@ -1,15 +1,15 @@
-import { ThemeContext } from '../../theme';
+import { Theme } from '../../theme';
 import { AnimationTemplate } from '../AnimationTemplate';
 
 export class AnimationRegistry {
 	private readonly animationRegistry = new Map<
 		string,
-		(theme: ThemeContext, data?: unknown) => AnimationTemplate
+		(theme: Theme, data?: unknown) => AnimationTemplate
 	>();
 
 	register(
 		animationKey: string,
-		animationConfig: (theme: ThemeContext, data?: unknown) => AnimationTemplate,
+		animationConfig: (theme: Theme, data?: unknown) => AnimationTemplate,
 	) {
 		this.animationRegistry.set(animationKey, animationConfig);
 
@@ -25,3 +25,4 @@ export class AnimationRegistry {
 		return animationConfig;
 	}
 }
+

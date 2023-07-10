@@ -1,10 +1,10 @@
-import { ThemeContext } from '../../theme';
+import { Theme } from '../../theme';
 import { AnimationTemplate } from '../AnimationTemplate';
 import { AnimationKey } from './AnimationKey';
 
 export const snapConnectPointAnimation = {
 	key: AnimationKey.SnapConnectPoint,
-	factory: (theme: ThemeContext): AnimationTemplate => ({
+	factory: (theme: Theme): AnimationTemplate => ({
 		mainShape: {
 			duration: 0.1,
 			fill: theme.colors.tertiaryColor,
@@ -13,3 +13,4 @@ export const snapConnectPointAnimation = {
 		},
 	}),
 };
+
