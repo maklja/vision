@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { Group, Line } from 'react-konva';
 import { DrawerAnimationTemplate } from '../../animation';
 import { ConnectPointPosition, ConnectPointType } from '../../model';
-import { ThemeContext } from '../../theme';
+import { Theme } from '../../theme';
 import { DrawerAnimationEvents } from '../DrawerProps';
 import { BoundingBox } from '../utils';
 import {
@@ -35,7 +35,7 @@ export interface ConnectPointsDrawerEvents extends DrawerAnimationEvents {
 
 export interface ConnectPointsDrawerProps extends ConnectPointsDrawerEvents {
 	id: string;
-	theme: ThemeContext;
+	theme: Theme;
 	x?: number;
 	y?: number;
 	width?: number;

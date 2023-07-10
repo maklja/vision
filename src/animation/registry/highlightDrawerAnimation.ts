@@ -1,10 +1,10 @@
-import { ThemeContext } from '../../theme';
+import { Theme } from '../../theme';
 import { AnimationTemplate } from '../AnimationTemplate';
 import { AnimationKey } from './AnimationKey';
 
 export const highlightDrawerAnimation = {
 	key: AnimationKey.HighlightDrawer,
-	factory: (theme: ThemeContext): AnimationTemplate => ({
+	factory: (theme: Theme): AnimationTemplate => ({
 		mainShape: {
 			duration: 0.3,
 			fill: theme.drawer.highlightElement.fill,
@@ -20,3 +20,4 @@ export const highlightDrawerAnimation = {
 		options: { autoReverse: true },
 	}),
 };
+

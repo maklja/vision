@@ -20,8 +20,19 @@ export interface ConnectPointTheme {
 	highlightIcon: ConnectPointIconStyle;
 }
 
+export interface ConnectPointThemeOverride {
+	element?: Partial<ConnectPointElementStyle>;
+	icon?: Partial<ConnectPointIconStyle>;
+	highlightElement?: Partial<ConnectPointElementStyle>;
+	highlightIcon?: Partial<ConnectPointIconStyle>;
+}
+
 export type ConnectPointsTheme = {
 	[key in ConnectPointPosition]: ConnectPointTheme;
+};
+
+export type ConnectPointsThemeOverride = {
+	[key in ConnectPointPosition]?: ConnectPointThemeOverride;
 };
 
 export const connectPointsTheme = (themeColors: ColorTheme): ConnectPointsTheme => {

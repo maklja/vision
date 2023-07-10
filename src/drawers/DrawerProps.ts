@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { Key } from 'react';
 import { DrawerAnimationTemplate } from '../animation';
-import { ThemeContext } from '../theme';
+import { Theme } from '../theme';
 
 export interface DrawerEvent {
 	id: string;
@@ -32,7 +32,7 @@ export interface DrawerEvents extends DrawerAnimationEvents {
 export interface DrawerCommonProps {
 	key?: Key;
 	id: string;
-	theme: ThemeContext;
+	theme: Theme;
 	x: number;
 	y: number;
 	size: number;
@@ -43,3 +43,4 @@ export interface DrawerCommonProps {
 }
 
 export interface DrawerProps extends DrawerCommonProps, DrawerEvents {}
+

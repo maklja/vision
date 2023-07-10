@@ -1,9 +1,9 @@
 import { Path } from 'react-konva';
-import { ThemeContext, useConnectPointTheme, useSizes } from '../../theme';
+import { Theme, useConnectPointTheme, useSizes } from '../../theme';
 import { ConnectPointPosition } from '../../model';
 
 export interface EventIconDrawerProps {
-	theme: ThemeContext;
+	theme: Theme;
 	connectPointPosition: ConnectPointPosition;
 	highlight?: boolean;
 }

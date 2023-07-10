@@ -8,14 +8,14 @@ import {
 	selectHighlightedConnectPointsByElementId,
 	useThemeContext,
 } from '../../store/stageSlice';
-import { ThemeContext, useSizes } from '../../theme';
+import { Theme, useSizes } from '../../theme';
 import { findConnectPointsDrawerFactory } from './createConnectPointsDrawer';
 import { useConnectPointHandlers } from './state';
 import { createConnectPointsProps } from './connectPoints';
 
 const createAnimationConfig = (
 	animation: DrawerAnimation | null,
-	theme: ThemeContext,
+	theme: Theme,
 ): DrawerAnimationTemplate | null => {
 	if (!animation) {
 		return null;
@@ -30,7 +30,7 @@ const createAnimationConfig = (
 
 const createConnectPointsOptions = (
 	el: Element,
-	theme: ThemeContext,
+	theme: Theme,
 	cpVisibility: ConnectPointTypeVisibility = {
 		input: false,
 		event: false,
@@ -78,7 +78,7 @@ export interface ElementConnectPointsDrawerProps {
 }
 
 export const ElementConnectPointsDrawer = ({ element }: ElementConnectPointsDrawerProps) => {
-	const theme = useThemeContext();
+	const theme = useThemeContext(element.type);
 	const connectPointsHandlers = useConnectPointHandlers();
 	const highlightedConnectPoints = useAppSelector(
 		selectHighlightedConnectPointsByElementId(element.id),

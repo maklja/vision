@@ -25,6 +25,17 @@ export interface ElementDrawerTheme {
 	errorText: ElementDrawerTextStyle;
 }
 
+export interface ElementDrawerThemeOverride {
+	element?: Partial<ElementDrawerStyle>;
+	text?: Partial<ElementDrawerTextStyle>;
+	highlightElement?: Partial<ElementDrawerStyle>;
+	highlightText?: Partial<ElementDrawerTextStyle>;
+	selectElement?: Partial<ElementDrawerStyle>;
+	selectText?: Partial<ElementDrawerTextStyle>;
+	errorElement?: Partial<ElementDrawerStyle>;
+	errorText?: Partial<ElementDrawerTextStyle>;
+}
+
 export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme => {
 	const elementDefault = {
 		stroke: themeColors.secondaryColor,

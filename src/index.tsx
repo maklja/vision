@@ -165,7 +165,7 @@ root.render(
 				highlighted: [],
 				highlightedConnectPoints: [],
 				selected: [],
-				theme: createThemeContext(),
+				themes: createThemeContext(),
 				state: StageState.Select,
 			},
 		})}

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Circle, Group } from 'react-konva';
 import { DrawerAnimationTemplate, useAnimation } from '../../animation';
 import { ConnectPointPosition, ConnectPointType } from '../../model';
-import { ThemeContext, useConnectPointTheme, useSizes } from '../../theme';
+import { Theme, useConnectPointTheme, useSizes } from '../../theme';
 import { DrawerAnimationEvents } from '../DrawerProps';
 import { EventIconDrawer } from './EventIconDrawer';
 import { InputIconDrawer } from './InputIconDrawer';
@@ -13,7 +13,7 @@ import { OutputIconDrawer } from './OutputIconDrawer';
 export interface ConnectPointIconDrawerProps {
 	connectPointPosition: ConnectPointPosition;
 	type: ConnectPointType;
-	theme: ThemeContext;
+	theme: Theme;
 	highlight?: boolean;
 }
 
@@ -69,7 +69,7 @@ export interface ConnectPointDrawerProps extends DrawerAnimationEvents {
 	position: ConnectPointPosition;
 	x: number;
 	y: number;
-	theme: ThemeContext;
+	theme: Theme;
 	highlight?: boolean;
 	animation?: DrawerAnimationTemplate | null;
 	onMouseDown?: (event: ConnectPointDrawerEvent) => void;

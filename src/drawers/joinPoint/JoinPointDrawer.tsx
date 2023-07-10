@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import Konva from 'konva';
 import { Circle, Group, Text } from 'react-konva';
-import { ThemeContext, useConnectPointTheme, useElementDrawerTheme, useSizes } from '../../theme';
+import { Theme, useConnectPointTheme, useElementDrawerTheme, useSizes } from '../../theme';
 import { ConnectPointPosition } from '../../model';
 
 export interface JoinPointDrawerProps {
-	theme: ThemeContext;
+	theme: Theme;
 	size: number;
 	highlight?: boolean;
 	select?: boolean;

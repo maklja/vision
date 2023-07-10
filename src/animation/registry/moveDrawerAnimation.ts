@@ -1,5 +1,5 @@
 import { Point } from '../../model';
-import { ThemeContext } from '../../theme';
+import { Theme } from '../../theme';
 import { AnimationTemplate } from '../AnimationTemplate';
 import { AnimationKey } from './AnimationKey';
 
@@ -11,7 +11,7 @@ export interface MoveAnimation {
 export const moveDrawerAnimation = {
 	key: AnimationKey.MoveDrawer,
 	factory: (
-		_: ThemeContext,
+		_theme: Theme,
 		data: unknown = {
 			sourcePosition: { x: 0, y: 0 },
 			targetPosition: { x: 0, y: 0 },
@@ -33,3 +33,4 @@ export const moveDrawerAnimation = {
 		};
 	},
 };
+
