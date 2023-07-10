@@ -11,20 +11,43 @@ import { InputIconDrawer } from './InputIconDrawer';
 import { OutputIconDrawer } from './OutputIconDrawer';
 
 export interface ConnectPointIconDrawerProps {
-	position: ConnectPointPosition;
+	connectPointPosition: ConnectPointPosition;
 	type: ConnectPointType;
 	theme: ThemeContext;
 	highlight?: boolean;
 }
 
-const ConnectPointIconDrawer = ({ type, theme, highlight }: ConnectPointIconDrawerProps) => {
+const ConnectPointIconDrawer = ({
+	connectPointPosition,
+	type,
+	theme,
+	highlight,
+}: ConnectPointIconDrawerProps) => {
 	switch (type) {
 		case ConnectPointType.Input:
-			return <InputIconDrawer theme={theme} highlight={highlight} />;
+			return (
+				<InputIconDrawer
+					connectPointPosition={connectPointPosition}
+					theme={theme}
+					highlight={highlight}
+				/>
+			);
 		case ConnectPointType.Output:
-			return <OutputIconDrawer theme={theme} highlight={highlight} />;
+			return (
+				<OutputIconDrawer
+					connectPointPosition={connectPointPosition}
+					theme={theme}
+					highlight={highlight}
+				/>
+			);
 		case ConnectPointType.Event:
-			return <EventIconDrawer theme={theme} highlight={highlight} />;
+			return (
+				<EventIconDrawer
+					connectPointPosition={connectPointPosition}
+					theme={theme}
+					highlight={highlight}
+				/>
+			);
 		default:
 			return null;
 	}
@@ -74,7 +97,7 @@ export const ConnectPointDrawer = ({
 	onAnimationComplete,
 	onAnimationDestroy,
 }: ConnectPointDrawerProps) => {
-	const connectPointElementTheme = useConnectPointTheme({ highlight }, theme);
+	const connectPointElementTheme = useConnectPointTheme({ position, highlight }, theme);
 	const { connectPointSizes } = useSizes(theme);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 
@@ -121,12 +144,12 @@ export const ConnectPointDrawer = ({
 				onMouseOut={handleMouseOut}
 			/>
 
-			{createIcon?.({ type, theme, highlight, position }) ?? (
+			{createIcon?.({ type, theme, highlight, connectPointPosition: position }) ?? (
 				<ConnectPointIconDrawer
 					type={type}
 					theme={theme}
 					highlight={highlight}
-					position={position}
+					connectPointPosition={position}
 				/>
 			)}
 		</Group>

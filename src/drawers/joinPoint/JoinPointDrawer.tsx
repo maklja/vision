@@ -1,10 +1,26 @@
 import { useState } from 'react';
 import Konva from 'konva';
 import { Circle, Group, Text } from 'react-konva';
-import { DrawerProps } from '../DrawerProps';
-import { useConnectPointTheme, useElementDrawerTheme, useSizes } from '../../theme';
+import { ThemeContext, useConnectPointTheme, useElementDrawerTheme, useSizes } from '../../theme';
+import { ConnectPointPosition } from '../../model';
 
-export const JoinPointDrawer = ({ highlight, select, visible, theme, size }: DrawerProps) => {
+export interface JoinPointDrawerProps {
+	theme: ThemeContext;
+	size: number;
+	highlight?: boolean;
+	select?: boolean;
+	visible?: boolean;
+	connectPointPosition: ConnectPointPosition;
+}
+
+export const JoinPointDrawer = ({
+	highlight,
+	select,
+	visible,
+	theme,
+	size,
+	connectPointPosition,
+}: JoinPointDrawerProps) => {
 	const [connectorTextRef, setConnectorTextRef] = useState<Konva.Text | null>(null);
 	const { drawerSizes, fontSizes } = useSizes(theme, size);
 
@@ -18,6 +34,7 @@ export const JoinPointDrawer = ({ highlight, select, visible, theme, size }: Dra
 
 	const connectPoint = useConnectPointTheme(
 		{
+			position: connectPointPosition,
 			highlight,
 			select,
 		},

@@ -1,15 +1,24 @@
 import { Path } from 'react-konva';
 import { ThemeContext, useConnectPointTheme, useSizes } from '../../theme';
+import { ConnectPointPosition } from '../../model';
 
 export interface CloseIconDrawerProps {
 	theme: ThemeContext;
+	connectPointPosition: ConnectPointPosition;
 	highlight?: boolean;
 }
 
 const ICON_SCALE_CORRECTION = 1.8;
 
-export const CloseIconDrawer = ({ theme, highlight }: CloseIconDrawerProps) => {
-	const connectPointElementTheme = useConnectPointTheme({ highlight }, theme);
+export const CloseIconDrawer = ({
+	connectPointPosition,
+	theme,
+	highlight,
+}: CloseIconDrawerProps) => {
+	const connectPointElementTheme = useConnectPointTheme(
+		{ position: connectPointPosition, highlight },
+		theme,
+	);
 	const { connectPointSizes } = useSizes(theme);
 	const scaleFactor = (connectPointSizes.radius / 16) * ICON_SCALE_CORRECTION;
 	return (

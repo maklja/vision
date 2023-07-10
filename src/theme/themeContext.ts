@@ -1,16 +1,17 @@
 import { useMemo } from 'react';
 import { ColorTheme, retrieveThemeColors } from './colors';
 import { connectLineTheme, ConnectLineTheme } from './connectLineTheme';
-import { connectPointTheme, ConnectPointTheme } from './connectPointTheme';
+import { connectPointsTheme, ConnectPointsTheme } from './connectPointsTheme';
 import { elementDrawerTheme, ElementDrawerTheme } from './elementDrawerTheme';
 import { simulationTheme, SimulationTheme } from './simulationTheme';
 import { SizeConfig, sizesConfig } from './sizes';
+import { ConnectPointPosition } from '../model';
 
 export interface ThemeContext {
 	colors: ColorTheme;
 	drawer: ElementDrawerTheme;
 	connectLine: ConnectLineTheme;
-	connectPoint: ConnectPointTheme;
+	connectPoints: ConnectPointsTheme;
 	simulation: SimulationTheme;
 	sizes: SizeConfig;
 }
@@ -21,7 +22,7 @@ export const createThemeContext = (): ThemeContext => {
 		colors: defaultColorTheme,
 		drawer: elementDrawerTheme(defaultColorTheme),
 		connectLine: connectLineTheme(defaultColorTheme),
-		connectPoint: connectPointTheme(defaultColorTheme),
+		connectPoints: connectPointsTheme(defaultColorTheme),
 		simulation: simulationTheme(defaultColorTheme),
 		sizes: sizesConfig(),
 	};
@@ -33,18 +34,22 @@ export interface DrawerThemeState {
 	error?: boolean;
 }
 
-export const useConnectPointTheme = (state: DrawerThemeState, theme: ThemeContext) => {
-	const { connectPoint } = theme;
+export interface ConnectPointThemeState extends DrawerThemeState {
+	position: ConnectPointPosition;
+}
+
+export const useConnectPointTheme = (state: ConnectPointThemeState, theme: ThemeContext) => {
+	const connectPointTheme = theme.connectPoints[state.position];
 	if (state.highlight) {
 		return {
-			element: connectPoint.highlightElement,
-			icon: connectPoint.highlightIcon,
+			element: connectPointTheme.highlightElement,
+			icon: connectPointTheme.highlightIcon,
 		};
 	}
 
 	return {
-		element: connectPoint.element,
-		icon: connectPoint.icon,
+		element: connectPointTheme.element,
+		icon: connectPointTheme.icon,
 	};
 };
 
