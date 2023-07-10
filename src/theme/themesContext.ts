@@ -14,6 +14,7 @@ import {
 import { simulationTheme, SimulationTheme } from './simulationTheme';
 import { SizeConfig, sizesConfig } from './sizes';
 import { ConnectPointPosition, ElementType } from '../model';
+import { iifConnectPointsTheme } from './iifDrawerTheme';
 
 export interface Theme {
 	colors: ColorTheme;
@@ -44,6 +45,9 @@ export const createThemeContext = (): ThemesContext => {
 		sizes: sizesConfig(),
 	};
 	return {
+		[ElementType.IIf]: {
+			connectPoints: iifConnectPointsTheme(defaultColorTheme),
+		},
 		default: defaultTheme,
 	};
 };

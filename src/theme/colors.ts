@@ -7,6 +7,8 @@ export interface ColorTheme {
 	secondaryTextColor: string;
 	errorPrimaryColor: string;
 	errorSecondaryColor: string;
+	successPrimaryColor: string;
+	successSecondaryColor: string;
 }
 
 // const mainColorTheme: ColorTheme = {
@@ -34,6 +36,8 @@ const seaColorTheme: ColorTheme = {
 	secondaryTextColor: '#EEE',
 	errorPrimaryColor: '#DD5353',
 	errorSecondaryColor: '#B73E3E',
+	successPrimaryColor: '#198754',
+	successSecondaryColor: '#22bb33',
 };
 
 export const retrieveThemeColors = (): ColorTheme => {
