@@ -1,4 +1,4 @@
-import { catchError, filter, ObservableInput, OperatorFunction } from 'rxjs';
+import { catchError, concatMap, filter, map, ObservableInput, of, OperatorFunction } from 'rxjs';
 import { Element, ElementType, FilterElement } from '../../model';
 import { OperatorOptions, PipeOperatorFactory } from './OperatorFactory';
 import { FlowValue } from '../context';
@@ -13,8 +13,8 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 
 	constructor() {
 		this.supportedOperators = new Map([
-			[ElementType.CatchError, this.createCatchErrorOperator],
-			[ElementType.Filter, this.createFilterOperator],
+			[ElementType.CatchError, this.createCatchErrorOperator.bind(this)],
+			[ElementType.Filter, this.createFilterOperator.bind(this)],
 		]);
 	}
 
@@ -55,10 +55,18 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 
 	private createFilterOperator(el: Element): OperatorFunction<FlowValue, FlowValue> {
 		const filterEl = el as FilterElement;
-		// TODO let user define his own function
-		const filterFn = new Function('value', 'index', filterEl.properties.expression);
+		const filterFn = new Function(`return ${filterEl.properties.expression}`);
 
-		return filter((flowValue, index) => filterFn(flowValue.value, index));
+		return this.wrapOperator(filter(filterFn()));
+	}
+
+	private wrapOperator(operatorFn: OperatorFunction<unknown, unknown>) {
+		return concatMap((flowValue: FlowValue) =>
+			of(flowValue.value).pipe(
+				operatorFn,
+				map((value) => new FlowValue(value, flowValue.id)),
+			),
+		);
 	}
 }
 

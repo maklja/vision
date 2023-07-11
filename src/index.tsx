@@ -69,7 +69,9 @@ const e4: FilterElement = {
 	type: ElementType.Filter,
 	visible: true,
 	properties: {
-		expression: 'return value % 2 === 0;',
+		expression: `(value) => {
+			return value % 2 === 0;
+		}`,
 	},
 };
 
@@ -81,13 +83,13 @@ const e5: FilterElement = {
 	type: ElementType.Filter,
 	visible: true,
 	properties: {
-		expression: `
+		expression: `function(value) {
 			if (value > 5) {
 				throw new Error('Ups');
 			}
 	
 			return value % 2 === 0; 
-		`,
+		}`,
 	},
 };
 

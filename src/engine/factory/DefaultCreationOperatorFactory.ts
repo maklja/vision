@@ -67,7 +67,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	private createIifCreationOperator(el: Element, options: OperatorOptions) {
 		const iifEl = el as IifElement;
-		const filterFn = new Function(`return ${iifEl.properties.conditionExpression}`);
+		const conditionFn = new Function(`return ${iifEl.properties.conditionExpression}`);
 
 		const trueRefObservable = options.referenceObservables.find(
 			({ connectPoint }) =>
@@ -88,7 +88,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		}
 
 		return iif(
-			filterFn(),
+			conditionFn(),
 			defer(() => {
 				trueRefObservable.invokeTrigger?.(FlowValue.createEmptyValue());
 				return trueRefObservable.observable;
