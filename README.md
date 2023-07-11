@@ -1,1 +1,6 @@
--   tap must be replaced with catchError if target element is catchError and error must be rethrow
+invokeTrigger - should be removed and replaced with maybe some type of observable factory
+For example the operator catchError
+const [refObservable] = options.referenceObservables;
+return catchError<FlowValue, ObservableInput<FlowValue>>((error) => {
+    return refObservable.createObservable(error);
+});
