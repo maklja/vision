@@ -195,13 +195,15 @@ export const Simulator = () => {
 		);
 
 	const handleSimulationStart = () => {
-		const subscription = createObservableSimulation('iifElement', elements, connectLines).start(
-			{
-				next: dispatchNextEvent,
-				error: dispatchErrorEvent,
-				complete: dispatchCompleteEvent,
-			},
-		);
+		const subscription = createObservableSimulation(
+			'intervalElement',
+			elements,
+			connectLines,
+		).start({
+			next: dispatchNextEvent,
+			error: dispatchErrorEvent,
+			complete: dispatchCompleteEvent,
+		});
 		setSimulationSubscription(subscription);
 	};
 

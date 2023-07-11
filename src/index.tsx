@@ -13,6 +13,7 @@ import {
 	IntervalElement,
 	CatchErrorElement,
 	IifElement,
+	MergeElement,
 } from './model';
 import { StageState } from './store/stageSlice';
 import { createThemeContext } from './theme';
@@ -143,6 +144,16 @@ const subscriber4: Element = {
 	properties: {},
 };
 
+const merge1: MergeElement = {
+	id: 'merge_1',
+	size: 1,
+	x: 380,
+	y: 800,
+	type: ElementType.Merge,
+	visible: true,
+	properties: {},
+};
+
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
 	// <React.StrictMode>
@@ -161,6 +172,7 @@ root.render(
 					i1,
 					ce1,
 					iifElement,
+					merge1,
 				],
 				connectLines: [],
 				draftConnectLine: null,

@@ -3,6 +3,7 @@ export * from './element/Element';
 export * from './connectLine';
 export * from './element';
 export * from './connectPoint';
+export * from './joinCreationOperators';
 export * from './creationOperators';
 export * from './filterOperators';
 export * from './errorHandlerOperators';

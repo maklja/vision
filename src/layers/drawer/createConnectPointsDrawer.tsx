@@ -3,6 +3,7 @@ import {
 	Element,
 	ElementType,
 	creationOperators,
+	joinCreationOperators,
 	pipeOperators,
 	subscriberOperators,
 } from '../../model';
@@ -113,7 +114,7 @@ const subscriberOperatorConnectPointFactory: ConnectPointsDrawerFactory = (
 	);
 };
 
-const creationOperatorFactories = [...creationOperators].map<
+const creationOperatorFactories = [...joinCreationOperators, ...creationOperators].map<
 	[ElementType, ConnectPointsDrawerFactory]
 >((elType) => [elType, creationOperatorConnectPointFactory]);
 

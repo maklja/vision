@@ -8,8 +8,11 @@ import {
 	DrawerProps,
 	ResultDrawer,
 	CatchErrorOperatorDrawer,
+	MergeOperatorDrawer,
 } from '../../drawers';
 import { Element, ElementType, Result } from '../../model';
+
+const createMergeDrawer = (props: DrawerProps) => <MergeOperatorDrawer {...props} />;
 
 const createFromDrawer = (props: DrawerProps) => <FromOperatorDrawer {...props} />;
 
@@ -33,6 +36,7 @@ const createResultDrawer = (props: DrawerProps, el: Element) => {
 export type ElementDrawerFactory = (props: DrawerProps, el: Element) => JSX.Element;
 
 const elementFactories = new Map<ElementType, ElementDrawerFactory>([
+	[ElementType.Merge, createMergeDrawer],
 	[ElementType.Of, createOfDrawer],
 	[ElementType.From, createFromDrawer],
 	[ElementType.Interval, createIntervalDrawer],

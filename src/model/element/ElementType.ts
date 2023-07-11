@@ -1,4 +1,5 @@
 export enum ElementType {
+	Merge = 'merge',
 	Of = 'of',
 	From = 'from',
 	IIf = 'iif',
@@ -8,6 +9,8 @@ export enum ElementType {
 	CatchError = 'catchError',
 	Result = 'result',
 }
+
+export const joinCreationOperators: ReadonlySet<ElementType> = new Set([ElementType.Merge]);
 
 export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Of,
@@ -31,6 +34,8 @@ export const eventPipeOperators: ReadonlySet<ElementType> = new Set([
 ]);
 
 export const subscriberOperators: ReadonlySet<ElementType> = new Set([ElementType.Subscriber]);
+
+export const isJoinCreationOperatorType = (type: ElementType) => joinCreationOperators.has(type);
 
 export const isCreationOperatorType = (type: ElementType) => creationOperators.has(type);
 
