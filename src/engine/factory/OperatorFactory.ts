@@ -6,6 +6,10 @@ interface OperatorFactory {
 	isSupported(el: Element): boolean;
 }
 
+export interface JoinCreationOperatorFactory extends OperatorFactory {
+	create(el: Element): Observable<FlowValue>;
+}
+
 export interface CreationOperatorFactory extends OperatorFactory {
 	create(el: Element): Observable<FlowValue>;
 }
