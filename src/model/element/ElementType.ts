@@ -47,3 +47,5 @@ export const isSubscriberType = (type: ElementType) => subscriberOperators.has(t
 
 export const isErrorHandlerType = (type: ElementType) => errorHandlerOperators.has(type);
 
+export const isEntryOperatorType = (type: ElementType) =>
+	isCreationOperatorType(type) || isJoinCreationOperatorType(type);

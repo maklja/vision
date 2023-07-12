@@ -1,4 +1,4 @@
-import { ConnectLine, Element, isCreationOperatorType } from '../model';
+import { ConnectLine, Element, isEntryOperatorType } from '../model';
 import { SimulationModel } from './context';
 import { ObservableSimulation } from './ObservableSimulation';
 import { SimulationGraph } from './simulationGraph';
@@ -18,7 +18,7 @@ const createSimulationModel = (
 	}, new Map<string, ConnectLine[]>());
 
 	const entryElement = elementsMap.get(entryElementId);
-	if (!entryElement || !isCreationOperatorType(entryElement.type)) {
+	if (!entryElement || !isEntryOperatorType(entryElement.type)) {
 		throw new Error(`Invalid entry element. Only creation elements are allowed`);
 	}
 

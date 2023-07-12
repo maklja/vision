@@ -3,6 +3,8 @@ import {
 	ConnectLine,
 	Element,
 	isCreationOperatorType,
+	isEntryOperatorType,
+	isJoinCreationOperatorType,
 	isPipeOperatorType,
 	isSubscriberType,
 } from '../../model';
@@ -10,6 +12,7 @@ import { FlowManager, FlowValue, SimulationModel } from '../context';
 import { DefaultCreationOperatorFactory } from './DefaultCreationOperatorFactory';
 import { DefaultPipeOperatorFactory } from './DefaultPipeOperatorFactory';
 import { GraphBranch, GraphNode, GraphNodeType } from '../simulationGraph';
+import { DefaultJoinCreationOperatorFactory } from './DefaultJoinCreationOperatorFactory';
 
 interface ReferenceObservableData {
 	observable: Observable<FlowValue>;
@@ -25,6 +28,7 @@ export interface CreateObservableParams {
 }
 
 export class ObservableFactory {
+	private readonly joinCreationOperatorFactory = new DefaultJoinCreationOperatorFactory();
 	private readonly creationOperatorFactory = new DefaultCreationOperatorFactory();
 	private readonly pipeOperatorFactory = new DefaultPipeOperatorFactory();
 
@@ -76,8 +80,8 @@ export class ObservableFactory {
 				observables,
 			);
 
-			if (isCreationOperatorType(el.type)) {
-				creationOperator = this.createCreatorOperator(el, refObservables);
+			if (isEntryOperatorType(el.type)) {
+				creationOperator = this.createEntryOperator(el, refObservables);
 			} else if (isPipeOperatorType(el.type)) {
 				pipeOperators.push(this.createPipeOperator(el, refObservables));
 			}
@@ -101,15 +105,27 @@ export class ObservableFactory {
 		return creationOperator.pipe(...(pipeOperators as [])) as Observable<FlowValue>;
 	}
 
-	private createCreatorOperator(el: Element, refObservablesData: ReferenceObservableData[]) {
-		return this.creationOperatorFactory.create(el, {
-			referenceObservables: refObservablesData.map((refObservable) => ({
-				connectPoint: refObservable.connectLine.source,
-				observable: refObservable.observable,
-				invokeTrigger: (value: FlowValue) =>
-					this.flowManager.handleNextEvent(value, refObservable.connectLine),
-			})),
-		});
+	private createEntryOperator(el: Element, refObservablesData: ReferenceObservableData[]) {
+		const referenceObservables = refObservablesData.map((refObservable) => ({
+			connectPoint: refObservable.connectLine.source,
+			observable: refObservable.observable,
+			invokeTrigger: (value: FlowValue) =>
+				this.flowManager.handleNextEvent(value, refObservable.connectLine),
+		}));
+
+		if (isCreationOperatorType(el.type)) {
+			return this.creationOperatorFactory.create(el, {
+				referenceObservables,
+			});
+		}
+
+		if (isJoinCreationOperatorType(el.type)) {
+			return this.joinCreationOperatorFactory.create(el, {
+				referenceObservables,
+			});
+		}
+
+		throw new Error(`Unsupported entry operator type ${el.type}`);
 	}
 
 	private createPipeOperator(el: Element, refObservablesData: ReferenceObservableData[]) {

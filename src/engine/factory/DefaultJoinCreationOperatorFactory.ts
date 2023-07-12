@@ -1,4 +1,4 @@
-import { merge, Observable } from 'rxjs';
+import { defer, merge, Observable } from 'rxjs';
 import { Element, ElementType } from '../../model';
 import { JoinCreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue } from '../context';
@@ -38,7 +38,12 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 
 	private createMergeOperator(_el: Element, options: OperatorOptions) {
 		return merge<FlowValue[]>(
-			...options.referenceObservables.map((refObservable) => refObservable.observable),
+			...options.referenceObservables.map((refObservable) =>
+				defer(() => {
+					refObservable.invokeTrigger?.(FlowValue.createEmptyValue());
+					return refObservable.observable;
+				}),
+			),
 		);
 	}
 }

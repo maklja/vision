@@ -4,16 +4,33 @@ import {
 	eventPipeOperators,
 	isCreationOperatorType,
 	isEventPipeOperatorType,
+	isJoinCreationOperatorType,
 	isPipeOperatorType,
 	isSubscriberType,
+	joinCreationOperators,
 	pipeOperators,
 	subscriberOperators,
 } from '../element';
 import { ElementDescriptor } from './ElementDescriptor';
 
+export const joinCreationElementDescriptor: ElementDescriptor = {
+	input: {
+		allowedTypes: new Set<ElementType>([...joinCreationOperators, ...eventPipeOperators]),
+		cardinality: 1,
+	},
+	output: {
+		allowedTypes: new Set<ElementType>([...pipeOperators, ...subscriberOperators]),
+		cardinality: 1,
+	},
+	event: {
+		allowedTypes: new Set<ElementType>([...creationOperators, ...joinCreationOperators]),
+		cardinality: Number.POSITIVE_INFINITY,
+	},
+};
+
 export const creationElementDescriptor: ElementDescriptor = {
 	input: {
-		allowedTypes: new Set<ElementType>([...eventPipeOperators]),
+		allowedTypes: new Set<ElementType>([...joinCreationOperators, ...eventPipeOperators]),
 		cardinality: 1,
 	},
 	output: {
@@ -32,11 +49,19 @@ export const iifElementDescriptor: ElementDescriptor = {
 
 export const pipeElementDescriptor: ElementDescriptor = {
 	input: {
-		allowedTypes: new Set<ElementType>([...creationOperators, ...pipeOperators]),
+		allowedTypes: new Set<ElementType>([
+			...joinCreationOperators,
+			...creationOperators,
+			...pipeOperators,
+		]),
 		cardinality: 1,
 	},
 	output: {
-		allowedTypes: new Set<ElementType>([...pipeOperators, ...subscriberOperators]),
+		allowedTypes: new Set<ElementType>([
+			...joinCreationOperators,
+			...pipeOperators,
+			...subscriberOperators,
+		]),
 		cardinality: 1,
 	},
 };
@@ -51,7 +76,11 @@ export const eventPipeElementDescriptor: ElementDescriptor = {
 
 export const subscriberElementDescriptor: ElementDescriptor = {
 	input: {
-		allowedTypes: new Set<ElementType>([...creationOperators, ...pipeOperators]),
+		allowedTypes: new Set<ElementType>([
+			...joinCreationOperators,
+			...creationOperators,
+			...pipeOperators,
+		]),
 		cardinality: 1,
 	},
 };
@@ -66,6 +95,10 @@ const findCreationElementDescriptor = (elementType: ElementType): ElementDescrip
 };
 
 export const findElementDescriptor = (elementType: ElementType): ElementDescriptor => {
+	if (isJoinCreationOperatorType(elementType)) {
+		return joinCreationElementDescriptor;
+	}
+
 	if (isCreationOperatorType(elementType)) {
 		return findCreationElementDescriptor(elementType);
 	}
