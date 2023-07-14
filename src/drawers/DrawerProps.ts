@@ -36,6 +36,7 @@ export interface DrawerCommonProps {
 	x: number;
 	y: number;
 	size: number;
+	draggable?: boolean;
 	highlight?: boolean;
 	select?: boolean;
 	visible?: boolean;

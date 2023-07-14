@@ -20,6 +20,7 @@ export const PipeOperatorDrawer = ({
 	visible = true,
 	title,
 	animation,
+	draggable = false,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
@@ -105,7 +106,7 @@ export const PipeOperatorDrawer = ({
 			visible={visible && Boolean(mainTextRef)}
 			x={x}
 			y={y}
-			draggable
+			draggable={draggable}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
 			onMouseDown={handleMouseDown}

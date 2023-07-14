@@ -15,6 +15,7 @@ export const SubscriberDrawer = ({
 	select,
 	animation,
 	visible,
+	draggable = false,
 	onMouseDown,
 	onMouseOut,
 	onMouseOver,
@@ -101,7 +102,7 @@ export const SubscriberDrawer = ({
 			visible={visible && Boolean(mainShapeRef)}
 			x={x}
 			y={y}
-			draggable
+			draggable={draggable}
 			onMouseDown={handleMouseDown}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}

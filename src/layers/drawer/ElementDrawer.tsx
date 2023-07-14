@@ -38,6 +38,7 @@ export const ElementDrawer = ({ element }: ElementDrawerProps) => {
 			...drawerHandlers,
 			select,
 			highlight,
+			draggable: true,
 			theme,
 			animation: animation
 				? {

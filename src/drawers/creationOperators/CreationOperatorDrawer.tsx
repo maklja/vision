@@ -20,6 +20,7 @@ export const CreationOperatorDrawer = ({
 	id,
 	theme,
 	animation,
+	draggable = false,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
@@ -61,8 +62,8 @@ export const CreationOperatorDrawer = ({
 		drawerId: id,
 	});
 
-	const textX = drawerSizes.radius + (mainTextRef?.textWidth ?? 0) / -2;
-	const textY = drawerSizes.radius + (mainTextRef?.textHeight ?? 0) / -2;
+	const textX = drawerSizes.radius - (mainTextRef?.textWidth ?? 0) / 2;
+	const textY = drawerSizes.radius - (mainTextRef?.textHeight ?? 0) / 2;
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -103,7 +104,7 @@ export const CreationOperatorDrawer = ({
 	return (
 		<Group
 			visible={visible && Boolean(mainTextRef && mainShapeRef)}
-			draggable
+			draggable={draggable}
 			x={x}
 			y={y}
 			onMouseOver={handleMouseOver}
