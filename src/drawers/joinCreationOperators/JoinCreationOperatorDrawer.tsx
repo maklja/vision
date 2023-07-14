@@ -121,6 +121,7 @@ export const JoinCreationOperatorDrawer = ({
 				radius={drawerSizes.radius}
 				x={drawerSizes.radius}
 				y={drawerSizes.radius}
+				rotationDeg={90}
 			/>
 			<Text
 				{...drawerStyle.text}
