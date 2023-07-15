@@ -10,7 +10,7 @@ import {
 	CatchErrorOperatorDrawer,
 	MergeOperatorDrawer,
 } from '../../drawers';
-import { Element, ElementType, Result } from '../../model';
+import { Element, ElementType, Result, ResultProperties } from '../../model';
 
 const createMergeDrawer = (props: DrawerProps) => <MergeOperatorDrawer {...props} />;
 
@@ -28,12 +28,12 @@ const createSubscriberDrawer = (props: DrawerProps) => <SubscriberDrawer {...pro
 
 const createCatchErrorDrawer = (props: DrawerProps) => <CatchErrorOperatorDrawer {...props} />;
 
-const createResultDrawer = (props: DrawerProps, el: Element) => {
-	const resultElement = el as Result;
-	return <ResultDrawer {...props} hash={resultElement.properties.hash} />;
+const createResultDrawer = (props: DrawerProps, elProperties: unknown) => {
+	const resultProperties = elProperties as ResultProperties;
+	return <ResultDrawer {...props} hash={resultProperties.hash} />;
 };
 
-export type ElementDrawerFactory = (props: DrawerProps, el: Element) => JSX.Element;
+export type ElementDrawerFactory = (props: DrawerProps, elProperties?: unknown) => JSX.Element;
 
 const elementFactories = new Map<ElementType, ElementDrawerFactory>([
 	[ElementType.Merge, createMergeDrawer],

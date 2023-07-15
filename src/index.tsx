@@ -1,5 +1,7 @@
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -195,7 +197,9 @@ root.render(
 			},
 		})}
 	>
-		<App />
+		<DndProvider backend={HTML5Backend}>
+			<App />
+		</DndProvider>
 	</Provider>,
 	// </React.StrictMode>,
 );

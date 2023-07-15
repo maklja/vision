@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useDrop } from 'react-dnd'
 import { Unsubscribable } from 'rxjs';
 import { v1 } from 'uuid';
 import { createObservableSimulation, FlowErrorEvent, FlowValueEvent } from '../engine';
@@ -29,6 +30,8 @@ import {
 import { MoveAnimation } from '../animation';
 import { ElementType } from '../model';
 import { createAnimations } from './createAnimations';
+import Box from '@mui/material/Box';
+import { OperatorsPanel } from '../ui';
 
 export const Simulator = () => {
 	const [simulatorId] = useState(v1());
@@ -233,12 +236,25 @@ export const Simulator = () => {
 	}
 
 	return (
-		<div>
-			<button onClick={handleSimulationStart}>Start simulation</button>
+		<Box style={{ position: 'absolute', width: '100%', height: '100%' }}>
+			{/* <button onClick={handleSimulationStart}>Start simulation</button>
 			<button onClick={handleSimulationStop}>Stop simulation</button>
-			<button onClick={handleSimulationReset}>Reset simulation</button>
+			<button onClick={handleSimulationReset}>Reset simulation</button> */}
+
 			<SimulatorStage />
-		</div>
+
+			<Box
+				style={{
+					position: 'absolute',
+					top: '20%',
+					left: '15px',
+					height: '50%',
+					width: '90px',
+				}}
+			>
+				<OperatorsPanel />
+			</Box>
+		</Box>
 	);
 };
 

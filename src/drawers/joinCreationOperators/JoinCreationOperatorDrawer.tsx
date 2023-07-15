@@ -122,7 +122,7 @@ export const JoinCreationOperatorDrawer = ({
 				radius={drawerSizes.radius}
 				x={drawerSizes.radius}
 				y={drawerSizes.radius}
-				rotationDeg={90}
+				rotationDeg={90} // TODO error ovde jer je dep
 			/>
 			<Text
 				{...drawerStyle.text}

@@ -51,7 +51,7 @@ export const ElementDrawer = ({ element }: ElementDrawerProps) => {
 				  }
 				: null,
 		},
-		element,
+		element.properties,
 	);
 	return (
 		<Group>
