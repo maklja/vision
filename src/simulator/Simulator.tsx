@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useDrop } from 'react-dnd'
+import { useDrop } from 'react-dnd';
 import { Unsubscribable } from 'rxjs';
 import { v1 } from 'uuid';
 import { createObservableSimulation, FlowErrorEvent, FlowValueEvent } from '../engine';
@@ -257,4 +257,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-

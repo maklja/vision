@@ -122,7 +122,7 @@ export const JoinCreationOperatorDrawer = ({
 				radius={drawerSizes.radius}
 				x={drawerSizes.radius}
 				y={drawerSizes.radius}
-				rotationDeg={90} // TODO error ovde jer je dep
+				rotation={90}
 			/>
 			<Text
 				{...drawerStyle.text}
@@ -136,4 +136,3 @@ export const JoinCreationOperatorDrawer = ({
 		</Group>
 	);
 };
-
