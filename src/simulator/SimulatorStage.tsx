@@ -9,6 +9,8 @@ import {
 	selectElements,
 	useThemeContext,
 } from '../store/stageSlice';
+import { ConnectableElement, useDrop } from 'react-dnd';
+import { ElementType } from '../model';
 
 export const SimulatorStage = () => {
 	const { colors } = useThemeContext();
@@ -33,20 +35,31 @@ export const SimulatorStage = () => {
 		appDispatch(deleteConnectLineDraw());
 	};
 
+	const [collectedProps, drop] = useDrop(() => ({
+		accept: ElementType.From,
+		canDrop: () => true,
+		hover(item) {
+			console.log(item);
+		},
+	}));
+	console.log(collectedProps);
+
 	return (
-		<Stage
-			style={{ backgroundColor: colors.backgroundColor }}
-			width={window.innerWidth}
-			height={window.innerHeight}
-			onMouseDown={handleMouseDown}
-			onMouseUp={handleOnMouseUp}
-			onMouseMove={handleMouseMove}
-		>
-			<Layer>
-				<ConnectLineLayer />
-				<DrawerLayer />
-			</Layer>
-		</Stage>
+		<div ref={(stageNode) => drop(stageNode)}>
+			<Stage
+				style={{ backgroundColor: colors.backgroundColor }}
+				width={window.innerWidth}
+				height={window.innerHeight}
+				onMouseDown={handleMouseDown}
+				onMouseUp={handleOnMouseUp}
+				onMouseMove={handleMouseMove}
+			>
+				<Layer>
+					<ConnectLineLayer />
+					<DrawerLayer />
+				</Layer>
+			</Stage>
+		</div>
 	);
 };
 

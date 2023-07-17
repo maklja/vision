@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import PhoneIcon from '@mui/icons-material/Phone';
 import {
@@ -10,30 +9,8 @@ import {
 	JoinCreationOperatorIcon,
 	SubscriberOperatorIcon,
 } from './icons';
-import { useDrag } from 'react-dnd';
 import { ElementGroup } from '../model';
 import { OperatorPanelPopper } from './poppers';
-
-const XXX = () => {
-	const [{ opacity }, dragRef] = useDrag(
-		() => ({
-			type: 'test',
-			item: { text: 'test' },
-			collect: (monitor) => ({
-				opacity: monitor.isDragging() ? 0.5 : 1,
-			}),
-		}),
-		[],
-	);
-
-	return (
-		<div ref={dragRef}>
-			<Button sx={{ opacity }} variant="outlined">
-				Primary
-			</Button>
-		</div>
-	);
-};
 
 export const OperatorsPanel = () => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -178,3 +155,4 @@ export const OperatorsPanel = () => {
 		</div>
 	);
 };
+
