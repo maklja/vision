@@ -13,7 +13,7 @@ import {
 } from './elementDrawerTheme';
 import { simulationTheme, SimulationTheme } from './simulationTheme';
 import { SizeConfig, sizesConfig } from './sizes';
-import { ConnectPointPosition, ElementGroup, ElementType } from '../model';
+import { ConnectPointPosition, ElementType } from '../model';
 import { iifConnectPointsTheme } from './iifDrawerTheme';
 
 export interface Theme {
@@ -138,16 +138,4 @@ export const useSizes = (theme: Theme, size = 1, factor = 1): SizeConfig => {
 		};
 	}, [size, factor, sizes]);
 };
-
-// TODO think this could be done better without need to track which drawer is which shape
-export const circleShapeElementGroups: ReadonlySet<ElementGroup> = new Set([
-	ElementGroup.Creation,
-	ElementGroup.JoinCreation,
-	ElementGroup.Subscriber,
-]);
-
-export const rectangleShapeElementGroups: ReadonlySet<ElementGroup> = new Set([
-	ElementGroup.Filtering,
-	ElementGroup.ErrorHandling,
-]);
 

@@ -31,8 +31,8 @@ export const OperatorPanelPopper = ({
 		>
 			<div>
 				<Paper>
-					<Grid container spacing={0}>
-						{[...elementTypes, ...elementTypes, ...elementTypes].map((elType) => (
+					<Grid container>
+						{[...elementTypes].map((elType) => (
 							<Grid
 								item
 								xs={4}

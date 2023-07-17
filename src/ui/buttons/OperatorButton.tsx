@@ -2,8 +2,8 @@ import { Layer, Stage } from 'react-konva';
 import { useState } from 'react';
 import { useThemeContext } from '../../store/stageSlice';
 import { findElementDrawerFactory } from '../../layers/drawer/createElementDrawer';
-import { ElementType, mapElementTypeToGroup } from '../../model';
-import { useSizes, circleShapeElementGroups } from '../../theme';
+import { ElementGroup, ElementType, mapElementTypeToGroup } from '../../model';
+import { useSizes } from '../../theme';
 
 export interface OperatorButtonProps {
 	elementType: ElementType;
@@ -11,18 +11,20 @@ export interface OperatorButtonProps {
 	size?: number;
 }
 
+export const radiusDrawers: ReadonlySet<ElementGroup> = new Set([
+	ElementGroup.Creation,
+	ElementGroup.JoinCreation,
+	ElementGroup.Subscriber,
+]);
+
 export const OperatorButton = ({ elementType, padding = 4, size = 0.65 }: OperatorButtonProps) => {
 	const theme = useThemeContext(elementType);
 	const { drawerSizes } = useSizes(theme, size);
 	const [selected, setSelected] = useState(false);
 
 	const elGroup = mapElementTypeToGroup(elementType);
-	const width = circleShapeElementGroups.has(elGroup)
-		? drawerSizes.radius * 2
-		: drawerSizes.width;
-	const height = circleShapeElementGroups.has(elGroup)
-		? drawerSizes.radius * 2
-		: drawerSizes.height;
+	const width = radiusDrawers.has(elGroup) ? drawerSizes.radius * 2 : drawerSizes.width;
+	const height = radiusDrawers.has(elGroup) ? drawerSizes.radius * 2 : drawerSizes.height;
 
 	const operatorFactory = findElementDrawerFactory(elementType);
 	if (!operatorFactory) {
