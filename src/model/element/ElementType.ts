@@ -19,12 +19,12 @@ export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.IIf,
 ]);
 
-export const filterOperators: ReadonlySet<ElementType> = new Set([ElementType.Filter]);
+export const filteringOperators: ReadonlySet<ElementType> = new Set([ElementType.Filter]);
 
 export const errorHandlerOperators: ReadonlySet<ElementType> = new Set([ElementType.CatchError]);
 
 export const pipeOperators: ReadonlySet<ElementType> = new Set([
-	...filterOperators,
+	...filteringOperators,
 	...errorHandlerOperators,
 ]);
 
@@ -49,3 +49,4 @@ export const isErrorHandlerType = (type: ElementType) => errorHandlerOperators.h
 
 export const isEntryOperatorType = (type: ElementType) =>
 	isCreationOperatorType(type) || isJoinCreationOperatorType(type);
+

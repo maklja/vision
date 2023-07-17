@@ -23,7 +23,7 @@ export const OperatorPanelPopper = ({
 
 	return (
 		<Popper
-			sx={{ marginLeft: '10px !important', maxWidth: '300px' }}
+			sx={{ marginLeft: '10px !important', width: '300px' }}
 			id={id}
 			open={open}
 			anchorEl={anchorEl}
@@ -32,7 +32,7 @@ export const OperatorPanelPopper = ({
 			<div>
 				<Paper>
 					<Grid container spacing={0}>
-						{[...elementTypes].map((elType) => (
+						{[...elementTypes, ...elementTypes, ...elementTypes].map((elType) => (
 							<Grid
 								item
 								xs={4}
@@ -48,3 +48,4 @@ export const OperatorPanelPopper = ({
 		</Popper>
 	);
 };
+
