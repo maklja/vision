@@ -15,6 +15,7 @@ import {
 	deleteConnectLineDrawReducer,
 	pinConnectLineReducer,
 	unpinConnectLineReducer,
+	createDraftElementReducer,
 } from './reducer';
 import { RootState } from './rootState';
 
@@ -36,7 +37,7 @@ export enum StageState {
 	Select = 'select',
 	DrawConnectLine = 'drawConnectLine',
 	Dragging = 'dragging',
-	DrawDrawer = 'drawDrawer',
+	DrawElement = 'drawElement',
 }
 
 export interface StageSlice {
@@ -48,6 +49,7 @@ export interface StageSlice {
 	themes: ThemesContext;
 	state: StageState;
 	draftConnectLine: DraftConnectLine | null;
+	draftElement: Element | null;
 }
 
 export interface AddElementsAction {
@@ -115,6 +117,7 @@ const initialState: StageSlice = {
 	themes: createThemeContext(),
 	state: StageState.Select,
 	draftConnectLine: null,
+	draftElement: null,
 };
 
 export const stageSlice = createSlice({
@@ -166,6 +169,7 @@ export const stageSlice = createSlice({
 		deleteConnectLineDraw: deleteConnectLineDrawReducer,
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
+		createDraftElement: createDraftElementReducer,
 		moveElement: (state: Draft<StageSlice>, action: MoveElementAction) => {
 			const { payload } = action;
 			const elIdx = state.elements.findIndex((el) => el.id === payload.id);
@@ -219,6 +223,7 @@ export const {
 	pinConnectLine,
 	unpinConnectLine,
 	highlightConnectPoints,
+	createDraftElement,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
@@ -237,6 +242,8 @@ export const selectStageElements = (state: RootState) => state.stage.elements;
 export const selectStageElementById = (id: string) => (state: RootState) =>
 	state.stage.elements.find((el) => el.id === id) ?? null;
 
+export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
+
 export const selectStageState = (state: RootState) => state.stage.state;
 
 export const selectHighlightedConnectPointsByElementId =
@@ -251,3 +258,4 @@ export const selectElementSelection = (elementId: string) => (state: RootState) 
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
+

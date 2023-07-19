@@ -1,12 +1,15 @@
 import { v1 } from 'uuid';
-import { Layer, Stage } from 'react-konva';
-import { useState } from 'react';
-import Box from '@mui/material/Box';
-import { useThemeContext } from '../../store/stageSlice';
-import { findElementDrawerFactory } from '../../layers/drawer/createElementDrawer';
-import { ElementGroup, ElementType, mapElementTypeToGroup } from '../../model';
-import { useSizes } from '../../theme';
+import { useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
+import { Layer, Stage } from 'react-konva';
+import { getEmptyImage } from 'react-dnd-html5-backend';
+import Box from '@mui/material/Box';
+import { createDraftElement, useThemeContext } from '../../store/stageSlice';
+import { findElementDrawerFactory } from '../../layers/drawer/createElementDrawer';
+import { Element, ElementGroup, ElementType, mapElementTypeToGroup } from '../../model';
+import { useSizes } from '../../theme';
+import { DragNDropType } from '../../dragNDrop';
+import { useAppDispatch } from '../../store/rootState';
 
 export interface OperatorButtonProps {
 	elementType: ElementType;
@@ -21,23 +24,43 @@ export const radiusDrawers: ReadonlySet<ElementGroup> = new Set([
 ]);
 
 export const OperatorButton = ({ elementType, padding = 4, size = 0.65 }: OperatorButtonProps) => {
-	const [selected, setSelected] = useState(false);
-	const [{ opacity }, dragRef] = useDrag(
+	const appDispatch = useAppDispatch();
+	const theme = useThemeContext(elementType);
+	const { drawerSizes } = useSizes(theme, size);
+	const [highlighted, setHighlighted] = useState(false);
+
+	const [{ isDragging }, dragRef, dragPreview] = useDrag<
+		Element,
+		unknown,
+		{ isDragging: boolean }
+	>(
 		() => ({
-			type: elementType,
-			item: () => ({
-				id: 'creation',
-				type: elementType,
-			}),
+			type: DragNDropType.CreateElement,
+			item: (monitor) => {
+				const clientOffset = monitor.getClientOffset();
+				const newElement: Element = {
+					id: v1(),
+					x: clientOffset?.x ?? 0,
+					y: clientOffset?.y ?? 0,
+					size: 1,
+					visible: true,
+					type: elementType,
+					properties: {},
+				};
+				appDispatch(createDraftElement(newElement));
+
+				return newElement;
+			},
 			collect: (monitor) => ({
-				opacity: monitor.isDragging() ? 0.5 : 1,
+				isDragging: monitor.isDragging(),
 			}),
 		}),
 		[],
 	);
 
-	const theme = useThemeContext(elementType);
-	const { drawerSizes } = useSizes(theme, size);
+	useEffect(() => {
+		dragPreview(getEmptyImage(), { captureDraggingState: true });
+	}, []);
 
 	const elGroup = mapElementTypeToGroup(elementType);
 	const width = radiusDrawers.has(elGroup) ? drawerSizes.radius * 2 : drawerSizes.width;
@@ -54,16 +77,18 @@ export const OperatorButton = ({ elementType, padding = 4, size = 0.65 }: Operat
 		y: padding,
 		theme,
 		size,
-		select: selected,
-		onMouseOver: () => setSelected(true),
-		onMouseOut: () => setSelected(false),
+		select: isDragging,
+		highlight: highlighted,
+		onMouseOver: () => setHighlighted(true),
+		onMouseOut: () => setHighlighted(false),
 	});
 
 	return (
-		<Box ref={dragRef} sx={{ opacity, backgroundColor: 'transparent' }}>
+		<Box ref={dragRef}>
 			<Stage width={width + 2 * padding} height={height + 2 * padding}>
 				<Layer>{operatorDrawer}</Layer>
 			</Stage>
 		</Box>
 	);
 };
+

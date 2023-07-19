@@ -189,6 +189,7 @@ root.render(
 				],
 				connectLines: [],
 				draftConnectLine: null,
+				draftElement: null,
 				highlighted: [],
 				highlightedConnectPoints: [],
 				selected: [],

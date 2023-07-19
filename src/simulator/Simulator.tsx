@@ -43,7 +43,6 @@ export const Simulator = () => {
 	const nextAnimation = useAppSelector(selectSimulationNextAnimation(simulatorId));
 	const appDispatch = useAppDispatch();
 
-
 	useEffect(() => {
 		// case when simulation changes
 		if (simulation?.id === simulatorId) {
@@ -242,7 +241,6 @@ export const Simulator = () => {
 			<button onClick={handleSimulationReset}>Reset simulation</button> */}
 
 			<SimulatorStage />
-
 			<Box
 				style={{
 					position: 'absolute',

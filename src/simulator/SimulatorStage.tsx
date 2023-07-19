@@ -1,22 +1,14 @@
 import Konva from 'konva';
 import { Layer, Stage } from 'react-konva';
-import { ConnectableElement, useDrop } from 'react-dnd';
+import { useDrop } from 'react-dnd';
 import { ConnectLineLayer } from '../layers/connectLine';
 import { DrawerLayer } from '../layers/drawer';
-import { useAppDispatch, useAppSelector } from '../store/rootState';
-import {
-	StageState,
-	addElement,
-	changeState,
-	deleteConnectLineDraw,
-	moveConnectLineDraw,
-	moveElement,
-	selectElements,
-	selectStageElementById,
-	useThemeContext,
-} from '../store/stageSlice';
-import { ElementType } from '../model';
-import { findElementDrawerFactory } from '../layers/drawer/createElementDrawer';
+import { useAppDispatch } from '../store/rootState';
+import { useThemeContext } from '../store/stageSlice';
+import { Element } from '../model';
+import { useStageHandlers } from './state';
+import { ElementCreateLayer } from './ElementCreateLayer';
+import { DragNDropType } from '../dragNDrop';
 
 export interface StageEvents {
 	onMouseDown?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
@@ -31,111 +23,35 @@ export interface StageEvents {
 
 export const SimulatorStage = () => {
 	const theme = useThemeContext();
-	const creationElement = useAppSelector(selectStageElementById('creation'));
-
+	const stageHandlers = useStageHandlers();
 	const appDispatch = useAppDispatch();
 
-	const handleMouseDown = () => appDispatch(selectElements([]));
-
-	const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		const stage = e.target.getStage();
-		const rect = stage?.getContent().getBoundingClientRect();
-		const x = e.evt.clientX - (rect?.left ?? 0);
-		const y = e.evt.clientY - (rect?.top ?? 0);
-		appDispatch(
-			moveConnectLineDraw({
-				x,
-				y,
-			}),
-		);
-	};
-
-	const handleOnMouseUp = () => {
-		appDispatch(deleteConnectLineDraw());
-	};
-
-	const [propsss, drop] = useDrop<any, any, any>(
+	const [, drop] = useDrop<Element>(
 		() => ({
-			accept: Object.values(ElementType),
-			collect: (monitor) => {
-				console.log('changed', monitor.isOver());
-				// const item = monitor.getItem();
-				// if (!item) {
-				// 	return {
-				// 		drawerFactory: null,
-				// 		position: { x: 0, y: 0 },
-				// 	};
-				// }
-				// const factory = findElementDrawerFactory((monitor.getItem() as any).type);
-				// return {
-				// 	drawerFactory: factory,
-				// 	position: monitor.getClientOffset() ?? { x: 0, y: 0 },
-				// };
-
-				// return factory?.({
-				// 	id: 'creation',
-				// 	size: 1,
-				// 	theme,
-				// 	x: monitor.getClientOffset()?.x ?? 0,
-				// 	y: monitor.getClientOffset()?.y ?? 0,
-				// 	select: true,
-				// });
-			},
-			hover(item: any, monitor) {
-				// console.log(creationElement);
-				// if (creationElement == null) {
-				// 	appDispatch(
-				// 		addElement({
-				// 			id: 'creation',
-				// 			size: 1,
-				// 			type: item.type,
-				// 			visible: true,
-				// 			x: monitor.getClientOffset()?.x ?? 0 - 40,
-				// 			y: monitor.getClientOffset()?.y ?? 0 - 40,
-				// 			properties: {},
-				// 		}),
-				// 	);
-				// 	appDispatch(changeState(StageState.Dragging));
-				// 	appDispatch(
-				// 		selectElements([
-				// 			{ id: 'creation', visibleConnectPoints: { input: false } },
-				// 		]),
-				// 	);
-				// } else {
-				// 	appDispatch(
-				// 		moveElement({
-				// 			id: 'creation',
-				// 			x: monitor.getClientOffset()?.x ?? 0 - 20,
-				// 			y: monitor.getClientOffset()?.y ?? 0 - 20,
-				// 		}),
-				// 	);
-				// }
-				// console.log(item);
-			},
+			accept: DragNDropType.CreateElement,
 			drop(item, monitor) {
-				console.log('drop', item, monitor.didDrop(), monitor.getHandlerId());
+				console.log('drop', item);
 				// return { test: 'test' };
 			},
 		}),
 		[],
 	);
-	// console.log('xx', collectedProps);
 
 	return (
-		<div ref={(stageNode) => drop(stageNode)}>
+		<div ref={drop}>
 			<Stage
+				{...stageHandlers}
 				style={{ backgroundColor: theme.colors.backgroundColor }}
 				width={window.innerWidth}
 				height={window.innerHeight}
-				onMouseDown={handleMouseDown}
-				onMouseUp={handleOnMouseUp}
-				onMouseMove={handleMouseMove}
 			>
-				<Layer onMouseMove={(e) => console.log(e)}>
+				<Layer>
 					<ConnectLineLayer />
 					<DrawerLayer />
 				</Layer>
+				<ElementCreateLayer />
 			</Stage>
 		</div>
 	);
 };
+
