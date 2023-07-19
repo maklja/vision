@@ -18,6 +18,17 @@ import {
 import { ElementType } from '../model';
 import { findElementDrawerFactory } from '../layers/drawer/createElementDrawer';
 
+export interface StageEvents {
+	onMouseDown?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseUp?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseOver?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseOut?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseMove?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onDragStart?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onDragEnd?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onDragMove?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+}
+
 export const SimulatorStage = () => {
 	const theme = useThemeContext();
 	const creationElement = useAppSelector(selectStageElementById('creation'));
