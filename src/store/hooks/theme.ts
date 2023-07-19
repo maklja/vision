@@ -9,8 +9,9 @@ export const useThemeContext = (type?: ElementType): Theme =>
 		const { themes } = state.stage;
 		const elTheme = type ? themes[type] ?? {} : {};
 
-		return deepMerge<Theme, DrawerThemeOverride>(themes.default, elTheme, {
-			arrayMerge: (_destinationArray, sourceArray) => sourceArray,
-		});
+		return themes.default;
+		// TODO optimize
+		// return deepMerge<Theme, DrawerThemeOverride>(themes.default, elTheme, {
+		// 	arrayMerge: (_destinationArray, sourceArray) => sourceArray,
+		// });
 	});
-

@@ -36,6 +36,7 @@ export enum StageState {
 	Select = 'select',
 	DrawConnectLine = 'drawConnectLine',
 	Dragging = 'dragging',
+	DrawDrawer = 'drawDrawer',
 }
 
 export interface StageSlice {
@@ -233,6 +234,9 @@ export const selectConnectLineById = (id: string | null) => (state: RootState) =
 
 export const selectStageElements = (state: RootState) => state.stage.elements;
 
+export const selectStageElementById = (id: string) => (state: RootState) =>
+	state.stage.elements.find((el) => el.id === id) ?? null;
+
 export const selectStageState = (state: RootState) => state.stage.state;
 
 export const selectHighlightedConnectPointsByElementId =
@@ -247,4 +251,3 @@ export const selectElementSelection = (elementId: string) => (state: RootState) 
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
-

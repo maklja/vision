@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import { Layer, Stage } from 'react-konva';
 import { useState } from 'react';
 import Box from '@mui/material/Box';
@@ -24,9 +25,10 @@ export const OperatorButton = ({ elementType, padding = 4, size = 0.65 }: Operat
 	const [{ opacity }, dragRef] = useDrag(
 		() => ({
 			type: elementType,
-			item: {
-				elementType,
-			},
+			item: () => ({
+				id: 'creation',
+				type: elementType,
+			}),
 			collect: (monitor) => ({
 				opacity: monitor.isDragging() ? 0.5 : 1,
 			}),
@@ -65,4 +67,3 @@ export const OperatorButton = ({ elementType, padding = 4, size = 0.65 }: Operat
 		</Box>
 	);
 };
-

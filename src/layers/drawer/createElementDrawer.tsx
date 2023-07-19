@@ -10,7 +10,7 @@ import {
 	CatchErrorOperatorDrawer,
 	MergeOperatorDrawer,
 } from '../../drawers';
-import { Element, ElementType, Result, ResultProperties } from '../../model';
+import { ElementType, ResultProperties } from '../../model';
 
 const createMergeDrawer = (props: DrawerProps) => <MergeOperatorDrawer {...props} />;
 
@@ -50,4 +50,3 @@ const elementFactories = new Map<ElementType, ElementDrawerFactory>([
 export const findElementDrawerFactory = (elementType: ElementType): ElementDrawerFactory | null => {
 	return elementFactories.get(elementType) ?? null;
 };
-
