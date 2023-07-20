@@ -1,13 +1,13 @@
 import Konva from 'konva';
-import { Layer, Stage } from 'react-konva';
+import { Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
 import { ConnectLinesLayer } from '../layers/connectLines';
 import { DrawersLayer } from '../layers/drawers';
 import { useAppDispatch } from '../store/rootState';
-import { useThemeContext } from '../store/stageSlice';
+import { addDraftElement, clearDraftElement, useThemeContext } from '../store/stageSlice';
 import { Element } from '../model';
 import { useStageHandlers } from './state';
-import { CreationLayer } from '../layers/creation';
+import { DragNDropLayer } from '../layers/creation';
 import { DragNDropType } from '../dragNDrop';
 
 export interface StageEvents {
@@ -30,8 +30,19 @@ export const SimulatorStage = () => {
 		() => ({
 			accept: DragNDropType.CreateElement,
 			drop(item, monitor) {
-				console.log('drop', item);
-				// return { test: 'test' };
+				if (!monitor.isOver()) {
+					appDispatch(clearDraftElement());
+					return;
+				}
+
+				const clientOffset = monitor.getClientOffset();
+				appDispatch(
+					addDraftElement({
+						...item,
+						x: clientOffset?.x ?? item.x,
+						y: clientOffset?.y ?? item.y,
+					}),
+				);
 			},
 		}),
 		[],
@@ -45,12 +56,11 @@ export const SimulatorStage = () => {
 				width={window.innerWidth}
 				height={window.innerHeight}
 			>
-				<Layer>
-					<ConnectLinesLayer />
-					<DrawersLayer />
-				</Layer>
-				<CreationLayer />
+				<ConnectLinesLayer />
+				<DrawersLayer />
+				<DragNDropLayer />
 			</Stage>
 		</div>
 	);
 };
+

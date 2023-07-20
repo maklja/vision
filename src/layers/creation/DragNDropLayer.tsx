@@ -12,7 +12,7 @@ interface DragCollectedProps {
 	isDragging: boolean;
 }
 
-export const CreationLayer = () => {
+export const DragNDropLayer = () => {
 	const theme = useThemeContext();
 	const { itemType, isDragging, item, clientOffset } = useDragLayer<DragCollectedProps>(
 		(monitor) => ({
@@ -41,3 +41,4 @@ export const CreationLayer = () => {
 
 	return <Layer>{operatorDrawer}</Layer>;
 };
+

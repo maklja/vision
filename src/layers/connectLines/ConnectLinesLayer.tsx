@@ -1,4 +1,4 @@
-import { Group } from 'react-konva';
+import { Layer } from 'react-konva';
 import { ConnectLineDrawer } from '../../drawers';
 import { useAppSelector } from '../../store/rootState';
 import {
@@ -13,7 +13,7 @@ export const ConnectLinesLayer = () => {
 	const draftConnectLine = useAppSelector(selectDraftConnectLine);
 
 	return (
-		<Group>
+		<Layer>
 			{connectLines.map((cl) => (
 				<ConnectLineDrawer key={cl.id} id={cl.id} points={cl.points} theme={theme} />
 			))}
@@ -25,6 +25,7 @@ export const ConnectLinesLayer = () => {
 					theme={theme}
 				/>
 			) : null}
-		</Group>
+		</Layer>
 	);
 };
+

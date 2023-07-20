@@ -16,6 +16,8 @@ import {
 	pinConnectLineReducer,
 	unpinConnectLineReducer,
 	createDraftElementReducer,
+	addDraftElementReducer,
+	clearDraftElementReducer,
 } from './reducer';
 import { RootState } from './rootState';
 
@@ -170,6 +172,8 @@ export const stageSlice = createSlice({
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
 		createDraftElement: createDraftElementReducer,
+		addDraftElement: addDraftElementReducer,
+		clearDraftElement: clearDraftElementReducer,
 		moveElement: (state: Draft<StageSlice>, action: MoveElementAction) => {
 			const { payload } = action;
 			const elIdx = state.elements.findIndex((el) => el.id === payload.id);
@@ -224,6 +228,8 @@ export const {
 	unpinConnectLine,
 	highlightConnectPoints,
 	createDraftElement,
+	addDraftElement,
+	clearDraftElement,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
