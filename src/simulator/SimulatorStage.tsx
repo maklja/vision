@@ -1,13 +1,13 @@
 import Konva from 'konva';
 import { Layer, Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
-import { ConnectLineLayer } from '../layers/connectLine';
-import { DrawerLayer } from '../layers/drawer';
+import { ConnectLinesLayer } from '../layers/connectLines';
+import { DrawersLayer } from '../layers/drawers';
 import { useAppDispatch } from '../store/rootState';
 import { useThemeContext } from '../store/stageSlice';
 import { Element } from '../model';
 import { useStageHandlers } from './state';
-import { ElementCreateLayer } from './ElementCreateLayer';
+import { CreationLayer } from '../layers/creation';
 import { DragNDropType } from '../dragNDrop';
 
 export interface StageEvents {
@@ -46,12 +46,11 @@ export const SimulatorStage = () => {
 				height={window.innerHeight}
 			>
 				<Layer>
-					<ConnectLineLayer />
-					<DrawerLayer />
+					<ConnectLinesLayer />
+					<DrawersLayer />
 				</Layer>
-				<ElementCreateLayer />
+				<CreationLayer />
 			</Stage>
 		</div>
 	);
 };
-

@@ -5,11 +5,11 @@ import { Layer, Stage } from 'react-konva';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import Box from '@mui/material/Box';
 import { createDraftElement, useThemeContext } from '../../store/stageSlice';
-import { findElementDrawerFactory } from '../../layers/drawer/createElementDrawer';
 import { Element, ElementGroup, ElementType, mapElementTypeToGroup } from '../../model';
 import { useSizes } from '../../theme';
 import { DragNDropType } from '../../dragNDrop';
 import { useAppDispatch } from '../../store/rootState';
+import { findElementDrawerFactory } from '../../factory';
 
 export interface OperatorButtonProps {
 	elementType: ElementType;
@@ -91,4 +91,3 @@ export const OperatorButton = ({ elementType, padding = 4, size = 0.65 }: Operat
 		</Box>
 	);
 };
-

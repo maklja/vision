@@ -1,4 +1,4 @@
-import { ConnectPointsDrawerProps, ConnectPointsDrawer } from '../../drawers';
+import { ConnectPointsDrawerProps, ConnectPointsDrawer } from '../drawers';
 import {
 	Element,
 	ElementType,
@@ -6,8 +6,8 @@ import {
 	joinCreationOperators,
 	pipeOperators,
 	subscriberOperators,
-} from '../../model';
-import { SizeConfig } from '../../theme/sizes';
+} from '../model';
+import { SizeConfig } from '../theme/sizes';
 
 export type ConnectPointsDrawerFactory = (
 	props: ConnectPointsDrawerProps,
@@ -137,4 +137,3 @@ export const findConnectPointsDrawerFactory = (
 ): ConnectPointsDrawerFactory | null => {
 	return connectPointsFactory.get(elementType) ?? null;
 };
-

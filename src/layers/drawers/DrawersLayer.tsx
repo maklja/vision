@@ -3,7 +3,7 @@ import { useAppSelector } from '../../store/rootState';
 import { selectStageElements } from '../../store/stageSlice';
 import { ElementDrawer } from './ElementDrawer';
 
-export const DrawerLayer = () => {
+export const DrawersLayer = () => {
 	const elements = useAppSelector(selectStageElements);
 
 	return (

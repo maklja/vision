@@ -7,7 +7,7 @@ import {
 	useThemeContext,
 } from '../../store/stageSlice';
 
-export const ConnectLineLayer = () => {
+export const ConnectLinesLayer = () => {
 	const theme = useThemeContext();
 	const connectLines = useAppSelector(selectConnectLines);
 	const draftConnectLine = useAppSelector(selectDraftConnectLine);
@@ -28,4 +28,3 @@ export const ConnectLineLayer = () => {
 		</Group>
 	);
 };
-

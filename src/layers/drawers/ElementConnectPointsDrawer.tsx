@@ -9,7 +9,7 @@ import {
 	useThemeContext,
 } from '../../store/stageSlice';
 import { Theme, useSizes } from '../../theme';
-import { findConnectPointsDrawerFactory } from './createConnectPointsDrawer';
+import { findConnectPointsDrawerFactory } from '../../factory';
 import { useConnectPointHandlers } from './state';
 import { createConnectPointsProps } from './connectPoints';
 
@@ -108,4 +108,3 @@ export const ElementConnectPointsDrawer = ({ element }: ElementConnectPointsDraw
 		sizeConfig,
 	);
 };
-

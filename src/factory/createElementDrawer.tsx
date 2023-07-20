@@ -9,8 +9,8 @@ import {
 	ResultDrawer,
 	CatchErrorOperatorDrawer,
 	MergeOperatorDrawer,
-} from '../../drawers';
-import { ElementType, ResultProperties } from '../../model';
+} from '../drawers';
+import { ElementType, ResultProperties } from '../model';
 
 const createMergeDrawer = (props: DrawerProps) => <MergeOperatorDrawer {...props} />;
 

@@ -1,9 +1,9 @@
 import { Layer } from 'react-konva';
 import { XYCoord, useDragLayer } from 'react-dnd';
-import { Element } from '../model';
-import { findElementDrawerFactory } from '../layers/drawer/createElementDrawer';
-import { useThemeContext } from '../store/stageSlice';
-import { DragNDropType } from '../dragNDrop';
+import { Element } from '../../model';
+import { useThemeContext } from '../../store/stageSlice';
+import { DragNDropType } from '../../dragNDrop';
+import { findElementDrawerFactory } from '../../factory';
 
 interface DragCollectedProps {
 	item: Element;
@@ -12,7 +12,7 @@ interface DragCollectedProps {
 	isDragging: boolean;
 }
 
-export const ElementCreateLayer = () => {
+export const CreationLayer = () => {
 	const theme = useThemeContext();
 	const { itemType, isDragging, item, clientOffset } = useDragLayer<DragCollectedProps>(
 		(monitor) => ({
@@ -41,4 +41,3 @@ export const ElementCreateLayer = () => {
 
 	return <Layer>{operatorDrawer}</Layer>;
 };
-

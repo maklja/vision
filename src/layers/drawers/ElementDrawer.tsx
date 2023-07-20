@@ -10,7 +10,7 @@ import {
 	selectStageState,
 	useThemeContext,
 } from '../../store/stageSlice';
-import { findElementDrawerFactory } from './createElementDrawer';
+import { findElementDrawerFactory } from '../../factory/createElementDrawer';
 import { ElementConnectPointsDrawer } from './ElementConnectPointsDrawer';
 import { useElementDrawerHandlers } from './state';
 
