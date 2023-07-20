@@ -1,17 +1,26 @@
-import deepMerge from 'deepmerge';
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
+import deepMerge from 'deepmerge';
 import { RootState } from '../rootState';
 import { ElementType } from '../../model';
 import { Theme, DrawerThemeOverride } from '../../theme';
 
-export const useThemeContext = (type?: ElementType): Theme =>
-	useSelector((state: RootState) => {
-		const { themes } = state.stage;
-		const elTheme = type ? themes[type] ?? {} : {};
+const selectThemes = (state: RootState) => state.stage.themes;
 
-		return themes.default;
-		// TODO optimize
-		// return deepMerge<Theme, DrawerThemeOverride>(themes.default, elTheme, {
-		// 	arrayMerge: (_destinationArray, sourceArray) => sourceArray,
-		// });
+const selectElementType = (_state: RootState, elType?: ElementType) => elType;
+
+const makeSelectThemeContext = () =>
+	createSelector([selectThemes, selectElementType], (themes, elType) => {
+		const elTheme = elType ? themes[elType] ?? {} : {};
+
+		return deepMerge<Theme, DrawerThemeOverride>(themes.default, elTheme, {
+			arrayMerge: (_destinationArray, sourceArray) => sourceArray,
+		});
 	});
+
+export const useThemeContext = (type?: ElementType): Theme => {
+	const selectThemeContext = useMemo(makeSelectThemeContext, []);
+	return useSelector((state: RootState) => selectThemeContext(state, type));
+};
+
