@@ -7,7 +7,12 @@ import {
 	Point,
 	ConnectedElement,
 } from '../model';
-import { createThemeContext, ThemesContext } from '../theme';
+import {
+	createThemeContext,
+	ThemesContext,
+	ElementSizesContext,
+	createElementSizesContext,
+} from '../theme';
 import {
 	startConnectLineDrawReducer,
 	moveConnectLineDrawReducer,
@@ -48,10 +53,11 @@ export interface StageSlice {
 	highlightedConnectPoints: ConnectPoint[];
 	selected: SelectedElement[];
 	highlighted: string[];
-	themes: ThemesContext;
 	state: StageState;
 	draftConnectLine: DraftConnectLine | null;
 	draftElement: Element | null;
+	themes: ThemesContext;
+	elementSizes: ElementSizesContext;
 }
 
 export interface AddElementsAction {
@@ -116,10 +122,11 @@ const initialState: StageSlice = {
 	highlightedConnectPoints: [],
 	selected: [],
 	highlighted: [],
-	themes: createThemeContext(),
 	state: StageState.Select,
 	draftConnectLine: null,
 	draftElement: null,
+	themes: createThemeContext(),
+	elementSizes: createElementSizesContext(),
 };
 
 export const stageSlice = createSlice({

@@ -1,36 +1,32 @@
-import { useState } from 'react';
 import Konva from 'konva';
-import { RegularPolygon, Group, Text } from 'react-konva';
-import { DrawerProps } from '../DrawerProps';
-import { useElementDrawerTheme, useSizes } from '../../theme';
+import { Circle, Group } from 'react-konva';
+import { CircleDrawerProps } from '../DrawerProps';
+import { useState } from 'react';
 import { useAnimationGroups } from '../../animation';
+import { useCircleSizeScale, useElementDrawerTheme } from '../../theme';
 
-export interface JoinCreationOperatorDrawerProps extends DrawerProps {
-	title: string;
-}
-
-export const JoinCreationOperatorDrawer = ({
+export const DotCircleOperatorDrawer = ({
 	x,
 	y,
-	title,
 	size,
-	highlight,
-	select,
-	visible = true,
 	id,
 	theme,
+	highlight,
+	select,
 	animation,
+	visible,
 	draggable = false,
-	onMouseOver,
-	onMouseOut,
 	onMouseDown,
+	onMouseOut,
+	onMouseOver,
 	onDragMove,
 	onDragStart,
 	onDragEnd,
-	onAnimationDestroy,
 	onAnimationBegin,
 	onAnimationComplete,
-}: JoinCreationOperatorDrawerProps) => {
+	onAnimationDestroy,
+}: CircleDrawerProps) => {
+	const { colors } = theme;
 	const drawerStyle = useElementDrawerTheme(
 		{
 			highlight,
@@ -38,9 +34,8 @@ export const JoinCreationOperatorDrawer = ({
 		},
 		theme,
 	);
-	const { drawerSizes, fontSizes } = useSizes(theme, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
-	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
+	const [innerShapeRef, setInnerShapeRef] = useState<Konva.Circle | null>(null);
 	useAnimationGroups(animation, {
 		animationFactories: [
 			{
@@ -50,9 +45,9 @@ export const JoinCreationOperatorDrawer = ({
 				}),
 			},
 			{
-				node: mainTextRef,
+				node: innerShapeRef,
 				mapper: (a) => ({
-					config: a.text,
+					config: a.secondaryShape,
 				}),
 			},
 		],
@@ -62,8 +57,8 @@ export const JoinCreationOperatorDrawer = ({
 		drawerId: id,
 	});
 
-	const textX = drawerSizes.radius - (mainTextRef?.textWidth ?? 0) / 2;
-	const textY = drawerSizes.radius - (mainTextRef?.textHeight ?? 0) / 2;
+	const outerSizes = useCircleSizeScale(size, 0.4);
+	const innerSizes = useCircleSizeScale(size, 0.2);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -103,36 +98,34 @@ export const JoinCreationOperatorDrawer = ({
 
 	return (
 		<Group
-			visible={visible && Boolean(mainTextRef && mainShapeRef)}
-			draggable={draggable}
+			visible={visible && Boolean(mainShapeRef)}
 			x={x}
 			y={y}
+			draggable={draggable}
+			onMouseDown={handleMouseDown}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
-			onMouseDown={handleMouseDown}
 			onDragMove={handleDragMove}
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
-			<RegularPolygon
+			<Circle
 				{...drawerStyle.element}
-				sides={6}
-				ref={(ref) => setMainShapeRef(ref)}
+				ref={(node) => setMainShapeRef(node)}
 				id={id}
-				radius={drawerSizes.radius}
-				x={drawerSizes.radius}
-				y={drawerSizes.radius}
-				rotation={90}
+				radius={outerSizes.radius}
+				x={size.radius}
+				y={size.radius}
 			/>
-			<Text
-				{...drawerStyle.text}
-				ref={(ref) => setMainTextRef(ref)}
-				text={title}
-				x={textX}
-				y={textY}
-				fontSize={fontSizes.primary}
+			<Circle
+				ref={(node) => setInnerShapeRef(node)}
+				radius={innerSizes.radius}
+				x={size.radius}
+				y={size.radius}
 				listening={false}
+				fill={highlight || select ? colors.primaryColor : colors.secondaryColor}
 			/>
 		</Group>
 	);
 };
+

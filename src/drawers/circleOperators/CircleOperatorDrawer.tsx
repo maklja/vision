@@ -1,32 +1,36 @@
-import Konva from 'konva';
-import { Circle, Group } from 'react-konva';
-import { DrawerProps } from '../DrawerProps';
 import { useState } from 'react';
+import Konva from 'konva';
+import { Circle, Group, Text } from 'react-konva';
+import { CircleDrawerProps } from '../DrawerProps';
+import { useElementDrawerTheme } from '../../theme';
 import { useAnimationGroups } from '../../animation';
-import { useElementDrawerTheme, useSizes } from '../../theme';
 
-export const SubscriberDrawer = ({
+export interface CircleOperatorDrawerProps extends CircleDrawerProps {
+	title: string;
+}
+
+export const CircleOperatorDrawer = ({
 	x,
 	y,
+	title,
 	size,
-	id,
-	theme,
 	highlight,
 	select,
+	visible = true,
+	id,
+	theme,
 	animation,
-	visible,
 	draggable = false,
-	onMouseDown,
-	onMouseOut,
 	onMouseOver,
+	onMouseOut,
+	onMouseDown,
 	onDragMove,
 	onDragStart,
 	onDragEnd,
+	onAnimationDestroy,
 	onAnimationBegin,
 	onAnimationComplete,
-	onAnimationDestroy,
-}: DrawerProps) => {
-	const { colors } = theme;
+}: CircleOperatorDrawerProps) => {
 	const drawerStyle = useElementDrawerTheme(
 		{
 			highlight,
@@ -34,8 +38,9 @@ export const SubscriberDrawer = ({
 		},
 		theme,
 	);
+	const { radius, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
-	const [innerShapeRef, setInnerShapeRef] = useState<Konva.Circle | null>(null);
+	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 	useAnimationGroups(animation, {
 		animationFactories: [
 			{
@@ -45,9 +50,9 @@ export const SubscriberDrawer = ({
 				}),
 			},
 			{
-				node: innerShapeRef,
+				node: mainTextRef,
 				mapper: (a) => ({
-					config: a.secondaryShape,
+					config: a.text,
 				}),
 			},
 		],
@@ -57,9 +62,8 @@ export const SubscriberDrawer = ({
 		drawerId: id,
 	});
 
-	const { drawerSizes } = useSizes(theme, size);
-	const { drawerSizes: outerSizes } = useSizes(theme, size, 0.4);
-	const { drawerSizes: innerSizes } = useSizes(theme, size, 0.2);
+	const textX = radius - (mainTextRef?.textWidth ?? 0) / 2;
+	const textY = radius - (mainTextRef?.textHeight ?? 0) / 2;
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -99,32 +103,33 @@ export const SubscriberDrawer = ({
 
 	return (
 		<Group
-			visible={visible && Boolean(mainShapeRef)}
+			visible={visible && Boolean(mainTextRef && mainShapeRef)}
+			draggable={draggable}
 			x={x}
 			y={y}
-			draggable={draggable}
-			onMouseDown={handleMouseDown}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
+			onMouseDown={handleMouseDown}
 			onDragMove={handleDragMove}
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
 			<Circle
 				{...drawerStyle.element}
-				ref={(node) => setMainShapeRef(node)}
+				ref={(ref) => setMainShapeRef(ref)}
 				id={id}
-				radius={outerSizes.radius}
-				x={drawerSizes.radius}
-				y={drawerSizes.radius}
+				radius={radius}
+				x={radius}
+				y={radius}
 			/>
-			<Circle
-				ref={(node) => setInnerShapeRef(node)}
-				radius={innerSizes.radius}
-				x={drawerSizes.radius}
-				y={drawerSizes.radius}
+			<Text
+				{...drawerStyle.text}
+				ref={(ref) => setMainTextRef(ref)}
+				text={title}
+				x={textX}
+				y={textY}
+				fontSize={fontSizes.primary}
 				listening={false}
-				fill={highlight || select ? colors.primaryColor : colors.secondaryColor}
 			/>
 		</Group>
 	);

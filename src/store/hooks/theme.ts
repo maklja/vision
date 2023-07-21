@@ -4,7 +4,14 @@ import { createSelector } from 'reselect';
 import deepMerge from 'deepmerge';
 import { RootState } from '../rootState';
 import { ElementType } from '../../model';
-import { Theme, DrawerThemeOverride } from '../../theme';
+import {
+	Theme,
+	DrawerThemeOverride,
+	findCircleShapeSize,
+	CircleShape,
+	findRectangleShapeSize,
+	RectangleShape,
+} from '../../theme';
 
 const selectThemes = (state: RootState) => state.stage.themes;
 
@@ -22,5 +29,15 @@ const makeSelectThemeContext = () =>
 export const useThemeContext = (type?: ElementType): Theme => {
 	const selectThemeContext = useMemo(makeSelectThemeContext, []);
 	return useSelector((state: RootState) => selectThemeContext(state, type));
+};
+
+export const useCircleShapeSize = (type: ElementType): CircleShape => {
+	return useSelector((state: RootState) => findCircleShapeSize(state.stage.elementSizes, type));
+};
+
+export const useRectangleShapeSize = (type: ElementType): RectangleShape => {
+	return useSelector((state: RootState) =>
+		findRectangleShapeSize(state.stage.elementSizes, type),
+	);
 };
 

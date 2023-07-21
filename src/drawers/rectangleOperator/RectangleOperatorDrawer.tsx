@@ -2,14 +2,14 @@ import Konva from 'konva';
 import { useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import { useAnimationGroups } from '../../animation';
-import { DrawerProps } from '../DrawerProps';
-import { useElementDrawerTheme, useSizes } from '../../theme';
+import { RectangleDrawerProps } from '../DrawerProps';
+import { useElementDrawerTheme } from '../../theme';
 
-export interface PipeOperatorDrawer extends DrawerProps {
+export interface RectangleOperatorDrawerProps extends RectangleDrawerProps {
 	title: string;
 }
 
-export const PipeOperatorDrawer = ({
+export const RectangleOperatorDrawer = ({
 	x,
 	y,
 	size,
@@ -30,7 +30,7 @@ export const PipeOperatorDrawer = ({
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
-}: PipeOperatorDrawer) => {
+}: RectangleOperatorDrawerProps) => {
 	const drawerStyle = useElementDrawerTheme(
 		{
 			highlight,
@@ -38,7 +38,7 @@ export const PipeOperatorDrawer = ({
 		},
 		theme,
 	);
-	const { drawerSizes, fontSizes } = useSizes(theme, size);
+	const { width, height, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 	useAnimationGroups(animation, {
@@ -98,8 +98,8 @@ export const PipeOperatorDrawer = ({
 			originalEvent: e,
 		});
 
-	const textX = (mainTextRef?.textWidth ?? 0) / -2 + drawerSizes.width / 2;
-	const textY = (mainTextRef?.textHeight ?? 0) / -2 + drawerSizes.height / 2;
+	const textX = (mainTextRef?.textWidth ?? 0) / -2 + width / 2;
+	const textY = (mainTextRef?.textHeight ?? 0) / -2 + height / 2;
 
 	return (
 		<Group
@@ -118,8 +118,8 @@ export const PipeOperatorDrawer = ({
 				{...drawerStyle.element}
 				ref={(ref) => setMainShapeRef(ref)}
 				id={id}
-				width={drawerSizes.width}
-				height={drawerSizes.height}
+				width={width}
+				height={height}
 			/>
 			<Text
 				{...drawerStyle.text}

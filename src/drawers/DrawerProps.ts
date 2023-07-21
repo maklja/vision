@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { Key } from 'react';
 import { DrawerAnimationTemplate } from '../animation';
-import { Theme } from '../theme';
+import { CircleShape, RectangleShape, Theme } from '../theme';
 
 export interface DrawerEvent {
 	id: string;
@@ -35,7 +35,6 @@ export interface DrawerCommonProps {
 	theme: Theme;
 	x: number;
 	y: number;
-	size: number;
 	draggable?: boolean;
 	highlight?: boolean;
 	select?: boolean;
@@ -43,5 +42,13 @@ export interface DrawerCommonProps {
 	animation?: DrawerAnimationTemplate | null;
 }
 
-export interface DrawerProps extends DrawerCommonProps, DrawerEvents {}
+export interface CircleDrawerProps extends DrawerCommonProps, DrawerEvents {
+	size: CircleShape;
+}
+
+export interface RectangleDrawerProps extends DrawerCommonProps, DrawerEvents {
+	size: RectangleShape;
+}
+
+export type DrawerProps = CircleDrawerProps | RectangleDrawerProps;
 

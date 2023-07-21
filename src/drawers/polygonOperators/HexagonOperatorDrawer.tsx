@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import Konva from 'konva';
-import { Circle, Group, Text } from 'react-konva';
-import { DrawerProps } from '../DrawerProps';
-import { useElementDrawerTheme, useSizes } from '../../theme';
+import { RegularPolygon, Group, Text } from 'react-konva';
+import { CircleDrawerProps } from '../DrawerProps';
+import { useElementDrawerTheme } from '../../theme';
 import { useAnimationGroups } from '../../animation';
 
-export interface CreationOperatorDrawerProps extends DrawerProps {
+export interface HexagonOperatorDrawerProps extends CircleDrawerProps {
 	title: string;
 }
 
-export const CreationOperatorDrawer = ({
+export const HexagonOperatorDrawer = ({
 	x,
 	y,
 	title,
@@ -30,7 +30,7 @@ export const CreationOperatorDrawer = ({
 	onAnimationDestroy,
 	onAnimationBegin,
 	onAnimationComplete,
-}: CreationOperatorDrawerProps) => {
+}: HexagonOperatorDrawerProps) => {
 	const drawerStyle = useElementDrawerTheme(
 		{
 			highlight,
@@ -38,7 +38,7 @@ export const CreationOperatorDrawer = ({
 		},
 		theme,
 	);
-	const { drawerSizes, fontSizes } = useSizes(theme, size);
+	const { radius, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 	useAnimationGroups(animation, {
@@ -62,8 +62,8 @@ export const CreationOperatorDrawer = ({
 		drawerId: id,
 	});
 
-	const textX = drawerSizes.radius - (mainTextRef?.textWidth ?? 0) / 2;
-	const textY = drawerSizes.radius - (mainTextRef?.textHeight ?? 0) / 2;
+	const textX = radius - (mainTextRef?.textWidth ?? 0) / 2;
+	const textY = radius - (mainTextRef?.textHeight ?? 0) / 2;
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -114,13 +114,15 @@ export const CreationOperatorDrawer = ({
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
-			<Circle
+			<RegularPolygon
 				{...drawerStyle.element}
+				sides={6}
 				ref={(ref) => setMainShapeRef(ref)}
 				id={id}
-				radius={drawerSizes.radius}
-				x={drawerSizes.radius}
-				y={drawerSizes.radius}
+				radius={radius}
+				x={radius}
+				y={radius}
+				rotation={90}
 			/>
 			<Text
 				{...drawerStyle.text}
