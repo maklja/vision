@@ -6,6 +6,7 @@ import {
 	joinCreationOperators,
 	pipeOperators,
 	subscriberOperators,
+	resultOperators,
 } from './ElementType';
 
 export enum ElementGroup {
@@ -20,6 +21,7 @@ export enum ElementGroup {
 	Conditional = 'conditional',
 	Mathematical = 'mathematical',
 	Subscriber = 'subscriber',
+	Result = 'result',
 }
 
 export const mapElementGroupToTypes = (elGroup: ElementGroup): ReadonlySet<ElementType> => {
@@ -34,6 +36,8 @@ export const mapElementGroupToTypes = (elGroup: ElementGroup): ReadonlySet<Eleme
 			return errorHandlerOperators;
 		case ElementGroup.Subscriber:
 			return subscriberOperators;
+		case ElementGroup.Result:
+			return resultOperators;
 		default:
 			return new Set();
 	}
@@ -58,6 +62,10 @@ export const mapElementTypeToGroup = (elType: ElementType): ElementGroup => {
 
 	if (subscriberOperators.has(elType)) {
 		return ElementGroup.Subscriber;
+	}
+
+	if (resultOperators.has(elType)) {
+		return ElementGroup.Result;
 	}
 
 	throw new Error(`Unknown element group for element type ${elType}`);

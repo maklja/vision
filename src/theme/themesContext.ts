@@ -12,7 +12,7 @@ import {
 	ElementDrawerThemeOverride,
 } from './elementDrawerTheme';
 import { simulationTheme, SimulationTheme } from './simulationTheme';
-import { SizeConfig, sizesConfig } from './sizes';
+import { SizeConfig, fromSize, sizesConfig } from './sizes';
 import { ConnectPointPosition, ElementType } from '../model';
 import { iifConnectPointsTheme } from './iifDrawerTheme';
 
@@ -107,8 +107,6 @@ export const useElementDrawerTheme = (state: DrawerThemeState, theme: Theme) => 
 	};
 };
 
-export const fromSize = (value: number, size = 1, factor = 1) => value * size * factor;
-
 export const useSizes = (theme: Theme, size = 1, factor = 1): SizeConfig => {
 	const { sizes } = theme;
 
@@ -123,6 +121,8 @@ export const useSizes = (theme: Theme, size = 1, factor = 1): SizeConfig => {
 		return {
 			connectPointSizes: {
 				radius: connectPointRadius,
+				width: 10,
+				height: 10,
 			},
 			drawerSizes: {
 				width: drawerWidth,

@@ -16,9 +16,10 @@ import {
 	CatchErrorElement,
 	IifElement,
 	MergeElement,
+	ResultElement,
 } from './model';
 import { StageState } from './store/stageSlice';
-import { createThemeContext } from './theme';
+import { createThemeContext, createElementSizesContext } from './theme';
 
 const e1: OfElement = {
 	id: 'ofElement',
@@ -166,6 +167,18 @@ const merge2: MergeElement = {
 	properties: {},
 };
 
+const result1: ResultElement = {
+	id: 'rezxxx',
+	size: 1,
+	x: 490,
+	y: 750,
+	type: ElementType.Result,
+	visible: true,
+	properties: {
+		hash: '12122121',
+	},
+};
+
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
 	// <React.StrictMode>
@@ -194,6 +207,7 @@ root.render(
 				highlightedConnectPoints: [],
 				selected: [],
 				themes: createThemeContext(),
+				elementSizes: createElementSizesContext(),
 				state: StageState.Select,
 			},
 		})}

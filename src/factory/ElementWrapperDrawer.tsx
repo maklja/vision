@@ -14,9 +14,11 @@ import {
 	IifElement,
 	IntervalElement,
 	OfElement,
+	ResultElement,
 } from '../model';
 import { SubscriberDrawer } from './subscriberOperators';
 import { FilterOperatorDrawer } from './filteringOperators';
+import { ResultDrawer } from './resultOperators';
 
 export interface ElementDrawerWrapperProps {
 	element: Element;
@@ -74,6 +76,8 @@ export const ElementWrapperDrawer = ({
 			return (
 				<SubscriberDrawer element={element} visibleConnectPoints={visibleConnectPoints} />
 			);
+		case ElementType.Result:
+			return <ResultDrawer element={element as ResultElement} />;
 		default:
 			return null;
 	}

@@ -8,6 +8,7 @@ import {
 	isHighlightedElement,
 	isSelectedElement,
 	selectStageState,
+	useCircleShapeSize,
 	useThemeContext,
 } from '../../store/stageSlice';
 import { findElementDrawerFactory } from '../../factory/createElementDrawer';
@@ -28,6 +29,8 @@ export const ElementDrawer = ({ element }: ElementDrawerProps) => {
 	const drawerFactory = findElementDrawerFactory(element.type);
 	const dragging = stageState === StageState.Dragging;
 
+	const circleShapeSize = useCircleShapeSize(element.type);
+
 	if (!drawerFactory) {
 		return null;
 	}
@@ -40,6 +43,7 @@ export const ElementDrawer = ({ element }: ElementDrawerProps) => {
 			highlight,
 			draggable: true,
 			theme,
+			size: circleShapeSize,
 			animation: animation
 				? {
 						...animationRegistry.retrieveAnimationConfig(animation.key)(

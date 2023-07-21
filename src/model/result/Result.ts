@@ -4,6 +4,7 @@ export interface ResultProperties {
 	hash: string;
 }
 
-export interface Result extends Element<ResultProperties> {
+export interface ResultElement extends Element<ResultProperties> {
 	type: ElementType.Result;
 }
+

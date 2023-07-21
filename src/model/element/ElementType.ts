@@ -35,6 +35,8 @@ export const eventPipeOperators: ReadonlySet<ElementType> = new Set([
 
 export const subscriberOperators: ReadonlySet<ElementType> = new Set([ElementType.Subscriber]);
 
+export const resultOperators: ReadonlySet<ElementType> = new Set([ElementType.Result]);
+
 export const isJoinCreationOperatorType = (type: ElementType) => joinCreationOperators.has(type);
 
 export const isCreationOperatorType = (type: ElementType) => creationOperators.has(type);

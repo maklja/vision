@@ -76,11 +76,11 @@ export const OperatorButton = ({ elementType, padding = 4, size = 0.65 }: Operat
 		x: padding,
 		y: padding,
 		theme,
-		size,
 		select: isDragging,
 		highlight: highlighted,
 		onMouseOver: () => setHighlighted(true),
 		onMouseOut: () => setHighlighted(false),
+		size: null as any,
 	});
 
 	return (
@@ -91,3 +91,4 @@ export const OperatorButton = ({ elementType, padding = 4, size = 0.65 }: Operat
 		</Box>
 	);
 };
+

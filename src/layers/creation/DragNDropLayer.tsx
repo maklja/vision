@@ -37,6 +37,7 @@ export const DragNDropLayer = () => {
 		x: clientOffset?.x ?? 0,
 		y: clientOffset?.y ?? 0,
 		theme,
+		size: null as any,
 	});
 
 	return <Layer>{operatorDrawer}</Layer>;

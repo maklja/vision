@@ -78,36 +78,6 @@ export type ElementSizesContext = {
 	readonly options: SizesOptions;
 };
 
-const defaultCircleShape: CircleShape = {
-	type: ElementShape.Circle,
-	radius: defaultSizeConfig.drawerSizes.radius,
-	fontSizes: defaultSizeConfig.fontSizes,
-	connectPointSize: defaultSizeConfig.connectPointSizes,
-};
-
-const defaultRectangleShape: RectangleShape = {
-	type: ElementShape.Rectangle,
-	width: defaultSizeConfig.drawerSizes.width,
-	height: defaultSizeConfig.drawerSizes.height,
-	fontSizes: defaultSizeConfig.fontSizes,
-	connectPointSize: defaultSizeConfig.connectPointSizes,
-};
-
-const defaultElementSizes: ElementSizesContext = {
-	sizes: {
-		[ElementGroup.Creation]: defaultCircleShape,
-		[ElementGroup.JoinCreation]: defaultCircleShape,
-		[ElementGroup.Subscriber]: defaultCircleShape,
-		[ElementGroup.ErrorHandling]: defaultRectangleShape,
-		[ElementGroup.Filtering]: defaultRectangleShape,
-	},
-	options: {
-		scale: 1,
-	},
-};
-
-export const createElementSizesContext = () => defaultElementSizes;
-
 export const fromSize = (value: number, scale = 1, factor = 1) => value * scale * factor;
 
 export const scaleCircleShape = (circleShapeSize: CircleShape, scale: number): CircleShape => {
@@ -145,6 +115,37 @@ export const scaleRectangleShape = (
 		},
 	};
 };
+
+const defaultCircleShape: CircleShape = {
+	type: ElementShape.Circle,
+	radius: defaultSizeConfig.drawerSizes.radius,
+	fontSizes: defaultSizeConfig.fontSizes,
+	connectPointSize: defaultSizeConfig.connectPointSizes,
+};
+
+const defaultRectangleShape: RectangleShape = {
+	type: ElementShape.Rectangle,
+	width: defaultSizeConfig.drawerSizes.width,
+	height: defaultSizeConfig.drawerSizes.height,
+	fontSizes: defaultSizeConfig.fontSizes,
+	connectPointSize: defaultSizeConfig.connectPointSizes,
+};
+
+const defaultElementSizes: ElementSizesContext = {
+	sizes: {
+		[ElementGroup.Creation]: defaultCircleShape,
+		[ElementGroup.JoinCreation]: defaultCircleShape,
+		[ElementGroup.Subscriber]: defaultCircleShape,
+		[ElementGroup.ErrorHandling]: defaultRectangleShape,
+		[ElementGroup.Filtering]: defaultRectangleShape,
+		[ElementGroup.Result]: scaleCircleShape(defaultCircleShape, 0.7),
+	},
+	options: {
+		scale: 1,
+	},
+};
+
+export const createElementSizesContext = () => defaultElementSizes;
 
 const findElementSize = (sizes: ElementSizes, elType: ElementType) => {
 	const elGroup = mapElementTypeToGroup(elType);
