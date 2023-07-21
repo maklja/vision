@@ -1,10 +1,9 @@
 import { ReactNode } from 'react';
 import { Group, Line } from 'react-konva';
 import { DrawerAnimationTemplate } from '../../animation';
-import { ConnectPointPosition, ConnectPointType } from '../../model';
+import { ConnectPointPosition, ConnectPointType, BoundingBox } from '../../model';
 import { Theme } from '../../theme';
 import { DrawerAnimationEvents } from '../DrawerProps';
-import { BoundingBox } from '../utils';
 import {
 	ConnectPointDrawer,
 	ConnectPointDrawerEvent,

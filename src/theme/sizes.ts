@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { ElementType, ElementGroup, mapElementTypeToGroup, Point } from '../model';
-import { BoundingBox } from '../drawers/utils';
+import { ElementType, ElementGroup, mapElementTypeToGroup, Point, BoundingBox } from '../model';
 
 export enum ElementShape {
 	Circle = 'circle',
