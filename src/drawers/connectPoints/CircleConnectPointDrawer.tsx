@@ -4,82 +4,31 @@ import { useState } from 'react';
 import { Circle, Group } from 'react-konva';
 import { DrawerAnimationTemplate, useAnimation } from '../../animation';
 import { ConnectPointPosition, ConnectPointType } from '../../model';
-import { Theme, useConnectPointTheme, useSizes } from '../../theme';
-import { DrawerAnimationEvents } from '../DrawerProps';
-import { EventIconDrawer } from './EventIconDrawer';
-import { InputIconDrawer } from './InputIconDrawer';
-import { OutputIconDrawer } from './OutputIconDrawer';
+import { CircleShapeSize, Theme, useConnectPointTheme } from '../../theme';
+import {
+	ConnectPointDrawerEvent,
+	ConnectPointIconDrawerProps,
+	DrawerAnimationEvents,
+} from '../DrawerProps';
 
-export interface ConnectPointIconDrawerProps {
-	connectPointPosition: ConnectPointPosition;
-	type: ConnectPointType;
-	theme: Theme;
-	highlight?: boolean;
-}
-
-const ConnectPointIconDrawer = ({
-	connectPointPosition,
-	type,
-	theme,
-	highlight,
-}: ConnectPointIconDrawerProps) => {
-	switch (type) {
-		case ConnectPointType.Input:
-			return (
-				<InputIconDrawer
-					connectPointPosition={connectPointPosition}
-					theme={theme}
-					highlight={highlight}
-				/>
-			);
-		case ConnectPointType.Output:
-			return (
-				<OutputIconDrawer
-					connectPointPosition={connectPointPosition}
-					theme={theme}
-					highlight={highlight}
-				/>
-			);
-		case ConnectPointType.Event:
-			return (
-				<EventIconDrawer
-					connectPointPosition={connectPointPosition}
-					theme={theme}
-					highlight={highlight}
-				/>
-			);
-		default:
-			return null;
-	}
-};
-
-export interface ConnectPointDrawerEvent {
-	id: string;
-	type: ConnectPointType;
-	position: ConnectPointPosition;
-	x: number;
-	y: number;
-	originalEvent: Konva.KonvaEventObject<MouseEvent>;
-	animation?: DrawerAnimationTemplate | null;
-}
-
-export interface ConnectPointDrawerProps extends DrawerAnimationEvents {
+export interface CircleConnectPointDrawerProps extends DrawerAnimationEvents {
 	id: string;
 	type: ConnectPointType;
 	position: ConnectPointPosition;
 	x: number;
 	y: number;
 	theme: Theme;
+	size: CircleShapeSize;
 	highlight?: boolean;
 	animation?: DrawerAnimationTemplate | null;
 	onMouseDown?: (event: ConnectPointDrawerEvent) => void;
 	onMouseUp?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOver?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOut?: (event: ConnectPointDrawerEvent) => void;
-	createIcon?: (props: ConnectPointIconDrawerProps) => ReactNode;
+	children?: (iconProps: ConnectPointIconDrawerProps) => ReactNode | null;
 }
 
-export const ConnectPointDrawer = ({
+export const CircleConnectPointDrawer = ({
 	id,
 	type,
 	position,
@@ -88,7 +37,8 @@ export const ConnectPointDrawer = ({
 	highlight,
 	animation,
 	theme,
-	createIcon,
+	size,
+	children,
 	onMouseDown,
 	onMouseUp,
 	onMouseOver,
@@ -96,9 +46,9 @@ export const ConnectPointDrawer = ({
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
-}: ConnectPointDrawerProps) => {
+}: CircleConnectPointDrawerProps) => {
 	const connectPointElementTheme = useConnectPointTheme({ position, highlight }, theme);
-	const { connectPointSizes } = useSizes(theme);
+	const { radius } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 
 	useAnimation(mainShapeRef, {
@@ -136,23 +86,14 @@ export const ConnectPointDrawer = ({
 		<Group x={x} y={y} visible={Boolean(mainShapeRef)}>
 			<Circle
 				{...connectPointElementTheme.element}
-				radius={connectPointSizes.radius}
+				radius={radius}
 				ref={(node) => setMainShapeRef(node)}
 				onMouseDown={handleMouseDown}
 				onMouseUp={handleMouseUp}
 				onMouseOver={handleMouseOver}
 				onMouseOut={handleMouseOut}
 			/>
-
-			{createIcon?.({ type, theme, highlight, connectPointPosition: position }) ?? (
-				<ConnectPointIconDrawer
-					type={type}
-					theme={theme}
-					highlight={highlight}
-					connectPointPosition={position}
-				/>
-			)}
+			{children?.({ type, theme, highlight, connectPointPosition: position })}
 		</Group>
 	);
 };
-

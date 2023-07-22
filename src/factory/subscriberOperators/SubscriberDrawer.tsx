@@ -1,7 +1,7 @@
 import { Group } from 'react-konva';
 import { DotCircleOperatorDrawer } from '../../drawers';
 import { useElementDrawerHandlers } from '../../layers/drawers/state';
-import { Element } from '../../model';
+import { Element, ElementType } from '../../model';
 import { selectDrawerAnimationById } from '../../store/drawerAnimationsSlice';
 import { useAppSelector } from '../../store/rootState';
 import {
@@ -10,7 +10,7 @@ import {
 	useCircleShapeSize,
 	useThemeContext,
 } from '../../store/stageSlice';
-import { ConnectPointsWrapperDrawer } from '../ConnectPointsWrapperDrawer';
+import { ConnectPointsDrawer, createDefaultElementProps } from '../ConnectPointsDrawer';
 
 export interface SubscriberDrawerProps {
 	element: Element;
@@ -24,10 +24,17 @@ export const SubscriberDrawer = ({ element }: SubscriberDrawerProps) => {
 	const select = useAppSelector(isSelectedElement(element.id));
 	const highlight = useAppSelector(isHighlightedElement(element.id));
 	const circleShapeSize = useCircleShapeSize(element.type);
+	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint);
+	const connectPointsOptions = createDefaultElementProps(element.type, circleCPSize);
 
 	return (
 		<Group>
-			<ConnectPointsWrapperDrawer element={element} shape={circleShapeSize} offset={42} />
+			<ConnectPointsDrawer
+				element={element}
+				shape={circleShapeSize}
+				offset={42}
+				connectPointsOptions={connectPointsOptions}
+			/>
 			<DotCircleOperatorDrawer
 				{...drawerHandlers}
 				id={element.id}
@@ -43,4 +50,3 @@ export const SubscriberDrawer = ({ element }: SubscriberDrawerProps) => {
 		</Group>
 	);
 };
-

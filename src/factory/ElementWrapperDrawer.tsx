@@ -13,12 +13,14 @@ import {
 	FromElement,
 	IifElement,
 	IntervalElement,
+	MergeElement,
 	OfElement,
 	ResultElement,
 } from '../model';
 import { SubscriberDrawer } from './subscriberOperators';
 import { FilterOperatorDrawer } from './filteringOperators';
 import { ResultDrawer } from './resultOperators';
+import { MergeOperatorDrawer } from './joinCreationOperators';
 
 export interface ElementDrawerWrapperProps {
 	element: Element;
@@ -72,6 +74,13 @@ export const ElementWrapperDrawer = ({
 					visibleConnectPoints={visibleConnectPoints}
 				/>
 			);
+		case ElementType.Merge:
+			return (
+				<MergeOperatorDrawer
+					element={element as MergeElement}
+					visibleConnectPoints={visibleConnectPoints}
+				/>
+			);
 		case ElementType.Subscriber:
 			return (
 				<SubscriberDrawer element={element} visibleConnectPoints={visibleConnectPoints} />
@@ -82,4 +91,3 @@ export const ElementWrapperDrawer = ({
 			return null;
 	}
 };
-

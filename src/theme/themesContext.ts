@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { ColorTheme, retrieveThemeColors } from './colors';
 import { connectLineTheme, ConnectLineTheme } from './connectLineTheme';
 import {
@@ -12,7 +11,6 @@ import {
 	ElementDrawerThemeOverride,
 } from './elementDrawerTheme';
 import { simulationTheme, SimulationTheme } from './simulationTheme';
-import { SizeConfig, fromSize, sizesConfig } from './sizes';
 import { ConnectPointPosition, ElementType } from '../model';
 import { iifConnectPointsTheme } from './iifDrawerTheme';
 
@@ -22,7 +20,6 @@ export interface Theme {
 	connectLine: ConnectLineTheme;
 	connectPoints: ConnectPointsTheme;
 	simulation: SimulationTheme;
-	sizes: SizeConfig;
 }
 
 export interface DrawerThemeOverride {
@@ -42,7 +39,6 @@ export const createThemeContext = (): ThemesContext => {
 		connectLine: connectLineTheme(defaultColorTheme),
 		connectPoints: connectPointsTheme(defaultColorTheme),
 		simulation: simulationTheme(defaultColorTheme),
-		sizes: sizesConfig(),
 	};
 	return {
 		[ElementType.IIf]: {
@@ -106,36 +102,3 @@ export const useElementDrawerTheme = (state: DrawerThemeState, theme: Theme) => 
 		text: drawer.text,
 	};
 };
-
-export const useSizes = (theme: Theme, size = 1, factor = 1): SizeConfig => {
-	const { sizes } = theme;
-
-	return useMemo(() => {
-		const { connectPointSizes, drawerSizes, fontSizes, simulationSizes } = sizes;
-		const connectPointRadius = fromSize(connectPointSizes.radius, size, factor);
-		const drawerHeight = fromSize(drawerSizes.height, size, factor);
-		const drawerWidth = fromSize(drawerSizes.width, size, factor);
-		const drawerRadius = fromSize(drawerSizes.radius, size, factor);
-		const fontSizePrimary = fromSize(fontSizes.primary, size, factor);
-		const simulationRadius = fromSize(simulationSizes.radius, size, factor);
-		return {
-			connectPointSizes: {
-				radius: connectPointRadius,
-				width: 10,
-				height: 10,
-			},
-			drawerSizes: {
-				width: drawerWidth,
-				height: drawerHeight,
-				radius: drawerRadius,
-			},
-			simulationSizes: {
-				radius: simulationRadius,
-			},
-			fontSizes: {
-				primary: fontSizePrimary,
-			},
-		};
-	}, [size, factor, sizes]);
-};
-

@@ -4,4 +4,4 @@ export * from './polygonOperators';
 export * from './circleOperators';
 export * from './connectPoints';
 export * from './rectangleOperator';
-
+export * from './resultOperators';

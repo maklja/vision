@@ -6,24 +6,14 @@ export enum ElementShape {
 	Rectangle = 'rectangle',
 }
 
-export interface ConnectPointSizes {
-	readonly width: number;
-	readonly height: number;
-	readonly radius: number;
-}
-
 export interface FontSizes {
 	readonly primary: number;
 }
 
-export interface SizeConfig {
+interface SizeConfig {
 	readonly drawerSizes: {
 		readonly width: number;
 		readonly height: number;
-		readonly radius: number;
-	};
-	readonly connectPointSizes: ConnectPointSizes;
-	readonly simulationSizes: {
 		readonly radius: number;
 	};
 	readonly fontSizes: FontSizes;
@@ -35,38 +25,28 @@ const defaultSizeConfig: SizeConfig = {
 		width: 125,
 		height: 95,
 	},
-	simulationSizes: {
-		radius: 14,
-	},
-	connectPointSizes: {
-		radius: 16,
-		width: 32,
-		height: 32,
-	},
 	fontSizes: {
 		primary: 15,
 	},
 };
 
-export interface CircleShape {
+export interface CircleShapeSize {
 	readonly type: ElementShape.Circle;
 	readonly radius: number;
 	readonly fontSizes: FontSizes;
-	readonly connectPointSize: ConnectPointSizes;
 }
 
-export interface RectangleShape {
+export interface RectangleShapeSize {
 	readonly type: ElementShape.Rectangle;
 	readonly width: number;
 	readonly height: number;
 	readonly fontSizes: FontSizes;
-	readonly connectPointSize: ConnectPointSizes;
 }
 
-export type Shapes = CircleShape | RectangleShape;
+export type ShapeSize = CircleShapeSize | RectangleShapeSize;
 
 export type ElementSizes = {
-	readonly [key in ElementGroup]?: Shapes;
+	readonly [key in ElementGroup]?: ShapeSize;
 };
 
 export interface SizesOptions {
@@ -80,27 +60,25 @@ export type ElementSizesContext = {
 
 export const fromSize = (value: number, scale = 1, factor = 1) => value * scale * factor;
 
-export const scaleCircleShape = (circleShapeSize: CircleShape, scale: number): CircleShape => {
-	const { connectPointSize, fontSizes, radius } = circleShapeSize;
+export const scaleCircleShape = (
+	circleShapeSize: CircleShapeSize,
+	scale: number,
+): CircleShapeSize => {
+	const { fontSizes, radius } = circleShapeSize;
 	return {
 		type: ElementShape.Circle,
 		radius: fromSize(radius, scale),
 		fontSizes: {
 			primary: fromSize(fontSizes.primary, scale),
 		},
-		connectPointSize: {
-			radius: fromSize(connectPointSize.radius, scale),
-			width: fromSize(connectPointSize.width, scale),
-			height: fromSize(connectPointSize.height, scale),
-		},
 	};
 };
 
 export const scaleRectangleShape = (
-	rectangleShapeSize: RectangleShape,
+	rectangleShapeSize: RectangleShapeSize,
 	scale: number,
-): RectangleShape => {
-	const { connectPointSize, fontSizes, width, height } = rectangleShapeSize;
+): RectangleShapeSize => {
+	const { fontSizes, width, height } = rectangleShapeSize;
 	return {
 		type: ElementShape.Rectangle,
 		width: fromSize(width, scale),
@@ -108,27 +86,20 @@ export const scaleRectangleShape = (
 		fontSizes: {
 			primary: fromSize(fontSizes.primary, scale),
 		},
-		connectPointSize: {
-			radius: fromSize(connectPointSize.radius, scale),
-			width: fromSize(connectPointSize.width, scale),
-			height: fromSize(connectPointSize.height, scale),
-		},
 	};
 };
 
-const defaultCircleShape: CircleShape = {
+const defaultCircleShape: CircleShapeSize = {
 	type: ElementShape.Circle,
 	radius: defaultSizeConfig.drawerSizes.radius,
 	fontSizes: defaultSizeConfig.fontSizes,
-	connectPointSize: defaultSizeConfig.connectPointSizes,
 };
 
-const defaultRectangleShape: RectangleShape = {
+const defaultRectangleShape: RectangleShapeSize = {
 	type: ElementShape.Rectangle,
 	width: defaultSizeConfig.drawerSizes.width,
 	height: defaultSizeConfig.drawerSizes.height,
 	fontSizes: defaultSizeConfig.fontSizes,
-	connectPointSize: defaultSizeConfig.connectPointSizes,
 };
 
 const defaultElementSizes: ElementSizesContext = {
@@ -139,6 +110,7 @@ const defaultElementSizes: ElementSizesContext = {
 		[ElementGroup.ErrorHandling]: defaultRectangleShape,
 		[ElementGroup.Filtering]: defaultRectangleShape,
 		[ElementGroup.Result]: scaleCircleShape(defaultCircleShape, 0.7),
+		[ElementGroup.ConnectPoint]: scaleCircleShape(defaultCircleShape, 0.32),
 	},
 	options: {
 		scale: 1,
@@ -161,7 +133,7 @@ const findElementSize = (sizes: ElementSizes, elType: ElementType) => {
 export const findCircleShapeSize = (
 	elSizesContext: ElementSizesContext,
 	elType: ElementType,
-): CircleShape => {
+): CircleShapeSize => {
 	const { sizes, options } = elSizesContext;
 	const shapeSize = findElementSize(sizes, elType);
 
@@ -175,7 +147,7 @@ export const findCircleShapeSize = (
 export const findRectangleShapeSize = (
 	elSizesContext: ElementSizesContext,
 	elType: ElementType,
-): RectangleShape => {
+): RectangleShapeSize => {
 	const { sizes, options } = elSizesContext;
 	const shapeSize = findElementSize(sizes, elType);
 
@@ -186,13 +158,13 @@ export const findRectangleShapeSize = (
 	return scaleRectangleShape(shapeSize, options.scale);
 };
 
-export const useCircleSizeScale = (circleShapeSize: CircleShape, scale: number) =>
+export const useCircleSizeScale = (circleShapeSize: CircleShapeSize, scale: number) =>
 	useMemo(() => scaleCircleShape(circleShapeSize, scale), [circleShapeSize, scale]);
 
-export const useRectangleSizeScale = (rectangleShapeSize: RectangleShape, scale: number) =>
+export const useRectangleSizeScale = (rectangleShapeSize: RectangleShapeSize, scale: number) =>
 	useMemo(() => scaleRectangleShape(rectangleShapeSize, scale), [rectangleShapeSize, scale]);
 
-export const calculateShapeSizeBoundingBox = (position: Point, shape: Shapes): BoundingBox => {
+export const calculateShapeSizeBoundingBox = (position: Point, shape: ShapeSize): BoundingBox => {
 	if (shape.type === ElementShape.Circle) {
 		const x = position.x + shape.radius / 2;
 		const y = position.y + shape.radius / 2;
@@ -205,8 +177,3 @@ export const calculateShapeSizeBoundingBox = (position: Point, shape: Shapes): B
 
 	throw new Error('Unsupported shape type received for bounding box creation');
 };
-
-export const sizesConfig = () => {
-	return defaultSizeConfig;
-};
-

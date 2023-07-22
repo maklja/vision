@@ -1,38 +1,14 @@
-import { ReactNode } from 'react';
 import { Group, Line } from 'react-konva';
-import { DrawerAnimationTemplate } from '../../animation';
-import { ConnectPointPosition, ConnectPointType, BoundingBox } from '../../model';
-import { Theme } from '../../theme';
-import { DrawerAnimationEvents } from '../DrawerProps';
+import { ConnectPointPosition, BoundingBox } from '../../model';
+import { CircleShapeSize, Theme } from '../../theme';
 import {
-	ConnectPointDrawer,
 	ConnectPointDrawerEvent,
-	ConnectPointIconDrawerProps,
-} from './ConnectPointDrawer';
+	ConnectPointsDrawerEvents,
+	ConnectPointsOptions,
+} from '../DrawerProps';
+import { CircleConnectPointDrawer } from './CircleConnectPointDrawer';
 
-export type ConnectPointsOptions = {
-	[key in ConnectPointPosition]: {
-		type: ConnectPointType;
-		visible: boolean;
-		animation?: DrawerAnimationTemplate | null;
-		createIcon?: (props: ConnectPointIconDrawerProps) => ReactNode;
-	};
-};
-
-export interface ConnectPointsDrawerEvent {
-	id: string;
-	connectPoint: ConnectPointDrawerEvent;
-	element: BoundingBox;
-}
-
-export interface ConnectPointsDrawerEvents extends DrawerAnimationEvents {
-	onMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
-	onMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
-}
-
-export interface ConnectPointsDrawerProps extends ConnectPointsDrawerEvents {
+export interface CircleConnectPointsDrawerProps extends ConnectPointsDrawerEvents {
 	id: string;
 	theme: Theme;
 	x?: number;
@@ -40,7 +16,7 @@ export interface ConnectPointsDrawerProps extends ConnectPointsDrawerEvents {
 	width?: number;
 	height?: number;
 	offset?: number;
-	connectPointsOptions?: ConnectPointsOptions;
+	connectPointsOptions?: ConnectPointsOptions<CircleShapeSize>;
 	highlightedConnectPoints?: ConnectPointPosition[];
 }
 
@@ -49,7 +25,7 @@ export const createConnectPointDrawerId = (
 	connectPointPosition: ConnectPointPosition,
 ) => `${drawerId}_${connectPointPosition}`;
 
-export const ConnectPointsDrawer = ({
+export const CircleConnectPointsDrawer = ({
 	id,
 	x = 0,
 	y = 0,
@@ -66,7 +42,7 @@ export const ConnectPointsDrawer = ({
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
-}: ConnectPointsDrawerProps) => {
+}: CircleConnectPointsDrawerProps) => {
 	const centerX = x + width / 2;
 	const centerY = y + height / 2;
 
@@ -124,14 +100,14 @@ export const ConnectPointsDrawer = ({
 				/>
 			)}
 			{connectPointsOptions?.top.visible && (
-				<ConnectPointDrawer
+				<CircleConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Top)}
 					type={connectPointsOptions?.top.type}
 					position={ConnectPointPosition.Top}
 					x={topX}
 					y={topY}
 					theme={theme}
-					createIcon={connectPointsOptions?.top.createIcon}
+					size={connectPointsOptions?.top.shapeSize}
 					onMouseDown={handleOnMouseDown}
 					onMouseUp={handleOnMouseUp}
 					onMouseOver={handleOnMouseOver}
@@ -141,7 +117,9 @@ export const ConnectPointsDrawer = ({
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Top)}
 					animation={connectPointsOptions?.top.animation}
-				/>
+				>
+					{connectPointsOptions?.top.icon}
+				</CircleConnectPointDrawer>
 			)}
 
 			{connectPointsOptions?.right.visible && (
@@ -153,14 +131,14 @@ export const ConnectPointsDrawer = ({
 			)}
 
 			{connectPointsOptions?.right.visible && (
-				<ConnectPointDrawer
+				<CircleConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Right)}
 					type={connectPointsOptions.right.type}
 					position={ConnectPointPosition.Right}
 					x={rightX}
 					y={rightY}
 					theme={theme}
-					createIcon={connectPointsOptions?.right.createIcon}
+					size={connectPointsOptions?.right.shapeSize}
 					onMouseDown={handleOnMouseDown}
 					onMouseUp={handleOnMouseUp}
 					onMouseOver={handleOnMouseOver}
@@ -170,7 +148,9 @@ export const ConnectPointsDrawer = ({
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Right)}
 					animation={connectPointsOptions?.right.animation}
-				/>
+				>
+					{connectPointsOptions?.right.icon}
+				</CircleConnectPointDrawer>
 			)}
 
 			{connectPointsOptions?.bottom.visible && (
@@ -182,14 +162,14 @@ export const ConnectPointsDrawer = ({
 			)}
 
 			{connectPointsOptions?.bottom.visible && (
-				<ConnectPointDrawer
+				<CircleConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Bottom)}
 					type={connectPointsOptions.bottom.type}
 					position={ConnectPointPosition.Bottom}
 					x={bottomX}
 					y={bottomY}
 					theme={theme}
-					createIcon={connectPointsOptions?.bottom.createIcon}
+					size={connectPointsOptions?.bottom.shapeSize}
 					onMouseDown={handleOnMouseDown}
 					onMouseUp={handleOnMouseUp}
 					onMouseOver={handleOnMouseOver}
@@ -199,7 +179,9 @@ export const ConnectPointsDrawer = ({
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Bottom)}
 					animation={connectPointsOptions?.bottom.animation}
-				/>
+				>
+					{connectPointsOptions?.bottom.icon}
+				</CircleConnectPointDrawer>
 			)}
 
 			{connectPointsOptions?.left.visible && (
@@ -211,14 +193,14 @@ export const ConnectPointsDrawer = ({
 			)}
 
 			{connectPointsOptions?.left.visible && (
-				<ConnectPointDrawer
+				<CircleConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Left)}
 					type={connectPointsOptions.left.type}
 					position={ConnectPointPosition.Left}
 					x={leftX}
 					y={leftY}
 					theme={theme}
-					createIcon={connectPointsOptions?.left.createIcon}
+					size={connectPointsOptions?.left.shapeSize}
 					onMouseDown={handleOnMouseDown}
 					onMouseUp={handleOnMouseUp}
 					onMouseOver={handleOnMouseOver}
@@ -228,9 +210,10 @@ export const ConnectPointsDrawer = ({
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Left)}
 					animation={connectPointsOptions?.left.animation}
-				/>
+				>
+					{connectPointsOptions?.left.icon}
+				</CircleConnectPointDrawer>
 			)}
 		</Group>
 	);
 };
-

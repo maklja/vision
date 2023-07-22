@@ -7,6 +7,7 @@ import {
 	pipeOperators,
 	subscriberOperators,
 	resultOperators,
+	connectPointOperators,
 } from './ElementType';
 
 export enum ElementGroup {
@@ -22,6 +23,7 @@ export enum ElementGroup {
 	Mathematical = 'mathematical',
 	Subscriber = 'subscriber',
 	Result = 'result',
+	ConnectPoint = 'connectPoint',
 }
 
 export const mapElementGroupToTypes = (elGroup: ElementGroup): ReadonlySet<ElementType> => {
@@ -38,6 +40,8 @@ export const mapElementGroupToTypes = (elGroup: ElementGroup): ReadonlySet<Eleme
 			return subscriberOperators;
 		case ElementGroup.Result:
 			return resultOperators;
+		case ElementGroup.ConnectPoint:
+			return connectPointOperators;
 		default:
 			return new Set();
 	}
@@ -68,6 +72,9 @@ export const mapElementTypeToGroup = (elType: ElementType): ElementGroup => {
 		return ElementGroup.Result;
 	}
 
+	if (connectPointOperators.has(elType)) {
+		return ElementGroup.ConnectPoint;
+	}
+
 	throw new Error(`Unknown element group for element type ${elType}`);
 };
-

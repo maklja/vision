@@ -8,9 +8,9 @@ import {
 	Theme,
 	DrawerThemeOverride,
 	findCircleShapeSize,
-	CircleShape,
+	CircleShapeSize,
 	findRectangleShapeSize,
-	RectangleShape,
+	RectangleShapeSize,
 } from '../../theme';
 
 const selectThemes = (state: RootState) => state.stage.themes;
@@ -31,13 +31,12 @@ export const useThemeContext = (type?: ElementType): Theme => {
 	return useSelector((state: RootState) => selectThemeContext(state, type));
 };
 
-export const useCircleShapeSize = (type: ElementType): CircleShape => {
+export const useCircleShapeSize = (type: ElementType): CircleShapeSize => {
 	return useSelector((state: RootState) => findCircleShapeSize(state.stage.elementSizes, type));
 };
 
-export const useRectangleShapeSize = (type: ElementType): RectangleShape => {
+export const useRectangleShapeSize = (type: ElementType): RectangleShapeSize => {
 	return useSelector((state: RootState) =>
 		findRectangleShapeSize(state.stage.elementSizes, type),
 	);
 };
-
