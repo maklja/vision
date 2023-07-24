@@ -31,6 +31,15 @@ import { ElementType } from '../model';
 import { createAnimations } from './createAnimations';
 import Box from '@mui/material/Box';
 import { OperatorsPanel } from '../ui';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import Paper from '@mui/material/Paper';
+import IconButton from '@mui/material/IconButton';
+import StopIcon from '@mui/icons-material/Stop';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 export const Simulator = () => {
 	const [simulatorId] = useState(v1());
@@ -241,13 +250,52 @@ export const Simulator = () => {
 			<button onClick={handleSimulationReset}>Reset simulation</button> */}
 
 			<SimulatorStage />
+
 			<Box
-				style={{
+				sx={{
+					position: 'absolute',
+					top: '15px',
+					left: 'calc(50% - 160px)',
+					width: '400px',
+					height: '40px',
+				}}
+			>
+				<div>
+					<Paper sx={{ width: '100%', height: '100%' }}>
+						<IconButton aria-label="start simulation" color="primary">
+							<PlayArrowIcon fontSize="large" />
+						</IconButton>
+
+						<IconButton aria-label="reset simulation" color="primary">
+							<RestartAltIcon fontSize="large" />
+						</IconButton>
+
+						<IconButton aria-label="stop simulation" color="primary">
+							<StopIcon fontSize="large" />
+						</IconButton>
+
+						<FormControl sx={{ m: 1, minWidth: 170 }} size="small">
+							<InputLabel id="entry-operator">Entry operator</InputLabel>
+							<Select labelId="entry-operator" value={''} label="Entry operator">
+								<MenuItem value="">
+									<em>None</em>
+								</MenuItem>
+								<MenuItem value={10}>Ten</MenuItem>
+								<MenuItem value={20}>Twenty</MenuItem>
+								<MenuItem value={30}>Thirty</MenuItem>
+							</Select>
+						</FormControl>
+					</Paper>
+				</div>
+			</Box>
+
+			<Box
+				sx={{
 					position: 'absolute',
 					top: '20%',
 					left: '15px',
+					width: '70px',
 					height: '50%',
-					width: '90px',
 				}}
 			>
 				<OperatorsPanel />
