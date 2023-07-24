@@ -8,6 +8,7 @@ import { ElementDrawerProps } from '../ElementDrawerProps';
 export const OfOperatorDrawer = ({
 	x,
 	y,
+	scale = 1,
 	id,
 	theme,
 	animation,
@@ -27,8 +28,8 @@ export const OfOperatorDrawer = ({
 	onMouseOver,
 }: ElementDrawerProps) => {
 	const elType = ElementType.Of;
-	const circleShapeSize = useCircleShapeSize(elType);
-	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint);
+	const circleShapeSize = useCircleShapeSize(elType, scale);
+	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
 	const connectPointsOptions = createDefaultElementProps(elType, circleCPSize);
 
 	return (
@@ -39,7 +40,7 @@ export const OfOperatorDrawer = ({
 				y={y}
 				type={elType}
 				shape={circleShapeSize}
-				offset={50}
+				offset={26}
 				connectPointsOptions={connectPointsOptions}
 				visible={visibleConnectPoints}
 			/>

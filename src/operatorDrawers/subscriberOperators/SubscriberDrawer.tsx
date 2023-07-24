@@ -8,6 +8,7 @@ import { ElementDrawerProps } from '../ElementDrawerProps';
 export const SubscriberDrawer = ({
 	x,
 	y,
+	scale = 1,
 	id,
 	theme,
 	animation,
@@ -27,8 +28,8 @@ export const SubscriberDrawer = ({
 	onMouseOver,
 }: ElementDrawerProps) => {
 	const elType = ElementType.Subscriber;
-	const circleShapeSize = useCircleShapeSize(elType);
-	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint);
+	const circleShapeSize = useCircleShapeSize(elType, scale);
+	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
 	const connectPointsOptions = createDefaultElementProps(elType, circleCPSize);
 
 	return (

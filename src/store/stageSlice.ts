@@ -82,7 +82,7 @@ export interface UpdateElementAction<P = unknown> {
 	payload: {
 		id: string;
 		visible?: boolean;
-		size?: number;
+		scale?: number;
 		properties?: P;
 	};
 }
@@ -152,7 +152,7 @@ export const stageSlice = createSlice({
 			const el = slice.elements[elIdx];
 			slice.elements[elIdx] = {
 				...el,
-				size: payload.size ?? el.size,
+				scale: payload.scale ?? el.scale,
 				visible: payload.visible ?? el.visible,
 				properties: payload.properties ?? el.properties,
 			};

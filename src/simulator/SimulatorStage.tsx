@@ -5,10 +5,10 @@ import { ConnectLinesLayer } from '../layers/connectLines';
 import { DrawersLayer } from '../layers/drawers';
 import { useAppDispatch } from '../store/rootState';
 import { addDraftElement, clearDraftElement, useThemeContext } from '../store/stageSlice';
-import { Element } from '../model';
 import { useStageHandlers } from './state';
-import { DragNDropLayer } from '../layers/creation';
+import { DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DragNDropType } from '../dragNDrop';
+import { calculateShapeSizeBoundingBox } from '../theme';
 
 export interface StageEvents {
 	onMouseDown?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
@@ -26,21 +26,25 @@ export const SimulatorStage = () => {
 	const stageHandlers = useStageHandlers();
 	const appDispatch = useAppDispatch();
 
-	const [, drop] = useDrop<Element>(
+	const [, drop] = useDrop<DragNDropItem>(
 		() => ({
 			accept: DragNDropType.CreateElement,
-			drop(item, monitor) {
+			drop({ element, shapeSize }, monitor) {
 				if (!monitor.isOver()) {
 					appDispatch(clearDraftElement());
 					return;
 				}
 
 				const clientOffset = monitor.getClientOffset();
+				const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
+				const xPosition = (clientOffset?.x ?? 0) - bb.width / 2;
+				const yPosition = (clientOffset?.y ?? 0) - bb.height / 2;
+
 				appDispatch(
 					addDraftElement({
-						...item,
-						x: clientOffset?.x ?? item.x,
-						y: clientOffset?.y ?? item.y,
+						...element,
+						x: xPosition,
+						y: yPosition,
 					}),
 				);
 			},

@@ -11,6 +11,7 @@ export interface ResultDrawerProps extends ElementDrawerProps {
 export const ResultDrawer = ({
 	x,
 	y,
+	scale = 1,
 	id,
 	theme,
 	animation,
@@ -30,7 +31,7 @@ export const ResultDrawer = ({
 	onMouseOver,
 }: ResultDrawerProps) => {
 	const elType = ElementType.Result;
-	const circleShapeSize = useCircleShapeSize(elType);
+	const circleShapeSize = useCircleShapeSize(elType, scale);
 
 	return (
 		<CircleResultDrawer

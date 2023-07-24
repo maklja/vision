@@ -8,6 +8,7 @@ import { ElementDrawerProps } from '../ElementDrawerProps';
 export const CatchErrorOperatorDrawer = ({
 	x,
 	y,
+	scale = 1,
 	id,
 	theme,
 	animation,
@@ -27,8 +28,8 @@ export const CatchErrorOperatorDrawer = ({
 	onMouseOver,
 }: ElementDrawerProps) => {
 	const elType = ElementType.CatchError;
-	const rectangleShapeSize = useRectangleShapeSize(elType);
-	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint);
+	const rectangleShapeSize = useRectangleShapeSize(elType, scale);
+	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
 	const connectPointsOptions = createDefaultElementProps(elType, circleCPSize);
 
 	return (

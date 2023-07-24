@@ -14,6 +14,30 @@ import { isHighlightedElement, isSelectedElement, useThemeContext } from '../sto
 import { useAppSelector } from '../store/rootState';
 import { selectDrawerAnimationById } from '../store/drawerAnimationsSlice';
 import { useElementDrawerHandlers } from './state';
+import { ElementDrawerProps } from './ElementDrawerProps';
+
+export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {
+	switch (elType) {
+		case ElementType.Filter:
+			return <FilterOperatorDrawer {...props} />;
+		case ElementType.CatchError:
+			return <CatchErrorOperatorDrawer {...props} />;
+		case ElementType.Interval:
+			return <IntervalOperatorDrawer {...props} />;
+		case ElementType.Of:
+			return <OfOperatorDrawer {...props} />;
+		case ElementType.From:
+			return <FromOperatorDrawer {...props} />;
+		case ElementType.IIf:
+			return <IifOperatorDrawer {...props} />;
+		case ElementType.Merge:
+			return <MergeOperatorDrawer {...props} />;
+		case ElementType.Subscriber:
+			return <SubscriberDrawer {...props} />;
+		default:
+			return null;
+	}
+};
 
 export interface OperatorDrawerProps {
 	element: Element;
@@ -28,126 +52,28 @@ export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawer
 	const highlight = useAppSelector(isHighlightedElement(element.id));
 
 	switch (element.type) {
-		case ElementType.Filter:
-			return (
-				<FilterOperatorDrawer
-					{...drawerHandlers}
-					id={element.id}
-					x={element.x}
-					y={element.y}
-					animation={animation}
-					theme={theme}
-					select={select}
-					highlight={highlight}
-					draggable={true}
-					visibleConnectPoints={visibleConnectPoints}
-				/>
-			);
-		case ElementType.CatchError:
-			return (
-				<CatchErrorOperatorDrawer
-					{...drawerHandlers}
-					id={element.id}
-					x={element.x}
-					y={element.y}
-					animation={animation}
-					theme={theme}
-					select={select}
-					highlight={highlight}
-					draggable={true}
-					visibleConnectPoints={visibleConnectPoints}
-				/>
-			);
-		case ElementType.Interval:
-			return (
-				<IntervalOperatorDrawer
-					{...drawerHandlers}
-					id={element.id}
-					x={element.x}
-					y={element.y}
-					animation={animation}
-					theme={theme}
-					select={select}
-					highlight={highlight}
-					draggable={true}
-					visibleConnectPoints={visibleConnectPoints}
-				/>
-			);
 		case ElementType.Of:
-			return (
-				<OfOperatorDrawer
-					{...drawerHandlers}
-					id={element.id}
-					x={element.x}
-					y={element.y}
-					animation={animation}
-					theme={theme}
-					select={select}
-					highlight={highlight}
-					draggable={true}
-					visibleConnectPoints={visibleConnectPoints}
-				/>
-			);
+		case ElementType.Filter:
+		case ElementType.CatchError:
+		case ElementType.Interval:
 		case ElementType.From:
-			return (
-				<FromOperatorDrawer
-					{...drawerHandlers}
-					id={element.id}
-					x={element.x}
-					y={element.y}
-					animation={animation}
-					theme={theme}
-					select={select}
-					highlight={highlight}
-					draggable={true}
-					visibleConnectPoints={visibleConnectPoints}
-				/>
-			);
-		case ElementType.IIf:
-			return (
-				<IifOperatorDrawer
-					{...drawerHandlers}
-					id={element.id}
-					x={element.x}
-					y={element.y}
-					animation={animation}
-					theme={theme}
-					select={select}
-					highlight={highlight}
-					draggable={true}
-					visibleConnectPoints={visibleConnectPoints}
-				/>
-			);
-		case ElementType.Merge:
-			return (
-				<MergeOperatorDrawer
-					{...drawerHandlers}
-					id={element.id}
-					x={element.x}
-					y={element.y}
-					animation={animation}
-					theme={theme}
-					select={select}
-					highlight={highlight}
-					draggable={true}
-					visibleConnectPoints={visibleConnectPoints}
-				/>
-			);
 		case ElementType.Subscriber:
-			return (
-				<SubscriberDrawer
-					{...drawerHandlers}
-					id={element.id}
-					x={element.x}
-					y={element.y}
-					animation={animation}
-					theme={theme}
-					select={select}
-					highlight={highlight}
-					draggable={true}
-					visibleConnectPoints={visibleConnectPoints}
-				/>
-			);
+		case ElementType.Merge:
+		case ElementType.IIf:
+			return createOperatorDrawer(element.type, {
+				...drawerHandlers,
+				id: element.id,
+				x: element.x,
+				y: element.y,
+				scale: element.scale,
+				visible: element.visible,
+				animation,
+				theme,
+				select,
+				highlight,
+				draggable: true,
+				visibleConnectPoints,
+			});
 		case ElementType.Result:
 			return (
 				<ResultDrawer
@@ -155,6 +81,8 @@ export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawer
 					id={element.id}
 					x={element.x}
 					y={element.y}
+					scale={element.scale}
+					visible={element.visible}
 					animation={animation}
 					theme={theme}
 					select={select}

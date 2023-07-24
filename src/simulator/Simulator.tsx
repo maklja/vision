@@ -62,7 +62,7 @@ export const Simulator = () => {
 		appDispatch(
 			addElement({
 				id: simulatorId,
-				size: 1,
+				scale: 1,
 				x: 0,
 				y: 0,
 				type: ElementType.Result,

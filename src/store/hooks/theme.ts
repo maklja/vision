@@ -13,6 +13,9 @@ import {
 	RectangleShapeSize,
 	ShapeSize,
 	findElementSize,
+	scaleCircleShape,
+	scaleRectangleShape,
+	scaleShapeSize,
 } from '../../theme';
 
 const selectThemes = (state: RootState) => state.stage.themes;
@@ -33,11 +36,18 @@ export const useThemeContext = (type?: ElementType): Theme => {
 	return useSelector((state: RootState) => selectThemeContext(state, type));
 };
 
-export const useShapeSize = (type: ElementType): ShapeSize =>
-	useSelector((state: RootState) => findElementSize(state.stage.elementSizes.sizes, type));
+export const useShapeSize = (type: ElementType, scale = 1): ShapeSize =>
+	useSelector((state: RootState) =>
+		scaleShapeSize(findElementSize(state.stage.elementSizes.sizes, type), scale),
+	);
 
-export const useCircleShapeSize = (type: ElementType): CircleShapeSize =>
-	useSelector((state: RootState) => findCircleShapeSize(state.stage.elementSizes, type));
+export const useCircleShapeSize = (type: ElementType, scale = 1): CircleShapeSize =>
+	useSelector((state: RootState) =>
+		scaleCircleShape(findCircleShapeSize(state.stage.elementSizes, type), scale),
+	);
 
-export const useRectangleShapeSize = (type: ElementType): RectangleShapeSize =>
-	useSelector((state: RootState) => findRectangleShapeSize(state.stage.elementSizes, type));
+export const useRectangleShapeSize = (type: ElementType, scale = 1): RectangleShapeSize =>
+	useSelector((state: RootState) =>
+		scaleRectangleShape(findRectangleShapeSize(state.stage.elementSizes, type), scale),
+	);
+

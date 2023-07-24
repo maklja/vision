@@ -64,6 +64,10 @@ export const scaleCircleShape = (
 	circleShapeSize: CircleShapeSize,
 	scale: number,
 ): CircleShapeSize => {
+	if (scale === 1) {
+		return circleShapeSize;
+	}
+
 	const { fontSizes, radius } = circleShapeSize;
 	return {
 		type: ElementShape.Circle,
@@ -78,6 +82,10 @@ export const scaleRectangleShape = (
 	rectangleShapeSize: RectangleShapeSize,
 	scale: number,
 ): RectangleShapeSize => {
+	if (scale === 1) {
+		return rectangleShapeSize;
+	}
+
 	const { fontSizes, width, height } = rectangleShapeSize;
 	return {
 		type: ElementShape.Rectangle,
@@ -87,6 +95,18 @@ export const scaleRectangleShape = (
 			primary: fromSize(fontSizes.primary, scale),
 		},
 	};
+};
+
+export const scaleShapeSize = (shapeSize: ShapeSize, scale = 1) => {
+	if (shapeSize.type === ElementShape.Circle) {
+		return scaleCircleShape(shapeSize, scale);
+	}
+
+	if (shapeSize.type === ElementShape.Rectangle) {
+		return scaleRectangleShape(shapeSize, scale);
+	}
+
+	throw new Error(`Unknown shape type ${shapeSize}`);
 };
 
 const defaultCircleShape: CircleShapeSize = {
@@ -166,9 +186,7 @@ export const useRectangleSizeScale = (rectangleShapeSize: RectangleShapeSize, sc
 
 export const calculateShapeSizeBoundingBox = (position: Point, shape: ShapeSize): BoundingBox => {
 	if (shape.type === ElementShape.Circle) {
-		const x = position.x + shape.radius / 2;
-		const y = position.y + shape.radius / 2;
-		return new BoundingBox(x, y, shape.radius, shape.radius);
+		return new BoundingBox(position.x, position.y, shape.radius * 2, shape.radius * 2);
 	}
 
 	if (shape.type === ElementShape.Rectangle) {
@@ -177,3 +195,4 @@ export const calculateShapeSizeBoundingBox = (position: Point, shape: ShapeSize)
 
 	throw new Error('Unsupported shape type received for bounding box creation');
 };
+

@@ -3,9 +3,16 @@ import { XYCoord, useDragLayer } from 'react-dnd';
 import { Element } from '../../model';
 import { useThemeContext } from '../../store/stageSlice';
 import { DragNDropType } from '../../dragNDrop';
+import { createOperatorDrawer } from '../../operatorDrawers';
+import { ShapeSize, calculateShapeSizeBoundingBox } from '../../theme';
+
+export interface DragNDropItem {
+	element: Element;
+	shapeSize: ShapeSize;
+}
 
 interface DragCollectedProps {
-	item: Element;
+	item: DragNDropItem;
 	itemType: DragNDropType | null;
 	clientOffset: XYCoord | null;
 	isDragging: boolean;
@@ -22,22 +29,29 @@ export const DragNDropLayer = () => {
 		}),
 	);
 
-	if (!isDragging || itemType !== DragNDropType.CreateElement) {
+	if (!item || !isDragging || itemType !== DragNDropType.CreateElement) {
 		return null;
 	}
 
-	// const operatorFactory = findElementDrawerFactory(item.type);
-	// if (!operatorFactory) {
-	// 	return null;
-	// }
+	const { element, shapeSize } = item;
+	const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
+	const xPosition = (clientOffset?.x ?? 0) - bb.width / 2;
+	const yPosition = (clientOffset?.y ?? 0) - bb.height / 2;
 
-	// const operatorDrawer = operatorFactory({
-	// 	...item,
-	// 	x: clientOffset?.x ?? 0,
-	// 	y: clientOffset?.y ?? 0,
-	// 	theme,
-	// 	size: null as any,
-	// });
+	const drawer = createOperatorDrawer(element.type, {
+		id: element.id,
+		x: xPosition,
+		y: yPosition,
+		scale: element.scale,
+		visible: element.visible,
+		select: true,
+		draggable: false,
+		theme,
+	});
+	if (!drawer) {
+		return null;
+	}
 
-	return <Layer></Layer>;
+	return <Layer>{drawer}</Layer>;
 };
+

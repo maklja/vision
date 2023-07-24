@@ -1,7 +1,7 @@
 import { Layer } from 'react-konva';
 import { useAppSelector } from '../../store/rootState';
 import { StageState, selectStageElements, selectStageState } from '../../store/stageSlice';
-import { OperatorDrawer } from '../../factory';
+import { OperatorDrawer } from '../../operatorDrawers';
 
 export const DrawersLayer = () => {
 	const elements = useAppSelector(selectStageElements);
@@ -16,3 +16,4 @@ export const DrawersLayer = () => {
 		</Layer>
 	);
 };
+

@@ -5,7 +5,7 @@ export interface Element<P extends unknown | Record<string, unknown> = unknown> 
 	type: ElementType;
 	x: number;
 	y: number;
-	size: number;
+	scale: number;
 	visible: boolean;
 	properties: P;
 }
