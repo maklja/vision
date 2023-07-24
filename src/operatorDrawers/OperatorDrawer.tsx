@@ -5,16 +5,7 @@ import {
 	OfOperatorDrawer,
 } from './creationOperators';
 import { CatchErrorOperatorDrawer } from './errorHandlingOperators';
-import {
-	CatchErrorElement,
-	Element,
-	ElementType,
-	FilterElement,
-	IntervalElement,
-	MergeElement,
-	OfElement,
-	ResultElement,
-} from '../model';
+import { Element, ElementType, ResultElement } from '../model';
 import { SubscriberDrawer } from './subscriberOperators';
 import { FilterOperatorDrawer } from './filteringOperators';
 import { ResultDrawer } from './resultOperators';
@@ -40,28 +31,60 @@ export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawer
 		case ElementType.Filter:
 			return (
 				<FilterOperatorDrawer
-					element={element as FilterElement}
+					{...drawerHandlers}
+					id={element.id}
+					x={element.x}
+					y={element.y}
+					animation={animation}
+					theme={theme}
+					select={select}
+					highlight={highlight}
+					draggable={true}
 					visibleConnectPoints={visibleConnectPoints}
 				/>
 			);
 		case ElementType.CatchError:
 			return (
 				<CatchErrorOperatorDrawer
-					element={element as CatchErrorElement}
+					{...drawerHandlers}
+					id={element.id}
+					x={element.x}
+					y={element.y}
+					animation={animation}
+					theme={theme}
+					select={select}
+					highlight={highlight}
+					draggable={true}
 					visibleConnectPoints={visibleConnectPoints}
 				/>
 			);
 		case ElementType.Interval:
 			return (
 				<IntervalOperatorDrawer
-					element={element as IntervalElement}
+					{...drawerHandlers}
+					id={element.id}
+					x={element.x}
+					y={element.y}
+					animation={animation}
+					theme={theme}
+					select={select}
+					highlight={highlight}
+					draggable={true}
 					visibleConnectPoints={visibleConnectPoints}
 				/>
 			);
 		case ElementType.Of:
 			return (
 				<OfOperatorDrawer
-					element={element as OfElement}
+					{...drawerHandlers}
+					id={element.id}
+					x={element.x}
+					y={element.y}
+					animation={animation}
+					theme={theme}
+					select={select}
+					highlight={highlight}
+					draggable={true}
 					visibleConnectPoints={visibleConnectPoints}
 				/>
 			);
@@ -98,17 +121,50 @@ export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawer
 		case ElementType.Merge:
 			return (
 				<MergeOperatorDrawer
-					element={element as MergeElement}
+					{...drawerHandlers}
+					id={element.id}
+					x={element.x}
+					y={element.y}
+					animation={animation}
+					theme={theme}
+					select={select}
+					highlight={highlight}
+					draggable={true}
 					visibleConnectPoints={visibleConnectPoints}
 				/>
 			);
 		case ElementType.Subscriber:
 			return (
-				<SubscriberDrawer element={element} visibleConnectPoints={visibleConnectPoints} />
+				<SubscriberDrawer
+					{...drawerHandlers}
+					id={element.id}
+					x={element.x}
+					y={element.y}
+					animation={animation}
+					theme={theme}
+					select={select}
+					highlight={highlight}
+					draggable={true}
+					visibleConnectPoints={visibleConnectPoints}
+				/>
 			);
 		case ElementType.Result:
-			return <ResultDrawer element={element as ResultElement} />;
+			return (
+				<ResultDrawer
+					{...drawerHandlers}
+					id={element.id}
+					x={element.x}
+					y={element.y}
+					animation={animation}
+					theme={theme}
+					select={select}
+					highlight={highlight}
+					draggable={true}
+					hash={(element as ResultElement).properties.hash}
+				/>
+			);
 		default:
 			return null;
 	}
 };
+

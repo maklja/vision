@@ -5,7 +5,7 @@ import { ConnectPointsDrawer, createDefaultElementProps } from '../ConnectPoints
 import { CircleOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 
-export const FromOperatorDrawer = ({
+export const IntervalOperatorDrawer = ({
 	x,
 	y,
 	id,
@@ -26,9 +26,10 @@ export const FromOperatorDrawer = ({
 	onMouseOut,
 	onMouseOver,
 }: ElementDrawerProps) => {
-	const circleShapeSize = useCircleShapeSize(ElementType.From);
+	const elType = ElementType.Interval;
+	const circleShapeSize = useCircleShapeSize(elType);
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint);
-	const connectPointsOptions = createDefaultElementProps(ElementType.From, circleCPSize);
+	const connectPointsOptions = createDefaultElementProps(elType, circleCPSize);
 
 	return (
 		<Group>
@@ -36,7 +37,7 @@ export const FromOperatorDrawer = ({
 				id={id}
 				x={x}
 				y={y}
-				type={ElementType.From}
+				type={elType}
 				shape={circleShapeSize}
 				offset={50}
 				connectPointsOptions={connectPointsOptions}
@@ -44,7 +45,7 @@ export const FromOperatorDrawer = ({
 			/>
 			<CircleOperatorDrawer
 				id={id}
-				title="From"
+				title="Interval"
 				size={circleShapeSize}
 				theme={theme}
 				x={x}
@@ -67,3 +68,4 @@ export const FromOperatorDrawer = ({
 		</Group>
 	);
 };
+

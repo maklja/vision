@@ -26,9 +26,10 @@ export const IifOperatorDrawer = ({
 	onMouseOut,
 	onMouseOver,
 }: ElementDrawerProps) => {
-	const circleShapeSize = useCircleShapeSize(ElementType.IIf);
+	const elType = ElementType.IIf;
+	const circleShapeSize = useCircleShapeSize(elType);
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint);
-	const connectPointsOptions = createDefaultElementProps(ElementType.IIf, circleCPSize);
+	const connectPointsOptions = createDefaultElementProps(elType, circleCPSize);
 
 	return (
 		<Group>
@@ -36,7 +37,7 @@ export const IifOperatorDrawer = ({
 				id={id}
 				x={x}
 				y={y}
-				type={ElementType.From}
+				type={elType}
 				shape={circleShapeSize}
 				offset={50}
 				visible={visibleConnectPoints}
@@ -91,3 +92,4 @@ export const IifOperatorDrawer = ({
 		</Group>
 	);
 };
+
