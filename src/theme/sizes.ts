@@ -106,7 +106,7 @@ const defaultElementSizes: ElementSizesContext = {
 	sizes: {
 		[ElementGroup.Creation]: defaultCircleShape,
 		[ElementGroup.JoinCreation]: defaultCircleShape,
-		[ElementGroup.Subscriber]: defaultCircleShape,
+		[ElementGroup.Subscriber]: scaleCircleShape(defaultCircleShape, 0.4),
 		[ElementGroup.ErrorHandling]: defaultRectangleShape,
 		[ElementGroup.Filtering]: defaultRectangleShape,
 		[ElementGroup.Result]: scaleCircleShape(defaultCircleShape, 0.7),
@@ -119,7 +119,7 @@ const defaultElementSizes: ElementSizesContext = {
 
 export const createElementSizesContext = () => defaultElementSizes;
 
-const findElementSize = (sizes: ElementSizes, elType: ElementType) => {
+export const findElementSize = (sizes: ElementSizes, elType: ElementType) => {
 	const elGroup = mapElementTypeToGroup(elType);
 	const elSize = sizes[elGroup];
 

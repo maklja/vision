@@ -57,8 +57,7 @@ export const DotCircleOperatorDrawer = ({
 		drawerId: id,
 	});
 
-	const outerSizes = useCircleSizeScale(size, 0.4);
-	const innerSizes = useCircleSizeScale(size, 0.2);
+	const innerSizes = useCircleSizeScale(size, 0.6);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -113,7 +112,7 @@ export const DotCircleOperatorDrawer = ({
 				{...drawerStyle.element}
 				ref={(node) => setMainShapeRef(node)}
 				id={id}
-				radius={outerSizes.radius}
+				radius={size.radius}
 				x={size.radius}
 				y={size.radius}
 			/>
@@ -128,4 +127,3 @@ export const DotCircleOperatorDrawer = ({
 		</Group>
 	);
 };
-

@@ -2,7 +2,7 @@ import { ResultElement } from '../../model';
 import { useCircleShapeSize, useThemeContext } from '../../store/stageSlice';
 import { useAppSelector } from '../../store/rootState';
 import { selectDrawerAnimationById } from '../../store/drawerAnimationsSlice';
-import { useElementDrawerHandlers } from '../../layers/drawers/state';
+import { useElementDrawerHandlers } from '../state';
 import { CircleResultDrawer } from '../../drawers';
 
 export interface ResultDrawerProps {

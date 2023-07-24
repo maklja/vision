@@ -4,12 +4,12 @@ import { useDrag } from 'react-dnd';
 import { Layer, Stage } from 'react-konva';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import Box from '@mui/material/Box';
-import { createDraftElement, useThemeContext } from '../../store/stageSlice';
-import { Element, ElementGroup, ElementType, mapElementTypeToGroup } from '../../model';
-import { useSizes } from '../../theme';
+import { createDraftElement, useShapeSize, useThemeContext } from '../../store/stageSlice';
+import { Element, ElementType } from '../../model';
 import { DragNDropType } from '../../dragNDrop';
 import { useAppDispatch } from '../../store/rootState';
-import { findElementDrawerFactory } from '../../factory';
+import { calculateShapeSizeBoundingBox } from '../../theme';
+import { OperatorDrawer } from '../../factory';
 
 export interface OperatorButtonProps {
 	elementType: ElementType;
@@ -17,16 +17,11 @@ export interface OperatorButtonProps {
 	size?: number;
 }
 
-export const radiusDrawers: ReadonlySet<ElementGroup> = new Set([
-	ElementGroup.Creation,
-	ElementGroup.JoinCreation,
-	ElementGroup.Subscriber,
-]);
-
 export const OperatorButton = ({ elementType, padding = 4, size = 0.65 }: OperatorButtonProps) => {
 	const appDispatch = useAppDispatch();
 	const theme = useThemeContext(elementType);
-	const { drawerSizes } = useSizes(theme, size);
+	const shapeSize = useShapeSize(elementType);
+	const bb = calculateShapeSizeBoundingBox({ x: padding, y: padding }, shapeSize);
 	const [highlighted, setHighlighted] = useState(false);
 
 	const [{ isDragging }, dragRef, dragPreview] = useDrag<
@@ -62,33 +57,23 @@ export const OperatorButton = ({ elementType, padding = 4, size = 0.65 }: Operat
 		dragPreview(getEmptyImage(), { captureDraggingState: true });
 	}, []);
 
-	const elGroup = mapElementTypeToGroup(elementType);
-	const width = radiusDrawers.has(elGroup) ? drawerSizes.radius * 2 : drawerSizes.width;
-	const height = radiusDrawers.has(elGroup) ? drawerSizes.radius * 2 : drawerSizes.height;
-
-	const operatorFactory = findElementDrawerFactory(elementType);
-	if (!operatorFactory) {
-		return null;
-	}
-
-	const operatorDrawer = operatorFactory({
+	const element: Element = {
 		id: elementType,
-		x: padding,
-		y: padding,
-		theme,
-		select: isDragging,
-		highlight: highlighted,
-		onMouseOver: () => setHighlighted(true),
-		onMouseOut: () => setHighlighted(false),
-		size: null as any,
-	});
+		size: 1,
+		type: elementType,
+		visible: true,
+		x: bb.center.x,
+		y: bb.center.y,
+		properties: {},
+	};
 
 	return (
 		<Box ref={dragRef}>
-			<Stage width={width + 2 * padding} height={height + 2 * padding}>
-				<Layer>{operatorDrawer}</Layer>
+			<Stage width={bb.width + 2 * padding} height={bb.height + 2 * padding}>
+				<Layer>
+					<OperatorDrawer element={element} visibleConnectPoints={false} />
+				</Layer>
 			</Stage>
 		</Box>
 	);
 };
-

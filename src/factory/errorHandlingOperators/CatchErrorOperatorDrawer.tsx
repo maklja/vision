@@ -1,5 +1,5 @@
 import { Group } from 'react-konva';
-import { useElementDrawerHandlers } from '../../layers/drawers/state';
+import { useElementDrawerHandlers } from '../state';
 import { CatchErrorElement, ElementType } from '../../model';
 import { selectDrawerAnimationById } from '../../store/drawerAnimationsSlice';
 import { useAppSelector } from '../../store/rootState';

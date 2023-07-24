@@ -1,6 +1,6 @@
-import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../../drawers';
-import { AppDispatch } from '../../../store/rootState';
-import { highlightConnectPoints, startConnectLineDraw } from '../../../store/stageSlice';
+import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../drawers';
+import { AppDispatch } from '../../store/rootState';
+import { highlightConnectPoints, startConnectLineDraw } from '../../store/stageSlice';
 
 export const connectPointSelectStateHandlers = (
 	dispatch: AppDispatch,

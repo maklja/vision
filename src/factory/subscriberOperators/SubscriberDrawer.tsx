@@ -1,6 +1,6 @@
 import { Group } from 'react-konva';
 import { DotCircleOperatorDrawer } from '../../drawers';
-import { useElementDrawerHandlers } from '../../layers/drawers/state';
+import { useElementDrawerHandlers } from '../state';
 import { Element, ElementType } from '../../model';
 import { selectDrawerAnimationById } from '../../store/drawerAnimationsSlice';
 import { useAppSelector } from '../../store/rootState';

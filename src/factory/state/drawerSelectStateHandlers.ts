@@ -1,16 +1,16 @@
-import { DrawerEvent, DrawerEvents } from '../../../drawers';
+import { DrawerEvent, DrawerEvents } from '../../drawers';
 import {
 	disposeDrawerAnimation,
 	removeDrawerAnimation,
-} from '../../../store/drawerAnimationsSlice';
-import { AppDispatch } from '../../../store/rootState';
+} from '../../store/drawerAnimationsSlice';
+import { AppDispatch } from '../../store/rootState';
 import {
 	changeState,
 	highlightElements,
 	moveElement,
 	selectElements,
 	StageState,
-} from '../../../store/stageSlice';
+} from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 
 export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({

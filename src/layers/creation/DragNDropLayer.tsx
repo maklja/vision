@@ -3,7 +3,6 @@ import { XYCoord, useDragLayer } from 'react-dnd';
 import { Element } from '../../model';
 import { useThemeContext } from '../../store/stageSlice';
 import { DragNDropType } from '../../dragNDrop';
-import { findElementDrawerFactory } from '../../factory';
 
 interface DragCollectedProps {
 	item: Element;
@@ -27,19 +26,18 @@ export const DragNDropLayer = () => {
 		return null;
 	}
 
-	const operatorFactory = findElementDrawerFactory(item.type);
-	if (!operatorFactory) {
-		return null;
-	}
+	// const operatorFactory = findElementDrawerFactory(item.type);
+	// if (!operatorFactory) {
+	// 	return null;
+	// }
 
-	const operatorDrawer = operatorFactory({
-		...item,
-		x: clientOffset?.x ?? 0,
-		y: clientOffset?.y ?? 0,
-		theme,
-		size: null as any,
-	});
+	// const operatorDrawer = operatorFactory({
+	// 	...item,
+	// 	x: clientOffset?.x ?? 0,
+	// 	y: clientOffset?.y ?? 0,
+	// 	theme,
+	// 	size: null as any,
+	// });
 
-	return <Layer>{operatorDrawer}</Layer>;
+	return <Layer></Layer>;
 };
-

@@ -1,53 +1,92 @@
 import { Group } from 'react-konva';
-import { useElementDrawerHandlers } from '../../layers/drawers/state';
-import { ElementType, IifElement } from '../../model';
-import { selectDrawerAnimationById } from '../../store/drawerAnimationsSlice';
-import { useAppSelector } from '../../store/rootState';
-import {
-	isHighlightedElement,
-	isSelectedElement,
-	useCircleShapeSize,
-	useThemeContext,
-} from '../../store/stageSlice';
+import { ElementType } from '../../model';
+import { useCircleShapeSize } from '../../store/stageSlice';
 import { ConnectPointsDrawer, createDefaultElementProps } from '../ConnectPointsDrawer';
-import { CircleOperatorDrawer } from '../../drawers';
+import { CheckCircleIconDrawer, CircleOperatorDrawer, CloseCircleIconDrawer } from '../../drawers';
+import { ElementDrawerProps } from '../ElementDrawerProps';
 
-export interface IifOperatorDrawerProps {
-	element: IifElement;
-	visibleConnectPoints?: boolean;
-}
-
-export const IifOperatorDrawer = ({ element }: IifOperatorDrawerProps) => {
-	const theme = useThemeContext(element.type);
-	const animation = useAppSelector(selectDrawerAnimationById(element.id));
-	const drawerHandlers = useElementDrawerHandlers();
-	const select = useAppSelector(isSelectedElement(element.id));
-	const highlight = useAppSelector(isHighlightedElement(element.id));
-	const circleShapeSize = useCircleShapeSize(element.type);
+export const IifOperatorDrawer = ({
+	x,
+	y,
+	id,
+	theme,
+	animation,
+	draggable,
+	highlight,
+	select,
+	visible,
+	visibleConnectPoints,
+	onAnimationBegin,
+	onAnimationComplete,
+	onAnimationDestroy,
+	onDragEnd,
+	onDragMove,
+	onDragStart,
+	onMouseDown,
+	onMouseOut,
+	onMouseOver,
+}: ElementDrawerProps) => {
+	const circleShapeSize = useCircleShapeSize(ElementType.IIf);
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint);
-	const connectPointsOptions = createDefaultElementProps(element.type, circleCPSize);
+	const connectPointsOptions = createDefaultElementProps(ElementType.IIf, circleCPSize);
 
 	return (
 		<Group>
 			<ConnectPointsDrawer
-				element={element}
+				id={id}
+				x={x}
+				y={y}
+				type={ElementType.From}
 				shape={circleShapeSize}
 				offset={50}
-				connectPointsOptions={connectPointsOptions}
+				visible={visibleConnectPoints}
+				connectPointsOptions={{
+					...connectPointsOptions,
+					top: {
+						...connectPointsOptions.top,
+						icon: ({ connectPointPosition, theme, highlight }) => (
+							<CheckCircleIconDrawer
+								connectPointPosition={connectPointPosition}
+								theme={theme}
+								highlight={highlight}
+								size={circleCPSize}
+							/>
+						),
+					},
+					bottom: {
+						...connectPointsOptions.bottom,
+						icon: ({ connectPointPosition, theme, highlight }) => (
+							<CloseCircleIconDrawer
+								connectPointPosition={connectPointPosition}
+								theme={theme}
+								highlight={highlight}
+								size={circleCPSize}
+							/>
+						),
+					},
+				}}
 			/>
 			<CircleOperatorDrawer
-				{...drawerHandlers}
-				id={element.id}
+				id={id}
 				title="Iif"
 				size={circleShapeSize}
 				theme={theme}
-				x={element.x}
-				y={element.y}
+				x={x}
+				y={y}
 				animation={animation}
-				draggable={true}
+				draggable={draggable}
 				highlight={highlight}
 				select={select}
-				visible={element.visible}
+				visible={visible}
+				onAnimationBegin={onAnimationBegin}
+				onAnimationComplete={onAnimationComplete}
+				onAnimationDestroy={onAnimationDestroy}
+				onDragStart={onDragStart}
+				onDragMove={onDragMove}
+				onDragEnd={onDragEnd}
+				onMouseDown={onMouseDown}
+				onMouseOver={onMouseOver}
+				onMouseOut={onMouseOut}
 			/>
 		</Group>
 	);

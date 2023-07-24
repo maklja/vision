@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { useAppDispatch, useAppSelector } from "../../../store/rootState";
-import { selectStageState, StageState } from "../../../store/stageSlice";
+import { useAppDispatch, useAppSelector } from "../../store/rootState";
+import { selectStageState, StageState } from "../../store/stageSlice";
 import { connectPointDrawConnectLineStateHandlers } from "./connectPointDrawConnectLineStateHandlers";
 import { connectPointSelectStateHandlers } from "./connectPointSelectStateHandlers";
 

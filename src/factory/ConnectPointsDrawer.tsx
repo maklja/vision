@@ -2,11 +2,10 @@ import {
 	ConnectPointPosition,
 	ConnectPointType,
 	ConnectPointTypeVisibility,
-	Element,
 	ElementType,
 	calcConnectPointVisibility,
 } from '../model';
-import { useConnectPointHandlers } from '../layers/drawers/state';
+import { useConnectPointHandlers } from './state';
 import { useAppSelector } from '../store/rootState';
 import {
 	selectElementSelection,
@@ -136,7 +135,7 @@ const createAnimationConfig = (
 };
 
 const createConnectPointsOptions = (
-	el: Element,
+	id: string,
 	theme: Theme,
 	defaultCPOptions: ConnectPointsOptions<CircleShapeSize>,
 	cpVisibility: ConnectPointTypeVisibility = {
@@ -145,10 +144,10 @@ const createConnectPointsOptions = (
 		output: false,
 	},
 ): ConnectPointsOptions<CircleShapeSize> => {
-	const leftAnimationId = createConnectPointDrawerId(el.id, ConnectPointPosition.Left);
-	const rightAnimationId = createConnectPointDrawerId(el.id, ConnectPointPosition.Right);
-	const topAnimationId = createConnectPointDrawerId(el.id, ConnectPointPosition.Top);
-	const bottomAnimationId = createConnectPointDrawerId(el.id, ConnectPointPosition.Bottom);
+	const leftAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Left);
+	const rightAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Right);
+	const topAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Top);
+	const bottomAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Bottom);
 
 	const leftAnimation = useAppSelector(selectDrawerAnimationById(leftAnimationId));
 	const rightAnimation = useAppSelector(selectDrawerAnimationById(rightAnimationId));
@@ -181,36 +180,48 @@ const createConnectPointsOptions = (
 };
 
 export interface ConnectPointsDrawerProps {
-	element: Element;
+	id: string;
+	x: number;
+	y: number;
+	type: ElementType;
 	shape: ShapeSize;
 	connectPointsOptions: ConnectPointsOptions<CircleShapeSize>;
 	offset?: number;
+	visible?: boolean;
 }
 
 export const ConnectPointsDrawer = ({
-	element,
+	id,
+	x,
+	y,
+	type,
 	shape,
 	connectPointsOptions,
 	offset = 0,
+	visible = false,
 }: ConnectPointsDrawerProps) => {
-	const theme = useThemeContext(element.type);
+	const theme = useThemeContext(type);
 	const connectPointsHandlers = useConnectPointHandlers();
 	const highlightedConnectPoints = useAppSelector(
-		selectHighlightedConnectPointsByElementId(element.id),
+		selectHighlightedConnectPointsByElementId(id),
 	).map((cp) => cp.position);
-	const elSelection = useAppSelector(selectElementSelection(element.id));
+	const elSelection = useAppSelector(selectElementSelection(id));
 	const mergedCPOptions = createConnectPointsOptions(
-		element,
+		id,
 		theme,
 		connectPointsOptions,
 		elSelection?.visibleConnectPoints,
 	);
-	const bb = calculateShapeSizeBoundingBox({ x: element.x, y: element.y }, shape);
+	const bb = calculateShapeSizeBoundingBox({ x, y }, shape);
+
+	if (!visible) {
+		return null;
+	}
 
 	return (
 		<CircleConnectPointsDrawer
 			{...connectPointsHandlers}
-			id={element.id}
+			id={id}
 			theme={theme}
 			connectPointsOptions={mergedCPOptions}
 			highlightedConnectPoints={highlightedConnectPoints}

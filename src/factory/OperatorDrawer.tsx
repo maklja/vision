@@ -10,8 +10,6 @@ import {
 	Element,
 	ElementType,
 	FilterElement,
-	FromElement,
-	IifElement,
 	IntervalElement,
 	MergeElement,
 	OfElement,
@@ -21,16 +19,23 @@ import { SubscriberDrawer } from './subscriberOperators';
 import { FilterOperatorDrawer } from './filteringOperators';
 import { ResultDrawer } from './resultOperators';
 import { MergeOperatorDrawer } from './joinCreationOperators';
+import { isHighlightedElement, isSelectedElement, useThemeContext } from '../store/stageSlice';
+import { useAppSelector } from '../store/rootState';
+import { selectDrawerAnimationById } from '../store/drawerAnimationsSlice';
+import { useElementDrawerHandlers } from './state';
 
-export interface ElementDrawerWrapperProps {
+export interface OperatorDrawerProps {
 	element: Element;
 	visibleConnectPoints?: boolean;
 }
 
-export const ElementWrapperDrawer = ({
-	element,
-	visibleConnectPoints,
-}: ElementDrawerWrapperProps) => {
+export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawerProps) => {
+	const theme = useThemeContext(element.type);
+	const animation = useAppSelector(selectDrawerAnimationById(element.id));
+	const drawerHandlers = useElementDrawerHandlers();
+	const select = useAppSelector(isSelectedElement(element.id));
+	const highlight = useAppSelector(isHighlightedElement(element.id));
+
 	switch (element.type) {
 		case ElementType.Filter:
 			return (
@@ -63,14 +68,30 @@ export const ElementWrapperDrawer = ({
 		case ElementType.From:
 			return (
 				<FromOperatorDrawer
-					element={element as FromElement}
+					{...drawerHandlers}
+					id={element.id}
+					x={element.x}
+					y={element.y}
+					animation={animation}
+					theme={theme}
+					select={select}
+					highlight={highlight}
+					draggable={true}
 					visibleConnectPoints={visibleConnectPoints}
 				/>
 			);
 		case ElementType.IIf:
 			return (
 				<IifOperatorDrawer
-					element={element as IifElement}
+					{...drawerHandlers}
+					id={element.id}
+					x={element.x}
+					y={element.y}
+					animation={animation}
+					theme={theme}
+					select={select}
+					highlight={highlight}
+					draggable={true}
 					visibleConnectPoints={visibleConnectPoints}
 				/>
 			);

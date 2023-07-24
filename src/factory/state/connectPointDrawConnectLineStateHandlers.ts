@@ -1,12 +1,12 @@
-import { AnimationKey } from '../../../animation';
-import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../../drawers';
+import { AnimationKey } from '../../animation';
+import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../drawers';
 import {
 	refreshDrawerAnimation,
 	removeDrawerAnimation,
 	disposeDrawerAnimation,
-} from '../../../store/drawerAnimationsSlice';
-import { AppDispatch } from '../../../store/rootState';
-import { linkConnectLineDraw, pinConnectLine, unpinConnectLine } from '../../../store/stageSlice';
+} from '../../store/drawerAnimationsSlice';
+import { AppDispatch } from '../../store/rootState';
+import { linkConnectLineDraw, pinConnectLine, unpinConnectLine } from '../../store/stageSlice';
 
 export const connectPointDrawConnectLineStateHandlers = (
 	dispatch: AppDispatch,
