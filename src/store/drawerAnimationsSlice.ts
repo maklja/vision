@@ -345,7 +345,7 @@ export const drawerAnimationsSlice = createSlice({
 				return;
 			}
 
-			simulationsAdapter.removeOne(slice.simulations, simulationId);
+			slice.simulations = simulationsAdapter.removeOne(slice.simulations, simulationId);
 		},
 	},
 });
@@ -394,3 +394,4 @@ export const selectSimulationNextAnimation =
 	};
 
 export default drawerAnimationsSlice.reducer;
+
