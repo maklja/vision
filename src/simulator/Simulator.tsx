@@ -30,24 +30,12 @@ import { MoveAnimation } from '../animation';
 import { ElementType } from '../model';
 import { createAnimations } from './createAnimations';
 import Box from '@mui/material/Box';
-import { OperatorsPanel } from '../ui';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import StopIcon from '@mui/icons-material/Stop';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import { OperatorsPanel, SimulationControls } from '../ui';
 
 export const Simulator = () => {
 	const [simulatorId] = useState(v1());
 	const simulationStep = useRef(0);
-	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
-		null,
-	);
-	const { elements, connectLines } = useAppSelector(selectStage);
+	const { connectLines } = useAppSelector(selectStage);
 	const simulation = useAppSelector(selectSimulationById(simulatorId));
 	const nextAnimation = useAppSelector(selectSimulationNextAnimation(simulatorId));
 	const appDispatch = useAppDispatch();
@@ -176,68 +164,7 @@ export const Simulator = () => {
 		);
 	}, [nextAnimation?.id]);
 
-	const dispatchNextEvent = (event: FlowValueEvent<unknown>) =>
-		appDispatch(
-			addNextObservableEvent({
-				id: simulatorId,
-				nextEvent: {
-					...event,
-					type: ObservableEventType.Next,
-				},
-			}),
-		);
 
-	const dispatchErrorEvent = (event: FlowErrorEvent<unknown>) =>
-		appDispatch(
-			addNextObservableEvent({
-				id: simulatorId,
-				nextEvent: {
-					...event,
-					type: ObservableEventType.Error,
-				},
-			}),
-		);
-
-	const dispatchCompleteEvent = () =>
-		appDispatch(
-			completeSimulation({
-				id: simulatorId,
-			}),
-		);
-
-	const handleSimulationStart = () => {
-		const subscription = createObservableSimulation(
-			'intervalElement',
-			elements,
-			connectLines,
-		).start({
-			next: dispatchNextEvent,
-			error: dispatchErrorEvent,
-			complete: dispatchCompleteEvent,
-		});
-		setSimulationSubscription(subscription);
-	};
-
-	const handleSimulationStop = () => {
-		simulationSubscription?.unsubscribe();
-		setSimulationSubscription(null);
-	};
-
-	const handleSimulationReset = () => {
-		simulationSubscription?.unsubscribe();
-		setSimulationSubscription(null);
-
-		appDispatch(
-			resetSimulation({
-				id: simulatorId,
-			}),
-		);
-		appDispatch(
-			removeSimulation({
-				simulationId: simulatorId,
-			}),
-		);
-	};
 
 	if (!simulation) {
 		return null;
@@ -245,10 +172,6 @@ export const Simulator = () => {
 
 	return (
 		<Box style={{ position: 'absolute', width: '100%', height: '100%' }}>
-			{/* <button onClick={handleSimulationStart}>Start simulation</button>
-			<button onClick={handleSimulationStop}>Stop simulation</button>
-			<button onClick={handleSimulationReset}>Reset simulation</button> */}
-
 			<SimulatorStage />
 
 			<Box
@@ -260,33 +183,7 @@ export const Simulator = () => {
 					height: '40px',
 				}}
 			>
-				<div>
-					<Paper sx={{ width: '100%', height: '100%' }}>
-						<IconButton aria-label="start simulation" color="primary">
-							<PlayArrowIcon fontSize="large" />
-						</IconButton>
-
-						<IconButton aria-label="reset simulation" color="primary">
-							<RestartAltIcon fontSize="large" />
-						</IconButton>
-
-						<IconButton aria-label="stop simulation" color="primary">
-							<StopIcon fontSize="large" />
-						</IconButton>
-
-						<FormControl sx={{ m: 1, minWidth: 170 }} size="small">
-							<InputLabel id="entry-operator">Entry operator</InputLabel>
-							<Select labelId="entry-operator" value={''} label="Entry operator">
-								<MenuItem value="">
-									<em>None</em>
-								</MenuItem>
-								<MenuItem value={10}>Ten</MenuItem>
-								<MenuItem value={20}>Twenty</MenuItem>
-								<MenuItem value={30}>Thirty</MenuItem>
-							</Select>
-						</FormControl>
-					</Paper>
-				</div>
+				<SimulationControls />
 			</Box>
 
 			<Box
@@ -303,4 +200,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-
