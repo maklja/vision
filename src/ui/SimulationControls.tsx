@@ -3,11 +3,13 @@ import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem/MenuItem';
 import Paper from '@mui/material/Paper';
-import Select from '@mui/material/Select';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
+import { useState } from 'react';
+import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import { FlowErrorEvent, FlowValueEvent, createObservableSimulation } from '../engine';
 import { selectStage } from '../store/stageSlice';
@@ -18,8 +20,7 @@ import {
 	resetSimulation,
 } from '../store/simulationSlice';
 import { removeSimulation } from '../store/drawerAnimationsSlice';
-import { Unsubscribable } from 'rxjs';
-import { useState } from 'react';
+import { isEntryOperatorType } from '../model';
 
 export interface SimulationControlsProps {
 	simulatorId: string;
@@ -38,6 +39,8 @@ export const SimulationControls = ({
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
 	);
+	const [entryElementId, setEntryElementId] = useState<string>();
+
 	const { elements, connectLines } = useAppSelector(selectStage);
 
 	const dispatchNextEvent = (event: FlowValueEvent<unknown>) =>
@@ -70,8 +73,12 @@ export const SimulationControls = ({
 		);
 
 	const handleSimulationStart = () => {
+		if (!entryElementId) {
+			return;
+		}
+
 		const subscription = createObservableSimulation(
-			'intervalElement',
+			entryElementId,
 			elements,
 			connectLines,
 		).start({
@@ -110,6 +117,10 @@ export const SimulationControls = ({
 		handleSimulationStart();
 	};
 
+	const handleEntryElementChange = (event: SelectChangeEvent) => {
+		setEntryElementId(event.target.value);
+	};
+
 	const simulationRunning = simulationSubscription != null;
 	return (
 		<Box
@@ -124,7 +135,7 @@ export const SimulationControls = ({
 					alignItems: 'center',
 					width: '100%',
 					height: '100%',
-					padding: '8px 5px',
+					padding: '11px 5px',
 				}}
 			>
 				{!simulationRunning && (
@@ -133,6 +144,7 @@ export const SimulationControls = ({
 						color="primary"
 						title="Start simulation"
 						onClick={handleSimulationStart}
+						disabled={!entryElementId}
 					>
 						<PlayArrowIcon fontSize="large" />
 					</IconButton>
@@ -161,13 +173,19 @@ export const SimulationControls = ({
 
 				<FormControl sx={{ width: '100%' }} size="small" disabled={simulationRunning}>
 					<InputLabel id="entry-operator">Entry operator</InputLabel>
-					<Select labelId="entry-operator" value={''} label="Entry operator">
-						<MenuItem value="">
-							<em>None</em>
-						</MenuItem>
-						<MenuItem value={10}>Ten</MenuItem>
-						<MenuItem value={20}>Twenty</MenuItem>
-						<MenuItem value={30}>Thirty</MenuItem>
+					<Select
+						labelId="entry-operator"
+						value={entryElementId}
+						label="Entry operator"
+						onChange={handleEntryElementChange}
+					>
+						{elements
+							.filter((el) => isEntryOperatorType(el.type))
+							.map((el) => (
+								<MenuItem key={el.id} value={el.id}>
+									{el.type}
+								</MenuItem>
+							))}
 					</Select>
 				</FormControl>
 			</Paper>
