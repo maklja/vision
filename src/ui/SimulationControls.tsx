@@ -11,12 +11,29 @@ import { Box } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import { FlowErrorEvent, FlowValueEvent, createObservableSimulation } from '../engine';
 import { selectStage } from '../store/stageSlice';
-import { ObservableEventType, addNextObservableEvent, completeSimulation, resetSimulation } from '../store/simulationSlice';
+import {
+	ObservableEventType,
+	addNextObservableEvent,
+	completeSimulation,
+	resetSimulation,
+} from '../store/simulationSlice';
 import { removeSimulation } from '../store/drawerAnimationsSlice';
 import { Unsubscribable } from 'rxjs';
 import { useState } from 'react';
 
-export const SimulationControls = () => {
+export interface SimulationControlsProps {
+	simulatorId: string;
+	onSimulationStart?: (simulatorId: string) => void;
+	onSimulationStop?: (simulatorId: string) => void;
+	onSimulationReset?: (simulatorId: string) => void;
+}
+
+export const SimulationControls = ({
+	simulatorId,
+	onSimulationStart,
+	onSimulationStop,
+	onSimulationReset,
+}: SimulationControlsProps) => {
 	const appDispatch = useAppDispatch();
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
@@ -63,11 +80,13 @@ export const SimulationControls = () => {
 			complete: dispatchCompleteEvent,
 		});
 		setSimulationSubscription(subscription);
+		onSimulationStart?.(simulatorId);
 	};
 
 	const handleSimulationStop = () => {
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
+		onSimulationStop?.(simulatorId);
 	};
 
 	const handleSimulationReset = () => {
@@ -79,36 +98,68 @@ export const SimulationControls = () => {
 				id: simulatorId,
 			}),
 		);
+
+		// TODO separated step to remove animation, can this be done better?
 		appDispatch(
 			removeSimulation({
 				simulationId: simulatorId,
 			}),
 		);
+
+		onSimulationReset?.(simulatorId);
+		handleSimulationStart();
 	};
 
+	const simulationRunning = simulationSubscription != null;
 	return (
-		<Paper>
-			<Box
+		<Box
+			sx={{
+				width: '100%',
+				height: '100%',
+			}}
+		>
+			<Paper
 				sx={{
 					display: 'flex',
 					alignItems: 'center',
 					width: '100%',
 					height: '100%',
+					padding: '8px 5px',
 				}}
 			>
-				<IconButton aria-label="start simulation" color="primary">
-					<PlayArrowIcon fontSize="large" />
-				</IconButton>
+				{!simulationRunning && (
+					<IconButton
+						aria-label="start simulation"
+						color="primary"
+						title="Start simulation"
+						onClick={handleSimulationStart}
+					>
+						<PlayArrowIcon fontSize="large" />
+					</IconButton>
+				)}
 
-				<IconButton aria-label="reset simulation" color="primary">
-					<RestartAltIcon fontSize="large" />
-				</IconButton>
+				{simulationRunning && (
+					<IconButton
+						aria-label="reset simulation"
+						color="primary"
+						title="Reset simulation"
+						onClick={handleSimulationReset}
+					>
+						<RestartAltIcon fontSize="large" />
+					</IconButton>
+				)}
 
-				<IconButton aria-label="stop simulation" color="primary" disabled={true}>
+				<IconButton
+					aria-label="stop simulation"
+					color="primary"
+					disabled={!simulationRunning}
+					title="Stop simulation"
+					onClick={handleSimulationStop}
+				>
 					<StopIcon fontSize="large" />
 				</IconButton>
 
-				<FormControl sx={{ width: '100%' }} size="small">
+				<FormControl sx={{ width: '100%' }} size="small" disabled={simulationRunning}>
 					<InputLabel id="entry-operator">Entry operator</InputLabel>
 					<Select labelId="entry-operator" value={''} label="Entry operator">
 						<MenuItem value="">
@@ -119,7 +170,8 @@ export const SimulationControls = () => {
 						<MenuItem value={30}>Thirty</MenuItem>
 					</Select>
 				</FormControl>
-			</Box>
-		</Paper>
+			</Paper>
+		</Box>
 	);
 };
+

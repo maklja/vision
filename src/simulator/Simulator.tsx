@@ -1,17 +1,8 @@
+import Box from '@mui/material/Box';
 import { useEffect, useRef, useState } from 'react';
-import { Unsubscribable } from 'rxjs';
 import { v1 } from 'uuid';
-import { createObservableSimulation, FlowErrorEvent, FlowValueEvent } from '../engine';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
-import {
-	addNextObservableEvent,
-	completeSimulation,
-	createSimulation,
-	ObservableEvent,
-	ObservableEventType,
-	resetSimulation,
-	selectSimulationById,
-} from '../store/simulationSlice';
+import { createSimulation, ObservableEvent, selectSimulationById } from '../store/simulationSlice';
 import {
 	addElement,
 	moveElement,
@@ -23,13 +14,11 @@ import { SimulatorStage } from './SimulatorStage';
 import {
 	addDrawerAnimation,
 	addSimulationAnimations,
-	removeSimulation,
 	selectSimulationNextAnimation,
 } from '../store/drawerAnimationsSlice';
 import { MoveAnimation } from '../animation';
 import { ElementType } from '../model';
 import { createAnimations } from './createAnimations';
-import Box from '@mui/material/Box';
 import { OperatorsPanel, SimulationControls } from '../ui';
 
 export const Simulator = () => {
@@ -101,10 +90,7 @@ export const Simulator = () => {
 
 				return [...group, [prevEvent, currentEvent]];
 			}, [])
-			.map((eventsPair) => {
-				return createAnimations(eventsPair, connectLines, simulatorId);
-			})
-			.flat();
+			.flatMap((eventsPair) => createAnimations(eventsPair, connectLines, simulatorId));
 
 		// queue simulation animations
 		appDispatch(
@@ -164,7 +150,9 @@ export const Simulator = () => {
 		);
 	}, [nextAnimation?.id]);
 
-
+	const handleSimulationStop = () => {
+		simulationStep.current = 0;
+	};
 
 	if (!simulation) {
 		return null;
@@ -183,7 +171,11 @@ export const Simulator = () => {
 					height: '40px',
 				}}
 			>
-				<SimulationControls />
+				<SimulationControls
+					simulatorId={simulatorId}
+					onSimulationStop={handleSimulationStop}
+					onSimulationReset={handleSimulationStop}
+				/>
 			</Box>
 
 			<Box
@@ -200,3 +192,4 @@ export const Simulator = () => {
 		</Box>
 	);
 };
+

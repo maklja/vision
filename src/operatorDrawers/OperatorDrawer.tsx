@@ -15,6 +15,7 @@ import { useAppSelector } from '../store/rootState';
 import { selectDrawerAnimationById } from '../store/drawerAnimationsSlice';
 import { useElementDrawerHandlers } from './state';
 import { ElementDrawerProps } from './ElementDrawerProps';
+import { animationRegistry } from '../animation';
 
 export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {
 	switch (elType) {
@@ -51,6 +52,14 @@ export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawer
 	const select = useAppSelector(isSelectedElement(element.id));
 	const highlight = useAppSelector(isHighlightedElement(element.id));
 
+	const animationConfig = animation
+		? {
+				...animationRegistry.retrieveAnimationConfig(animation.key)(theme, animation.data),
+				id: animation.id,
+				dispose: animation.dispose,
+		  }
+		: null;
+
 	switch (element.type) {
 		case ElementType.Of:
 		case ElementType.Filter:
@@ -67,7 +76,7 @@ export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawer
 				y: element.y,
 				scale: element.scale,
 				visible: element.visible,
-				animation,
+				animation: animationConfig,
 				theme,
 				select,
 				highlight,
@@ -83,7 +92,7 @@ export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawer
 					y={element.y}
 					scale={element.scale}
 					visible={element.visible}
-					animation={animation}
+					animation={animationConfig}
 					theme={theme}
 					select={select}
 					highlight={highlight}
