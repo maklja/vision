@@ -93,6 +93,20 @@ export const SimulationControls = ({
 	const handleSimulationStop = () => {
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
+
+		appDispatch(
+			resetSimulation({
+				id: simulatorId,
+			}),
+		);
+
+		// TODO separated step to remove animation, can this be done better?
+		appDispatch(
+			removeSimulation({
+				simulationId: simulatorId,
+			}),
+		);
+
 		onSimulationStop?.(simulatorId);
 	};
 

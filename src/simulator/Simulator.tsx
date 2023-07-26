@@ -104,6 +104,12 @@ export const Simulator = () => {
 
 	useEffect(() => {
 		if (!nextAnimation) {
+			appDispatch(
+				updateElement({
+					id: simulatorId,
+					visible: false,
+				}),
+			);
 			return;
 		}
 
@@ -192,3 +198,4 @@ export const Simulator = () => {
 		</Box>
 	);
 };
+
