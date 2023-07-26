@@ -39,7 +39,7 @@ export const SimulationControls = ({
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
 	);
-	const [entryElementId, setEntryElementId] = useState<string>();
+	const [entryElementId, setEntryElementId] = useState<string>('');
 
 	const { elements, connectLines } = useAppSelector(selectStage);
 
@@ -192,4 +192,3 @@ export const SimulationControls = ({
 		</Box>
 	);
 };
-

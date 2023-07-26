@@ -339,12 +339,6 @@ export const drawerAnimationsSlice = createSlice({
 		},
 		removeSimulation: (slice: DrawerAnimationState, action: RemoveSimulationAction) => {
 			const { simulationId } = action.payload;
-			const { simulations } = slice;
-			const simulation = simulations.entities[simulationId];
-			if (!simulation) {
-				return;
-			}
-
 			slice.simulations = simulationsAdapter.removeOne(slice.simulations, simulationId);
 		},
 	},
@@ -394,4 +388,3 @@ export const selectSimulationNextAnimation =
 	};
 
 export default drawerAnimationsSlice.reducer;
-
