@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import { createSlice, Draft } from '@reduxjs/toolkit';
 import {
 	ConnectLine,
@@ -23,10 +24,19 @@ import {
 	createDraftElementReducer,
 	addDraftElementReducer,
 	clearDraftElementReducer,
+	resetSimulationReducer,
+	completeSimulationReducer,
+	addNextObservableEventReducer,
+	Simulation,
+	SimulationAnimation,
+	removeSimulationAnimationReducer,
 } from './reducer';
 import { RootState } from './rootState';
 
 export * from './hooks/theme';
+
+export type { ObservableEvent } from './reducer';
+export { ObservableEventType } from './reducer';
 
 export interface DraftConnectLine {
 	id: string;
@@ -56,6 +66,7 @@ export interface StageSlice {
 	state: StageState;
 	draftConnectLine: DraftConnectLine | null;
 	draftElement: Element | null;
+	simulation: Simulation;
 	themes: ThemesContext;
 	elementSizes: ElementSizesContext;
 }
@@ -125,6 +136,12 @@ const initialState: StageSlice = {
 	state: StageState.Select,
 	draftConnectLine: null,
 	draftElement: null,
+	simulation: {
+		id: v1(),
+		completed: false,
+		animationsQueue: [],
+		events: [],
+	},
 	themes: createThemeContext(),
 	elementSizes: createElementSizesContext(),
 };
@@ -215,6 +232,10 @@ export const stageSlice = createSlice({
 				}
 			});
 		},
+		resetSimulation: resetSimulationReducer,
+		completeSimulation: completeSimulationReducer,
+		addNextObservableEvent: addNextObservableEventReducer,
+		removeSimulationAnimation: removeSimulationAnimationReducer,
 	},
 });
 
@@ -237,6 +258,9 @@ export const {
 	createDraftElement,
 	addDraftElement,
 	clearDraftElement,
+	resetSimulation,
+	completeSimulation,
+	addNextObservableEvent,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
@@ -271,4 +295,9 @@ export const selectElementSelection = (elementId: string) => (state: RootState) 
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
+
+export const selectSimulation = (state: RootState) => state.stage.simulation;
+
+export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
+	state.stage.simulation.animationsQueue.at(0) ?? null;
 

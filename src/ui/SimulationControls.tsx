@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Unsubscribable } from 'rxjs';
 import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
@@ -8,18 +10,15 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Box from '@mui/material/Box';
-import { useState } from 'react';
-import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import { FlowErrorEvent, FlowValueEvent, createObservableSimulation } from '../engine';
-import { selectStage } from '../store/stageSlice';
 import {
 	ObservableEventType,
 	addNextObservableEvent,
 	completeSimulation,
 	resetSimulation,
-} from '../store/simulationSlice';
-import { removeSimulation } from '../store/drawerAnimationsSlice';
+	selectStage,
+} from '../store/stageSlice';
 import { isEntryOperatorType } from '../model';
 
 export interface SimulationControlsProps {
@@ -40,13 +39,11 @@ export const SimulationControls = ({
 		null,
 	);
 	const [entryElementId, setEntryElementId] = useState<string>('');
-
 	const { elements, connectLines } = useAppSelector(selectStage);
 
 	const dispatchNextEvent = (event: FlowValueEvent<unknown>) =>
 		appDispatch(
 			addNextObservableEvent({
-				id: simulatorId,
 				nextEvent: {
 					...event,
 					type: ObservableEventType.Next,
@@ -57,7 +54,6 @@ export const SimulationControls = ({
 	const dispatchErrorEvent = (event: FlowErrorEvent<unknown>) =>
 		appDispatch(
 			addNextObservableEvent({
-				id: simulatorId,
 				nextEvent: {
 					...event,
 					type: ObservableEventType.Error,
@@ -65,12 +61,7 @@ export const SimulationControls = ({
 			}),
 		);
 
-	const dispatchCompleteEvent = () =>
-		appDispatch(
-			completeSimulation({
-				id: simulatorId,
-			}),
-		);
+	const dispatchCompleteEvent = () => appDispatch(completeSimulation());
 
 	const handleSimulationStart = () => {
 		if (!entryElementId) {
@@ -94,19 +85,7 @@ export const SimulationControls = ({
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
 
-		appDispatch(
-			resetSimulation({
-				id: simulatorId,
-			}),
-		);
-
-		// TODO separated step to remove animation, can this be done better?
-		appDispatch(
-			removeSimulation({
-				simulationId: simulatorId,
-			}),
-		);
-
+		appDispatch(resetSimulation());
 		onSimulationStop?.(simulatorId);
 	};
 
@@ -114,19 +93,7 @@ export const SimulationControls = ({
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
 
-		appDispatch(
-			resetSimulation({
-				id: simulatorId,
-			}),
-		);
-
-		// TODO separated step to remove animation, can this be done better?
-		appDispatch(
-			removeSimulation({
-				simulationId: simulatorId,
-			}),
-		);
-
+		appDispatch(resetSimulation());
 		onSimulationReset?.(simulatorId);
 		handleSimulationStart();
 	};
@@ -206,3 +173,4 @@ export const SimulationControls = ({
 		</Box>
 	);
 };
+

@@ -1,53 +1,31 @@
 import Box from '@mui/material/Box';
-import { useEffect, useRef, useState } from 'react';
-import { v1 } from 'uuid';
+import { useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
-import { createSimulation, ObservableEvent, selectSimulationById } from '../store/simulationSlice';
 import {
 	addElement,
 	moveElement,
 	removeElement,
-	selectStage,
+	selectSimulation,
+	selectSimulationNextAnimation,
 	updateElement,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
-import {
-	addDrawerAnimation,
-	addSimulationAnimations,
-	selectSimulationNextAnimation,
-} from '../store/drawerAnimationsSlice';
+import { addDrawerAnimation } from '../store/drawerAnimationsSlice';
 import { MoveAnimation } from '../animation';
 import { ElementType } from '../model';
-import { createAnimations } from './createAnimations';
 import { OperatorsPanel, SimulationControls } from '../ui';
 
 export const Simulator = () => {
-	const [simulatorId] = useState(v1());
 	const simulationStep = useRef(0);
-	const { connectLines } = useAppSelector(selectStage);
-	const simulation = useAppSelector(selectSimulationById(simulatorId));
-	const nextAnimation = useAppSelector(selectSimulationNextAnimation(simulatorId));
+	const simulation = useAppSelector(selectSimulation);
+	const nextAnimation = useAppSelector(selectSimulationNextAnimation);
 	const appDispatch = useAppDispatch();
 
 	useEffect(() => {
-		// case when simulation changes
-		if (simulation?.id === simulatorId) {
-			return;
-		}
-
-		// create a new simulation
-		appDispatch(
-			createSimulation({
-				id: simulatorId,
-				events: [],
-				completed: false,
-			}),
-		);
-
 		// create result drawer for simulation
 		appDispatch(
 			addElement({
-				id: simulatorId,
+				id: simulation.id,
 				scale: 1,
 				x: 0,
 				y: 0,
@@ -61,52 +39,17 @@ export const Simulator = () => {
 			// clean up result drawer from  simulation
 			appDispatch(
 				removeElement({
-					id: simulatorId,
+					id: simulation.id,
 				}),
 			);
 		};
-	}, [simulatorId]);
-
-	useEffect(() => {
-		if (!simulation) {
-			return;
-		}
-
-		const { events } = simulation;
-		if (events.length === 0 || events.length === simulationStep.current) {
-			return;
-		}
-
-		// create simulation animations for each drawer that is affected by events
-		const animations = events
-			.slice(simulationStep.current)
-			.reduce((group: (ObservableEvent | null)[][], currentEvent, i) => {
-				// group simulation events by [previousEvent, currentEvent]
-				// so you could determine if it required to show previous drawer animation
-				const prevEvent = events[simulationStep.current + i - 1];
-				if (!prevEvent) {
-					return [...group, [null, currentEvent]];
-				}
-
-				return [...group, [prevEvent, currentEvent]];
-			}, [])
-			.flatMap((eventsPair) => createAnimations(eventsPair, connectLines, simulatorId));
-
-		// queue simulation animations
-		appDispatch(
-			addSimulationAnimations({
-				animations,
-				simulationId: simulatorId,
-			}),
-		);
-		simulationStep.current = events.length;
-	}, [simulation?.events]);
+	}, [simulation.id]);
 
 	useEffect(() => {
 		if (!nextAnimation) {
 			appDispatch(
 				updateElement({
-					id: simulatorId,
+					id: simulation.id,
 					visible: false,
 				}),
 			);
@@ -116,12 +59,12 @@ export const Simulator = () => {
 		const { drawerId, key, id, simulationId, data } = nextAnimation;
 		// when current animation drawer is result drawer, show it and move it to right position
 		// otherwise just hide it
-		if (drawerId === simulatorId) {
+		if (drawerId === simulation.id) {
 			// TODO find a better way
 			const moveParams = data as MoveAnimation & { hash: string };
 			appDispatch(
 				updateElement({
-					id: simulatorId,
+					id: simulation.id,
 					visible: true,
 					properties: {
 						hash: moveParams.hash,
@@ -130,7 +73,7 @@ export const Simulator = () => {
 			);
 			appDispatch(
 				moveElement({
-					id: simulatorId,
+					id: simulation.id,
 					x: moveParams.sourcePosition.x,
 					y: moveParams.sourcePosition.y,
 				}),
@@ -138,7 +81,7 @@ export const Simulator = () => {
 		} else {
 			appDispatch(
 				updateElement({
-					id: simulatorId,
+					id: simulation.id,
 					visible: false,
 				}),
 			);
@@ -178,7 +121,7 @@ export const Simulator = () => {
 				}}
 			>
 				<SimulationControls
-					simulatorId={simulatorId}
+					simulatorId={simulation.id}
 					onSimulationStop={handleSimulationStop}
 					onSimulationReset={handleSimulationStop}
 				/>

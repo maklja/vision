@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import { DndProvider } from 'react-dnd';
@@ -196,6 +197,12 @@ root.render(
 				themes: createThemeContext(),
 				elementSizes: createElementSizesContext(),
 				state: StageState.Select,
+				simulation: {
+					id: v1(),
+					completed: false,
+					animationsQueue: [],
+					events: [],
+				},
 			},
 		})}
 	>
