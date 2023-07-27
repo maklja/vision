@@ -11,18 +11,9 @@ export interface DrawerAnimation<D = unknown> {
 	data?: D;
 }
 
-export interface SimulationAnimation extends DrawerAnimation {
-	drawerId: string;
-}
-
 export interface DrawerAnimations {
 	drawerId: string;
 	queue: DrawerAnimation[];
-}
-
-export interface SimulationAnimations {
-	simulationId: string;
-	queue: SimulationAnimation[];
 }
 
 export interface AddDrawerAnimationActionPayload {
@@ -52,34 +43,6 @@ export interface RemoveDrawerAnimationAction {
 	payload: {
 		drawerId: string;
 		animationId: string;
-	};
-}
-
-export interface AddSimulationAnimationAction {
-	type: string;
-	payload: AddDrawerAnimationActionPayload;
-}
-
-export interface AddSimulationAnimationsAction {
-	type: string;
-	payload: {
-		simulationId: string;
-		animations: { drawerId: string; key: AnimationKey; animationId?: string; data?: unknown }[];
-	};
-}
-
-export interface RemoveSimulationAnimationAction {
-	type: string;
-	payload: {
-		simulationId: string;
-		animationId: string;
-	};
-}
-
-export interface RemoveSimulationAction {
-	type: string;
-	payload: {
-		simulationId: string;
 	};
 }
 
@@ -261,4 +224,3 @@ export const selectDrawerAnimationById =
 	};
 
 export default drawerAnimationsSlice.reducer;
-

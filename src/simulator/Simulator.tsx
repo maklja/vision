@@ -56,7 +56,7 @@ export const Simulator = () => {
 			return;
 		}
 
-		const { drawerId, key, id, simulationId, data } = nextAnimation;
+		const { drawerId, key, id, data } = nextAnimation;
 		// when current animation drawer is result drawer, show it and move it to right position
 		// otherwise just hide it
 		if (drawerId === simulation.id) {
@@ -93,7 +93,6 @@ export const Simulator = () => {
 				animationId: id,
 				drawerId,
 				key,
-				simulationId,
 				data,
 			}),
 		);
@@ -141,4 +140,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-

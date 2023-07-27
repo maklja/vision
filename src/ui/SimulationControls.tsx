@@ -11,7 +11,7 @@ import StopIcon from '@mui/icons-material/Stop';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Box from '@mui/material/Box';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
-import { FlowErrorEvent, FlowValueEvent, createObservableSimulation } from '../engine';
+import { FlowErrorEvent, FlowValue, FlowValueEvent, createObservableSimulation } from '../engine';
 import {
 	ObservableEventType,
 	addNextObservableEvent,
@@ -46,16 +46,18 @@ export const SimulationControls = ({
 			addNextObservableEvent({
 				nextEvent: {
 					...event,
+					value: (event.value as FlowValue).value,
 					type: ObservableEventType.Next,
 				},
 			}),
 		);
 
-	const dispatchErrorEvent = (event: FlowErrorEvent<unknown>) =>
+	const dispatchErrorEvent = (event: FlowErrorEvent<FlowValue>) =>
 		appDispatch(
 			addNextObservableEvent({
 				nextEvent: {
 					...event,
+					value: event.error,
 					type: ObservableEventType.Error,
 				},
 			}),
@@ -173,4 +175,3 @@ export const SimulationControls = ({
 		</Box>
 	);
 };
-
