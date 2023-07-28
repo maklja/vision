@@ -7,7 +7,6 @@ export interface DrawerAnimation<D = unknown> {
 	id: string;
 	key: AnimationKey;
 	dispose: boolean;
-	simulationId?: string;
 	data?: D;
 }
 
@@ -20,7 +19,6 @@ export interface AddDrawerAnimationActionPayload {
 	drawerId: string;
 	key: AnimationKey;
 	animationId?: string;
-	simulationId?: string;
 	data?: unknown;
 }
 
@@ -34,7 +32,6 @@ export interface RefreshDrawerAnimationAction {
 	payload: {
 		drawerId: string;
 		key: AnimationKey;
-		simulationId?: string;
 	};
 }
 
@@ -72,14 +69,13 @@ export const drawerAnimationsSlice = createSlice({
 	reducers: {
 		addDrawerAnimation: (slice: DrawerAnimationState, action: AddDrawerAnimationAction) => {
 			const { animations } = slice;
-			const { drawerId, key, simulationId, animationId = v1(), data } = action.payload;
+			const { drawerId, key, animationId = v1(), data } = action.payload;
 			const drawerAnimations = animations.entities[drawerId];
 
 			const newAnimation = {
 				id: animationId,
 				key,
 				dispose: false,
-				simulationId,
 				data,
 			};
 
@@ -156,6 +152,7 @@ export const drawerAnimationsSlice = createSlice({
 				return;
 			}
 
+			console.log('dispose', animationId);
 			const updatedQueue = drawerAnimations.queue.map((a) =>
 				a.id === animationId
 					? {
@@ -211,16 +208,22 @@ const drawerAnimationsSelector = animationsAdapter.getSelectors<RootState>(
 	(state) => state.drawerAnimations.animations,
 );
 
-export const selectDrawerAnimationById =
+export const selectDrawerAnimationByDrawerId =
 	(drawerId: string) =>
 	(state: RootState): DrawerAnimation | null => {
 		const drawerAnimations = drawerAnimationsSelector.selectById(state, drawerId);
+		return drawerAnimations?.queue.at(0) ?? null;
+	};
 
-		if (!drawerAnimations) {
+export const selectDrawerAnimationById =
+	(drawerId?: string, animationId?: string) =>
+	(state: RootState): DrawerAnimation | null => {
+		if (!drawerId || !animationId) {
 			return null;
 		}
 
-		return drawerAnimations.queue.at(0) ?? null;
+		const drawerAnimations = drawerAnimationsSelector.selectById(state, drawerId);
+		return drawerAnimations?.queue.find((a) => a.id === animationId) ?? null;
 	};
 
 export default drawerAnimationsSlice.reducer;

@@ -261,6 +261,7 @@ export const {
 	resetSimulation,
 	completeSimulation,
 	addNextObservableEvent,
+	removeSimulationAnimation,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
@@ -300,4 +301,3 @@ export const selectSimulation = (state: RootState) => state.stage.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.stage.simulation.animationsQueue.at(0) ?? null;
-

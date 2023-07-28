@@ -5,12 +5,13 @@ import {
 	addElement,
 	moveElement,
 	removeElement,
+	removeSimulationAnimation,
 	selectSimulation,
 	selectSimulationNextAnimation,
 	updateElement,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
-import { addDrawerAnimation } from '../store/drawerAnimationsSlice';
+import { addDrawerAnimation, selectDrawerAnimationById } from '../store/drawerAnimationsSlice';
 import { MoveAnimation } from '../animation';
 import { ElementType } from '../model';
 import { OperatorsPanel, SimulationControls } from '../ui';
@@ -19,7 +20,18 @@ export const Simulator = () => {
 	const simulationStep = useRef(0);
 	const simulation = useAppSelector(selectSimulation);
 	const nextAnimation = useAppSelector(selectSimulationNextAnimation);
+	const a = useAppSelector(
+		selectDrawerAnimationById(nextAnimation?.drawerId ?? '', nextAnimation?.id ?? ''),
+	);
 	const appDispatch = useAppDispatch();
+
+	useEffect(() => {
+		if (!a?.dispose) {
+			return;
+		}
+
+		appDispatch(removeSimulationAnimation({ animationId: a.id }));
+	}, [a?.dispose]);
 
 	useEffect(() => {
 		// create result drawer for simulation

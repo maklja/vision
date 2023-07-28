@@ -27,7 +27,7 @@ import {
 	Theme,
 	calculateShapeSizeBoundingBox,
 } from '../theme';
-import { DrawerAnimation, selectDrawerAnimationById } from '../store/drawerAnimationsSlice';
+import { DrawerAnimation, selectDrawerAnimationByDrawerId } from '../store/drawerAnimationsSlice';
 import { DrawerAnimationTemplate, animationRegistry } from '../animation';
 
 export const createDefaultElementProps = <T extends ShapeSize>(
@@ -149,10 +149,10 @@ const createConnectPointsOptions = (
 	const topAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Top);
 	const bottomAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Bottom);
 
-	const leftAnimation = useAppSelector(selectDrawerAnimationById(leftAnimationId));
-	const rightAnimation = useAppSelector(selectDrawerAnimationById(rightAnimationId));
-	const topAnimation = useAppSelector(selectDrawerAnimationById(topAnimationId));
-	const bottomAnimation = useAppSelector(selectDrawerAnimationById(bottomAnimationId));
+	const leftAnimation = useAppSelector(selectDrawerAnimationByDrawerId(leftAnimationId));
+	const rightAnimation = useAppSelector(selectDrawerAnimationByDrawerId(rightAnimationId));
+	const topAnimation = useAppSelector(selectDrawerAnimationByDrawerId(topAnimationId));
+	const bottomAnimation = useAppSelector(selectDrawerAnimationByDrawerId(bottomAnimationId));
 
 	return {
 		...defaultCPOptions,
