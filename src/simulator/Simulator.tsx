@@ -1,37 +1,48 @@
 import Box from '@mui/material/Box';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
+	ObservableEventType,
 	addElement,
+	addNextObservableEvent,
+	completeSimulation,
 	moveElement,
 	removeElement,
 	removeSimulationAnimation,
+	resetSimulation,
 	selectSimulation,
 	selectSimulationNextAnimation,
+	selectStage,
 	updateElement,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
 import { addDrawerAnimation, selectDrawerAnimationById } from '../store/drawerAnimationsSlice';
 import { MoveAnimation } from '../animation';
-import { ElementType } from '../model';
+import { ElementType, isEntryOperatorType } from '../model';
 import { OperatorsPanel, SimulationControls } from '../ui';
+import { FlowErrorEvent, FlowValue, FlowValueEvent, createObservableSimulation } from '../engine';
 
 export const Simulator = () => {
 	const simulationStep = useRef(0);
 	const simulation = useAppSelector(selectSimulation);
+	const { elements, connectLines } = useAppSelector(selectStage);
 	const nextAnimation = useAppSelector(selectSimulationNextAnimation);
-	const a = useAppSelector(
-		selectDrawerAnimationById(nextAnimation?.drawerId ?? '', nextAnimation?.id ?? ''),
+	const drawerAnimation = useAppSelector(
+		selectDrawerAnimationById(nextAnimation?.drawerId, nextAnimation?.id),
 	);
 	const appDispatch = useAppDispatch();
-
+	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
+		null,
+	);
+	// track when current drawer animation is disposed in order to dequeue it
 	useEffect(() => {
-		if (!a?.dispose) {
+		if (!drawerAnimation?.dispose) {
 			return;
 		}
 
-		appDispatch(removeSimulationAnimation({ animationId: a.id }));
-	}, [a?.dispose]);
+		appDispatch(removeSimulationAnimation({ animationId: drawerAnimation.id }));
+	}, [drawerAnimation?.dispose]);
 
 	useEffect(() => {
 		// create result drawer for simulation
@@ -110,8 +121,62 @@ export const Simulator = () => {
 		);
 	}, [nextAnimation?.id]);
 
+	const dispatchNextEvent = (event: FlowValueEvent<unknown>) =>
+		appDispatch(
+			addNextObservableEvent({
+				nextEvent: {
+					...event,
+					value: (event.value as FlowValue).value,
+					type: ObservableEventType.Next,
+				},
+			}),
+		);
+
+	const dispatchErrorEvent = (event: FlowErrorEvent<FlowValue>) =>
+		appDispatch(
+			addNextObservableEvent({
+				nextEvent: {
+					...event,
+					value: event.error,
+					type: ObservableEventType.Error,
+				},
+			}),
+		);
+
+	const dispatchCompleteEvent = () => appDispatch(completeSimulation());
+
+	const handleSimulationStart = (entryElementId: string) => {
+		if (!entryElementId) {
+			return;
+		}
+
+		const subscription = createObservableSimulation(
+			entryElementId,
+			elements,
+			connectLines,
+		).start({
+			next: dispatchNextEvent,
+			error: dispatchErrorEvent,
+			complete: dispatchCompleteEvent,
+		});
+		setSimulationSubscription(subscription);
+	};
+
 	const handleSimulationStop = () => {
+		simulationSubscription?.unsubscribe();
+		setSimulationSubscription(null);
+
+		appDispatch(resetSimulation());
 		simulationStep.current = 0;
+	};
+
+	const handleSimulationReset = (entryElementId: string) => {
+		simulationSubscription?.unsubscribe();
+		setSimulationSubscription(null);
+
+		appDispatch(resetSimulation());
+		simulationStep.current = 0;
+		handleSimulationStart(entryElementId);
 	};
 
 	if (!simulation) {
@@ -133,8 +198,11 @@ export const Simulator = () => {
 			>
 				<SimulationControls
 					simulatorId={simulation.id}
+					simulationState={simulation.state}
+					entryElements={elements.filter((el) => isEntryOperatorType(el.type))}
+					onSimulationStart={handleSimulationStart}
 					onSimulationStop={handleSimulationStop}
-					onSimulationReset={handleSimulationStop}
+					onSimulationReset={handleSimulationReset}
 				/>
 			</Box>
 
@@ -152,3 +220,4 @@ export const Simulator = () => {
 		</Box>
 	);
 };
+

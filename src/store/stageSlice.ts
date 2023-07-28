@@ -30,13 +30,14 @@ import {
 	Simulation,
 	SimulationAnimation,
 	removeSimulationAnimationReducer,
+	SimulationState,
 } from './reducer';
 import { RootState } from './rootState';
 
 export * from './hooks/theme';
 
 export type { ObservableEvent } from './reducer';
-export { ObservableEventType } from './reducer';
+export { ObservableEventType, SimulationState } from './reducer';
 
 export interface DraftConnectLine {
 	id: string;
@@ -138,6 +139,7 @@ const initialState: StageSlice = {
 	draftElement: null,
 	simulation: {
 		id: v1(),
+		state: SimulationState.Stopped,
 		completed: false,
 		animationsQueue: [],
 		events: [],
@@ -301,3 +303,4 @@ export const selectSimulation = (state: RootState) => state.stage.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.stage.simulation.animationsQueue.at(0) ?? null;
+

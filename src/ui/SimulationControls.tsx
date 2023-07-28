@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Unsubscribable } from 'rxjs';
 import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
@@ -10,101 +9,38 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Box from '@mui/material/Box';
-import { useAppDispatch, useAppSelector } from '../store/rootState';
-import { FlowErrorEvent, FlowValue, FlowValueEvent, createObservableSimulation } from '../engine';
-import {
-	ObservableEventType,
-	addNextObservableEvent,
-	completeSimulation,
-	resetSimulation,
-	selectStage,
-} from '../store/stageSlice';
-import { isEntryOperatorType } from '../model';
+import { Element } from '../model';
+import { SimulationState } from '../store/reducer';
 
 export interface SimulationControlsProps {
 	simulatorId: string;
-	onSimulationStart?: (simulatorId: string) => void;
-	onSimulationStop?: (simulatorId: string) => void;
-	onSimulationReset?: (simulatorId: string) => void;
+	simulationState: SimulationState;
+	entryElements: Element[];
+	onSimulationStart?: (entryElementId: string, simulatorId: string) => void;
+	onSimulationStop?: (entryElementId: string, simulatorId: string) => void;
+	onSimulationReset?: (entryElementId: string, simulatorId: string) => void;
 }
 
 export const SimulationControls = ({
 	simulatorId,
+	simulationState,
+	entryElements,
 	onSimulationStart,
 	onSimulationStop,
 	onSimulationReset,
 }: SimulationControlsProps) => {
-	const appDispatch = useAppDispatch();
-	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
-		null,
-	);
 	const [entryElementId, setEntryElementId] = useState<string>('');
-	const { elements, connectLines } = useAppSelector(selectStage);
 
-	const dispatchNextEvent = (event: FlowValueEvent<unknown>) =>
-		appDispatch(
-			addNextObservableEvent({
-				nextEvent: {
-					...event,
-					value: (event.value as FlowValue).value,
-					type: ObservableEventType.Next,
-				},
-			}),
-		);
+	const handleSimulationStart = () => onSimulationStart?.(entryElementId, simulatorId);
 
-	const dispatchErrorEvent = (event: FlowErrorEvent<FlowValue>) =>
-		appDispatch(
-			addNextObservableEvent({
-				nextEvent: {
-					...event,
-					value: event.error,
-					type: ObservableEventType.Error,
-				},
-			}),
-		);
+	const handleSimulationStop = () => onSimulationStop?.(entryElementId, simulatorId);
 
-	const dispatchCompleteEvent = () => appDispatch(completeSimulation());
+	const handleSimulationReset = () => onSimulationReset?.(entryElementId, simulatorId);
 
-	const handleSimulationStart = () => {
-		if (!entryElementId) {
-			return;
-		}
-
-		const subscription = createObservableSimulation(
-			entryElementId,
-			elements,
-			connectLines,
-		).start({
-			next: dispatchNextEvent,
-			error: dispatchErrorEvent,
-			complete: dispatchCompleteEvent,
-		});
-		setSimulationSubscription(subscription);
-		onSimulationStart?.(simulatorId);
-	};
-
-	const handleSimulationStop = () => {
-		simulationSubscription?.unsubscribe();
-		setSimulationSubscription(null);
-
-		appDispatch(resetSimulation());
-		onSimulationStop?.(simulatorId);
-	};
-
-	const handleSimulationReset = () => {
-		simulationSubscription?.unsubscribe();
-		setSimulationSubscription(null);
-
-		appDispatch(resetSimulation());
-		onSimulationReset?.(simulatorId);
-		handleSimulationStart();
-	};
-
-	const handleEntryElementChange = (event: SelectChangeEvent) => {
+	const handleEntryElementChange = (event: SelectChangeEvent) =>
 		setEntryElementId(event.target.value);
-	};
 
-	const simulationRunning = simulationSubscription != null;
+	const simulationRunning = simulationState === SimulationState.Running;
 	return (
 		<Box
 			sx={{
@@ -162,16 +98,15 @@ export const SimulationControls = ({
 						label="Entry operator"
 						onChange={handleEntryElementChange}
 					>
-						{elements
-							.filter((el) => isEntryOperatorType(el.type))
-							.map((el) => (
-								<MenuItem key={el.id} value={el.id}>
-									{el.type}
-								</MenuItem>
-							))}
+						{entryElements.map((el) => (
+							<MenuItem key={el.id} value={el.id}>
+								{el.type}
+							</MenuItem>
+						))}
 					</Select>
 				</FormControl>
 			</Paper>
 		</Box>
 	);
 };
+

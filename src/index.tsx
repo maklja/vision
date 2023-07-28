@@ -18,7 +18,7 @@ import {
 	IifElement,
 	MergeElement,
 } from './model';
-import { StageState } from './store/stageSlice';
+import { SimulationState, StageState } from './store/stageSlice';
 import { createThemeContext, createElementSizesContext } from './theme';
 
 const e1: OfElement = {
@@ -199,6 +199,7 @@ root.render(
 				state: StageState.Select,
 				simulation: {
 					id: v1(),
+					state: SimulationState.Stopped,
 					completed: false,
 					animationsQueue: [],
 					events: [],

@@ -40,8 +40,14 @@ export interface ObservableEvent {
 	targetElementId: string;
 }
 
+export enum SimulationState {
+	Stopped = 'stopped',
+	Running = 'running',
+}
+
 export interface Simulation {
 	id: string;
+	state: SimulationState;
 	completed: boolean;
 	events: ObservableEvent[];
 	animationsQueue: SimulationAnimation[];
@@ -50,12 +56,16 @@ export interface Simulation {
 export const resetSimulationReducer = (slice: Draft<StageSlice>) => {
 	const { simulation } = slice;
 	simulation.completed = false;
+	simulation.state = SimulationState.Running;
 	simulation.animationsQueue = [];
 	simulation.events = [];
 };
 
 export const completeSimulationReducer = (slice: Draft<StageSlice>) => {
-	slice.simulation.completed = true;
+	const { simulation } = slice;
+	simulation.completed = true;
+	simulation.state =
+		simulation.animationsQueue.length > 0 ? SimulationState.Running : SimulationState.Stopped;
 };
 
 export const addNextObservableEventReducer = (
@@ -64,10 +74,9 @@ export const addNextObservableEventReducer = (
 ) => {
 	const { simulation } = slice;
 	const updatedEvents = [...simulation.events, action.payload.nextEvent];
-	simulation.events = updatedEvents;
 
 	// create simulation animations for each drawer that is affected by events
-	const beginIndex = updatedEvents.length - 2;
+	const beginIndex = updatedEvents.length - 1;
 	const animations: SimulationAnimation[] = updatedEvents
 		.slice(beginIndex)
 		.reduce((group: (ObservableEvent | null)[][], currentEvent, i) => {
@@ -88,6 +97,7 @@ export const addNextObservableEventReducer = (
 			dispose: false,
 		}));
 
+	simulation.events = updatedEvents;
 	simulation.animationsQueue = [...simulation.animationsQueue, ...animations];
 };
 
@@ -96,8 +106,12 @@ export const removeSimulationAnimationReducer = (
 	action: RemoveSimulationAnimationAction,
 ) => {
 	const { simulation } = slice;
-	simulation.animationsQueue = simulation.animationsQueue.filter(
+	const updatedAnimationQueue = simulation.animationsQueue.filter(
 		(a) => a.id !== action.payload.animationId,
 	);
+	const isSimulationDone = !updatedAnimationQueue.length && simulation.completed;
+
+	simulation.animationsQueue = updatedAnimationQueue;
+	simulation.state = isSimulationDone ? SimulationState.Stopped : SimulationState.Running;
 };
 
