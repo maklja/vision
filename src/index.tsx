@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import { DndProvider } from 'react-dnd';
@@ -17,7 +18,7 @@ import {
 	IifElement,
 	MergeElement,
 } from './model';
-import { StageState } from './store/stageSlice';
+import { SimulationState, StageState } from './store/stageSlice';
 import { createThemeContext, createElementSizesContext } from './theme';
 
 const e1: OfElement = {
@@ -196,6 +197,13 @@ root.render(
 				themes: createThemeContext(),
 				elementSizes: createElementSizesContext(),
 				state: StageState.Select,
+				simulation: {
+					id: v1(),
+					state: SimulationState.Stopped,
+					completed: false,
+					animationsQueue: [],
+					events: [],
+				},
 			},
 		})}
 	>

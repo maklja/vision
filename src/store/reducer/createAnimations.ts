@@ -1,6 +1,6 @@
-import { AnimationKey } from '../animation';
-import { ConnectLine, Point } from '../model';
-import { ObservableEvent, ObservableEventType } from '../store/simulationSlice';
+import { AnimationKey } from '../../animation';
+import { ConnectLine, Point } from '../../model';
+import { ObservableEvent, ObservableEventType } from './simulationReducer';
 
 export const createAnimations = (
 	animations: (ObservableEvent | null)[],
@@ -66,3 +66,4 @@ export const createAnimations = (
 		  ]
 		: [...resultAnimations, targetAnimation];
 };
+

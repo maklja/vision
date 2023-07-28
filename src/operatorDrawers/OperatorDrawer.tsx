@@ -12,7 +12,7 @@ import { ResultDrawer } from './resultOperators';
 import { MergeOperatorDrawer } from './joinCreationOperators';
 import { isHighlightedElement, isSelectedElement, useThemeContext } from '../store/stageSlice';
 import { useAppSelector } from '../store/rootState';
-import { selectDrawerAnimationById } from '../store/drawerAnimationsSlice';
+import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimationsSlice';
 import { useElementDrawerHandlers } from './state';
 import { ElementDrawerProps } from './ElementDrawerProps';
 import { animationRegistry } from '../animation';
@@ -47,7 +47,7 @@ export interface OperatorDrawerProps {
 
 export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawerProps) => {
 	const theme = useThemeContext(element.type);
-	const animation = useAppSelector(selectDrawerAnimationById(element.id));
+	const animation = useAppSelector(selectDrawerAnimationByDrawerId(element.id));
 	const drawerHandlers = useElementDrawerHandlers();
 	const select = useAppSelector(isSelectedElement(element.id));
 	const highlight = useAppSelector(isHighlightedElement(element.id));
@@ -104,4 +104,3 @@ export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawer
 			return null;
 	}
 };
-
