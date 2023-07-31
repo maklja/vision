@@ -31,6 +31,7 @@ import {
 	SimulationAnimation,
 	removeSimulationAnimationReducer,
 	SimulationState,
+	startSimulationReducer,
 } from './reducer';
 import { RootState } from './rootState';
 
@@ -234,6 +235,7 @@ export const stageSlice = createSlice({
 				}
 			});
 		},
+		startSimulation: startSimulationReducer,
 		resetSimulation: resetSimulationReducer,
 		completeSimulation: completeSimulationReducer,
 		addNextObservableEvent: addNextObservableEventReducer,
@@ -260,6 +262,7 @@ export const {
 	createDraftElement,
 	addDraftElement,
 	clearDraftElement,
+	startSimulation,
 	resetSimulation,
 	completeSimulation,
 	addNextObservableEvent,
@@ -303,4 +306,3 @@ export const selectSimulation = (state: RootState) => state.stage.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.stage.simulation.animationsQueue.at(0) ?? null;
-

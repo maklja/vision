@@ -43,9 +43,14 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 export interface OperatorDrawerProps {
 	element: Element;
 	visibleConnectPoints?: boolean;
+	draggable: boolean;
 }
 
-export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawerProps) => {
+export const OperatorDrawer = ({
+	element,
+	visibleConnectPoints,
+	draggable,
+}: OperatorDrawerProps) => {
 	const theme = useThemeContext(element.type);
 	const animation = useAppSelector(selectDrawerAnimationByDrawerId(element.id));
 	const drawerHandlers = useElementDrawerHandlers();
@@ -80,7 +85,7 @@ export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawer
 				theme,
 				select,
 				highlight,
-				draggable: true,
+				draggable,
 				visibleConnectPoints,
 			});
 		case ElementType.Result:
@@ -96,7 +101,7 @@ export const OperatorDrawer = ({ element, visibleConnectPoints }: OperatorDrawer
 					theme={theme}
 					select={select}
 					highlight={highlight}
-					draggable={true}
+					draggable={draggable}
 					hash={(element as ResultElement).properties.hash}
 				/>
 			);

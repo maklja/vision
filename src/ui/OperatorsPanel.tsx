@@ -12,7 +12,12 @@ import {
 import { ElementGroup } from '../model';
 import { OperatorPanelPopper } from './poppers';
 
-export const OperatorsPanel = () => {
+export interface OperatorsPanelProps {
+	popperVisible?: boolean;
+	disabled?: boolean;
+}
+
+export const OperatorsPanel = ({ popperVisible = true, disabled = false }: OperatorsPanelProps) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [elementGroup, setElementGroup] = useState<null | ElementGroup>(null);
 
@@ -39,6 +44,7 @@ export const OperatorsPanel = () => {
 						title="Creation operators"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Creation)}
 					>
 						<CreationOperatorIcon fontSize="inherit" />
@@ -49,6 +55,7 @@ export const OperatorsPanel = () => {
 						title="Join creation operators"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.JoinCreation)}
 					>
 						<JoinCreationOperatorIcon fontSize="inherit" />
@@ -59,6 +66,7 @@ export const OperatorsPanel = () => {
 						title="Transformation operators"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Transformation)}
 					>
 						<PhoneIcon fontSize="inherit" />
@@ -69,6 +77,7 @@ export const OperatorsPanel = () => {
 						title="Filtering operators"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Filtering)}
 					>
 						<FilteringOperatorIcon fontSize="inherit" />
@@ -79,6 +88,7 @@ export const OperatorsPanel = () => {
 						title="Join operators"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Join)}
 					>
 						<PhoneIcon fontSize="inherit" />
@@ -89,6 +99,7 @@ export const OperatorsPanel = () => {
 						title="Multicasting operators"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Multicasting)}
 					>
 						<PhoneIcon fontSize="inherit" />
@@ -99,6 +110,7 @@ export const OperatorsPanel = () => {
 						title="Error handling operators"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.ErrorHandling)}
 					>
 						<PhoneIcon fontSize="inherit" />
@@ -109,6 +121,7 @@ export const OperatorsPanel = () => {
 						title="Utility operators"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Utility)}
 					>
 						<PhoneIcon fontSize="inherit" />
@@ -119,6 +132,7 @@ export const OperatorsPanel = () => {
 						title="Conditional and Boolean operators"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Conditional)}
 					>
 						<PhoneIcon fontSize="inherit" />
@@ -129,6 +143,7 @@ export const OperatorsPanel = () => {
 						title="Mathematical and Aggregate operators"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Mathematical)}
 					>
 						<PhoneIcon fontSize="inherit" />
@@ -139,6 +154,7 @@ export const OperatorsPanel = () => {
 						title="Subscriber"
 						size="large"
 						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Subscriber)}
 					>
 						<SubscriberOperatorIcon fontSize="inherit" />
@@ -148,11 +164,10 @@ export const OperatorsPanel = () => {
 
 			<OperatorPanelPopper
 				id="operators-popper"
-				open={Boolean(anchorEl)}
+				open={popperVisible && Boolean(anchorEl)}
 				anchorEl={anchorEl}
 				elementGroup={elementGroup}
 			/>
 		</div>
 	);
 };
-

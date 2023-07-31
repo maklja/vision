@@ -53,10 +53,18 @@ export interface Simulation {
 	animationsQueue: SimulationAnimation[];
 }
 
-export const resetSimulationReducer = (slice: Draft<StageSlice>) => {
+export const startSimulationReducer = (slice: Draft<StageSlice>) => {
 	const { simulation } = slice;
 	simulation.completed = false;
 	simulation.state = SimulationState.Running;
+	simulation.animationsQueue = [];
+	simulation.events = [];
+};
+
+export const resetSimulationReducer = (slice: Draft<StageSlice>) => {
+	const { simulation } = slice;
+	simulation.completed = false;
+	simulation.state = SimulationState.Stopped;
 	simulation.animationsQueue = [];
 	simulation.events = [];
 };
@@ -114,4 +122,3 @@ export const removeSimulationAnimationReducer = (
 	simulation.animationsQueue = updatedAnimationQueue;
 	simulation.state = isSimulationDone ? SimulationState.Stopped : SimulationState.Running;
 };
-

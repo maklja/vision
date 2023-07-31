@@ -152,7 +152,6 @@ export const drawerAnimationsSlice = createSlice({
 				return;
 			}
 
-			console.log('dispose', animationId);
 			const updatedQueue = drawerAnimations.queue.map((a) =>
 				a.id === animationId
 					? {

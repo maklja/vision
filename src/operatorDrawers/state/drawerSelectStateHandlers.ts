@@ -1,8 +1,4 @@
 import { DrawerEvent, DrawerEvents } from '../../drawers';
-import {
-	disposeDrawerAnimation,
-	removeDrawerAnimation,
-} from '../../store/drawerAnimationsSlice';
 import { AppDispatch } from '../../store/rootState';
 import {
 	changeState,
@@ -12,12 +8,15 @@ import {
 	StageState,
 } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
+import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 
 export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({
+	...drawerAnimationStateHandlers,
 	onMouseDown: (e: DrawerEvent) => {
 		if (e.originalEvent) {
 			e.originalEvent.cancelBubble = true;
 		}
+
 		dispatch(selectElements([{ id: e.id, visibleConnectPoints: { input: false } }]));
 	},
 	onMouseOver: (e: DrawerEvent) => {
@@ -62,18 +61,4 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 			);
 		}
 	},
-	onAnimationComplete: (aEvent) => {
-		dispatch(
-			disposeDrawerAnimation({ drawerId: aEvent.drawerId, animationId: aEvent.animationId }),
-		);
-	},
-	onAnimationDestroy: (aEvent) => {
-		dispatch(
-			removeDrawerAnimation({
-				drawerId: aEvent.drawerId,
-				animationId: aEvent.animationId,
-			}),
-		);
-	},
 });
-

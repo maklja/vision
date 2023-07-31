@@ -1,12 +1,10 @@
 import { DrawerEvent, DrawerEvents } from '../../drawers';
-import {
-	removeDrawerAnimation,
-	disposeDrawerAnimation,
-} from '../../store/drawerAnimationsSlice';
 import { AppDispatch } from '../../store/rootState';
 import { changeState, moveElement, StageState } from '../../store/stageSlice';
+import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 
 export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({
+	...drawerAnimationStateHandlers,
 	onDragEnd: (e: DrawerEvent) => {
 		const { originalEvent } = e;
 		if (originalEvent) {
@@ -27,18 +25,5 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 				}),
 			);
 		}
-	},
-	onAnimationComplete: (aEvent) => {
-		dispatch(
-			disposeDrawerAnimation({ drawerId: aEvent.drawerId, animationId: aEvent.animationId }),
-		);
-	},
-	onAnimationDestroy: (aEvent) => {
-		dispatch(
-			removeDrawerAnimation({
-				drawerId: aEvent.drawerId,
-				animationId: aEvent.animationId,
-			}),
-		);
 	},
 });

@@ -4,6 +4,7 @@ import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
 	ObservableEventType,
+	SimulationState,
 	addElement,
 	addNextObservableEvent,
 	completeSimulation,
@@ -11,9 +12,11 @@ import {
 	removeElement,
 	removeSimulationAnimation,
 	resetSimulation,
+	selectElements,
 	selectSimulation,
 	selectSimulationNextAnimation,
 	selectStage,
+	startSimulation,
 	updateElement,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
@@ -35,6 +38,7 @@ export const Simulator = () => {
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
 	);
+
 	// track when current drawer animation is disposed in order to dequeue it
 	useEffect(() => {
 		if (!drawerAnimation?.dispose) {
@@ -160,6 +164,8 @@ export const Simulator = () => {
 			complete: dispatchCompleteEvent,
 		});
 		setSimulationSubscription(subscription);
+		appDispatch(startSimulation());
+		appDispatch(selectElements([]));
 	};
 
 	const handleSimulationStop = () => {
@@ -215,9 +221,11 @@ export const Simulator = () => {
 					height: '50%',
 				}}
 			>
-				<OperatorsPanel />
+				<OperatorsPanel
+					popperVisible={simulation.state !== SimulationState.Running}
+					disabled={simulation.state === SimulationState.Running}
+				/>
 			</Box>
 		</Box>
 	);
 };
-
