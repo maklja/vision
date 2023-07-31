@@ -39,6 +39,7 @@ export const Simulator = () => {
 		null,
 	);
 
+	console.log(nextAnimation);
 	// track when current drawer animation is disposed in order to dequeue it
 	useEffect(() => {
 		if (!drawerAnimation?.dispose) {
@@ -123,7 +124,7 @@ export const Simulator = () => {
 				data,
 			}),
 		);
-	}, [nextAnimation?.id]);
+	}, [simulation.animationsQueue, nextAnimation?.id]);
 
 	const dispatchNextEvent = (event: FlowValueEvent<unknown>) =>
 		appDispatch(
@@ -154,6 +155,8 @@ export const Simulator = () => {
 			return;
 		}
 
+		appDispatch(startSimulation());
+		appDispatch(selectElements([]));
 		const subscription = createObservableSimulation(
 			entryElementId,
 			elements,
@@ -164,8 +167,6 @@ export const Simulator = () => {
 			complete: dispatchCompleteEvent,
 		});
 		setSimulationSubscription(subscription);
-		appDispatch(startSimulation());
-		appDispatch(selectElements([]));
 	};
 
 	const handleSimulationStop = () => {
@@ -229,3 +230,4 @@ export const Simulator = () => {
 		</Box>
 	);
 };
+

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
@@ -11,6 +12,7 @@ import {
 } from './icons';
 import { ElementGroup } from '../model';
 import { OperatorPanelPopper } from './poppers';
+import { useTheme } from '@mui/material/styles';
 
 export interface OperatorsPanelProps {
 	popperVisible?: boolean;
@@ -18,6 +20,7 @@ export interface OperatorsPanelProps {
 }
 
 export const OperatorsPanel = ({ popperVisible = true, disabled = false }: OperatorsPanelProps) => {
+	const theme = useTheme();
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [elementGroup, setElementGroup] = useState<null | ElementGroup>(null);
 
@@ -39,16 +42,22 @@ export const OperatorsPanel = ({ popperVisible = true, disabled = false }: Opera
 		<div>
 			<Paper>
 				<Stack aria-label="RxJS operator types">
-					<IconButton
-						aria-label="creation operators"
-						title="Creation operators"
-						size="large"
-						color="primary"
-						disabled={disabled}
-						onClick={(e) => onElementGroupChanged(e, ElementGroup.Creation)}
+					<Stack
+						sx={{
+							borderRight: `4px solid ${theme.palette.primary.main}`,
+						}}
 					>
-						<CreationOperatorIcon fontSize="inherit" />
-					</IconButton>
+						<IconButton
+							aria-label="creation operators"
+							title="Creation operators"
+							size="large"
+							color="primary"
+							disabled={disabled}
+							onClick={(e) => onElementGroupChanged(e, ElementGroup.Creation)}
+						>
+							<CreationOperatorIcon fontSize="inherit" />
+						</IconButton>
+					</Stack>
 
 					<IconButton
 						aria-label="join creation operators"
@@ -171,3 +180,4 @@ export const OperatorsPanel = ({ popperVisible = true, disabled = false }: Opera
 		</div>
 	);
 };
+
