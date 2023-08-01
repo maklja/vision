@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import Box from '@mui/material/Box';
+import { useState, MouseEvent, PropsWithChildren } from 'react';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
@@ -14,18 +13,58 @@ import { ElementGroup } from '../model';
 import { OperatorPanelPopper } from './poppers';
 import { useTheme } from '@mui/material/styles';
 
+interface SelectableOperatorButtonProps {
+	ariaLabel: string;
+	title: string;
+	selected: boolean;
+	disabled: boolean;
+	onClick: (e: MouseEvent<HTMLElement>) => void;
+}
+
+const SelectableOperatorButton = ({
+	ariaLabel,
+	title,
+	selected,
+	disabled,
+	onClick,
+	children,
+}: PropsWithChildren<SelectableOperatorButtonProps>) => {
+	const theme = useTheme();
+
+	const borderStyle = '2px solid';
+	return (
+		<Stack
+			sx={{
+				borderRight: selected
+					? `${borderStyle} ${theme.palette.primary.main}`
+					: `${borderStyle} transparent`,
+			}}
+		>
+			<IconButton
+				aria-label={ariaLabel}
+				title={title}
+				size="large"
+				color="primary"
+				disabled={disabled}
+				onClick={onClick}
+			>
+				{children}
+			</IconButton>
+		</Stack>
+	);
+};
+
 export interface OperatorsPanelProps {
 	popperVisible?: boolean;
 	disabled?: boolean;
 }
 
 export const OperatorsPanel = ({ popperVisible = true, disabled = false }: OperatorsPanelProps) => {
-	const theme = useTheme();
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [elementGroup, setElementGroup] = useState<null | ElementGroup>(null);
 
 	const onElementGroupChanged = (
-		event: React.MouseEvent<HTMLElement>,
+		event: MouseEvent<HTMLElement>,
 		newElementGroup: ElementGroup,
 	) => {
 		if (newElementGroup === elementGroup) {
@@ -42,33 +81,25 @@ export const OperatorsPanel = ({ popperVisible = true, disabled = false }: Opera
 		<div>
 			<Paper>
 				<Stack aria-label="RxJS operator types">
-					<Stack
-						sx={{
-							borderRight: `4px solid ${theme.palette.primary.main}`,
-						}}
+					<SelectableOperatorButton
+						ariaLabel="creation operators"
+						title="Creation operators"
+						disabled={disabled}
+						onClick={(e) => onElementGroupChanged(e, ElementGroup.Creation)}
+						selected={elementGroup === ElementGroup.Creation}
 					>
-						<IconButton
-							aria-label="creation operators"
-							title="Creation operators"
-							size="large"
-							color="primary"
-							disabled={disabled}
-							onClick={(e) => onElementGroupChanged(e, ElementGroup.Creation)}
-						>
-							<CreationOperatorIcon fontSize="inherit" />
-						</IconButton>
-					</Stack>
+						<CreationOperatorIcon fontSize="inherit" />
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="join creation operators"
+					<SelectableOperatorButton
+						ariaLabel="join creation operators"
 						title="Join creation operators"
-						size="large"
-						color="primary"
 						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.JoinCreation)}
+						selected={elementGroup === ElementGroup.JoinCreation}
 					>
 						<JoinCreationOperatorIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
 					<IconButton
 						aria-label="transformation operators"
@@ -180,4 +211,3 @@ export const OperatorsPanel = ({ popperVisible = true, disabled = false }: Opera
 		</div>
 	);
 };
-
