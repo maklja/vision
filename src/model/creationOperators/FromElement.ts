@@ -8,3 +8,8 @@ export interface FromElementProperties<T> {
 export interface FromElement<T = unknown> extends Element<FromElementProperties<T>> {
 	type: ElementType.From;
 }
+
+export const fromElementPropsTemplate: FromElementProperties<unknown> = {
+	input: [1, 2, 3, 4],
+};
+

@@ -1,69 +1,60 @@
+import Box from '@mui/material/Box';
 import { useEffect, useRef, useState } from 'react';
-import { useDrop } from 'react-dnd';
 import { Unsubscribable } from 'rxjs';
-import { v1 } from 'uuid';
-import { createObservableSimulation, FlowErrorEvent, FlowValueEvent } from '../engine';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
+	ObservableEventType,
+	SimulationState,
+	addElement,
 	addNextObservableEvent,
 	completeSimulation,
-	createSimulation,
-	ObservableEvent,
-	ObservableEventType,
-	resetSimulation,
-	selectSimulationById,
-} from '../store/simulationSlice';
-import {
-	addElement,
 	moveElement,
 	removeElement,
+	removeSimulationAnimation,
+	resetSimulation,
+	selectElements,
+	selectSimulation,
+	selectSimulationNextAnimation,
 	selectStage,
+	startSimulation,
 	updateElement,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
-import {
-	addDrawerAnimation,
-	addSimulationAnimations,
-	removeSimulation,
-	selectSimulationNextAnimation,
-} from '../store/drawerAnimationsSlice';
+import { addDrawerAnimation, selectDrawerAnimationById } from '../store/drawerAnimationsSlice';
 import { MoveAnimation } from '../animation';
-import { ElementType } from '../model';
-import { createAnimations } from './createAnimations';
-import Box from '@mui/material/Box';
-import { OperatorsPanel } from '../ui';
+import { ElementType, isEntryOperatorType } from '../model';
+import { OperatorsPanel, SimulationControls } from '../ui';
+import { FlowErrorEvent, FlowValue, FlowValueEvent, createObservableSimulation } from '../engine';
 
 export const Simulator = () => {
-	const [simulatorId] = useState(v1());
 	const simulationStep = useRef(0);
+	const simulation = useAppSelector(selectSimulation);
+	const { elements, connectLines } = useAppSelector(selectStage);
+	const nextAnimation = useAppSelector(selectSimulationNextAnimation);
+	const drawerAnimation = useAppSelector(
+		selectDrawerAnimationById(nextAnimation?.drawerId, nextAnimation?.id),
+	);
+	const appDispatch = useAppDispatch();
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
 	);
-	const { elements, connectLines } = useAppSelector(selectStage);
-	const simulation = useAppSelector(selectSimulationById(simulatorId));
-	const nextAnimation = useAppSelector(selectSimulationNextAnimation(simulatorId));
-	const appDispatch = useAppDispatch();
 
+	console.log(nextAnimation);
+	// track when current drawer animation is disposed in order to dequeue it
 	useEffect(() => {
-		// case when simulation changes
-		if (simulation?.id === simulatorId) {
+		if (!drawerAnimation?.dispose) {
 			return;
 		}
 
-		// create a new simulation
-		appDispatch(
-			createSimulation({
-				id: simulatorId,
-				events: [],
-				completed: false,
-			}),
-		);
+		appDispatch(removeSimulationAnimation({ animationId: drawerAnimation.id }));
+	}, [drawerAnimation?.dispose]);
 
+	useEffect(() => {
 		// create result drawer for simulation
 		appDispatch(
 			addElement({
-				id: simulatorId,
-				size: 1,
+				id: simulation.id,
+				scale: 1,
 				x: 0,
 				y: 0,
 				type: ElementType.Result,
@@ -76,64 +67,32 @@ export const Simulator = () => {
 			// clean up result drawer from  simulation
 			appDispatch(
 				removeElement({
-					id: simulatorId,
+					id: simulation.id,
 				}),
 			);
 		};
-	}, [simulatorId]);
-
-	useEffect(() => {
-		if (!simulation) {
-			return;
-		}
-
-		const { events } = simulation;
-		if (events.length === 0 || events.length === simulationStep.current) {
-			return;
-		}
-
-		// create simulation animations for each drawer that is affected by events
-		const animations = events
-			.slice(simulationStep.current)
-			.reduce((group: (ObservableEvent | null)[][], currentEvent, i) => {
-				// group simulation events by [previousEvent, currentEvent]
-				// so you could determine if it required to show previous drawer animation
-				const prevEvent = events[simulationStep.current + i - 1];
-				if (!prevEvent) {
-					return [...group, [null, currentEvent]];
-				}
-
-				return [...group, [prevEvent, currentEvent]];
-			}, [])
-			.map((eventsPair) => {
-				return createAnimations(eventsPair, connectLines, simulatorId);
-			})
-			.flat();
-
-		// queue simulation animations
-		appDispatch(
-			addSimulationAnimations({
-				animations,
-				simulationId: simulatorId,
-			}),
-		);
-		simulationStep.current = events.length;
-	}, [simulation?.events]);
+	}, [simulation.id]);
 
 	useEffect(() => {
 		if (!nextAnimation) {
+			appDispatch(
+				updateElement({
+					id: simulation.id,
+					visible: false,
+				}),
+			);
 			return;
 		}
 
-		const { drawerId, key, id, simulationId, data } = nextAnimation;
+		const { drawerId, key, id, data } = nextAnimation;
 		// when current animation drawer is result drawer, show it and move it to right position
 		// otherwise just hide it
-		if (drawerId === simulatorId) {
+		if (drawerId === simulation.id) {
 			// TODO find a better way
 			const moveParams = data as MoveAnimation & { hash: string };
 			appDispatch(
 				updateElement({
-					id: simulatorId,
+					id: simulation.id,
 					visible: true,
 					properties: {
 						hash: moveParams.hash,
@@ -142,7 +101,7 @@ export const Simulator = () => {
 			);
 			appDispatch(
 				moveElement({
-					id: simulatorId,
+					id: simulation.id,
 					x: moveParams.sourcePosition.x,
 					y: moveParams.sourcePosition.y,
 				}),
@@ -150,7 +109,7 @@ export const Simulator = () => {
 		} else {
 			appDispatch(
 				updateElement({
-					id: simulatorId,
+					id: simulation.id,
 					visible: false,
 				}),
 			);
@@ -162,44 +121,44 @@ export const Simulator = () => {
 				animationId: id,
 				drawerId,
 				key,
-				simulationId,
 				data,
 			}),
 		);
-	}, [nextAnimation?.id]);
+	}, [simulation.animationsQueue, nextAnimation?.id]);
 
 	const dispatchNextEvent = (event: FlowValueEvent<unknown>) =>
 		appDispatch(
 			addNextObservableEvent({
-				id: simulatorId,
 				nextEvent: {
 					...event,
+					value: (event.value as FlowValue).value,
 					type: ObservableEventType.Next,
 				},
 			}),
 		);
 
-	const dispatchErrorEvent = (event: FlowErrorEvent<unknown>) =>
+	const dispatchErrorEvent = (event: FlowErrorEvent<FlowValue>) =>
 		appDispatch(
 			addNextObservableEvent({
-				id: simulatorId,
 				nextEvent: {
 					...event,
+					value: event.error,
 					type: ObservableEventType.Error,
 				},
 			}),
 		);
 
-	const dispatchCompleteEvent = () =>
-		appDispatch(
-			completeSimulation({
-				id: simulatorId,
-			}),
-		);
+	const dispatchCompleteEvent = () => appDispatch(completeSimulation());
 
-	const handleSimulationStart = () => {
+	const handleSimulationStart = (entryElementId: string) => {
+		if (!entryElementId) {
+			return;
+		}
+
+		appDispatch(startSimulation());
+		appDispatch(selectElements([]));
 		const subscription = createObservableSimulation(
-			'intervalElement',
+			entryElementId,
 			elements,
 			connectLines,
 		).start({
@@ -213,22 +172,18 @@ export const Simulator = () => {
 	const handleSimulationStop = () => {
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
+
+		appDispatch(resetSimulation());
+		simulationStep.current = 0;
 	};
 
-	const handleSimulationReset = () => {
+	const handleSimulationReset = (entryElementId: string) => {
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
 
-		appDispatch(
-			resetSimulation({
-				id: simulatorId,
-			}),
-		);
-		appDispatch(
-			removeSimulation({
-				simulationId: simulatorId,
-			}),
-		);
+		appDispatch(resetSimulation());
+		simulationStep.current = 0;
+		handleSimulationStart(entryElementId);
 	};
 
 	if (!simulation) {
@@ -237,23 +192,42 @@ export const Simulator = () => {
 
 	return (
 		<Box style={{ position: 'absolute', width: '100%', height: '100%' }}>
-			{/* <button onClick={handleSimulationStart}>Start simulation</button>
-			<button onClick={handleSimulationStop}>Stop simulation</button>
-			<button onClick={handleSimulationReset}>Reset simulation</button> */}
-
 			<SimulatorStage />
 
 			<Box
-				style={{
+				sx={{
+					position: 'absolute',
+					top: '15px',
+					left: 'calc(50% - 160px)',
+					width: '400px',
+					height: '40px',
+				}}
+			>
+				<SimulationControls
+					simulatorId={simulation.id}
+					simulationState={simulation.state}
+					entryElements={elements.filter((el) => isEntryOperatorType(el.type))}
+					onSimulationStart={handleSimulationStart}
+					onSimulationStop={handleSimulationStop}
+					onSimulationReset={handleSimulationReset}
+				/>
+			</Box>
+
+			<Box
+				sx={{
 					position: 'absolute',
 					top: '20%',
 					left: '15px',
+					width: '70px',
 					height: '50%',
-					width: '90px',
 				}}
 			>
-				<OperatorsPanel />
+				<OperatorsPanel
+					popperVisible={simulation.state !== SimulationState.Running}
+					disabled={simulation.state === SimulationState.Running}
+				/>
 			</Box>
 		</Box>
 	);
 };
+

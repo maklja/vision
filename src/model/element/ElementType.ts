@@ -8,6 +8,7 @@ export enum ElementType {
 	Subscriber = 'subscriber',
 	CatchError = 'catchError',
 	Result = 'result',
+	ConnectPoint = 'connectPoint',
 }
 
 export const joinCreationOperators: ReadonlySet<ElementType> = new Set([ElementType.Merge]);
@@ -19,12 +20,12 @@ export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.IIf,
 ]);
 
-export const filterOperators: ReadonlySet<ElementType> = new Set([ElementType.Filter]);
+export const filteringOperators: ReadonlySet<ElementType> = new Set([ElementType.Filter]);
 
 export const errorHandlerOperators: ReadonlySet<ElementType> = new Set([ElementType.CatchError]);
 
 export const pipeOperators: ReadonlySet<ElementType> = new Set([
-	...filterOperators,
+	...filteringOperators,
 	...errorHandlerOperators,
 ]);
 
@@ -34,6 +35,10 @@ export const eventPipeOperators: ReadonlySet<ElementType> = new Set([
 ]);
 
 export const subscriberOperators: ReadonlySet<ElementType> = new Set([ElementType.Subscriber]);
+
+export const resultOperators: ReadonlySet<ElementType> = new Set([ElementType.Result]);
+
+export const connectPointOperators: ReadonlySet<ElementType> = new Set([ElementType.ConnectPoint]);
 
 export const isJoinCreationOperatorType = (type: ElementType) => joinCreationOperators.has(type);
 
@@ -46,6 +51,10 @@ export const isEventPipeOperatorType = (type: ElementType) => eventPipeOperators
 export const isSubscriberType = (type: ElementType) => subscriberOperators.has(type);
 
 export const isErrorHandlerType = (type: ElementType) => errorHandlerOperators.has(type);
+
+export const isResultOperatorType = (type: ElementType) => resultOperators.has(type);
+
+export const isConnectPointType = (type: ElementType) => connectPointOperators.has(type);
 
 export const isEntryOperatorType = (type: ElementType) =>
 	isCreationOperatorType(type) || isJoinCreationOperatorType(type);

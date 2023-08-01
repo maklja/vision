@@ -1,7 +1,8 @@
 import Konva from 'konva';
-import { Key } from 'react';
+import { Key, ReactNode } from 'react';
 import { DrawerAnimationTemplate } from '../animation';
-import { Theme } from '../theme';
+import { CircleShapeSize, RectangleShapeSize, ShapeSize, Theme } from '../theme';
+import { BoundingBox, ConnectPointPosition, ConnectPointType } from '../model';
 
 export interface DrawerEvent {
 	id: string;
@@ -35,7 +36,6 @@ export interface DrawerCommonProps {
 	theme: Theme;
 	x: number;
 	y: number;
-	size: number;
 	draggable?: boolean;
 	highlight?: boolean;
 	select?: boolean;
@@ -43,5 +43,52 @@ export interface DrawerCommonProps {
 	animation?: DrawerAnimationTemplate | null;
 }
 
-export interface DrawerProps extends DrawerCommonProps, DrawerEvents {}
+export interface CircleDrawerProps extends DrawerCommonProps, DrawerEvents {
+	size: CircleShapeSize;
+}
 
+export interface RectangleDrawerProps extends DrawerCommonProps, DrawerEvents {
+	size: RectangleShapeSize;
+}
+
+export type DrawerProps = CircleDrawerProps | RectangleDrawerProps;
+
+export interface ConnectPointIconDrawerProps {
+	connectPointPosition: ConnectPointPosition;
+	type: ConnectPointType;
+	theme: Theme;
+	highlight?: boolean;
+}
+
+export interface ConnectPointDrawerEvent {
+	id: string;
+	type: ConnectPointType;
+	position: ConnectPointPosition;
+	x: number;
+	y: number;
+	originalEvent: Konva.KonvaEventObject<MouseEvent>;
+	animation?: DrawerAnimationTemplate | null;
+}
+
+export type ConnectPointsOptions<T extends ShapeSize> = {
+	[key in ConnectPointPosition]: {
+		type: ConnectPointType;
+		visible: boolean;
+		shapeSize: T;
+		animation?: DrawerAnimationTemplate | null;
+		icon?: (props: ConnectPointIconDrawerProps) => ReactNode;
+	};
+};
+
+export interface ConnectPointsDrawerEvent {
+	id: string;
+	connectPoint: ConnectPointDrawerEvent;
+	element: BoundingBox;
+}
+
+export interface ConnectPointsDrawerEvents extends DrawerAnimationEvents {
+	onMouseDown?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
+}

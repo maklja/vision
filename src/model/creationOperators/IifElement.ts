@@ -11,3 +11,7 @@ export interface IifElement<T = unknown> extends Element<IifElementProperties<T>
 	type: ElementType.IIf;
 }
 
+export const iifElementPropsTemplate: IifElementProperties<unknown> = {
+	conditionExpression: '() => true',
+};
+

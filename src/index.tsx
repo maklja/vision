@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import { DndProvider } from 'react-dnd';
@@ -17,12 +18,12 @@ import {
 	IifElement,
 	MergeElement,
 } from './model';
-import { StageState } from './store/stageSlice';
-import { createThemeContext } from './theme';
+import { SimulationState, StageState } from './store/stageSlice';
+import { createThemeContext, createElementSizesContext } from './theme';
 
 const e1: OfElement = {
 	id: 'ofElement',
-	size: 1,
+	scale: 1,
 	x: 50,
 	y: 50,
 	type: ElementType.Of,
@@ -32,7 +33,7 @@ const e1: OfElement = {
 
 const e3: FromElement = {
 	id: 'fromElement',
-	size: 1,
+	scale: 1,
 	x: 50,
 	y: 200,
 	type: ElementType.From,
@@ -44,7 +45,7 @@ const e3: FromElement = {
 
 const iifElement: IifElement = {
 	id: 'iifElement',
-	size: 1,
+	scale: 1,
 	x: 50,
 	y: 400,
 	type: ElementType.IIf,
@@ -56,7 +57,7 @@ const iifElement: IifElement = {
 
 const i1: IntervalElement = {
 	id: 'intervalElement',
-	size: 1,
+	scale: 1,
 	x: 50,
 	y: 300,
 	type: ElementType.Interval,
@@ -66,7 +67,7 @@ const i1: IntervalElement = {
 
 const e4: FilterElement = {
 	id: 'filterElement',
-	size: 1,
+	scale: 1,
 	x: 200,
 	y: 125,
 	type: ElementType.Filter,
@@ -80,7 +81,7 @@ const e4: FilterElement = {
 
 const e5: FilterElement = {
 	id: 'filterElement_1',
-	size: 1,
+	scale: 1,
 	x: 500,
 	y: 125,
 	type: ElementType.Filter,
@@ -98,7 +99,7 @@ const e5: FilterElement = {
 
 const ce1: CatchErrorElement = {
 	id: 'catchError_1',
-	size: 1,
+	scale: 1,
 	x: 82.5,
 	y: 80,
 	type: ElementType.CatchError,
@@ -108,7 +109,7 @@ const ce1: CatchErrorElement = {
 
 const subscriber1: Element = {
 	id: 'subscriber_0',
-	size: 1,
+	scale: 1,
 	x: 680,
 	y: 125,
 	type: ElementType.Subscriber,
@@ -118,7 +119,7 @@ const subscriber1: Element = {
 
 const subscriber2: Element = {
 	id: 'subscriber_1',
-	size: 1,
+	scale: 1,
 	x: 680,
 	y: 325,
 	type: ElementType.Subscriber,
@@ -128,7 +129,7 @@ const subscriber2: Element = {
 
 const subscriber3: Element = {
 	id: 'subscriber_2',
-	size: 1,
+	scale: 1,
 	x: 780,
 	y: 125,
 	type: ElementType.Subscriber,
@@ -138,7 +139,7 @@ const subscriber3: Element = {
 
 const subscriber4: Element = {
 	id: 'subscriber_3',
-	size: 1,
+	scale: 1,
 	x: 780,
 	y: 325,
 	type: ElementType.Subscriber,
@@ -148,7 +149,7 @@ const subscriber4: Element = {
 
 const merge1: MergeElement = {
 	id: 'merge_1',
-	size: 1,
+	scale: 1,
 	x: 380,
 	y: 800,
 	type: ElementType.Merge,
@@ -158,7 +159,7 @@ const merge1: MergeElement = {
 
 const merge2: MergeElement = {
 	id: 'merge_2',
-	size: 1,
+	scale: 1,
 	x: 480,
 	y: 800,
 	type: ElementType.Merge,
@@ -189,11 +190,20 @@ root.render(
 				],
 				connectLines: [],
 				draftConnectLine: null,
+				draftElement: null,
 				highlighted: [],
 				highlightedConnectPoints: [],
 				selected: [],
 				themes: createThemeContext(),
+				elementSizes: createElementSizesContext(),
 				state: StageState.Select,
+				simulation: {
+					id: v1(),
+					state: SimulationState.Stopped,
+					completed: false,
+					animationsQueue: [],
+					events: [],
+				},
 			},
 		})}
 	>

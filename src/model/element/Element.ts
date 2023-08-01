@@ -1,11 +1,13 @@
 import { ElementType } from './ElementType';
 
-export interface Element<P extends unknown | Record<string, unknown> = unknown> {
+export type ElementProps = unknown | Record<string, unknown>;
+
+export interface Element<P extends ElementProps = unknown> {
 	id: string;
 	type: ElementType;
 	x: number;
 	y: number;
-	size: number;
+	scale: number;
 	visible: boolean;
 	properties: P;
 }

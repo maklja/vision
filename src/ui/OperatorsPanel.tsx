@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, MouseEvent, PropsWithChildren } from 'react';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import PhoneIcon from '@mui/icons-material/Phone';
 import {
@@ -10,37 +9,62 @@ import {
 	JoinCreationOperatorIcon,
 	SubscriberOperatorIcon,
 } from './icons';
-import { useDrag } from 'react-dnd';
 import { ElementGroup } from '../model';
 import { OperatorPanelPopper } from './poppers';
+import { useTheme } from '@mui/material/styles';
 
-const XXX = () => {
-	const [{ opacity }, dragRef] = useDrag(
-		() => ({
-			type: 'test',
-			item: { text: 'test' },
-			collect: (monitor) => ({
-				opacity: monitor.isDragging() ? 0.5 : 1,
-			}),
-		}),
-		[],
-	);
+interface SelectableOperatorButtonProps {
+	ariaLabel: string;
+	title: string;
+	selected: boolean;
+	disabled: boolean;
+	onClick: (e: MouseEvent<HTMLElement>) => void;
+}
 
+const SelectableOperatorButton = ({
+	ariaLabel,
+	title,
+	selected,
+	disabled,
+	onClick,
+	children,
+}: PropsWithChildren<SelectableOperatorButtonProps>) => {
+	const theme = useTheme();
+
+	const borderStyle = '2px solid';
 	return (
-		<div ref={dragRef}>
-			<Button sx={{ opacity }} variant="outlined">
-				Primary
-			</Button>
-		</div>
+		<Stack
+			sx={{
+				borderRight: selected
+					? `${borderStyle} ${theme.palette.primary.main}`
+					: `${borderStyle} transparent`,
+			}}
+		>
+			<IconButton
+				aria-label={ariaLabel}
+				title={title}
+				size="large"
+				color="primary"
+				disabled={disabled}
+				onClick={onClick}
+			>
+				{children}
+			</IconButton>
+		</Stack>
 	);
 };
 
-export const OperatorsPanel = () => {
+export interface OperatorsPanelProps {
+	popperVisible?: boolean;
+	disabled?: boolean;
+}
+
+export const OperatorsPanel = ({ popperVisible = true, disabled = false }: OperatorsPanelProps) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [elementGroup, setElementGroup] = useState<null | ElementGroup>(null);
 
 	const onElementGroupChanged = (
-		event: React.MouseEvent<HTMLElement>,
+		event: MouseEvent<HTMLElement>,
 		newElementGroup: ElementGroup,
 	) => {
 		if (newElementGroup === elementGroup) {
@@ -57,124 +81,125 @@ export const OperatorsPanel = () => {
 		<div>
 			<Paper>
 				<Stack aria-label="RxJS operator types">
-					<IconButton
-						aria-label="creation operators"
+					<SelectableOperatorButton
+						ariaLabel="creation operators"
 						title="Creation operators"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Creation)}
+						selected={elementGroup === ElementGroup.Creation}
 					>
 						<CreationOperatorIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="join creation operators"
+					<SelectableOperatorButton
+						ariaLabel="join creation operators"
 						title="Join creation operators"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.JoinCreation)}
+						selected={elementGroup === ElementGroup.JoinCreation}
 					>
 						<JoinCreationOperatorIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="transformation operators"
+					<SelectableOperatorButton
+						ariaLabel="transformation operators"
 						title="Transformation operators"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Transformation)}
+						selected={elementGroup === ElementGroup.Transformation}
 					>
 						<PhoneIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="filtering operators"
+					<SelectableOperatorButton
+						ariaLabel="filtering operators"
 						title="Filtering operators"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Filtering)}
+						selected={elementGroup === ElementGroup.Filtering}
 					>
 						<FilteringOperatorIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="join operators"
+					<SelectableOperatorButton
+						ariaLabel="join operators"
 						title="Join operators"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Join)}
+						selected={elementGroup === ElementGroup.Join}
 					>
 						<PhoneIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="multicasting operators"
+					<SelectableOperatorButton
+						ariaLabel="multicasting operators"
 						title="Multicasting operators"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Multicasting)}
+						selected={elementGroup === ElementGroup.Multicasting}
 					>
 						<PhoneIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="error handling operators"
+					<SelectableOperatorButton
+						ariaLabel="error handling operators"
 						title="Error handling operators"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.ErrorHandling)}
+						selected={elementGroup === ElementGroup.ErrorHandling}
 					>
 						<PhoneIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="utility operators"
+					<SelectableOperatorButton
+						ariaLabel="utility operators"
 						title="Utility operators"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Utility)}
+						selected={elementGroup === ElementGroup.Utility}
 					>
 						<PhoneIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="conditional and boolean operators"
+					<SelectableOperatorButton
+						ariaLabel="conditional and boolean operators"
 						title="Conditional and Boolean operators"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Conditional)}
+						selected={elementGroup === ElementGroup.Conditional}
 					>
 						<PhoneIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="mathematical and aggregate operators"
+					<SelectableOperatorButton
+						ariaLabel="mathematical and aggregate operators"
 						title="Mathematical and Aggregate operators"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Mathematical)}
+						selected={elementGroup === ElementGroup.Mathematical}
 					>
 						<PhoneIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 
-					<IconButton
-						aria-label="subscriber"
+					<SelectableOperatorButton
+						ariaLabel="subscriber"
 						title="Subscriber"
-						size="large"
-						color="primary"
+						disabled={disabled}
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Subscriber)}
+						selected={elementGroup === ElementGroup.Subscriber}
 					>
 						<SubscriberOperatorIcon fontSize="inherit" />
-					</IconButton>
+					</SelectableOperatorButton>
 				</Stack>
 			</Paper>
 
 			<OperatorPanelPopper
 				id="operators-popper"
-				open={Boolean(anchorEl)}
+				open={popperVisible && Boolean(anchorEl)}
 				anchorEl={anchorEl}
 				elementGroup={elementGroup}
 			/>
 		</div>
 	);
 };
+

@@ -24,7 +24,7 @@
 		"react-dnd": "^16.0.1",
 		"react-dnd-html5-backend": "^16.0.1",
 		"react-dom": "^18.2.0",
-		"react-konva": "^18.2.2",
+		"react-konva": "^18.2.10",
 		"react-redux": "^8.0.4",
 		"react-scripts": "5.0.1",
 		"rxjs": "^7.5.7",
@@ -65,3 +65,4 @@
 		"eslint-plugin-react": "^7.31.8"
 	}
 }
+
