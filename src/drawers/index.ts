@@ -1,10 +1,7 @@
 export * from './DrawerProps';
 export * from './connectLine';
-export * from './joinCreationOperators';
-export * from './creationOperators';
+export * from './polygonOperators';
+export * from './circleOperators';
 export * from './connectPoints';
-export * from './subscriber';
-export * from './filterOperators';
-export * from './result';
-export * from './errorHandlingOperators';
-
+export * from './rectangleOperator';
+export * from './resultOperators';

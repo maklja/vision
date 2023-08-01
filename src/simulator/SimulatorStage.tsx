@@ -1,51 +1,70 @@
 import Konva from 'konva';
-import { Layer, Stage } from 'react-konva';
-import { ConnectLineLayer } from '../layers/connectLine';
-import { DrawerLayer } from '../layers/drawer';
+import { Stage } from 'react-konva';
+import { useDrop } from 'react-dnd';
+import { ConnectLinesLayer } from '../layers/connectLines';
+import { DrawersLayer } from '../layers/drawers';
 import { useAppDispatch } from '../store/rootState';
-import {
-	deleteConnectLineDraw,
-	moveConnectLineDraw,
-	selectElements,
-	useThemeContext,
-} from '../store/stageSlice';
+import { addDraftElement, clearDraftElement, useThemeContext } from '../store/stageSlice';
+import { useStageHandlers } from './state';
+import { DragNDropItem, DragNDropLayer } from '../layers/creation';
+import { DragNDropType } from '../dragNDrop';
+import { calculateShapeSizeBoundingBox } from '../theme';
+
+export interface StageEvents {
+	onMouseDown?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseUp?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseOver?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseOut?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onMouseMove?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onDragStart?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onDragEnd?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onDragMove?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+}
 
 export const SimulatorStage = () => {
-	const { colors } = useThemeContext();
+	const theme = useThemeContext();
+	const stageHandlers = useStageHandlers();
 	const appDispatch = useAppDispatch();
 
-	const handleMouseDown = () => appDispatch(selectElements([]));
+	const [, drop] = useDrop<DragNDropItem>(
+		() => ({
+			accept: DragNDropType.CreateElement,
+			drop({ element, shapeSize }, monitor) {
+				if (!monitor.isOver()) {
+					appDispatch(clearDraftElement());
+					return;
+				}
 
-	const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		const stage = e.target.getStage();
-		const rect = stage?.getContent().getBoundingClientRect();
-		const x = e.evt.clientX - (rect?.left ?? 0);
-		const y = e.evt.clientY - (rect?.top ?? 0);
-		appDispatch(
-			moveConnectLineDraw({
-				x,
-				y,
-			}),
-		);
-	};
+				const clientOffset = monitor.getClientOffset();
+				const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
+				const xPosition = (clientOffset?.x ?? 0) - bb.width / 2;
+				const yPosition = (clientOffset?.y ?? 0) - bb.height / 2;
 
-	const handleOnMouseUp = () => {
-		appDispatch(deleteConnectLineDraw());
-	};
+				appDispatch(
+					addDraftElement({
+						...element,
+						x: xPosition,
+						y: yPosition,
+					}),
+				);
+			},
+		}),
+		[],
+	);
 
 	return (
-		<Stage
-			style={{ backgroundColor: colors.backgroundColor }}
-			width={window.innerWidth}
-			height={window.innerHeight}
-			onMouseDown={handleMouseDown}
-			onMouseUp={handleOnMouseUp}
-			onMouseMove={handleMouseMove}
-		>
-			<Layer>
-				<ConnectLineLayer />
-				<DrawerLayer />
-			</Layer>
-		</Stage>
+		<div ref={drop}>
+			<Stage
+				{...stageHandlers}
+				style={{ backgroundColor: theme.colors.backgroundColor }}
+				width={window.innerWidth}
+				height={window.innerHeight}
+			>
+				<ConnectLinesLayer />
+				<DrawersLayer />
+				<DragNDropLayer />
+			</Stage>
+		</div>
 	);
 };
+

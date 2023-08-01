@@ -3,6 +3,10 @@
 	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
+		"@emotion/react": "^11.11.1",
+		"@emotion/styled": "^11.11.0",
+		"@mui/icons-material": "^5.14.0",
+		"@mui/material": "^5.14.0",
 		"@reduxjs/toolkit": "^1.8.6",
 		"@testing-library/jest-dom": "^5.16.5",
 		"@testing-library/react": "^13.4.0",
@@ -17,8 +21,10 @@
 		"konva": "^8.3.12",
 		"object-hash": "^3.0.0",
 		"react": "^18.2.0",
+		"react-dnd": "^16.0.1",
+		"react-dnd-html5-backend": "^16.0.1",
 		"react-dom": "^18.2.0",
-		"react-konva": "^18.2.2",
+		"react-konva": "^18.2.10",
 		"react-redux": "^8.0.4",
 		"react-scripts": "5.0.1",
 		"rxjs": "^7.5.7",
@@ -59,3 +65,4 @@
 		"eslint-plugin-react": "^7.31.8"
 	}
 }
+

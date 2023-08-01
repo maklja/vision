@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import { createSlice, Draft } from '@reduxjs/toolkit';
 import {
 	ConnectLine,
@@ -7,7 +8,12 @@ import {
 	Point,
 	ConnectedElement,
 } from '../model';
-import { createThemeContext, ThemesContext } from '../theme';
+import {
+	createThemeContext,
+	ThemesContext,
+	ElementSizesContext,
+	createElementSizesContext,
+} from '../theme';
 import {
 	startConnectLineDrawReducer,
 	moveConnectLineDrawReducer,
@@ -15,10 +21,24 @@ import {
 	deleteConnectLineDrawReducer,
 	pinConnectLineReducer,
 	unpinConnectLineReducer,
+	createDraftElementReducer,
+	addDraftElementReducer,
+	clearDraftElementReducer,
+	resetSimulationReducer,
+	completeSimulationReducer,
+	addNextObservableEventReducer,
+	Simulation,
+	SimulationAnimation,
+	removeSimulationAnimationReducer,
+	SimulationState,
+	startSimulationReducer,
 } from './reducer';
 import { RootState } from './rootState';
 
 export * from './hooks/theme';
+
+export type { ObservableEvent } from './reducer';
+export { ObservableEventType, SimulationState } from './reducer';
 
 export interface DraftConnectLine {
 	id: string;
@@ -36,6 +56,7 @@ export enum StageState {
 	Select = 'select',
 	DrawConnectLine = 'drawConnectLine',
 	Dragging = 'dragging',
+	DrawElement = 'drawElement',
 }
 
 export interface StageSlice {
@@ -44,9 +65,12 @@ export interface StageSlice {
 	highlightedConnectPoints: ConnectPoint[];
 	selected: SelectedElement[];
 	highlighted: string[];
-	themes: ThemesContext;
 	state: StageState;
 	draftConnectLine: DraftConnectLine | null;
+	draftElement: Element | null;
+	simulation: Simulation;
+	themes: ThemesContext;
+	elementSizes: ElementSizesContext;
 }
 
 export interface AddElementsAction {
@@ -71,7 +95,7 @@ export interface UpdateElementAction<P = unknown> {
 	payload: {
 		id: string;
 		visible?: boolean;
-		size?: number;
+		scale?: number;
 		properties?: P;
 	};
 }
@@ -111,9 +135,18 @@ const initialState: StageSlice = {
 	highlightedConnectPoints: [],
 	selected: [],
 	highlighted: [],
-	themes: createThemeContext(),
 	state: StageState.Select,
 	draftConnectLine: null,
+	draftElement: null,
+	simulation: {
+		id: v1(),
+		state: SimulationState.Stopped,
+		completed: false,
+		animationsQueue: [],
+		events: [],
+	},
+	themes: createThemeContext(),
+	elementSizes: createElementSizesContext(),
 };
 
 export const stageSlice = createSlice({
@@ -139,7 +172,7 @@ export const stageSlice = createSlice({
 			const el = slice.elements[elIdx];
 			slice.elements[elIdx] = {
 				...el,
-				size: payload.size ?? el.size,
+				scale: payload.scale ?? el.scale,
 				visible: payload.visible ?? el.visible,
 				properties: payload.properties ?? el.properties,
 			};
@@ -165,6 +198,9 @@ export const stageSlice = createSlice({
 		deleteConnectLineDraw: deleteConnectLineDrawReducer,
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
+		createDraftElement: createDraftElementReducer,
+		addDraftElement: addDraftElementReducer,
+		clearDraftElement: clearDraftElementReducer,
 		moveElement: (state: Draft<StageSlice>, action: MoveElementAction) => {
 			const { payload } = action;
 			const elIdx = state.elements.findIndex((el) => el.id === payload.id);
@@ -199,6 +235,11 @@ export const stageSlice = createSlice({
 				}
 			});
 		},
+		startSimulation: startSimulationReducer,
+		resetSimulation: resetSimulationReducer,
+		completeSimulation: completeSimulationReducer,
+		addNextObservableEvent: addNextObservableEventReducer,
+		removeSimulationAnimation: removeSimulationAnimationReducer,
 	},
 });
 
@@ -218,6 +259,14 @@ export const {
 	pinConnectLine,
 	unpinConnectLine,
 	highlightConnectPoints,
+	createDraftElement,
+	addDraftElement,
+	clearDraftElement,
+	startSimulation,
+	resetSimulation,
+	completeSimulation,
+	addNextObservableEvent,
+	removeSimulationAnimation,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
@@ -232,6 +281,11 @@ export const selectConnectLineById = (id: string | null) => (state: RootState) =
 	!id ? null : state.stage.connectLines.find((cl) => cl.id === id);
 
 export const selectStageElements = (state: RootState) => state.stage.elements;
+
+export const selectStageElementById = (id: string) => (state: RootState) =>
+	state.stage.elements.find((el) => el.id === id) ?? null;
+
+export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
 
 export const selectStageState = (state: RootState) => state.stage.state;
 
@@ -248,3 +302,7 @@ export const selectElementSelection = (elementId: string) => (state: RootState) 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
 
+export const selectSimulation = (state: RootState) => state.stage.simulation;
+
+export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
+	state.stage.simulation.animationsQueue.at(0) ?? null;

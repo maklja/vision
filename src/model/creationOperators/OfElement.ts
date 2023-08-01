@@ -7,3 +7,8 @@ export interface OfElementProperties<T> {
 export interface OfElement<T = unknown> extends Element<OfElementProperties<T>> {
 	type: ElementType.Of;
 }
+
+export const ofElementPropsTemplate: OfElementProperties<number> = {
+	items: [1, 2, 3],
+};
+
