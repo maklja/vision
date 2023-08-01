@@ -39,7 +39,6 @@ export const Simulator = () => {
 		null,
 	);
 
-	console.log(nextAnimation);
 	// track when current drawer animation is disposed in order to dequeue it
 	useEffect(() => {
 		if (!drawerAnimation?.dispose) {

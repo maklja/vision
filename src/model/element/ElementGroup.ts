@@ -8,6 +8,7 @@ import {
 	subscriberOperators,
 	resultOperators,
 	connectPointOperators,
+	transformationOperators,
 } from './ElementType';
 
 export enum ElementGroup {
@@ -64,6 +65,10 @@ export const mapElementTypeToGroup = (elType: ElementType): ElementGroup => {
 		return ElementGroup.Filtering;
 	}
 
+	if (transformationOperators.has(elType)) {
+		return ElementGroup.Transformation;
+	}
+
 	if (subscriberOperators.has(elType)) {
 		return ElementGroup.Subscriber;
 	}
@@ -78,3 +83,4 @@ export const mapElementTypeToGroup = (elType: ElementType): ElementGroup => {
 
 	throw new Error(`Unknown element group for element type ${elType}`);
 };
+

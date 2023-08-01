@@ -17,6 +17,7 @@ import {
 	CatchErrorElement,
 	IifElement,
 	MergeElement,
+	MapElement,
 } from './model';
 import { SimulationState, StageState } from './store/stageSlice';
 import { createThemeContext, createElementSizesContext } from './theme';
@@ -43,15 +44,15 @@ const e3: FromElement = {
 	},
 };
 
-const iifElement: IifElement = {
-	id: 'iifElement',
+const iifElement: MapElement = {
+	id: 'mapElement',
 	scale: 1,
-	x: 50,
+	x: 80,
 	y: 400,
-	type: ElementType.IIf,
+	type: ElementType.Map,
 	visible: true,
 	properties: {
-		conditionExpression: '() => { return false; }',
+		expression: '(value) => { return value; }',
 	},
 };
 
