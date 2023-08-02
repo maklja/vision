@@ -15,7 +15,6 @@ import {
 	Element,
 	IntervalElement,
 	CatchErrorElement,
-	IifElement,
 	MergeElement,
 	MapElement,
 } from './model';
@@ -44,7 +43,7 @@ const e3: FromElement = {
 	},
 };
 
-const iifElement: MapElement = {
+const mapElement: MapElement = {
 	id: 'mapElement',
 	scale: 1,
 	x: 80,
@@ -52,7 +51,7 @@ const iifElement: MapElement = {
 	type: ElementType.Map,
 	visible: true,
 	properties: {
-		expression: '(value) => { return value; }',
+		expression: '(value) => { console.log(value); return value; }',
 	},
 };
 
@@ -185,7 +184,7 @@ root.render(
 					e5,
 					i1,
 					ce1,
-					iifElement,
+					mapElement,
 					merge1,
 					merge2,
 				],

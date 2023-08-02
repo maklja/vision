@@ -1,9 +1,10 @@
 import Konva from 'konva';
 import { useState } from 'react';
-import { Group, Rect, Text, Ellipse } from 'react-konva';
+import { Group, Text, Ellipse, Path } from 'react-konva';
 import { useAnimationGroups } from '../../animation';
 import { RectangleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme } from '../../theme';
+import { Point } from '../../model';
 
 export interface RollerOperatorDrawerProps extends RectangleDrawerProps {
 	title: string;
@@ -39,12 +40,27 @@ export const RollerOperatorDrawer = ({
 		theme,
 	);
 	const { width, height, fontSizes } = size;
-	const [mainShapeRef, setMainShapeRef] = useState<Konva.Ellipse | null>(null);
+	const [leftEllipseShapeRef, setLeftEllipseShapeRef] = useState<Konva.Ellipse | null>(null);
+	const [rightEllipseShapeRef, setRightEllipseShapeRef] = useState<Konva.Ellipse | null>(null);
+	const [bodyShapeRef, setBodyShapeRef] = useState<Konva.Path | null>(null);
+
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
 	useAnimationGroups(animation, {
 		animationFactories: [
 			{
-				node: mainShapeRef,
+				node: leftEllipseShapeRef,
+				mapper: (a) => ({
+					config: a.mainShape,
+				}),
+			},
+			{
+				node: rightEllipseShapeRef,
+				mapper: (a) => ({
+					config: a.mainShape,
+				}),
+			},
+			{
+				node: bodyShapeRef,
 				mapper: (a) => ({
 					config: a.mainShape,
 				}),
@@ -105,9 +121,33 @@ export const RollerOperatorDrawer = ({
 	const radiusY = height / 2;
 	const radiusX = area / (Math.PI * radiusY);
 
+	const leftSideTopControlPoint: Point = {
+		x: 3 * radiusX,
+		y: radiusY / 2,
+	};
+	const leftSideBottomControlPoint: Point = {
+		x: 3 * radiusX,
+		y: (3 * radiusY) / 2,
+	};
+
+	const rightSideTopControlPoint: Point = {
+		x: -leftSideTopControlPoint.x + width,
+		y: leftSideTopControlPoint.y,
+	};
+	const rightSideBottomControlPoint: Point = {
+		x: -leftSideBottomControlPoint.x + width,
+		y: leftSideBottomControlPoint.y,
+	};
+
+	const isVisible =
+		visible &&
+		Boolean(mainTextRef) &&
+		Boolean(leftEllipseShapeRef) &&
+		Boolean(rightEllipseShapeRef) &&
+		Boolean(bodyShapeRef);
 	return (
 		<Group
-			// visible={visible && Boolean(mainTextRef)}
+			visible={isVisible}
 			x={x}
 			y={y}
 			draggable={draggable}
@@ -122,7 +162,7 @@ export const RollerOperatorDrawer = ({
 				{...drawerStyle.element}
 				x={radiusX}
 				y={radiusY}
-				ref={(ref) => setMainShapeRef(ref)}
+				ref={(ref) => setLeftEllipseShapeRef(ref)}
 				id={id}
 				radiusX={radiusX}
 				radiusY={radiusY}
@@ -132,20 +172,26 @@ export const RollerOperatorDrawer = ({
 				{...drawerStyle.element}
 				x={width - radiusX}
 				y={radiusY}
-				ref={(ref) => setMainShapeRef(ref)}
+				ref={(ref) => setRightEllipseShapeRef(ref)}
 				id={id}
 				radiusX={radiusX}
 				radiusY={radiusY}
 			/>
-			<Rect
-				fill="transparent"
-				stroke="red"
-				strokeWidth={1}
-				id={id}
-				width={width}
-				height={height}
+
+			<Path
+				{...drawerStyle.element}
+				ref={(ref) => setBodyShapeRef(ref)}
+				data={`M${2 * radiusX},0 
+				C${leftSideTopControlPoint.x},${leftSideTopControlPoint.y} 
+				${leftSideBottomControlPoint.x},${leftSideBottomControlPoint.y} 
+				${2 * radiusX},${2 * radiusY}
+				H ${-2 * radiusX + width}
+				C${rightSideBottomControlPoint.x},${rightSideBottomControlPoint.y} 
+				${rightSideTopControlPoint.x},${rightSideTopControlPoint.y} 
+				${-2 * radiusX + width},0 
+				Z`}
 			/>
-			{/*<Text
+			<Text
 				{...drawerStyle.text}
 				ref={(ref) => setMainTextRef(ref)}
 				text={title}
@@ -153,7 +199,7 @@ export const RollerOperatorDrawer = ({
 				y={textY}
 				fontSize={fontSizes.primary}
 				listening={false}
-			/> */}
+			/>
 		</Group>
 	);
 };
