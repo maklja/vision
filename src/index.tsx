@@ -51,7 +51,7 @@ const mapElement: MapElement = {
 	type: ElementType.Map,
 	visible: true,
 	properties: {
-		expression: '(value) => { console.log(value); return value; }',
+		expression: '(value) => { return value; }',
 	},
 };
 
@@ -218,4 +218,3 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
-

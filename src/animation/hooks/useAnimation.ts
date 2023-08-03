@@ -45,7 +45,6 @@ export const useAnimation = (
 		onAnimationBegin,
 		onAnimationComplete,
 		onAnimationDestroy,
-		simulationId: animationTemplate?.simulationId,
 		drawerId,
 	});
 
@@ -88,4 +87,3 @@ export const useAnimation = (
 
 	return animation;
 };
-

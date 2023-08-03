@@ -60,7 +60,6 @@ export const useAnimationGroups = (
 		onAnimationBegin,
 		onAnimationComplete,
 		onAnimationDestroy,
-		simulationId: animationTemplate?.simulationId,
 		drawerId,
 	});
 
@@ -103,4 +102,3 @@ export const useAnimationGroups = (
 
 	return animation;
 };
-

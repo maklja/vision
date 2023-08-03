@@ -122,11 +122,11 @@ export const RollerOperatorDrawer = ({
 	const radiusX = area / (Math.PI * radiusY);
 
 	const leftSideTopControlPoint: Point = {
-		x: 3 * radiusX,
+		x: 2.75 * radiusX,
 		y: radiusY / 2,
 	};
 	const leftSideBottomControlPoint: Point = {
-		x: 3 * radiusX,
+		x: 2.75 * radiusX,
 		y: (3 * radiusY) / 2,
 	};
 
@@ -139,6 +139,7 @@ export const RollerOperatorDrawer = ({
 		y: leftSideBottomControlPoint.y,
 	};
 
+	const gap = 1.65;
 	const isVisible =
 		visible &&
 		Boolean(mainTextRef) &&
@@ -181,14 +182,14 @@ export const RollerOperatorDrawer = ({
 			<Path
 				{...drawerStyle.element}
 				ref={(ref) => setBodyShapeRef(ref)}
-				data={`M${2 * radiusX},0 
+				data={`M${radiusX * gap},0 
 				C${leftSideTopControlPoint.x},${leftSideTopControlPoint.y} 
 				${leftSideBottomControlPoint.x},${leftSideBottomControlPoint.y} 
-				${2 * radiusX},${2 * radiusY}
-				H ${-2 * radiusX + width}
+				${radiusX * gap},${2 * radiusY}
+				H ${-gap * radiusX + width}
 				C${rightSideBottomControlPoint.x},${rightSideBottomControlPoint.y} 
 				${rightSideTopControlPoint.x},${rightSideTopControlPoint.y} 
-				${-2 * radiusX + width},0 
+				${-gap * radiusX + width},0 
 				Z`}
 			/>
 			<Text
@@ -203,4 +204,3 @@ export const RollerOperatorDrawer = ({
 		</Group>
 	);
 };
-

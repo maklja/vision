@@ -10,6 +10,5 @@ export interface AnimationTemplate {
 
 export interface DrawerAnimationTemplate extends AnimationTemplate {
 	id: string;
-	simulationId?: string;
 	dispose: boolean;
 }
