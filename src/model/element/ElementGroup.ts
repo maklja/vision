@@ -4,7 +4,6 @@ import {
 	filteringOperators,
 	errorHandlerOperators,
 	joinCreationOperators,
-	pipeOperators,
 	subscriberOperators,
 	resultOperators,
 	connectPointOperators,
@@ -34,7 +33,9 @@ export const mapElementGroupToTypes = (elGroup: ElementGroup): ReadonlySet<Eleme
 		case ElementGroup.JoinCreation:
 			return joinCreationOperators;
 		case ElementGroup.Filtering:
-			return pipeOperators;
+			return filteringOperators;
+		case ElementGroup.Transformation:
+			return transformationOperators;
 		case ElementGroup.ErrorHandling:
 			return errorHandlerOperators;
 		case ElementGroup.Subscriber:

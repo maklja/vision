@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { useState } from 'react';
-import { Group, Text, Ellipse, Path } from 'react-konva';
+import { Group, Rect, Text, Ellipse, Path } from 'react-konva';
 import { useAnimationGroups } from '../../animation';
 import { RectangleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme } from '../../theme';
@@ -159,6 +159,13 @@ export const RollerOperatorDrawer = ({
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
+			<Rect
+				x={radiusX}
+				width={width - 2 * radiusX}
+				height={height}
+				fill={theme.colors.backgroundColor}
+			/>
+
 			<Ellipse
 				{...drawerStyle.element}
 				x={radiusX}
@@ -204,3 +211,4 @@ export const RollerOperatorDrawer = ({
 		</Group>
 	);
 };
+

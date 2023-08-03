@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { v1 } from 'uuid';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
@@ -169,52 +170,53 @@ const merge2: MergeElement = {
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
-	// <React.StrictMode>
-	<Provider
-		store={setupStore({
-			stage: {
-				elements: [
-					e1,
-					subscriber1,
-					subscriber2,
-					subscriber3,
-					subscriber4,
-					e3,
-					e4,
-					e5,
-					i1,
-					ce1,
-					mapElement,
-					merge1,
-					merge2,
-				],
-				connectLines: [],
-				draftConnectLine: null,
-				draftElement: null,
-				highlighted: [],
-				highlightedConnectPoints: [],
-				selected: [],
-				themes: createThemeContext(),
-				elementSizes: createElementSizesContext(),
-				state: StageState.Select,
-				simulation: {
-					id: v1(),
-					state: SimulationState.Stopped,
-					completed: false,
-					animationsQueue: [],
-					events: [],
+	<StrictMode>
+		<Provider
+			store={setupStore({
+				stage: {
+					elements: [
+						e1,
+						subscriber1,
+						subscriber2,
+						subscriber3,
+						subscriber4,
+						e3,
+						e4,
+						e5,
+						i1,
+						ce1,
+						mapElement,
+						merge1,
+						merge2,
+					],
+					connectLines: [],
+					draftConnectLine: null,
+					draftElement: null,
+					highlighted: [],
+					highlightedConnectPoints: [],
+					selected: [],
+					themes: createThemeContext(),
+					elementSizes: createElementSizesContext(),
+					state: StageState.Select,
+					simulation: {
+						id: v1(),
+						state: SimulationState.Stopped,
+						completed: false,
+						animationsQueue: [],
+						events: [],
+					},
 				},
-			},
-		})}
-	>
-		<DndProvider backend={HTML5Backend}>
-			<App />
-		</DndProvider>
-	</Provider>,
-	// </React.StrictMode>,
+			})}
+		>
+			<DndProvider backend={HTML5Backend}>
+				<App />
+			</DndProvider>
+		</Provider>
+	</StrictMode>,
 );
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+

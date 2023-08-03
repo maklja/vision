@@ -46,7 +46,7 @@ export const Simulator = () => {
 		}
 
 		appDispatch(removeSimulationAnimation({ animationId: drawerAnimation.id }));
-	}, [simulation.animationsQueue, drawerAnimation?.dispose]);
+	}, [drawerAnimation?.dispose]);
 
 	useEffect(() => {
 		// create result drawer for simulation
@@ -229,3 +229,4 @@ export const Simulator = () => {
 		</Box>
 	);
 };
+
