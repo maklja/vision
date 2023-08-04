@@ -9,6 +9,7 @@ export enum ElementType {
 	CatchError = 'catchError',
 	Result = 'result',
 	ConnectPoint = 'connectPoint',
+	Map = 'map',
 }
 
 export const joinCreationOperators: ReadonlySet<ElementType> = new Set([ElementType.Merge]);
@@ -20,11 +21,14 @@ export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.IIf,
 ]);
 
+export const transformationOperators: ReadonlySet<ElementType> = new Set([ElementType.Map]);
+
 export const filteringOperators: ReadonlySet<ElementType> = new Set([ElementType.Filter]);
 
 export const errorHandlerOperators: ReadonlySet<ElementType> = new Set([ElementType.CatchError]);
 
 export const pipeOperators: ReadonlySet<ElementType> = new Set([
+	...transformationOperators,
 	...filteringOperators,
 	...errorHandlerOperators,
 ]);
@@ -58,3 +62,4 @@ export const isConnectPointType = (type: ElementType) => connectPointOperators.h
 
 export const isEntryOperatorType = (type: ElementType) =>
 	isCreationOperatorType(type) || isJoinCreationOperatorType(type);
+

@@ -8,6 +8,7 @@ import {
 	FilteringOperatorIcon,
 	JoinCreationOperatorIcon,
 	SubscriberOperatorIcon,
+	TransformationOperatorIcon,
 } from './icons';
 import { ElementGroup } from '../model';
 import { OperatorPanelPopper } from './poppers';
@@ -108,7 +109,7 @@ export const OperatorsPanel = ({ popperVisible = true, disabled = false }: Opera
 						onClick={(e) => onElementGroupChanged(e, ElementGroup.Transformation)}
 						selected={elementGroup === ElementGroup.Transformation}
 					>
-						<PhoneIcon fontSize="inherit" />
+						<TransformationOperatorIcon fontSize="inherit" />
 					</SelectableOperatorButton>
 
 					<SelectableOperatorButton

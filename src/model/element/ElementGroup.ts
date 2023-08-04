@@ -4,10 +4,10 @@ import {
 	filteringOperators,
 	errorHandlerOperators,
 	joinCreationOperators,
-	pipeOperators,
 	subscriberOperators,
 	resultOperators,
 	connectPointOperators,
+	transformationOperators,
 } from './ElementType';
 
 export enum ElementGroup {
@@ -33,7 +33,9 @@ export const mapElementGroupToTypes = (elGroup: ElementGroup): ReadonlySet<Eleme
 		case ElementGroup.JoinCreation:
 			return joinCreationOperators;
 		case ElementGroup.Filtering:
-			return pipeOperators;
+			return filteringOperators;
+		case ElementGroup.Transformation:
+			return transformationOperators;
 		case ElementGroup.ErrorHandling:
 			return errorHandlerOperators;
 		case ElementGroup.Subscriber:
@@ -64,6 +66,10 @@ export const mapElementTypeToGroup = (elType: ElementType): ElementGroup => {
 		return ElementGroup.Filtering;
 	}
 
+	if (transformationOperators.has(elType)) {
+		return ElementGroup.Transformation;
+	}
+
 	if (subscriberOperators.has(elType)) {
 		return ElementGroup.Subscriber;
 	}
@@ -78,3 +84,4 @@ export const mapElementTypeToGroup = (elType: ElementType): ElementGroup => {
 
 	throw new Error(`Unknown element group for element type ${elType}`);
 };
+

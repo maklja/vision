@@ -101,7 +101,6 @@ export const addNextObservableEventReducer = (
 		.map((animation) => ({
 			...animation,
 			id: v1(),
-			simulationId: simulation.id,
 			dispose: false,
 		}));
 
@@ -122,4 +121,3 @@ export const removeSimulationAnimationReducer = (
 	simulation.animationsQueue = updatedAnimationQueue;
 	simulation.state = isSimulationDone ? SimulationState.Stopped : SimulationState.Running;
 };
-

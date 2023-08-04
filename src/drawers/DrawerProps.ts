@@ -12,7 +12,6 @@ export interface DrawerEvent {
 export interface DrawerAnimationEvent {
 	drawerId: string;
 	animationId: string;
-	simulationId?: string;
 }
 
 export interface DrawerAnimationEvents {

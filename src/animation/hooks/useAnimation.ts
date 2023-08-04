@@ -45,7 +45,6 @@ export const useAnimation = (
 		onAnimationBegin,
 		onAnimationComplete,
 		onAnimationDestroy,
-		simulationId: animationTemplate?.simulationId,
 		drawerId,
 	});
 

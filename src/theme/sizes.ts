@@ -129,6 +129,7 @@ const defaultElementSizes: ElementSizesContext = {
 		[ElementGroup.Subscriber]: scaleCircleShape(defaultCircleShape, 0.4),
 		[ElementGroup.ErrorHandling]: defaultRectangleShape,
 		[ElementGroup.Filtering]: defaultRectangleShape,
+		[ElementGroup.Transformation]: defaultRectangleShape,
 		[ElementGroup.Result]: scaleCircleShape(defaultCircleShape, 0.7),
 		[ElementGroup.ConnectPoint]: scaleCircleShape(defaultCircleShape, 0.32),
 	},

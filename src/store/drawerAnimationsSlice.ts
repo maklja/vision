@@ -79,17 +79,25 @@ export const drawerAnimationsSlice = createSlice({
 				data,
 			};
 
-			slice.animations = drawerAnimations
-				? animationsAdapter.updateOne(animations, {
-						id: drawerId,
-						changes: {
-							queue: [...drawerAnimations.queue, newAnimation],
-						},
-				  })
-				: animationsAdapter.addOne(animations, {
-						drawerId,
-						queue: [newAnimation],
-				  });
+			if (!drawerAnimations) {
+				slice.animations = animationsAdapter.addOne(animations, {
+					drawerId,
+					queue: [newAnimation],
+				});
+				return;
+			}
+
+			const animationExists = drawerAnimations.queue.some((a) => a.id === newAnimation.id);
+			if (animationExists) {
+				return;
+			}
+
+			slice.animations = animationsAdapter.updateOne(animations, {
+				id: drawerId,
+				changes: {
+					queue: [...drawerAnimations.queue, newAnimation],
+				},
+			});
 		},
 		refreshDrawerAnimation: (
 			slice: DrawerAnimationState,

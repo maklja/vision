@@ -16,6 +16,7 @@ import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimationsSlice'
 import { useElementDrawerHandlers } from './state';
 import { ElementDrawerProps } from './ElementDrawerProps';
 import { animationRegistry } from '../animation';
+import { MapOperatorDrawer } from './transformationOperators';
 
 export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {
 	switch (elType) {
@@ -35,6 +36,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <MergeOperatorDrawer {...props} />;
 		case ElementType.Subscriber:
 			return <SubscriberDrawer {...props} />;
+		case ElementType.Map:
+			return <MapOperatorDrawer {...props} />;
 		default:
 			return null;
 	}
@@ -74,6 +77,7 @@ export const OperatorDrawer = ({
 		case ElementType.Subscriber:
 		case ElementType.Merge:
 		case ElementType.IIf:
+		case ElementType.Map:
 			return createOperatorDrawer(element.type, {
 				...drawerHandlers,
 				id: element.id,
@@ -109,3 +113,4 @@ export const OperatorDrawer = ({
 			return null;
 	}
 };
+

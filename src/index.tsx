@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { v1 } from 'uuid';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
@@ -15,8 +16,8 @@ import {
 	Element,
 	IntervalElement,
 	CatchErrorElement,
-	IifElement,
 	MergeElement,
+	MapElement,
 } from './model';
 import { SimulationState, StageState } from './store/stageSlice';
 import { createThemeContext, createElementSizesContext } from './theme';
@@ -43,15 +44,15 @@ const e3: FromElement = {
 	},
 };
 
-const iifElement: IifElement = {
-	id: 'iifElement',
+const mapElement: MapElement = {
+	id: 'mapElement',
 	scale: 1,
-	x: 50,
+	x: 80,
 	y: 400,
-	type: ElementType.IIf,
+	type: ElementType.Map,
 	visible: true,
 	properties: {
-		conditionExpression: '() => { return false; }',
+		expression: '(value) => { return value; }',
 	},
 };
 
@@ -169,49 +170,49 @@ const merge2: MergeElement = {
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
-	// <React.StrictMode>
-	<Provider
-		store={setupStore({
-			stage: {
-				elements: [
-					e1,
-					subscriber1,
-					subscriber2,
-					subscriber3,
-					subscriber4,
-					e3,
-					e4,
-					e5,
-					i1,
-					ce1,
-					iifElement,
-					merge1,
-					merge2,
-				],
-				connectLines: [],
-				draftConnectLine: null,
-				draftElement: null,
-				highlighted: [],
-				highlightedConnectPoints: [],
-				selected: [],
-				themes: createThemeContext(),
-				elementSizes: createElementSizesContext(),
-				state: StageState.Select,
-				simulation: {
-					id: v1(),
-					state: SimulationState.Stopped,
-					completed: false,
-					animationsQueue: [],
-					events: [],
+	<StrictMode>
+		<Provider
+			store={setupStore({
+				stage: {
+					elements: [
+						e1,
+						subscriber1,
+						subscriber2,
+						subscriber3,
+						subscriber4,
+						e3,
+						e4,
+						e5,
+						i1,
+						ce1,
+						mapElement,
+						merge1,
+						merge2,
+					],
+					connectLines: [],
+					draftConnectLine: null,
+					draftElement: null,
+					highlighted: [],
+					highlightedConnectPoints: [],
+					selected: [],
+					themes: createThemeContext(),
+					elementSizes: createElementSizesContext(),
+					state: StageState.Select,
+					simulation: {
+						id: v1(),
+						state: SimulationState.Stopped,
+						completed: false,
+						animationsQueue: [],
+						events: [],
+					},
 				},
-			},
-		})}
-	>
-		<DndProvider backend={HTML5Backend}>
-			<App />
-		</DndProvider>
-	</Provider>,
-	// </React.StrictMode>,
+			})}
+		>
+			<DndProvider backend={HTML5Backend}>
+				<App />
+			</DndProvider>
+		</Provider>
+	</StrictMode>,
 );
 
 // If you want to start measuring performance in your app, pass a function
