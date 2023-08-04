@@ -8,9 +8,13 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 		e.cancelBubble = true;
 
 		const stage = e.target.getStage();
-		const rect = stage?.getContent().getBoundingClientRect();
-		const x = e.evt.clientX - (rect?.left ?? 0);
-		const y = e.evt.clientY - (rect?.top ?? 0);
+		if (!stage) {
+			return;
+		}
+
+		const pointerPosition = stage.getRelativePointerPosition();
+		const x = pointerPosition.x;
+		const y = pointerPosition.y;
 		dispatch(
 			moveConnectLineDraw({
 				x,
@@ -24,3 +28,4 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 		dispatch(deleteConnectLineDraw());
 	},
 });
+
