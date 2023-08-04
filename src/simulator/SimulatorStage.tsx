@@ -47,10 +47,12 @@ export const SimulatorStage = () => {
 				}
 
 				const position = stageRef.current.getPosition();
+				const scale = stageRef.current.scale() ?? { x: 1, y: 1 };
+
 				const clientOffset = monitor.getClientOffset();
 				const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
-				const xPosition = (clientOffset?.x ?? 0) - position.x - bb.width / 2;
-				const yPosition = (clientOffset?.y ?? 0) - position.y - bb.height / 2;
+				const xPosition = ((clientOffset?.x ?? 0) - position.x) / scale.x - bb.width / 2;
+				const yPosition = ((clientOffset?.y ?? 0) - position.y) / scale.y - bb.height / 2;
 
 				appDispatch(
 					addDraftElement({
@@ -75,6 +77,48 @@ export const SimulatorStage = () => {
 		}
 	};
 
+	const scaleBy = 2.01;
+	const handleMouseWheel = (e: KonvaEventObject<WheelEvent>) => {
+		e.evt.preventDefault();
+
+		if (!stageRef.current) {
+			return;
+		}
+
+		const stage = stageRef.current;
+
+		const oldScale = stage.scaleX();
+		const pointer = stage.getPointerPosition();
+
+		const pointerX = pointer?.x ?? 0;
+		const pointerY = pointer?.y ?? 0;
+
+		const mousePointTo = {
+			x: (pointerX - stage.x()) / oldScale,
+			y: (pointerY - stage.y()) / oldScale,
+		};
+
+		let direction = e.evt.deltaY > 0 ? 1 : -1;
+		if (e.evt.ctrlKey) {
+			direction = -direction;
+		}
+
+		const unboundedNewScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+		let newScale = unboundedNewScale;
+		if (unboundedNewScale < 0.1) {
+			newScale = 0.1;
+		} else if (unboundedNewScale > 10.0) {
+			newScale = 10.0;
+		}
+
+		stage.scale({ x: newScale, y: newScale });
+
+		stage.position({
+			x: pointerX - mousePointTo.x * newScale,
+			y: pointerY - mousePointTo.y * newScale,
+		});
+	};
+
 	return (
 		<div ref={drop}>
 			<Stage
@@ -85,6 +129,7 @@ export const SimulatorStage = () => {
 				draggable={true}
 				ref={stageRef}
 				onDragStart={handleDragStart}
+				onWheel={handleMouseWheel}
 			>
 				<ConnectLinesLayer />
 				<DrawersLayer />

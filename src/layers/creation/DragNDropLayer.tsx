@@ -36,11 +36,13 @@ export const DragNDropLayer = () => {
 		return null;
 	}
 
-	const position = layerRef.current?.getStage().getPosition() ?? null;
+	const position = layerRef.current?.getStage().getPosition() ?? { x: 0, y: 0 };
+	const scale = layerRef.current?.getStage().scale() ?? { x: 1, y: 1 };
+
 	const { element, shapeSize } = item;
 	const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
-	const xPosition = (clientOffset?.x ?? 0) - (position?.x ?? 0) - bb.width / 2;
-	const yPosition = (clientOffset?.y ?? 0) - (position?.y ?? 0) - bb.height / 2;
+	const xPosition = ((clientOffset?.x ?? 0) - position.x) / scale.x - bb.width / 2;
+	const yPosition = ((clientOffset?.y ?? 0) - position.y) / scale.y - bb.height / 2;
 
 	const drawer = createOperatorDrawer(element.type, {
 		id: element.id,
