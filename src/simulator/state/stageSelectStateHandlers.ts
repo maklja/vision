@@ -24,6 +24,7 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 		const { button, buttons } = e.evt;
 		if (button !== MIDDLE_MOUSE_BUTTON_KEY && buttons !== MIDDLE_MOUSE_BUTTON_KEY) {
 			stage.stopDrag();
+			return;
 		}
 
 		changeCursorStyle('grabbing', e);
