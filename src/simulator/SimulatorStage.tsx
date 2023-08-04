@@ -20,12 +20,11 @@ export interface StageEvents {
 	onMouseOver?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseOut?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseMove?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
-	onDragStart?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
-	onDragEnd?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
-	onDragMove?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onDragStart?: (event: Konva.KonvaEventObject<DragEvent>) => void;
+	onDragEnd?: (event: Konva.KonvaEventObject<DragEvent>) => void;
+	onDragMove?: (event: Konva.KonvaEventObject<DragEvent>) => void;
+	onWheel?: (event: KonvaEventObject<WheelEvent>) => void;
 }
-
-const MIDDLE_MOUSE_BUTTON_KEY = 4;
 
 export const SimulatorStage = () => {
 	const theme = useThemeContext();
@@ -66,59 +65,6 @@ export const SimulatorStage = () => {
 		[],
 	);
 
-	const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
-		if (!stageRef.current) {
-			return;
-		}
-
-		const { button, buttons } = e.evt;
-		if (button !== MIDDLE_MOUSE_BUTTON_KEY && buttons !== MIDDLE_MOUSE_BUTTON_KEY) {
-			stageRef.current.stopDrag();
-		}
-	};
-
-	const scaleBy = 2.01;
-	const handleMouseWheel = (e: KonvaEventObject<WheelEvent>) => {
-		e.evt.preventDefault();
-
-		if (!stageRef.current) {
-			return;
-		}
-
-		const stage = stageRef.current;
-
-		const oldScale = stage.scaleX();
-		const pointer = stage.getPointerPosition();
-
-		const pointerX = pointer?.x ?? 0;
-		const pointerY = pointer?.y ?? 0;
-
-		const mousePointTo = {
-			x: (pointerX - stage.x()) / oldScale,
-			y: (pointerY - stage.y()) / oldScale,
-		};
-
-		let direction = e.evt.deltaY > 0 ? 1 : -1;
-		if (e.evt.ctrlKey) {
-			direction = -direction;
-		}
-
-		const unboundedNewScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
-		let newScale = unboundedNewScale;
-		if (unboundedNewScale < 0.1) {
-			newScale = 0.1;
-		} else if (unboundedNewScale > 10.0) {
-			newScale = 10.0;
-		}
-
-		stage.scale({ x: newScale, y: newScale });
-
-		stage.position({
-			x: pointerX - mousePointTo.x * newScale,
-			y: pointerY - mousePointTo.y * newScale,
-		});
-	};
-
 	return (
 		<div ref={drop}>
 			<Stage
@@ -128,8 +74,6 @@ export const SimulatorStage = () => {
 				height={window.innerHeight}
 				draggable={true}
 				ref={stageRef}
-				onDragStart={handleDragStart}
-				onWheel={handleMouseWheel}
 			>
 				<ConnectLinesLayer />
 				<DrawersLayer />
