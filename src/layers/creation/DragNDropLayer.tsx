@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import Konva from 'konva';
 import { Layer } from 'react-konva';
 import { XYCoord, useDragLayer } from 'react-dnd';
 import { Element } from '../../model';
@@ -20,6 +22,8 @@ interface DragCollectedProps {
 
 export const DragNDropLayer = () => {
 	const theme = useThemeContext();
+	const layerRef = useRef<Konva.Layer | null>(null);
+
 	const { itemType, isDragging, item, clientOffset } = useDragLayer<DragCollectedProps>(
 		(monitor) => ({
 			item: monitor.getItem(),
@@ -28,15 +32,15 @@ export const DragNDropLayer = () => {
 			isDragging: monitor.isDragging(),
 		}),
 	);
-
 	if (!item || !isDragging || itemType !== DragNDropType.CreateElement) {
 		return null;
 	}
 
+	const position = layerRef.current?.getStage().getPosition() ?? null;
 	const { element, shapeSize } = item;
 	const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
-	const xPosition = (clientOffset?.x ?? 0) - bb.width / 2;
-	const yPosition = (clientOffset?.y ?? 0) - bb.height / 2;
+	const xPosition = (clientOffset?.x ?? 0) - (position?.x ?? 0) - bb.width / 2;
+	const yPosition = (clientOffset?.y ?? 0) - (position?.y ?? 0) - bb.height / 2;
 
 	const drawer = createOperatorDrawer(element.type, {
 		id: element.id,
@@ -48,10 +52,6 @@ export const DragNDropLayer = () => {
 		draggable: false,
 		theme,
 	});
-	if (!drawer) {
-		return null;
-	}
-
-	return <Layer>{drawer}</Layer>;
+	return <Layer ref={layerRef}>{drawer}</Layer>;
 };
 

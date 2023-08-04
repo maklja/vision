@@ -16,7 +16,7 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 		const { id, originalEvent } = e;
 		if (originalEvent) {
 			originalEvent.cancelBubble = true;
-			const position = originalEvent.currentTarget.getAbsolutePosition();
+			const position = originalEvent.currentTarget.getPosition();
 			dispatch(
 				moveElement({
 					id,
@@ -27,3 +27,4 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 		}
 	},
 });
+

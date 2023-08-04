@@ -9,6 +9,10 @@ import { useStageHandlers } from './state';
 import { DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DragNDropType } from '../dragNDrop';
 import { calculateShapeSizeBoundingBox } from '../theme';
+import { useRef } from 'react';
+import { KonvaEventObject } from 'konva/lib/Node';
+
+Konva.hitOnDragEnabled = true;
 
 export interface StageEvents {
 	onMouseDown?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
@@ -21,10 +25,13 @@ export interface StageEvents {
 	onDragMove?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
 }
 
+const MIDDLE_MOUSE_BUTTON_KEY = 4;
+
 export const SimulatorStage = () => {
 	const theme = useThemeContext();
 	const stageHandlers = useStageHandlers();
 	const appDispatch = useAppDispatch();
+	const stageRef = useRef<Konva.Stage | null>(null);
 
 	const [, drop] = useDrop<DragNDropItem>(
 		() => ({
@@ -35,10 +42,15 @@ export const SimulatorStage = () => {
 					return;
 				}
 
+				if (!stageRef.current) {
+					return;
+				}
+
+				const position = stageRef.current.getPosition();
 				const clientOffset = monitor.getClientOffset();
 				const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
-				const xPosition = (clientOffset?.x ?? 0) - bb.width / 2;
-				const yPosition = (clientOffset?.y ?? 0) - bb.height / 2;
+				const xPosition = (clientOffset?.x ?? 0) - position.x - bb.width / 2;
+				const yPosition = (clientOffset?.y ?? 0) - position.y - bb.height / 2;
 
 				appDispatch(
 					addDraftElement({
@@ -52,6 +64,17 @@ export const SimulatorStage = () => {
 		[],
 	);
 
+	const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
+		if (!stageRef.current) {
+			return;
+		}
+
+		const { button, buttons } = e.evt;
+		if (button !== MIDDLE_MOUSE_BUTTON_KEY && buttons !== MIDDLE_MOUSE_BUTTON_KEY) {
+			stageRef.current.stopDrag();
+		}
+	};
+
 	return (
 		<div ref={drop}>
 			<Stage
@@ -59,6 +82,9 @@ export const SimulatorStage = () => {
 				style={{ backgroundColor: theme.colors.backgroundColor }}
 				width={window.innerWidth}
 				height={window.innerHeight}
+				draggable={true}
+				ref={stageRef}
+				onDragStart={handleDragStart}
 			>
 				<ConnectLinesLayer />
 				<DrawersLayer />
