@@ -4,7 +4,7 @@ import { StageEvents } from '../SimulatorStage';
 import { selectElements } from '../../store/stageSlice';
 import { changeCursorStyle } from '../../operatorDrawers/utils';
 
-const MIDDLE_MOUSE_BUTTON_KEY = 4;
+const PAN_MOUSE_BUTTON_KEY = 1;
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 10;
 const ZOOM_BY = 2.01;
@@ -22,7 +22,7 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 		}
 
 		const { button, buttons } = e.evt;
-		if (button !== MIDDLE_MOUSE_BUTTON_KEY && buttons !== MIDDLE_MOUSE_BUTTON_KEY) {
+		if (button !== PAN_MOUSE_BUTTON_KEY && buttons !== PAN_MOUSE_BUTTON_KEY) {
 			stage.stopDrag();
 			return;
 		}
@@ -66,4 +66,3 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 		});
 	},
 });
-

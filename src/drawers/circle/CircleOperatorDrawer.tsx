@@ -130,8 +130,9 @@ export const CircleOperatorDrawer = ({
 				y={textY}
 				fontSize={fontSizes.primary}
 				listening={false}
+				align="center"
+				verticalAlign="middle"
 			/>
 		</Group>
 	);
 };
-
