@@ -7,8 +7,8 @@ export const errorDrawerAnimation = {
 	factory: (theme: Theme): AnimationTemplate => ({
 		mainShape: {
 			duration: 0.3,
-			fill: theme.drawer.errorElement.fill,
-			stroke: theme.drawer.errorElement.stroke,
+			fill: theme.drawer.errorElement.primary.fill,
+			stroke: theme.drawer.errorElement.primary.stroke,
 		},
 		text: {
 			duration: 0.3,
@@ -17,4 +17,3 @@ export const errorDrawerAnimation = {
 		options: { autoReverse: false },
 	}),
 };
-

@@ -21,6 +21,7 @@ export const CircleOperatorDrawer = ({
 	theme,
 	animation,
 	draggable = false,
+	hasError = false,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
@@ -35,6 +36,7 @@ export const CircleOperatorDrawer = ({
 		{
 			highlight,
 			select,
+			hasError,
 		},
 		theme,
 	);
@@ -115,7 +117,7 @@ export const CircleOperatorDrawer = ({
 			onDragEnd={handleDragEnd}
 		>
 			<Circle
-				{...drawerStyle.element}
+				{...drawerStyle.element.primary}
 				ref={(ref) => setMainShapeRef(ref)}
 				id={id}
 				radius={radius}

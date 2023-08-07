@@ -6,18 +6,17 @@ export const highlightDrawerAnimation = {
 	key: AnimationKey.HighlightDrawer,
 	factory: (theme: Theme): AnimationTemplate => ({
 		mainShape: {
-			duration: 0.3,
-			fill: theme.drawer.highlightElement.fill,
+			duration: 0.2,
+			fill: theme.drawer.highlightElement.primary.fill,
 		},
 		secondaryShape: {
-			duration: 0.3,
-			fill: theme.colors.primaryColor,
+			duration: 0.2,
+			fill: theme.drawer.highlightElement.secondary.fill,
 		},
 		text: {
-			duration: 0.3,
+			duration: 0.2,
 			stroke: theme.drawer.highlightText.stroke,
 		},
 		options: { autoReverse: true },
 	}),
 };
-

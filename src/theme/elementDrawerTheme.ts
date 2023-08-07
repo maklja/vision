@@ -1,6 +1,6 @@
 import { ColorTheme } from './colors';
 
-export interface ElementDrawerStyle {
+export interface ElementDrawerPartStyle {
 	stroke: string;
 	fill: string;
 	strokeWidth: number;
@@ -12,6 +12,11 @@ export interface ElementDrawerTextStyle {
 	strokeWidth: number;
 	letterSpacing: number;
 	fontFamily: string;
+}
+
+export interface ElementDrawerStyle {
+	primary: ElementDrawerPartStyle;
+	secondary: ElementDrawerPartStyle;
 }
 
 export interface ElementDrawerTheme {
@@ -26,13 +31,13 @@ export interface ElementDrawerTheme {
 }
 
 export interface ElementDrawerThemeOverride {
-	element?: Partial<ElementDrawerStyle>;
+	element?: Partial<ElementDrawerPartStyle>;
 	text?: Partial<ElementDrawerTextStyle>;
-	highlightElement?: Partial<ElementDrawerStyle>;
+	highlightElement?: Partial<ElementDrawerPartStyle>;
 	highlightText?: Partial<ElementDrawerTextStyle>;
-	selectElement?: Partial<ElementDrawerStyle>;
+	selectElement?: Partial<ElementDrawerPartStyle>;
 	selectText?: Partial<ElementDrawerTextStyle>;
-	errorElement?: Partial<ElementDrawerStyle>;
+	errorElement?: Partial<ElementDrawerPartStyle>;
 	errorText?: Partial<ElementDrawerTextStyle>;
 }
 
@@ -52,32 +57,56 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 	};
 
 	return {
-		element: elementDefault,
+		element: {
+			primary: elementDefault,
+			secondary: {
+				...elementDefault,
+				fill: themeColors.secondaryColor,
+			},
+		},
 		text: textDefault,
 		highlightElement: {
-			...elementDefault,
-			fill: themeColors.secondaryColor,
+			primary: {
+				...elementDefault,
+				fill: themeColors.secondaryColor,
+			},
+			secondary: {
+				...elementDefault,
+				fill: themeColors.primaryColor,
+			},
 		},
 		highlightText: {
 			...textDefault,
 			stroke: themeColors.textColor,
 		},
 		selectElement: {
-			...elementDefault,
-			fill: themeColors.secondaryColor,
+			primary: {
+				...elementDefault,
+				fill: themeColors.secondaryColor,
+			},
+			secondary: {
+				...elementDefault,
+				fill: themeColors.primaryColor,
+			},
 		},
 		selectText: {
 			...textDefault,
 			stroke: themeColors.textColor,
 		},
 		errorElement: {
-			...elementDefault,
-			fill: themeColors.errorPrimaryColor,
-			stroke: themeColors.errorSecondaryColor,
+			primary: {
+				...elementDefault,
+				fill: themeColors.errorPrimaryColor,
+				stroke: themeColors.errorSecondaryColor,
+			},
+			secondary: {
+				...elementDefault,
+				fill: themeColors.errorSecondaryColor,
+				stroke: themeColors.errorSecondaryColor,
+			},
 		},
 		errorText: {
 			...textDefault,
 		},
 	};
 };
-

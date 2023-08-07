@@ -35,7 +35,7 @@ const seaColorTheme: ColorTheme = {
 	textColor: '#000000',
 	secondaryTextColor: '#EEE',
 	errorPrimaryColor: '#DD5353',
-	errorSecondaryColor: '#B73E3E',
+	errorSecondaryColor: '#ECA0A0',
 	successPrimaryColor: '#198754',
 	successSecondaryColor: '#22bb33',
 };
@@ -43,4 +43,3 @@ const seaColorTheme: ColorTheme = {
 export const retrieveThemeColors = (): ColorTheme => {
 	return seaColorTheme;
 };
-

@@ -7,7 +7,9 @@ import {
 	SimulationState,
 	addElement,
 	addNextObservableEvent,
+	clearErrors,
 	completeSimulation,
+	createElementError,
 	moveElement,
 	removeElement,
 	removeSimulationAnimation,
@@ -24,7 +26,14 @@ import { addDrawerAnimation, selectDrawerAnimationById } from '../store/drawerAn
 import { MoveAnimation } from '../animation';
 import { ElementType, isEntryOperatorType } from '../model';
 import { OperatorsPanel, SimulationControls } from '../ui';
-import { FlowErrorEvent, FlowValue, FlowValueEvent, createObservableSimulation } from '../engine';
+import {
+	FlowErrorEvent,
+	FlowValue,
+	FlowValueEvent,
+	MissingNextElementError,
+	MissingReferenceObservableError,
+	createObservableSimulation,
+} from '../engine';
 
 export const Simulator = () => {
 	const simulationStep = useRef(0);
@@ -154,18 +163,38 @@ export const Simulator = () => {
 			return;
 		}
 
-		appDispatch(startSimulation());
-		appDispatch(selectElements([]));
-		const subscription = createObservableSimulation(
-			entryElementId,
-			elements,
-			connectLines,
-		).start({
-			next: dispatchNextEvent,
-			error: dispatchErrorEvent,
-			complete: dispatchCompleteEvent,
-		});
-		setSimulationSubscription(subscription);
+		try {
+			appDispatch(clearErrors());
+			appDispatch(startSimulation());
+			appDispatch(selectElements([]));
+			const subscription = createObservableSimulation(
+				entryElementId,
+				elements,
+				connectLines,
+			).start({
+				next: dispatchNextEvent,
+				error: dispatchErrorEvent,
+				complete: dispatchCompleteEvent,
+			});
+			setSimulationSubscription(subscription);
+		} catch (e) {
+			if (
+				e instanceof MissingReferenceObservableError ||
+				e instanceof MissingNextElementError
+			) {
+				appDispatch(resetSimulation());
+				appDispatch(
+					createElementError({
+						elementId: e.elementId,
+						errorMessage: e.message,
+						errorId: e.id,
+					}),
+				);
+				return;
+			}
+
+			throw e;
+		}
 	};
 
 	const handleSimulationStop = () => {
@@ -229,4 +258,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-

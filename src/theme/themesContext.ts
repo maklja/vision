@@ -51,7 +51,7 @@ export const createThemeContext = (): ThemesContext => {
 export interface DrawerThemeState {
 	highlight?: boolean;
 	select?: boolean;
-	error?: boolean;
+	hasError?: boolean;
 }
 
 export interface ConnectPointThemeState extends DrawerThemeState {
@@ -76,12 +76,28 @@ export const useConnectPointTheme = (state: ConnectPointThemeState, theme: Theme
 export const useElementDrawerTheme = (state: DrawerThemeState, theme: Theme) => {
 	const { drawer } = theme;
 
-	// if (state.error) {
-	// 	return {
-	// 		element: drawer.errorElement,
-	// 		text: drawer.errorText,
-	// 	};
-	// }
+	if (state.hasError && (state.select || state.highlight)) {
+		return {
+			element: {
+				primary: {
+					...drawer.errorElement.primary,
+					fill: drawer.selectElement.primary.fill,
+				},
+				secondary: {
+					...drawer.errorElement.secondary,
+					fill: drawer.selectElement.secondary.fill,
+				},
+			},
+			text: drawer.errorText,
+		};
+	}
+
+	if (state.hasError) {
+		return {
+			element: drawer.errorElement,
+			text: drawer.errorText,
+		};
+	}
 
 	if (state.select) {
 		return {

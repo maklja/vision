@@ -11,6 +11,7 @@ import {
 } from '../../model';
 import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue } from '../context';
+import { MissingReferenceObservableError } from '../errors';
 
 type CreationOperatorFunctionFactory = (
 	el: Element,
@@ -75,7 +76,10 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 				connectPoint.connectPosition === ConnectPointPosition.Top,
 		);
 		if (!trueRefObservable) {
-			throw new Error('Not found true branch observable operator');
+			throw new MissingReferenceObservableError(
+				iifEl.id,
+				'Not found true branch observable operator',
+			);
 		}
 
 		const falseRefObservable = options.referenceObservables.find(
@@ -84,7 +88,10 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 				connectPoint.connectPosition === ConnectPointPosition.Bottom,
 		);
 		if (!falseRefObservable) {
-			throw new Error('Not found true branch observable operator');
+			throw new MissingReferenceObservableError(
+				iifEl.id,
+				'Not found false branch observable operator',
+			);
 		}
 
 		return iif(
@@ -104,4 +111,3 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		return new FlowValue(value);
 	}
 }
-

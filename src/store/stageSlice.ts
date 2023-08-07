@@ -1,5 +1,5 @@
 import { v1 } from 'uuid';
-import { createSlice, Draft } from '@reduxjs/toolkit';
+import { createSlice, Draft, EntityState } from '@reduxjs/toolkit';
 import {
 	ConnectLine,
 	ConnectPoint,
@@ -32,13 +32,22 @@ import {
 	removeSimulationAnimationReducer,
 	SimulationState,
 	startSimulationReducer,
+	ElementError,
+	errorsAdapter,
+	createElementErrorReducer,
+	clearErrorsReducer,
 } from './reducer';
 import { RootState } from './rootState';
 
 export * from './hooks/theme';
 
 export type { ObservableEvent } from './reducer';
-export { ObservableEventType, SimulationState } from './reducer';
+export {
+	ObservableEventType,
+	SimulationState,
+	errorsAdapter,
+	selectElementErrorById,
+} from './reducer';
 
 export interface DraftConnectLine {
 	id: string;
@@ -71,6 +80,7 @@ export interface StageSlice {
 	simulation: Simulation;
 	themes: ThemesContext;
 	elementSizes: ElementSizesContext;
+	errors: EntityState<ElementError>;
 }
 
 export interface AddElementsAction {
@@ -147,6 +157,7 @@ const initialState: StageSlice = {
 	},
 	themes: createThemeContext(),
 	elementSizes: createElementSizesContext(),
+	errors: errorsAdapter.getInitialState(),
 };
 
 export const stageSlice = createSlice({
@@ -240,6 +251,8 @@ export const stageSlice = createSlice({
 		completeSimulation: completeSimulationReducer,
 		addNextObservableEvent: addNextObservableEventReducer,
 		removeSimulationAnimation: removeSimulationAnimationReducer,
+		createElementError: createElementErrorReducer,
+		clearErrors: clearErrorsReducer,
 	},
 });
 
@@ -267,6 +280,8 @@ export const {
 	completeSimulation,
 	addNextObservableEvent,
 	removeSimulationAnimation,
+	createElementError,
+	clearErrors,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;

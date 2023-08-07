@@ -14,6 +14,7 @@ export const FilterOperatorDrawer = ({
 	animation,
 	draggable,
 	highlight,
+	hasError,
 	select,
 	visible,
 	visibleConnectPoints,
@@ -54,6 +55,7 @@ export const FilterOperatorDrawer = ({
 				animation={animation}
 				draggable={draggable}
 				highlight={highlight}
+				hasError={hasError}
 				select={select}
 				visible={visible}
 				onAnimationBegin={onAnimationBegin}
@@ -69,4 +71,3 @@ export const FilterOperatorDrawer = ({
 		</Group>
 	);
 };
-

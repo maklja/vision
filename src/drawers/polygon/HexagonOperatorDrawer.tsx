@@ -21,6 +21,7 @@ export const HexagonOperatorDrawer = ({
 	theme,
 	animation,
 	draggable = false,
+	hasError = false,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
@@ -35,6 +36,7 @@ export const HexagonOperatorDrawer = ({
 		{
 			highlight,
 			select,
+			hasError,
 		},
 		theme,
 	);
@@ -115,7 +117,7 @@ export const HexagonOperatorDrawer = ({
 			onDragEnd={handleDragEnd}
 		>
 			<RegularPolygon
-				{...drawerStyle.element}
+				{...drawerStyle.element.primary}
 				sides={6}
 				ref={(ref) => setMainShapeRef(ref)}
 				id={id}

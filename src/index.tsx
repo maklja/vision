@@ -19,7 +19,7 @@ import {
 	MergeElement,
 	MapElement,
 } from './model';
-import { SimulationState, StageState } from './store/stageSlice';
+import { SimulationState, StageState, errorsAdapter } from './store/stageSlice';
 import { createThemeContext, createElementSizesContext } from './theme';
 
 const e1: OfElement = {
@@ -205,6 +205,7 @@ root.render(
 						animationsQueue: [],
 						events: [],
 					},
+					errors: errorsAdapter.getInitialState(),
 				},
 			})}
 		>
@@ -219,4 +220,3 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
-
