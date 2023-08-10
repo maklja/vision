@@ -10,7 +10,7 @@ import {
 } from 'rxjs';
 import { Element, ElementType, FilterElement, MapElement } from '../../model';
 import { OperatorOptions, PipeOperatorFactory } from './OperatorFactory';
-import { FlowValue } from '../context';
+import { FlowValue, FlowValueType } from '../context';
 import { MissingReferenceObservableError } from '../errors';
 
 type PipeOperatorFunctionFactory = (
@@ -64,7 +64,10 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 
 		const [refObservable] = options.referenceObservables;
 		return catchError<FlowValue, ObservableInput<FlowValue>>((error) => {
-			refObservable.invokeTrigger?.(error);
+			refObservable.invokeTrigger?.({
+				...error,
+				type: FlowValueType.Next,
+			});
 			return refObservable.observable;
 		});
 	}

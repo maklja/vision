@@ -4,7 +4,6 @@ import { DrawerAnimation } from '../drawerAnimationsSlice';
 import { StageSlice } from '../stageSlice';
 import { createAnimations } from './createAnimations';
 import { FlowValueType } from '../../engine';
-import { AnimationKey } from '../../animation';
 
 export interface SimulationAnimation extends DrawerAnimation {
 	drawerId: string;
