@@ -89,7 +89,7 @@ const e5: FilterElement = {
 	visible: true,
 	properties: {
 		expression: `function(value) {
-			if (value > 5) {
+			if (value > 2) {
 				throw new Error('Ups');
 			}
 	

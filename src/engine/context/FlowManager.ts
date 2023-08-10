@@ -3,31 +3,33 @@ import createHash from 'object-hash';
 import { ConnectLine } from '../../model';
 import { Observable } from 'rxjs';
 
+export enum FlowValueType {
+	Next = 'next',
+	Error = 'error',
+	Complete = 'complete',
+}
+
 export class FlowValue<T = unknown> {
 	public readonly hash: string;
-	constructor(public readonly value: T, public readonly id: string = v1()) {
+
+	constructor(
+		public readonly raw: T,
+		public readonly elementId: string,
+		public readonly type: FlowValueType,
+		public readonly id: string = v1(),
+	) {
 		this.hash = createHash({ id }, { algorithm: 'md5' });
 	}
 
-	static createEmptyValue() {
-		return new FlowValue(null, 'EMPTY');
+	static createEmptyValue(elementId: string) {
+		return new FlowValue(null, elementId, FlowValueType.Next, 'EMPTY');
 	}
 }
 
 export interface FlowValueEvent<T> {
 	id: string;
 	index: number;
-	value: T;
-	hash: string;
-	connectLinesId: string[];
-	sourceElementId: string;
-	targetElementId: string;
-}
-
-export interface FlowErrorEvent<E> {
-	id: string;
-	index: number;
-	error: E;
+	value: FlowValue<T>;
 	hash: string;
 	connectLinesId: string[];
 	sourceElementId: string;
@@ -45,4 +47,3 @@ export interface FlowManager {
 
 	asObservable(): Observable<FlowValueEvent<unknown>>;
 }
-

@@ -10,7 +10,7 @@ import {
 	OfElement,
 } from '../../model';
 import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
-import { FlowValue } from '../context';
+import { FlowValue, FlowValueType } from '../context';
 import { MissingReferenceObservableError } from '../errors';
 
 type CreationOperatorFunctionFactory = (
@@ -50,19 +50,23 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		const ofEl = el as OfElement<unknown>;
 		const { items } = ofEl.properties;
 		return items
-			? of(...items).pipe(map<unknown, FlowValue>((item) => this.createFlowValue(item)))
-			: of(this.createFlowValue(null));
+			? of(...items).pipe(
+					map<unknown, FlowValue>((item) => this.createFlowValue(item, ofEl.id)),
+			  )
+			: of(this.createFlowValue(null, ofEl.id));
 	}
 
 	private createFromCreationOperator(el: Element) {
 		const fromEl = el as FromElement<unknown>;
-		return from(fromEl.properties.input).pipe(map((item) => this.createFlowValue(item)));
+		return from(fromEl.properties.input).pipe(
+			map((item) => this.createFlowValue(item, fromEl.id)),
+		);
 	}
 
 	private createIntervalCreationOperator(el: Element) {
 		const intervalEl = el as IntervalElement;
 		return interval(intervalEl.properties.period).pipe(
-			map((item) => this.createFlowValue(item)),
+			map((item) => this.createFlowValue(item, el.id)),
 		);
 	}
 
@@ -97,17 +101,17 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		return iif(
 			conditionFn(),
 			defer(() => {
-				trueRefObservable.invokeTrigger?.(FlowValue.createEmptyValue());
+				trueRefObservable.invokeTrigger?.(FlowValue.createEmptyValue(iifEl.id));
 				return trueRefObservable.observable;
 			}),
 			defer(() => {
-				falseRefObservable.invokeTrigger?.(FlowValue.createEmptyValue());
+				falseRefObservable.invokeTrigger?.(FlowValue.createEmptyValue(iifEl.id));
 				return falseRefObservable.observable;
 			}),
 		);
 	}
 
-	private createFlowValue(value: unknown): FlowValue {
-		return new FlowValue(value);
+	private createFlowValue(value: unknown, elementId: string): FlowValue {
+		return new FlowValue(value, elementId, FlowValueType.Next);
 	}
 }

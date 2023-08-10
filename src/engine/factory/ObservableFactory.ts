@@ -8,7 +8,7 @@ import {
 	isPipeOperatorType,
 	isSubscriberType,
 } from '../../model';
-import { FlowManager, FlowValue, SimulationModel } from '../context';
+import { FlowManager, FlowValue, FlowValueType, SimulationModel } from '../context';
 import { DefaultCreationOperatorFactory } from './DefaultCreationOperatorFactory';
 import { DefaultPipeOperatorFactory } from './DefaultPipeOperatorFactory';
 import { GraphBranch, GraphNode, GraphNodeType } from '../simulationGraph';
@@ -71,7 +71,9 @@ export class ObservableFactory {
 		observables: Map<string, Observable<FlowValue>>,
 	): Observable<FlowValue> {
 		const pipeOperators: OperatorFunction<FlowValue, FlowValue>[] = [];
+		const { entryElementId } = this.simulationModel;
 
+		const isMainGraphBranch = graphBranch.nodes.at(0)?.id === entryElementId;
 		let creationOperator: Observable<FlowValue<unknown>> | null = null;
 		for (const currentNode of graphBranch.nodes) {
 			const el = this.simulationModel.getElement(currentNode.id);
@@ -90,10 +92,15 @@ export class ObservableFactory {
 				.filter((edge) => edge.type === GraphNodeType.Direct)
 				.flatMap((edge) => {
 					const nextEl = this.simulationModel.getElement(edge.targetNodeId);
-					return this.createConnectLinePipeOperators(
-						nextEl,
-						this.simulationModel.getConnectLine(edge.id),
-					);
+					const cl = this.simulationModel.getConnectLine(edge.id);
+					if (isMainGraphBranch && isSubscriberType(nextEl.type)) {
+						return [
+							this.createControlOperator(cl),
+							this.createUnhandledErrorOperator(cl),
+						];
+					}
+
+					return [this.createControlOperator(cl), this.createErrorTrackerOperator(cl)];
 				});
 			pipeOperators.push(...clOperators);
 		}
@@ -139,17 +146,6 @@ export class ObservableFactory {
 		});
 	}
 
-	private createConnectLinePipeOperators(
-		el: Element,
-		cl: ConnectLine,
-	): OperatorFunction<FlowValue, FlowValue>[] {
-		if (isSubscriberType(el.type)) {
-			return [this.createControlOperator(cl), this.createUnhandledErrorOperator(cl)];
-		}
-
-		return [this.createControlOperator(cl), this.createErrorTrackerOperator(cl)];
-	}
-
 	private getRefObservables(
 		node: GraphNode,
 		observables: Map<string, Observable<FlowValue>>,
@@ -178,7 +174,10 @@ export class ObservableFactory {
 
 	private createErrorTrackerOperator(cl: ConnectLine): OperatorFunction<FlowValue, FlowValue> {
 		return catchError<FlowValue, ObservableInput<FlowValue>>((error: unknown) => {
-			const flowValueError = error instanceof FlowValue ? error : new FlowValue(error);
+			const flowValueError =
+				error instanceof FlowValue
+					? error
+					: new FlowValue(error, cl.source.id, FlowValueType.Error);
 			this.flowManager.handleError(flowValueError, cl);
 			throw flowValueError;
 		});
@@ -186,10 +185,12 @@ export class ObservableFactory {
 
 	private createUnhandledErrorOperator(cl: ConnectLine) {
 		return catchError<FlowValue, ObservableInput<FlowValue>>((error: unknown) => {
-			const flowValueError = error instanceof FlowValue ? error : new FlowValue(error);
+			const flowValueError =
+				error instanceof FlowValue
+					? error
+					: new FlowValue(error, cl.source.id, FlowValueType.Error);
 			this.flowManager.handleFatalError(flowValueError, cl);
-			throw flowValueError.value;
+			throw flowValueError.raw;
 		});
 	}
 }
-

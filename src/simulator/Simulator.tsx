@@ -3,10 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
-	ObservableEventType,
 	SimulationState,
 	addElement,
-	addNextObservableEvent,
+	addObservableEvent,
 	clearErrors,
 	completeSimulation,
 	createElementError,
@@ -27,8 +26,6 @@ import { MoveAnimation } from '../animation';
 import { ElementType, isEntryOperatorType } from '../model';
 import { OperatorsPanel, SimulationControls } from '../ui';
 import {
-	FlowErrorEvent,
-	FlowValue,
 	FlowValueEvent,
 	MissingNextElementError,
 	MissingReferenceObservableError,
@@ -134,24 +131,17 @@ export const Simulator = () => {
 		);
 	}, [simulation.animationsQueue, nextAnimation?.id]);
 
-	const dispatchNextEvent = (event: FlowValueEvent<unknown>) =>
+	const dispatchObservableEvent = (event: FlowValueEvent<unknown>) =>
 		appDispatch(
-			addNextObservableEvent({
-				nextEvent: {
-					...event,
-					value: (event.value as FlowValue).value,
-					type: ObservableEventType.Next,
-				},
-			}),
-		);
-
-	const dispatchErrorEvent = (event: FlowErrorEvent<FlowValue>) =>
-		appDispatch(
-			addNextObservableEvent({
-				nextEvent: {
-					...event,
-					value: event.error,
-					type: ObservableEventType.Error,
+			addObservableEvent({
+				event: {
+					id: event.id,
+					hash: event.hash,
+					index: event.index,
+					connectLinesId: event.connectLinesId,
+					sourceElementId: event.sourceElementId,
+					targetElementId: event.targetElementId,
+					type: event.value.type,
 				},
 			}),
 		);
@@ -172,8 +162,8 @@ export const Simulator = () => {
 				elements,
 				connectLines,
 			).start({
-				next: dispatchNextEvent,
-				error: dispatchErrorEvent,
+				next: dispatchObservableEvent,
+				error: dispatchObservableEvent,
 				complete: dispatchCompleteEvent,
 			});
 			setSimulationSubscription(subscription);

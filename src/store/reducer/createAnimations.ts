@@ -1,6 +1,7 @@
 import { AnimationKey } from '../../animation';
+import { FlowValueType } from '../../engine';
 import { ConnectLine, Point } from '../../model';
-import { ObservableEvent, ObservableEventType } from './simulationReducer';
+import { ObservableEvent } from './simulationReducer';
 
 export const createAnimations = (
 	animations: (ObservableEvent | null)[],
@@ -11,19 +12,10 @@ export const createAnimations = (
 	if (!currentEvent) {
 		return [];
 	}
-	const { sourceElementId, targetElementId, type, connectLinesId, hash } = currentEvent;
-	if (type === ObservableEventType.Error) {
-		return [
-			{
-				drawerId: sourceElementId,
-				key: AnimationKey.ErrorDrawer,
-			},
-		];
-	}
 
+	const { sourceElementId, targetElementId, type, connectLinesId, hash } = currentEvent;
 	const points = connectLinesId.flatMap((clId) => {
 		const connectLine = connectLines.find((cl) => cl.id === clId);
-
 		return connectLine ? connectLine.points : [];
 	});
 
@@ -50,20 +42,21 @@ export const createAnimations = (
 			};
 		});
 
+	const animationKey =
+		type === FlowValueType.Error ? AnimationKey.ErrorDrawer : AnimationKey.HighlightDrawer;
 	const targetAnimation = {
 		drawerId: targetElementId,
-		key: AnimationKey.HighlightDrawer,
+		key: animationKey,
 	};
 	// if not equals do not show previous drawer animation otherwise do show it
 	return prevEvent?.targetElementId !== sourceElementId
 		? [
 				{
 					drawerId: sourceElementId,
-					key: AnimationKey.HighlightDrawer,
+					key: animationKey,
 				},
 				...resultAnimations,
 				targetAnimation,
 		  ]
 		: [...resultAnimations, targetAnimation];
 };
-

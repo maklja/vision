@@ -129,9 +129,12 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 
 	private wrapOperator(operatorFn: OperatorFunction<unknown, unknown>) {
 		return concatMap((flowValue: FlowValue) =>
-			of(flowValue.value).pipe(
+			of(flowValue.raw).pipe(
 				operatorFn,
-				map((value) => new FlowValue(value, flowValue.id)),
+				map(
+					(value) =>
+						new FlowValue(value, flowValue.elementId, flowValue.type, flowValue.id),
+				),
 			),
 		);
 	}

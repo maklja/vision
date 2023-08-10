@@ -26,7 +26,7 @@ import {
 	clearDraftElementReducer,
 	resetSimulationReducer,
 	completeSimulationReducer,
-	addNextObservableEventReducer,
+	addObservableEventReducer,
 	Simulation,
 	SimulationAnimation,
 	removeSimulationAnimationReducer,
@@ -42,12 +42,7 @@ import { RootState } from './rootState';
 export * from './hooks/theme';
 
 export type { ObservableEvent } from './reducer';
-export {
-	ObservableEventType,
-	SimulationState,
-	errorsAdapter,
-	selectElementErrorById,
-} from './reducer';
+export { SimulationState, errorsAdapter, selectElementErrorById } from './reducer';
 
 export interface DraftConnectLine {
 	id: string;
@@ -249,7 +244,7 @@ export const stageSlice = createSlice({
 		startSimulation: startSimulationReducer,
 		resetSimulation: resetSimulationReducer,
 		completeSimulation: completeSimulationReducer,
-		addNextObservableEvent: addNextObservableEventReducer,
+		addObservableEvent: addObservableEventReducer,
 		removeSimulationAnimation: removeSimulationAnimationReducer,
 		createElementError: createElementErrorReducer,
 		clearErrors: clearErrorsReducer,
@@ -278,7 +273,7 @@ export const {
 	startSimulation,
 	resetSimulation,
 	completeSimulation,
-	addNextObservableEvent,
+	addObservableEvent,
 	removeSimulationAnimation,
 	createElementError,
 	clearErrors,

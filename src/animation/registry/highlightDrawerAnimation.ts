@@ -5,6 +5,7 @@ import { AnimationKey } from './AnimationKey';
 export const highlightDrawerAnimation = {
 	key: AnimationKey.HighlightDrawer,
 	factory: (theme: Theme): AnimationTemplate => ({
+		key: AnimationKey.HighlightDrawer,
 		mainShape: {
 			duration: 0.2,
 			fill: theme.drawer.highlightElement.primary.fill,
