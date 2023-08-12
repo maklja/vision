@@ -13,7 +13,7 @@ export const createAnimations = (
 		return [];
 	}
 
-	const { sourceElementId, targetElementId, type, connectLinesId, hash } = currentEvent;
+	const { sourceElementId, targetElementId, type, connectLinesId } = currentEvent;
 	const points = connectLinesId.flatMap((clId) => {
 		const connectLine = connectLines.find((cl) => cl.id === clId);
 		return connectLine ? connectLine.points : [];
@@ -49,8 +49,8 @@ export const createAnimations = (
 		key: animationKey,
 		data: currentEvent,
 	};
-	// if not equals do not show previous drawer animation otherwise do show it
 
+	// if not equals do not show previous drawer animation otherwise do show it
 	const showSameElementANimation =
 		prevEvent?.targetElementId !== sourceElementId || prevEvent?.type !== type;
 	return showSameElementANimation
