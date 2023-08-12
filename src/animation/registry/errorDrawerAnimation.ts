@@ -5,7 +5,7 @@ import { AnimationKey } from './AnimationKey';
 export const errorDrawerAnimation = {
 	key: AnimationKey.ErrorDrawer,
 	factory: (theme: Theme): AnimationTemplate => ({
-		key: AnimationKey.HighlightDrawer,
+		key: AnimationKey.ErrorDrawer,
 		mainShape: {
 			duration: 0.2,
 			fill: theme.drawer.errorElement.primary.fill,

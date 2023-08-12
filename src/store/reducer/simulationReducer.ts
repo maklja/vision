@@ -4,6 +4,7 @@ import { DrawerAnimation } from '../drawerAnimationsSlice';
 import { StageSlice } from '../stageSlice';
 import { createAnimations } from './createAnimations';
 import { FlowValueType } from '../../engine';
+import { errorsAdapter } from './errorsReducer';
 
 export interface SimulationAnimation extends DrawerAnimation {
 	drawerId: string;
@@ -107,9 +108,31 @@ export const removeSimulationAnimationReducer = (
 	action: RemoveSimulationAnimationAction,
 ) => {
 	const { simulation } = slice;
-	const updatedAnimationQueue = simulation.animationsQueue.filter(
-		(a) => a.id !== action.payload.animationId,
+	const animationIndex = simulation.animationsQueue.findIndex(
+		(a) => a.id === action.payload.animationId,
 	);
+
+	if (animationIndex === -1) {
+		return;
+	}
+
+	const animation = simulation.animationsQueue[animationIndex];
+	const event = animation.data as ObservableEvent;
+
+	if (event?.type === FlowValueType.Error) {
+		slice.errors = errorsAdapter.addOne(slice.errors, {
+			elementId: event.sourceElementId,
+			errorId: event.id,
+			errorMessage: 'Unknown error...',
+		});
+	} else {
+		slice.errors = errorsAdapter.removeAll(slice.errors);
+	}
+
+	const updatedAnimationQueue = [
+		...simulation.animationsQueue.slice(0, animationIndex),
+		...simulation.animationsQueue.slice(animationIndex + 1),
+	];
 	const isSimulationDone = !updatedAnimationQueue.length && simulation.completed;
 
 	simulation.animationsQueue = updatedAnimationQueue;

@@ -4,11 +4,11 @@ import { ConnectLine, Point } from '../../model';
 import { ObservableEvent } from './simulationReducer';
 
 export const createAnimations = (
-	animations: (ObservableEvent | null)[],
+	events: (ObservableEvent | null)[],
 	connectLines: ConnectLine[],
 	simulatorId: string,
 ) => {
-	const [prevEvent, currentEvent] = animations;
+	const [prevEvent, currentEvent] = events;
 	if (!currentEvent) {
 		return [];
 	}
@@ -35,9 +35,9 @@ export const createAnimations = (
 				drawerId: simulatorId,
 				key: AnimationKey.MoveDrawer,
 				data: {
+					...currentEvent,
 					sourcePosition,
 					targetPosition,
-					hash,
 				},
 			};
 		});
@@ -47,13 +47,18 @@ export const createAnimations = (
 	const targetAnimation = {
 		drawerId: targetElementId,
 		key: animationKey,
+		data: currentEvent,
 	};
 	// if not equals do not show previous drawer animation otherwise do show it
-	return prevEvent?.targetElementId !== sourceElementId
+
+	const showSameElementANimation =
+		prevEvent?.targetElementId !== sourceElementId || prevEvent?.type !== type;
+	return showSameElementANimation
 		? [
 				{
 					drawerId: sourceElementId,
 					key: animationKey,
+					data: currentEvent,
 				},
 				...resultAnimations,
 				targetAnimation,
