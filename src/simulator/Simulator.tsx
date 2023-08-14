@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
@@ -33,7 +33,6 @@ import {
 } from '../engine';
 
 export const Simulator = () => {
-	const simulationStep = useRef(0);
 	const simulation = useAppSelector(selectSimulation);
 	const { elements, connectLines } = useAppSelector(selectStage);
 	const nextAnimation = useAppSelector(selectSimulationNextAnimation);
@@ -192,7 +191,6 @@ export const Simulator = () => {
 		setSimulationSubscription(null);
 
 		appDispatch(resetSimulation());
-		simulationStep.current = 0;
 	};
 
 	const handleSimulationReset = (entryElementId: string) => {
@@ -200,7 +198,6 @@ export const Simulator = () => {
 		setSimulationSubscription(null);
 
 		appDispatch(resetSimulation());
-		simulationStep.current = 0;
 		handleSimulationStart(entryElementId);
 	};
 

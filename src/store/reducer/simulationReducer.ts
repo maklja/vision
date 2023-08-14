@@ -5,9 +5,18 @@ import { StageSlice } from '../stageSlice';
 import { createAnimations } from './createAnimations';
 import { FlowValueType } from '../../engine';
 import { errorsAdapter } from './errorsReducer';
+import { AnimationKey } from '../../animation';
 
 export interface SimulationAnimation extends DrawerAnimation {
 	drawerId: string;
+}
+
+export interface AddSimulationAnimationsAction {
+	type: string;
+	payload: {
+		simulationId: string;
+		animations: { drawerId: string; key: AnimationKey; animationId?: string; data?: unknown }[];
+	};
 }
 
 export interface RemoveSimulationAnimationAction {
@@ -101,6 +110,25 @@ export const addObservableEventReducer = (
 	simulation.events = updatedEvents;
 	simulation.animationsQueue = [...simulation.animationsQueue, ...animations];
 	simulation.completed = action.payload.event.type !== FlowValueType.Next;
+};
+
+export const addSimulationAnimations = (
+	slice: Draft<StageSlice>,
+	action: AddSimulationAnimationsAction,
+) => {
+	const { animations, simulationId } = action.payload;
+	const { simulation } = slice;
+
+	const newAnimations = animations.map((a) => ({
+		id: v1(),
+		drawerId: a.drawerId,
+		key: a.key,
+		simulationId,
+		dispose: false,
+		data: a.data,
+	}));
+
+	simulation.animationsQueue = [...simulation.animationsQueue, ...newAnimations];
 };
 
 export const removeSimulationAnimationReducer = (
