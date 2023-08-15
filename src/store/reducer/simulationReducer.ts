@@ -46,6 +46,7 @@ export interface ObservableEvent {
 	connectLinesId: string[];
 	sourceElementId: string;
 	targetElementId: string;
+	value: string;
 }
 
 export interface AddObservableEventAction {
@@ -139,7 +140,7 @@ export const removeSimulationAnimationReducer = (
 		slice.errors = errorsAdapter.addOne(slice.errors, {
 			elementId: event.sourceElementId,
 			errorId: event.id,
-			errorMessage: 'Unknown error...',
+			errorMessage: event.value,
 		});
 	} else {
 		slice.errors = errorsAdapter.removeAll(slice.errors);

@@ -43,6 +43,7 @@ export const Simulator = () => {
 					sourceElementId: event.sourceElementId,
 					targetElementId: event.targetElementId,
 					type: event.value.type,
+					value: `${event.value.raw}`,
 				},
 			}),
 		);
