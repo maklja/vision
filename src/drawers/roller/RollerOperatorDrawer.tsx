@@ -165,7 +165,7 @@ export const RollerOperatorDrawer = ({
 				x={radiusX}
 				width={width - 2 * radiusX}
 				height={height}
-				fill={theme.colors.backgroundColor}
+				fill={theme.colors.backgroundPrimaryColor}
 			/>
 
 			<Ellipse
@@ -215,3 +215,4 @@ export const RollerOperatorDrawer = ({
 		</Group>
 	);
 };
+

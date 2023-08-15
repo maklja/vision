@@ -13,6 +13,7 @@ import {
 import { simulationTheme, SimulationTheme } from './simulationTheme';
 import { ConnectPointPosition, ElementType } from '../model';
 import { iifConnectPointsTheme } from './iifDrawerTheme';
+import { TooltipTheme, tooltipTheme } from './tooltipTheme';
 
 export interface Theme {
 	colors: ColorTheme;
@@ -20,6 +21,7 @@ export interface Theme {
 	connectLine: ConnectLineTheme;
 	connectPoints: ConnectPointsTheme;
 	simulation: SimulationTheme;
+	tooltip: TooltipTheme;
 }
 
 export interface DrawerThemeOverride {
@@ -39,6 +41,7 @@ export const createThemeContext = (): ThemesContext => {
 		connectLine: connectLineTheme(defaultColorTheme),
 		connectPoints: connectPointsTheme(defaultColorTheme),
 		simulation: simulationTheme(defaultColorTheme),
+		tooltip: tooltipTheme(defaultColorTheme),
 	};
 	return {
 		[ElementType.IIf]: {
@@ -118,3 +121,13 @@ export const useElementDrawerTheme = (state: DrawerThemeState, theme: Theme) => 
 		text: drawer.text,
 	};
 };
+
+export const useTooltipTheme = (theme: Theme) => {
+	const tooltipTheme = theme.tooltip;
+
+	return {
+		element: tooltipTheme.element,
+		text: tooltipTheme.text,
+	};
+};
+

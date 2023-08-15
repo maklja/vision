@@ -1,10 +1,12 @@
 export interface ColorTheme {
-	backgroundColor: string;
+	backgroundPrimaryColor: string;
+	backgroundSecondaryColor: string;
 	primaryColor: string;
 	secondaryColor: string;
 	tertiaryColor: string;
 	textColor: string;
 	secondaryTextColor: string;
+	tertiaryTextColor: string;
 	errorPrimaryColor: string;
 	errorSecondaryColor: string;
 	successPrimaryColor: string;
@@ -28,12 +30,14 @@ export interface ColorTheme {
 // };
 
 const seaColorTheme: ColorTheme = {
-	backgroundColor: '#EEE',
+	backgroundPrimaryColor: '#EEE',
+	backgroundSecondaryColor: '#616161',
 	primaryColor: '#8BBCCC',
 	secondaryColor: '#4C6793',
 	tertiaryColor: '#5C2E7E',
 	textColor: '#000000',
 	secondaryTextColor: '#EEE',
+	tertiaryTextColor: '#FFFFFF',
 	errorPrimaryColor: '#DD5353',
 	errorSecondaryColor: '#ECA0A0',
 	successPrimaryColor: '#198754',
@@ -43,3 +47,4 @@ const seaColorTheme: ColorTheme = {
 export const retrieveThemeColors = (): ColorTheme => {
 	return seaColorTheme;
 };
+

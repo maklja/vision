@@ -70,7 +70,7 @@ export const SimulatorStage = () => {
 		<div ref={drop}>
 			<Stage
 				{...stageHandlers}
-				style={{ backgroundColor: theme.colors.backgroundColor }}
+				style={{ backgroundColor: theme.colors.backgroundPrimaryColor }}
 				width={window.innerWidth}
 				height={window.innerHeight}
 				draggable={true}
