@@ -1,13 +1,20 @@
+import { v1 } from 'uuid';
 import { AnimationKey } from '../../animation';
 import { FlowValueType } from '../../engine';
 import { ConnectLine, Point } from '../../model';
-import { ObservableEvent } from './simulationReducer';
+import {
+	ErrorSimulationAnimation,
+	HighlightSimulationAnimation,
+	MoveSimulationAnimation,
+	ObservableEvent,
+	SimulationAnimation,
+} from './simulationReducer';
 
 export const createAnimations = (
 	events: (ObservableEvent | null)[],
 	connectLines: ConnectLine[],
 	simulatorId: string,
-) => {
+): SimulationAnimation[] => {
 	const [prevEvent, currentEvent] = events;
 	if (!currentEvent) {
 		return [];
@@ -19,7 +26,7 @@ export const createAnimations = (
 		return connectLine ? connectLine.points : [];
 	});
 
-	const resultAnimations = points
+	const resultAnimations: MoveSimulationAnimation[] = points
 		.slice(1, points.length - 1)
 		.reduce((groupedPoints: Point[][], sourcePosition, i, pointsSlice) => {
 			const targetPosition = pointsSlice[i + 1];
@@ -32,6 +39,8 @@ export const createAnimations = (
 		.map((pointsGroup) => {
 			const [sourcePosition, targetPosition] = pointsGroup;
 			return {
+				id: v1(),
+				dispose: false,
 				drawerId: simulatorId,
 				key: AnimationKey.MoveDrawer,
 				data: {
@@ -44,7 +53,9 @@ export const createAnimations = (
 
 	const animationKey =
 		type === FlowValueType.Error ? AnimationKey.ErrorDrawer : AnimationKey.HighlightDrawer;
-	const targetAnimation = {
+	const targetAnimation: HighlightSimulationAnimation | ErrorSimulationAnimation = {
+		id: v1(),
+		dispose: false,
 		drawerId: targetElementId,
 		key: animationKey,
 		data: currentEvent,
@@ -56,6 +67,8 @@ export const createAnimations = (
 	return showSameElementANimation
 		? [
 				{
+					id: v1(),
+					dispose: false,
 					drawerId: sourceElementId,
 					key: animationKey,
 					data: currentEvent,
@@ -65,3 +78,4 @@ export const createAnimations = (
 		  ]
 		: [...resultAnimations, targetAnimation];
 };
+

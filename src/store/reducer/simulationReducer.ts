@@ -1,14 +1,26 @@
-import { v1 } from 'uuid';
 import { Draft } from '@reduxjs/toolkit';
 import { DrawerAnimation } from '../drawerAnimationsSlice';
 import { StageSlice } from '../stageSlice';
 import { createAnimations } from './createAnimations';
 import { FlowValueType } from '../../engine';
 import { errorsAdapter } from './errorsReducer';
-import { AnimationKey } from '../../animation';
+import { AnimationKey, MoveAnimation } from '../../animation';
 
-export interface SimulationAnimation extends DrawerAnimation {
-	drawerId: string;
+export interface SimulationAnimation<D = unknown> extends DrawerAnimation<D> {
+	readonly drawerId: string;
+}
+
+export interface MoveSimulationAnimation
+	extends SimulationAnimation<MoveAnimation & ObservableEvent> {
+	key: AnimationKey.MoveDrawer;
+}
+
+export interface HighlightSimulationAnimation extends SimulationAnimation<ObservableEvent> {
+	key: AnimationKey.HighlightDrawer;
+}
+
+export interface ErrorSimulationAnimation extends SimulationAnimation<ObservableEvent> {
+	key: AnimationKey.ErrorDrawer;
 }
 
 export interface AddSimulationAnimationsAction {
@@ -100,35 +112,11 @@ export const addObservableEventReducer = (
 
 			return [...group, [prevEvent, currentEvent]];
 		}, [])
-		.flatMap((eventsPair) => createAnimations(eventsPair, slice.connectLines, simulation.id))
-		.map((animation) => ({
-			...animation,
-			id: v1(),
-			dispose: false,
-		}));
+		.flatMap((eventsPair) => createAnimations(eventsPair, slice.connectLines, simulation.id));
 
 	simulation.events = updatedEvents;
 	simulation.animationsQueue = [...simulation.animationsQueue, ...animations];
 	simulation.completed = action.payload.event.type !== FlowValueType.Next;
-};
-
-export const addSimulationAnimations = (
-	slice: Draft<StageSlice>,
-	action: AddSimulationAnimationsAction,
-) => {
-	const { animations, simulationId } = action.payload;
-	const { simulation } = slice;
-
-	const newAnimations = animations.map((a) => ({
-		id: v1(),
-		drawerId: a.drawerId,
-		key: a.key,
-		simulationId,
-		dispose: false,
-		data: a.data,
-	}));
-
-	simulation.animationsQueue = [...simulation.animationsQueue, ...newAnimations];
 };
 
 export const removeSimulationAnimationReducer = (
@@ -166,3 +154,4 @@ export const removeSimulationAnimationReducer = (
 	simulation.animationsQueue = updatedAnimationQueue;
 	simulation.state = isSimulationDone ? SimulationState.Stopped : SimulationState.Running;
 };
+
