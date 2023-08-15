@@ -50,7 +50,7 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 	};
 
 	const textDefault = {
-		stroke: themeColors.textColor,
+		stroke: themeColors.textPrimaryColor,
 		strokeWidth: 1,
 		letterSpacing: 1.8,
 		fontFamily: 'serif',
@@ -77,7 +77,7 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 		},
 		highlightText: {
 			...textDefault,
-			stroke: themeColors.textColor,
+			stroke: themeColors.textPrimaryColor,
 		},
 		selectElement: {
 			primary: {
@@ -91,7 +91,7 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 		},
 		selectText: {
 			...textDefault,
-			stroke: themeColors.textColor,
+			stroke: themeColors.textPrimaryColor,
 		},
 		errorElement: {
 			primary: {
@@ -110,3 +110,4 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 		},
 	};
 };
+

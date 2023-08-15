@@ -43,8 +43,8 @@ export const connectPointsTheme = (themeColors: ColorTheme): ConnectPointsTheme 
 	};
 
 	const iconDefault = {
-		stroke: themeColors.textColor,
-		fill: themeColors.textColor,
+		stroke: themeColors.textPrimaryColor,
+		fill: themeColors.textPrimaryColor,
 		strokeWidth: 0.6,
 	};
 
@@ -58,8 +58,8 @@ export const connectPointsTheme = (themeColors: ColorTheme): ConnectPointsTheme 
 		},
 		highlightIcon: {
 			...iconDefault,
-			stroke: themeColors.secondaryTextColor,
-			fill: themeColors.secondaryTextColor,
+			stroke: themeColors.textSecondaryColor,
+			fill: themeColors.textSecondaryColor,
 		},
 	};
 

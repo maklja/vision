@@ -27,10 +27,10 @@ export const tooltipTheme = (themeColors: ColorTheme): TooltipTheme => ({
 		fill: themeColors.backgroundSecondaryColor,
 	},
 	text: {
-		fill: themeColors.tertiaryTextColor,
+		fill: themeColors.textTertiaryColor,
 		fontFamily: 'Calibri',
 		fontStyle: 'bold',
-		textFill: themeColors.tertiaryTextColor,
+		textFill: themeColors.textTertiaryColor,
 	},
 });
 

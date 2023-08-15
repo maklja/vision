@@ -4,9 +4,9 @@ export interface ColorTheme {
 	primaryColor: string;
 	secondaryColor: string;
 	tertiaryColor: string;
-	textColor: string;
-	secondaryTextColor: string;
-	tertiaryTextColor: string;
+	textPrimaryColor: string;
+	textSecondaryColor: string;
+	textTertiaryColor: string;
 	errorPrimaryColor: string;
 	errorSecondaryColor: string;
 	successPrimaryColor: string;
@@ -35,9 +35,9 @@ const seaColorTheme: ColorTheme = {
 	primaryColor: '#8BBCCC',
 	secondaryColor: '#4C6793',
 	tertiaryColor: '#5C2E7E',
-	textColor: '#000000',
-	secondaryTextColor: '#EEE',
-	tertiaryTextColor: '#FFFFFF',
+	textPrimaryColor: '#000000',
+	textSecondaryColor: '#EEE',
+	textTertiaryColor: '#FFFFFF',
 	errorPrimaryColor: '#DD5353',
 	errorSecondaryColor: '#ECA0A0',
 	successPrimaryColor: '#198754',
