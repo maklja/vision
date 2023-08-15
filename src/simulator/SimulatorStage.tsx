@@ -1,17 +1,17 @@
 import Konva from 'konva';
+import { useRef } from 'react';
 import { Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
 import { AnimationsLayer } from '../layers/animations';
 import { ConnectLinesLayer } from '../layers/connectLines';
 import { DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DrawersLayer } from '../layers/drawers';
+import { TooltipsLayer } from '../layers/tooltips';
 import { useAppDispatch } from '../store/rootState';
 import { addDraftElement, clearDraftElement, useThemeContext } from '../store/stageSlice';
 import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
 import { calculateShapeSizeBoundingBox } from '../theme';
-import { useRef } from 'react';
-import { KonvaEventObject } from 'konva/lib/Node';
 
 Konva.hitOnDragEnabled = true;
 
@@ -24,7 +24,7 @@ export interface StageEvents {
 	onDragStart?: (event: Konva.KonvaEventObject<DragEvent>) => void;
 	onDragEnd?: (event: Konva.KonvaEventObject<DragEvent>) => void;
 	onDragMove?: (event: Konva.KonvaEventObject<DragEvent>) => void;
-	onWheel?: (event: KonvaEventObject<WheelEvent>) => void;
+	onWheel?: (event: Konva.KonvaEventObject<WheelEvent>) => void;
 }
 
 export const SimulatorStage = () => {
@@ -79,6 +79,7 @@ export const SimulatorStage = () => {
 				<ConnectLinesLayer />
 				<DrawersLayer />
 				<AnimationsLayer />
+				<TooltipsLayer />
 				<DragNDropLayer />
 			</Stage>
 		</div>
