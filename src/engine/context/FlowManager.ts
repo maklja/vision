@@ -22,7 +22,7 @@ export class FlowValue<T = unknown> {
 	}
 
 	static createEmptyValue(elementId: string) {
-		return new FlowValue(null, elementId, FlowValueType.Next, 'EMPTY');
+		return new FlowValue(null, elementId, FlowValueType.Next, 'EMPTY_FLOW_VALUE');
 	}
 }
 

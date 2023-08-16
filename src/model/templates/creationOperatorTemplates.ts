@@ -1,4 +1,5 @@
 import {
+	ajaxElementPropsTemplate,
 	fromElementPropsTemplate,
 	iifElementPropsTemplate,
 	intervalElementPropsTemplate,
@@ -16,8 +17,9 @@ export const mapToCreationOperatorPropsTemplates = (elType: ElementType): Elemen
 			return intervalElementPropsTemplate;
 		case ElementType.Of:
 			return ofElementPropsTemplate;
+		case ElementType.Ajax:
+			return ajaxElementPropsTemplate;
 		default:
 			return {};
 	}
 };
-

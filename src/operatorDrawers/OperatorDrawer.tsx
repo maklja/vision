@@ -1,4 +1,6 @@
 import {
+	AjaxOperatorDrawer,
+	EmptyOperatorDrawer,
 	FromOperatorDrawer,
 	IifOperatorDrawer,
 	IntervalOperatorDrawer,
@@ -51,6 +53,10 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <ConcatMapOperatorDrawer {...props} />;
 		case ElementType.MergeMap:
 			return <MergeMapOperatorDrawer {...props} />;
+		case ElementType.Ajax:
+			return <AjaxOperatorDrawer {...props} />;
+		case ElementType.Empty:
+			return <EmptyOperatorDrawer {...props} />;
 		default:
 			return null;
 	}
@@ -94,6 +100,8 @@ export const OperatorDrawer = ({
 		case ElementType.Map:
 		case ElementType.ConcatMap:
 		case ElementType.MergeMap:
+		case ElementType.Ajax:
+		case ElementType.Empty:
 			return createOperatorDrawer(element.type, {
 				...drawerHandlers,
 				id: element.id,
