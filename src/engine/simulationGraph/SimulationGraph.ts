@@ -1,4 +1,5 @@
 import { ConnectLine, Element, isCreationOperatorType, isSubscriberType } from '../../model';
+import { MissingNextElementError } from '../errors';
 
 export enum GraphNodeType {
 	Direct = 0,
@@ -74,7 +75,7 @@ export class SimulationGraph {
 
 		const connectLines = this.cls.get(el.id) ?? [];
 		if (!connectLines.length) {
-			throw new Error(`Element ${el.id} has no next element`);
+			throw new MissingNextElementError(el.id, `Element ${el.id} has no next element`);
 		}
 
 		const graphEdges: GraphEdge[] = connectLines.map((cl) => {
@@ -107,4 +108,3 @@ export class SimulationGraph {
 		];
 	}
 }
-

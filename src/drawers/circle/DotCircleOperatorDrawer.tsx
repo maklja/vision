@@ -16,6 +16,7 @@ export const DotCircleOperatorDrawer = ({
 	animation,
 	visible,
 	draggable = false,
+	hasError = false,
 	onMouseDown,
 	onMouseOut,
 	onMouseOver,
@@ -26,11 +27,11 @@ export const DotCircleOperatorDrawer = ({
 	onAnimationComplete,
 	onAnimationDestroy,
 }: CircleDrawerProps) => {
-	const { colors } = theme;
 	const drawerStyle = useElementDrawerTheme(
 		{
 			highlight,
 			select,
+			hasError,
 		},
 		theme,
 	);
@@ -109,7 +110,7 @@ export const DotCircleOperatorDrawer = ({
 			onDragEnd={handleDragEnd}
 		>
 			<Circle
-				{...drawerStyle.element}
+				{...drawerStyle.element.primary}
 				ref={(node) => setMainShapeRef(node)}
 				id={id}
 				radius={size.radius}
@@ -117,12 +118,12 @@ export const DotCircleOperatorDrawer = ({
 				y={size.radius}
 			/>
 			<Circle
+				{...drawerStyle.element.secondary}
 				ref={(node) => setInnerShapeRef(node)}
 				radius={innerSizes.radius}
 				x={size.radius}
 				y={size.radius}
 				listening={false}
-				fill={highlight || select ? colors.primaryColor : colors.secondaryColor}
 			/>
 		</Group>
 	);

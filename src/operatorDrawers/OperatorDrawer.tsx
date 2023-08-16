@@ -10,7 +10,12 @@ import { SubscriberDrawer } from './subscriberOperators';
 import { FilterOperatorDrawer } from './filteringOperators';
 import { ResultDrawer } from './resultOperators';
 import { MergeOperatorDrawer } from './joinCreationOperators';
-import { isHighlightedElement, isSelectedElement, useThemeContext } from '../store/stageSlice';
+import {
+	isHighlightedElement,
+	isSelectedElement,
+	selectElementErrorById,
+	useThemeContext,
+} from '../store/stageSlice';
 import { useAppSelector } from '../store/rootState';
 import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimationsSlice';
 import { useElementDrawerHandlers } from './state';
@@ -67,6 +72,7 @@ export const OperatorDrawer = ({
 	const drawerHandlers = useElementDrawerHandlers();
 	const select = useAppSelector(isSelectedElement(element.id));
 	const highlight = useAppSelector(isHighlightedElement(element.id));
+	const error = useAppSelector(selectElementErrorById(element.id));
 
 	const animationConfig = animation
 		? {
@@ -101,6 +107,7 @@ export const OperatorDrawer = ({
 				highlight,
 				draggable,
 				visibleConnectPoints,
+				hasError: Boolean(error),
 			});
 		case ElementType.Result:
 			return (

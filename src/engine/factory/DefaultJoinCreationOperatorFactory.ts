@@ -36,15 +36,14 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createMergeOperator(_el: Element, options: OperatorOptions) {
+	private createMergeOperator(el: Element, options: OperatorOptions) {
 		return merge<FlowValue[]>(
 			...options.referenceObservables.map((refObservable) =>
 				defer(() => {
-					refObservable.invokeTrigger?.(FlowValue.createEmptyValue());
+					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
 					return refObservable.observable;
 				}),
 			),
 		);
 	}
 }
-

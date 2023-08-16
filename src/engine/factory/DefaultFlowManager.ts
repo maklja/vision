@@ -1,5 +1,5 @@
 import { Observable, ReplaySubject } from 'rxjs';
-import { ConnectLine, isErrorHandlerType } from '../../model';
+import { ConnectLine, isErrorHandlerType, isSubscriberType } from '../../model';
 import { FlowManager, FlowValue, FlowValueEvent, SimulationModel } from '../context';
 
 export class DefaultFlowManager implements FlowManager {
@@ -43,7 +43,7 @@ export class DefaultFlowManager implements FlowManager {
 		const cls = this.retrieveFlowValuePath(flowValue.id);
 		cls.push(cl);
 
-		if (!isErrorHandlerType(targetEl.type)) {
+		if (!isErrorHandlerType(targetEl.type) && !isSubscriberType(targetEl.type)) {
 			return;
 		}
 
@@ -53,7 +53,7 @@ export class DefaultFlowManager implements FlowManager {
 			id: flowValue.id,
 			index: ++this.eventIndex,
 			hash: flowValue.hash,
-			value: flowValue.value,
+			value: flowValue,
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
@@ -61,16 +61,19 @@ export class DefaultFlowManager implements FlowManager {
 	}
 
 	handleFatalError(flowValue: FlowValue, cl: ConnectLine): void {
-		const errorCls = this.retrieveFlowValuePath(flowValue.id);
-		const [errorCl] = errorCls.length > 0 ? errorCls : [cl];
+		const cls = this.retrieveFlowValuePath(flowValue.id);
+		cls.push(cl);
+
+		const firstConnectLine = cls[0];
+		const lastConnectLine = cls[cls.length - 1];
 		this.eventObserver.error({
 			id: flowValue.id,
 			index: ++this.eventIndex,
 			hash: flowValue.hash,
-			error: flowValue.value,
-			connectLineId: errorCl.id,
-			sourceElementId: errorCl.source.id,
-			targetElementId: errorCl.source.id,
+			value: flowValue,
+			connectLinesId: cls.splice(0).map((cl) => cl.id),
+			sourceElementId: firstConnectLine.source.id,
+			targetElementId: lastConnectLine.target.id,
 		});
 	}
 
@@ -88,4 +91,3 @@ export class DefaultFlowManager implements FlowManager {
 		return cls;
 	}
 }
-

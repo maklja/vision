@@ -22,6 +22,7 @@ export const RollerOperatorDrawer = ({
 	title,
 	animation,
 	draggable = false,
+	hasError = false,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
@@ -36,6 +37,7 @@ export const RollerOperatorDrawer = ({
 		{
 			highlight,
 			select,
+			hasError,
 		},
 		theme,
 	);
@@ -139,7 +141,7 @@ export const RollerOperatorDrawer = ({
 		y: leftSideBottomControlPoint.y,
 	};
 
-	const gap = 1.65;
+	const gap = 1.85;
 	const isVisible =
 		visible &&
 		Boolean(mainTextRef) &&
@@ -163,11 +165,11 @@ export const RollerOperatorDrawer = ({
 				x={radiusX}
 				width={width - 2 * radiusX}
 				height={height}
-				fill={theme.colors.backgroundColor}
+				fill={theme.colors.backgroundPrimaryColor}
 			/>
 
 			<Ellipse
-				{...drawerStyle.element}
+				{...drawerStyle.element.primary}
 				x={radiusX}
 				y={radiusY}
 				ref={(ref) => setLeftEllipseShapeRef(ref)}
@@ -177,7 +179,7 @@ export const RollerOperatorDrawer = ({
 			/>
 
 			<Ellipse
-				{...drawerStyle.element}
+				{...drawerStyle.element.primary}
 				x={width - radiusX}
 				y={radiusY}
 				ref={(ref) => setRightEllipseShapeRef(ref)}
@@ -187,7 +189,7 @@ export const RollerOperatorDrawer = ({
 			/>
 
 			<Path
-				{...drawerStyle.element}
+				{...drawerStyle.element.primary}
 				ref={(ref) => setBodyShapeRef(ref)}
 				data={`M${radiusX * gap},0 
 				C${leftSideTopControlPoint.x},${leftSideTopControlPoint.y} 
@@ -213,3 +215,4 @@ export const RollerOperatorDrawer = ({
 		</Group>
 	);
 };
+

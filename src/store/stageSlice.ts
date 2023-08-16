@@ -1,5 +1,5 @@
 import { v1 } from 'uuid';
-import { createSlice, Draft } from '@reduxjs/toolkit';
+import { createSlice, Draft, EntityState } from '@reduxjs/toolkit';
 import {
 	ConnectLine,
 	ConnectPoint,
@@ -26,19 +26,24 @@ import {
 	clearDraftElementReducer,
 	resetSimulationReducer,
 	completeSimulationReducer,
-	addNextObservableEventReducer,
+	addObservableEventReducer,
 	Simulation,
 	SimulationAnimation,
 	removeSimulationAnimationReducer,
 	SimulationState,
 	startSimulationReducer,
+	ElementError,
+	errorsAdapter,
+	createElementErrorReducer,
+	clearErrorsReducer,
 } from './reducer';
 import { RootState } from './rootState';
+import { ElementTooltip, hideTooltipReducer, showTooltipReducer } from './reducer/tooltipReducer';
 
 export * from './hooks/theme';
 
 export type { ObservableEvent } from './reducer';
-export { ObservableEventType, SimulationState } from './reducer';
+export { SimulationState, errorsAdapter, selectElementErrorById, selectTooltip } from './reducer';
 
 export interface DraftConnectLine {
 	id: string;
@@ -71,6 +76,8 @@ export interface StageSlice {
 	simulation: Simulation;
 	themes: ThemesContext;
 	elementSizes: ElementSizesContext;
+	errors: EntityState<ElementError>;
+	tooltip: ElementTooltip | null;
 }
 
 export interface AddElementsAction {
@@ -147,6 +154,8 @@ const initialState: StageSlice = {
 	},
 	themes: createThemeContext(),
 	elementSizes: createElementSizesContext(),
+	errors: errorsAdapter.getInitialState(),
+	tooltip: null,
 };
 
 export const stageSlice = createSlice({
@@ -238,8 +247,12 @@ export const stageSlice = createSlice({
 		startSimulation: startSimulationReducer,
 		resetSimulation: resetSimulationReducer,
 		completeSimulation: completeSimulationReducer,
-		addNextObservableEvent: addNextObservableEventReducer,
+		addObservableEvent: addObservableEventReducer,
 		removeSimulationAnimation: removeSimulationAnimationReducer,
+		createElementError: createElementErrorReducer,
+		clearErrors: clearErrorsReducer,
+		showTooltip: showTooltipReducer,
+		hideTooltip: hideTooltipReducer,
 	},
 });
 
@@ -265,8 +278,12 @@ export const {
 	startSimulation,
 	resetSimulation,
 	completeSimulation,
-	addNextObservableEvent,
+	addObservableEvent,
 	removeSimulationAnimation,
+	createElementError,
+	clearErrors,
+	showTooltip,
+	hideTooltip,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
@@ -282,8 +299,8 @@ export const selectConnectLineById = (id: string | null) => (state: RootState) =
 
 export const selectStageElements = (state: RootState) => state.stage.elements;
 
-export const selectStageElementById = (id: string) => (state: RootState) =>
-	state.stage.elements.find((el) => el.id === id) ?? null;
+export const selectStageElementById = (id: string | null) => (state: RootState) =>
+	!id ? null : state.stage.elements.find((el) => el.id === id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
 
@@ -306,3 +323,4 @@ export const selectSimulation = (state: RootState) => state.stage.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.stage.simulation.animationsQueue.at(0) ?? null;
+

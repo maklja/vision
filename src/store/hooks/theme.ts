@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import deepMerge from 'deepmerge';
 import { RootState } from '../rootState';
-import { ElementType } from '../../model';
+import { BoundingBox, ElementType, Point } from '../../model';
 import {
 	Theme,
 	DrawerThemeOverride,
@@ -16,6 +16,7 @@ import {
 	scaleCircleShape,
 	scaleRectangleShape,
 	scaleShapeSize,
+	calculateShapeSizeBoundingBox,
 } from '../../theme';
 
 const selectThemes = (state: RootState) => state.stage.themes;
@@ -50,4 +51,22 @@ export const useRectangleShapeSize = (type: ElementType, scale = 1): RectangleSh
 	useSelector((state: RootState) =>
 		scaleRectangleShape(findRectangleShapeSize(state.stage.elementSizes, type), scale),
 	);
+
+export const useBoundingBox = (
+	type: ElementType | null,
+	position: Point,
+	scale = 1,
+): BoundingBox => {
+	return useSelector((state: RootState) => {
+		if (!type) {
+			return BoundingBox.empty(position.x, position.y);
+		}
+
+		const shapeSize = scaleShapeSize(
+			findElementSize(state.stage.elementSizes.sizes, type),
+			scale,
+		);
+		return calculateShapeSizeBoundingBox(position, shapeSize);
+	});
+};
 

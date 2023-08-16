@@ -2,7 +2,8 @@ import Konva from 'konva';
 import { useEffect, useMemo } from 'react';
 import { TweenAnimation } from '../tween';
 import { DrawerAnimationTemplate } from '../AnimationTemplate';
-import { AnimationEffectEvent, useAnimationEffect } from './useAnimationEffect';
+import { useAnimationEffect } from './useAnimationEffect';
+import { AnimationEffectEvent } from './AnimationEffectEvent';
 
 export const useAnimation = (
 	node: Konva.Node | null,
@@ -42,10 +43,39 @@ export const useAnimation = (
 	}, [node, animationTemplate?.id]);
 
 	useAnimationEffect(animation, {
-		onAnimationBegin,
-		onAnimationComplete,
-		onAnimationDestroy,
-		drawerId,
+		onAnimationBegin: (animation) => {
+			if (!animationTemplate) {
+				return;
+			}
+
+			onAnimationBegin?.({
+				animationId: animation.id,
+				animationKey: animationTemplate.key,
+				drawerId,
+			});
+		},
+		onAnimationComplete: (animation) => {
+			if (!animationTemplate) {
+				return;
+			}
+
+			onAnimationComplete?.({
+				animationId: animation.id,
+				animationKey: animationTemplate.key,
+				drawerId,
+			});
+		},
+		onAnimationDestroy: (animation) => {
+			if (!animationTemplate) {
+				return;
+			}
+
+			onAnimationDestroy?.({
+				animationId: animation.id,
+				animationKey: animationTemplate.key,
+				drawerId,
+			});
+		},
 	});
 
 	const disposeAnimation = async () => {

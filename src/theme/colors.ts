@@ -1,14 +1,16 @@
 export interface ColorTheme {
-	backgroundColor: string;
-	primaryColor: string;
-	secondaryColor: string;
-	tertiaryColor: string;
-	textColor: string;
-	secondaryTextColor: string;
-	errorPrimaryColor: string;
-	errorSecondaryColor: string;
-	successPrimaryColor: string;
-	successSecondaryColor: string;
+	readonly backgroundPrimaryColor: string;
+	readonly backgroundSecondaryColor: string;
+	readonly primaryColor: string;
+	readonly secondaryColor: string;
+	readonly tertiaryColor: string;
+	readonly textPrimaryColor: string;
+	readonly textSecondaryColor: string;
+	readonly textTertiaryColor: string;
+	readonly errorPrimaryColor: string;
+	readonly errorSecondaryColor: string;
+	readonly successPrimaryColor: string;
+	readonly successSecondaryColor: string;
 }
 
 // const mainColorTheme: ColorTheme = {
@@ -28,14 +30,16 @@ export interface ColorTheme {
 // };
 
 const seaColorTheme: ColorTheme = {
-	backgroundColor: '#EEE',
+	backgroundPrimaryColor: '#EEE',
+	backgroundSecondaryColor: '#616161',
 	primaryColor: '#8BBCCC',
 	secondaryColor: '#4C6793',
 	tertiaryColor: '#5C2E7E',
-	textColor: '#000000',
-	secondaryTextColor: '#EEE',
+	textPrimaryColor: '#000000',
+	textSecondaryColor: '#EEE',
+	textTertiaryColor: '#FFFFFF',
 	errorPrimaryColor: '#DD5353',
-	errorSecondaryColor: '#B73E3E',
+	errorSecondaryColor: '#ECA0A0',
 	successPrimaryColor: '#198754',
 	successSecondaryColor: '#22bb33',
 };

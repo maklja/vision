@@ -13,13 +13,15 @@ import {
 import { simulationTheme, SimulationTheme } from './simulationTheme';
 import { ConnectPointPosition, ElementType } from '../model';
 import { iifConnectPointsTheme } from './iifDrawerTheme';
+import { TooltipTheme, tooltipTheme } from './tooltipTheme';
 
 export interface Theme {
-	colors: ColorTheme;
-	drawer: ElementDrawerTheme;
-	connectLine: ConnectLineTheme;
-	connectPoints: ConnectPointsTheme;
-	simulation: SimulationTheme;
+	readonly colors: ColorTheme;
+	readonly drawer: ElementDrawerTheme;
+	readonly connectLine: ConnectLineTheme;
+	readonly connectPoints: ConnectPointsTheme;
+	readonly simulation: SimulationTheme;
+	readonly tooltip: TooltipTheme;
 }
 
 export interface DrawerThemeOverride {
@@ -39,6 +41,7 @@ export const createThemeContext = (): ThemesContext => {
 		connectLine: connectLineTheme(defaultColorTheme),
 		connectPoints: connectPointsTheme(defaultColorTheme),
 		simulation: simulationTheme(defaultColorTheme),
+		tooltip: tooltipTheme(defaultColorTheme),
 	};
 	return {
 		[ElementType.IIf]: {
@@ -51,7 +54,7 @@ export const createThemeContext = (): ThemesContext => {
 export interface DrawerThemeState {
 	highlight?: boolean;
 	select?: boolean;
-	error?: boolean;
+	hasError?: boolean;
 }
 
 export interface ConnectPointThemeState extends DrawerThemeState {
@@ -76,12 +79,28 @@ export const useConnectPointTheme = (state: ConnectPointThemeState, theme: Theme
 export const useElementDrawerTheme = (state: DrawerThemeState, theme: Theme) => {
 	const { drawer } = theme;
 
-	// if (state.error) {
-	// 	return {
-	// 		element: drawer.errorElement,
-	// 		text: drawer.errorText,
-	// 	};
-	// }
+	if (state.hasError && (state.select || state.highlight)) {
+		return {
+			element: {
+				primary: {
+					...drawer.errorElement.primary,
+					fill: drawer.selectElement.primary.fill,
+				},
+				secondary: {
+					...drawer.errorElement.secondary,
+					fill: drawer.selectElement.secondary.fill,
+				},
+			},
+			text: drawer.errorText,
+		};
+	}
+
+	if (state.hasError) {
+		return {
+			element: drawer.errorElement,
+			text: drawer.errorText,
+		};
+	}
 
 	if (state.select) {
 		return {
@@ -102,3 +121,13 @@ export const useElementDrawerTheme = (state: DrawerThemeState, theme: Theme) => 
 		text: drawer.text,
 	};
 };
+
+export const useTooltipTheme = (theme: Theme) => {
+	const tooltipTheme = theme.tooltip;
+
+	return {
+		element: tooltipTheme.element,
+		text: tooltipTheme.text,
+	};
+};
+

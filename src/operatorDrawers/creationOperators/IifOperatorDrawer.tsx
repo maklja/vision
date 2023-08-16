@@ -14,6 +14,7 @@ export const IifOperatorDrawer = ({
 	animation,
 	draggable,
 	highlight,
+	hasError,
 	select,
 	visible,
 	visibleConnectPoints,
@@ -78,6 +79,7 @@ export const IifOperatorDrawer = ({
 				animation={animation}
 				draggable={draggable}
 				highlight={highlight}
+				hasError={hasError}
 				select={select}
 				visible={visible}
 				onAnimationBegin={onAnimationBegin}
@@ -93,4 +95,3 @@ export const IifOperatorDrawer = ({
 		</Group>
 	);
 };
-

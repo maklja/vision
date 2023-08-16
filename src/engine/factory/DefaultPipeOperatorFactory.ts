@@ -10,7 +10,8 @@ import {
 } from 'rxjs';
 import { Element, ElementType, FilterElement, MapElement } from '../../model';
 import { OperatorOptions, PipeOperatorFactory } from './OperatorFactory';
-import { FlowValue } from '../context';
+import { FlowValue, FlowValueType } from '../context';
+import { MissingReferenceObservableError } from '../errors';
 
 type PipeOperatorFunctionFactory = (
 	el: Element,
@@ -47,11 +48,14 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 	}
 
 	private createCatchErrorOperator(
-		_el: Element,
+		el: Element,
 		options: OperatorOptions,
 	): OperatorFunction<FlowValue, FlowValue> {
 		if (options.referenceObservables.length === 0) {
-			throw new Error('Reference observable is required for catchError operator');
+			throw new MissingReferenceObservableError(
+				el.id,
+				'Reference observable is required for catchError operator',
+			);
 		}
 
 		if (options.referenceObservables.length > 1) {
@@ -60,7 +64,10 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 
 		const [refObservable] = options.referenceObservables;
 		return catchError<FlowValue, ObservableInput<FlowValue>>((error) => {
-			refObservable.invokeTrigger?.(error);
+			refObservable.invokeTrigger?.({
+				...error,
+				type: FlowValueType.Next,
+			});
 			return refObservable.observable;
 		});
 	}
@@ -80,11 +87,14 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 	}
 
 	private createConcatMapOperator(
-		_el: Element,
+		el: Element,
 		options: OperatorOptions,
 	): OperatorFunction<FlowValue, FlowValue> {
 		if (options.referenceObservables.length === 0) {
-			throw new Error('Reference observable is required for concatMap operator');
+			throw new MissingReferenceObservableError(
+				el.id,
+				'Reference observable is required for concatMap operator',
+			);
 		}
 
 		if (options.referenceObservables.length > 1) {
@@ -99,11 +109,14 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 	}
 
 	private createMergeMapOperator(
-		_el: Element,
+		el: Element,
 		options: OperatorOptions,
 	): OperatorFunction<FlowValue, FlowValue> {
 		if (options.referenceObservables.length === 0) {
-			throw new Error('Reference observable is required for mergeMap operator');
+			throw new MissingReferenceObservableError(
+				el.id,
+				'Reference observable is required for mergeMap operator',
+			);
 		}
 
 		if (options.referenceObservables.length > 1) {
@@ -119,9 +132,12 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 
 	private wrapOperator(operatorFn: OperatorFunction<unknown, unknown>) {
 		return concatMap((flowValue: FlowValue) =>
-			of(flowValue.value).pipe(
+			of(flowValue.raw).pipe(
 				operatorFn,
-				map((value) => new FlowValue(value, flowValue.id)),
+				map(
+					(value) =>
+						new FlowValue(value, flowValue.elementId, flowValue.type, flowValue.id),
+				),
 			),
 		);
 	}

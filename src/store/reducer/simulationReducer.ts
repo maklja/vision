@@ -1,17 +1,33 @@
-import { v1 } from 'uuid';
 import { Draft } from '@reduxjs/toolkit';
 import { DrawerAnimation } from '../drawerAnimationsSlice';
 import { StageSlice } from '../stageSlice';
 import { createAnimations } from './createAnimations';
+import { FlowValueType } from '../../engine';
+import { errorsAdapter } from './errorsReducer';
+import { AnimationKey, MoveAnimation } from '../../animation';
 
-export interface SimulationAnimation extends DrawerAnimation {
-	drawerId: string;
+export interface SimulationAnimation<D = unknown> extends DrawerAnimation<D> {
+	readonly drawerId: string;
 }
 
-export interface AddNextObservableEventAction {
+export interface MoveSimulationAnimation
+	extends SimulationAnimation<MoveAnimation & ObservableEvent> {
+	key: AnimationKey.MoveDrawer;
+}
+
+export interface HighlightSimulationAnimation extends SimulationAnimation<ObservableEvent> {
+	key: AnimationKey.HighlightDrawer;
+}
+
+export interface ErrorSimulationAnimation extends SimulationAnimation<ObservableEvent> {
+	key: AnimationKey.ErrorDrawer;
+}
+
+export interface AddSimulationAnimationsAction {
 	type: string;
 	payload: {
-		nextEvent: ObservableEvent;
+		simulationId: string;
+		animations: { drawerId: string; key: AnimationKey; animationId?: string; data?: unknown }[];
 	};
 }
 
@@ -22,22 +38,22 @@ export interface RemoveSimulationAnimationAction {
 	};
 }
 
-export enum ObservableEventType {
-	Next = 'next',
-	Error = 'error',
-	Complete = 'complete',
-}
-
 export interface ObservableEvent {
 	id: string;
-	type: ObservableEventType;
-	value?: unknown;
-	error?: unknown;
+	type: FlowValueType;
 	hash: string;
 	index: number;
 	connectLinesId: string[];
 	sourceElementId: string;
 	targetElementId: string;
+	value: string;
+}
+
+export interface AddObservableEventAction {
+	type: string;
+	payload: {
+		event: ObservableEvent;
+	};
 }
 
 export enum SimulationState {
@@ -76,12 +92,12 @@ export const completeSimulationReducer = (slice: Draft<StageSlice>) => {
 		simulation.animationsQueue.length > 0 ? SimulationState.Running : SimulationState.Stopped;
 };
 
-export const addNextObservableEventReducer = (
+export const addObservableEventReducer = (
 	slice: Draft<StageSlice>,
-	action: AddNextObservableEventAction,
+	action: AddObservableEventAction,
 ) => {
 	const { simulation } = slice;
-	const updatedEvents = [...simulation.events, action.payload.nextEvent];
+	const updatedEvents = [...simulation.events, action.payload.event];
 
 	// create simulation animations for each drawer that is affected by events
 	const beginIndex = updatedEvents.length - 1;
@@ -97,15 +113,11 @@ export const addNextObservableEventReducer = (
 
 			return [...group, [prevEvent, currentEvent]];
 		}, [])
-		.flatMap((eventsPair) => createAnimations(eventsPair, slice.connectLines, simulation.id))
-		.map((animation) => ({
-			...animation,
-			id: v1(),
-			dispose: false,
-		}));
+		.flatMap((eventsPair) => createAnimations(eventsPair, slice.connectLines, simulation.id));
 
 	simulation.events = updatedEvents;
 	simulation.animationsQueue = [...simulation.animationsQueue, ...animations];
+	simulation.completed = action.payload.event.type !== FlowValueType.Next;
 };
 
 export const removeSimulationAnimationReducer = (
@@ -113,11 +125,34 @@ export const removeSimulationAnimationReducer = (
 	action: RemoveSimulationAnimationAction,
 ) => {
 	const { simulation } = slice;
-	const updatedAnimationQueue = simulation.animationsQueue.filter(
-		(a) => a.id !== action.payload.animationId,
+	const animationIndex = simulation.animationsQueue.findIndex(
+		(a) => a.id === action.payload.animationId,
 	);
+
+	if (animationIndex === -1) {
+		return;
+	}
+
+	const animation = simulation.animationsQueue[animationIndex];
+	const event = animation.data as ObservableEvent;
+
+	if (event?.type === FlowValueType.Error) {
+		slice.errors = errorsAdapter.addOne(slice.errors, {
+			elementId: event.sourceElementId,
+			errorId: event.id,
+			errorMessage: event.value,
+		});
+	} else {
+		slice.errors = errorsAdapter.removeAll(slice.errors);
+	}
+
+	const updatedAnimationQueue = [
+		...simulation.animationsQueue.slice(0, animationIndex),
+		...simulation.animationsQueue.slice(animationIndex + 1),
+	];
 	const isSimulationDone = !updatedAnimationQueue.length && simulation.completed;
 
 	simulation.animationsQueue = updatedAnimationQueue;
 	simulation.state = isSimulationDone ? SimulationState.Stopped : SimulationState.Running;
 };
+

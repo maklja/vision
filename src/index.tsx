@@ -19,7 +19,7 @@ import {
 	MergeElement,
 	MapElement,
 } from './model';
-import { SimulationState, StageState } from './store/stageSlice';
+import { SimulationState, StageState, errorsAdapter } from './store/stageSlice';
 import { createThemeContext, createElementSizesContext } from './theme';
 
 const e1: OfElement = {
@@ -89,7 +89,7 @@ const e5: FilterElement = {
 	visible: true,
 	properties: {
 		expression: `function(value) {
-			if (value > 5) {
+			if (value > 2) {
 				throw new Error('Ups');
 			}
 	
@@ -205,6 +205,8 @@ root.render(
 						animationsQueue: [],
 						events: [],
 					},
+					errors: errorsAdapter.getInitialState(),
+					tooltip: null,
 				},
 			})}
 		>

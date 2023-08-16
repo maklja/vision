@@ -1,33 +1,32 @@
+import { v1 } from 'uuid';
 import { AnimationKey } from '../../animation';
+import { FlowValueType } from '../../engine';
 import { ConnectLine, Point } from '../../model';
-import { ObservableEvent, ObservableEventType } from './simulationReducer';
+import {
+	ErrorSimulationAnimation,
+	HighlightSimulationAnimation,
+	MoveSimulationAnimation,
+	ObservableEvent,
+	SimulationAnimation,
+} from './simulationReducer';
 
 export const createAnimations = (
-	animations: (ObservableEvent | null)[],
+	events: (ObservableEvent | null)[],
 	connectLines: ConnectLine[],
 	simulatorId: string,
-) => {
-	const [prevEvent, currentEvent] = animations;
+): SimulationAnimation[] => {
+	const [prevEvent, currentEvent] = events;
 	if (!currentEvent) {
 		return [];
 	}
-	const { sourceElementId, targetElementId, type, connectLinesId, hash } = currentEvent;
-	if (type === ObservableEventType.Error) {
-		return [
-			{
-				drawerId: sourceElementId,
-				key: AnimationKey.ErrorDrawer,
-			},
-		];
-	}
 
+	const { sourceElementId, targetElementId, type, connectLinesId } = currentEvent;
 	const points = connectLinesId.flatMap((clId) => {
 		const connectLine = connectLines.find((cl) => cl.id === clId);
-
 		return connectLine ? connectLine.points : [];
 	});
 
-	const resultAnimations = points
+	const resultAnimations: MoveSimulationAnimation[] = points
 		.slice(1, points.length - 1)
 		.reduce((groupedPoints: Point[][], sourcePosition, i, pointsSlice) => {
 			const targetPosition = pointsSlice[i + 1];
@@ -40,26 +39,39 @@ export const createAnimations = (
 		.map((pointsGroup) => {
 			const [sourcePosition, targetPosition] = pointsGroup;
 			return {
+				id: v1(),
+				dispose: false,
 				drawerId: simulatorId,
 				key: AnimationKey.MoveDrawer,
 				data: {
+					...currentEvent,
 					sourcePosition,
 					targetPosition,
-					hash,
 				},
 			};
 		});
 
-	const targetAnimation = {
+	const animationKey =
+		type === FlowValueType.Error ? AnimationKey.ErrorDrawer : AnimationKey.HighlightDrawer;
+	const targetAnimation: HighlightSimulationAnimation | ErrorSimulationAnimation = {
+		id: v1(),
+		dispose: false,
 		drawerId: targetElementId,
-		key: AnimationKey.HighlightDrawer,
+		key: animationKey,
+		data: currentEvent,
 	};
+
 	// if not equals do not show previous drawer animation otherwise do show it
-	return prevEvent?.targetElementId !== sourceElementId
+	const showSameElementANimation =
+		prevEvent?.targetElementId !== sourceElementId || prevEvent?.type !== type;
+	return showSameElementANimation
 		? [
 				{
+					id: v1(),
+					dispose: false,
 					drawerId: sourceElementId,
-					key: AnimationKey.HighlightDrawer,
+					key: animationKey,
+					data: currentEvent,
 				},
 				...resultAnimations,
 				targetAnimation,

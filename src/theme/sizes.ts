@@ -8,6 +8,7 @@ export enum ElementShape {
 
 export interface FontSizes {
 	readonly primary: number;
+	readonly secondary: number;
 }
 
 interface SizeConfig {
@@ -27,6 +28,7 @@ const defaultSizeConfig: SizeConfig = {
 	},
 	fontSizes: {
 		primary: 15,
+		secondary: 12,
 	},
 };
 
@@ -74,6 +76,7 @@ export const scaleCircleShape = (
 		radius: fromSize(radius, scale),
 		fontSizes: {
 			primary: fromSize(fontSizes.primary, scale),
+			secondary: fromSize(fontSizes.secondary, scale),
 		},
 	};
 };
@@ -93,6 +96,7 @@ export const scaleRectangleShape = (
 		height: fromSize(height, scale),
 		fontSizes: {
 			primary: fromSize(fontSizes.primary, scale),
+			secondary: fromSize(fontSizes.secondary, scale),
 		},
 	};
 };
@@ -109,13 +113,13 @@ export const scaleShapeSize = (shapeSize: ShapeSize, scale = 1) => {
 	throw new Error(`Unknown shape type ${shapeSize}`);
 };
 
-const defaultCircleShape: CircleShapeSize = {
+export const defaultCircleShape: CircleShapeSize = {
 	type: ElementShape.Circle,
 	radius: defaultSizeConfig.drawerSizes.radius,
 	fontSizes: defaultSizeConfig.fontSizes,
 };
 
-const defaultRectangleShape: RectangleShapeSize = {
+export const defaultRectangleShape: RectangleShapeSize = {
 	type: ElementShape.Rectangle,
 	width: defaultSizeConfig.drawerSizes.width,
 	height: defaultSizeConfig.drawerSizes.height,

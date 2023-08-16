@@ -1,38 +1,43 @@
 import { ColorTheme } from './colors';
 
-export interface ElementDrawerStyle {
-	stroke: string;
-	fill: string;
-	strokeWidth: number;
-	cornerRadius: number;
+export interface ElementDrawerPartStyle {
+	readonly stroke: string;
+	readonly fill: string;
+	readonly strokeWidth: number;
+	readonly cornerRadius: number;
 }
 
 export interface ElementDrawerTextStyle {
-	stroke: string;
-	strokeWidth: number;
-	letterSpacing: number;
-	fontFamily: string;
+	readonly stroke: string;
+	readonly strokeWidth: number;
+	readonly letterSpacing: number;
+	readonly fontFamily: string;
+}
+
+export interface ElementDrawerStyle {
+	readonly primary: ElementDrawerPartStyle;
+	readonly secondary: ElementDrawerPartStyle;
 }
 
 export interface ElementDrawerTheme {
-	element: ElementDrawerStyle;
-	text: ElementDrawerTextStyle;
-	highlightElement: ElementDrawerStyle;
-	highlightText: ElementDrawerTextStyle;
-	selectElement: ElementDrawerStyle;
-	selectText: ElementDrawerTextStyle;
-	errorElement: ElementDrawerStyle;
-	errorText: ElementDrawerTextStyle;
+	readonly element: ElementDrawerStyle;
+	readonly text: ElementDrawerTextStyle;
+	readonly highlightElement: ElementDrawerStyle;
+	readonly highlightText: ElementDrawerTextStyle;
+	readonly selectElement: ElementDrawerStyle;
+	readonly selectText: ElementDrawerTextStyle;
+	readonly errorElement: ElementDrawerStyle;
+	readonly errorText: ElementDrawerTextStyle;
 }
 
 export interface ElementDrawerThemeOverride {
-	element?: Partial<ElementDrawerStyle>;
+	element?: Partial<ElementDrawerPartStyle>;
 	text?: Partial<ElementDrawerTextStyle>;
-	highlightElement?: Partial<ElementDrawerStyle>;
+	highlightElement?: Partial<ElementDrawerPartStyle>;
 	highlightText?: Partial<ElementDrawerTextStyle>;
-	selectElement?: Partial<ElementDrawerStyle>;
+	selectElement?: Partial<ElementDrawerPartStyle>;
 	selectText?: Partial<ElementDrawerTextStyle>;
-	errorElement?: Partial<ElementDrawerStyle>;
+	errorElement?: Partial<ElementDrawerPartStyle>;
 	errorText?: Partial<ElementDrawerTextStyle>;
 }
 
@@ -45,35 +50,60 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 	};
 
 	const textDefault = {
-		stroke: themeColors.textColor,
+		stroke: themeColors.textPrimaryColor,
 		strokeWidth: 1,
 		letterSpacing: 1.8,
 		fontFamily: 'serif',
 	};
 
 	return {
-		element: elementDefault,
+		element: {
+			primary: elementDefault,
+			secondary: {
+				...elementDefault,
+				fill: themeColors.secondaryColor,
+			},
+		},
 		text: textDefault,
 		highlightElement: {
-			...elementDefault,
-			fill: themeColors.secondaryColor,
+			primary: {
+				...elementDefault,
+				fill: themeColors.secondaryColor,
+			},
+			secondary: {
+				...elementDefault,
+				fill: themeColors.primaryColor,
+			},
 		},
 		highlightText: {
 			...textDefault,
-			stroke: themeColors.textColor,
+			stroke: themeColors.textPrimaryColor,
 		},
 		selectElement: {
-			...elementDefault,
-			fill: themeColors.secondaryColor,
+			primary: {
+				...elementDefault,
+				fill: themeColors.secondaryColor,
+			},
+			secondary: {
+				...elementDefault,
+				fill: themeColors.primaryColor,
+			},
 		},
 		selectText: {
 			...textDefault,
-			stroke: themeColors.textColor,
+			stroke: themeColors.textPrimaryColor,
 		},
 		errorElement: {
-			...elementDefault,
-			fill: themeColors.errorPrimaryColor,
-			stroke: themeColors.errorSecondaryColor,
+			primary: {
+				...elementDefault,
+				fill: themeColors.errorPrimaryColor,
+				stroke: themeColors.errorSecondaryColor,
+			},
+			secondary: {
+				...elementDefault,
+				fill: themeColors.errorSecondaryColor,
+				stroke: themeColors.errorSecondaryColor,
+			},
 		},
 		errorText: {
 			...textDefault,

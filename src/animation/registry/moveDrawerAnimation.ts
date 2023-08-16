@@ -25,6 +25,7 @@ export const moveDrawerAnimation = {
 					Math.pow(targetPosition.y - sourcePosition.y, 2),
 			) / 250;
 		return {
+			key: AnimationKey.MoveDrawer,
 			mainShape: {
 				duration,
 				x: targetPosition.x,
@@ -33,4 +34,3 @@ export const moveDrawerAnimation = {
 		};
 	},
 };
-

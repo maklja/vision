@@ -14,6 +14,7 @@ export const ConcatMapOperatorDrawer = ({
 	animation,
 	draggable,
 	highlight,
+	hasError,
 	select,
 	visible,
 	visibleConnectPoints,
@@ -54,6 +55,7 @@ export const ConcatMapOperatorDrawer = ({
 				animation={animation}
 				draggable={draggable}
 				highlight={highlight}
+				hasError={hasError}
 				select={select}
 				visible={visible}
 				onAnimationBegin={onAnimationBegin}

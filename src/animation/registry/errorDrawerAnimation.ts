@@ -5,16 +5,16 @@ import { AnimationKey } from './AnimationKey';
 export const errorDrawerAnimation = {
 	key: AnimationKey.ErrorDrawer,
 	factory: (theme: Theme): AnimationTemplate => ({
+		key: AnimationKey.ErrorDrawer,
 		mainShape: {
-			duration: 0.3,
-			fill: theme.drawer.errorElement.fill,
-			stroke: theme.drawer.errorElement.stroke,
+			duration: 0.2,
+			fill: theme.drawer.errorElement.primary.fill,
+			stroke: theme.drawer.errorElement.primary.stroke,
 		},
 		text: {
-			duration: 0.3,
+			duration: 0.2,
 			stroke: theme.drawer.errorText.stroke,
 		},
 		options: { autoReverse: false },
 	}),
 };
-

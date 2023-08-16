@@ -21,6 +21,7 @@ export const RectangleOperatorDrawer = ({
 	title,
 	animation,
 	draggable = false,
+	hasError = false,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
@@ -35,6 +36,7 @@ export const RectangleOperatorDrawer = ({
 		{
 			highlight,
 			select,
+			hasError,
 		},
 		theme,
 	);
@@ -115,7 +117,7 @@ export const RectangleOperatorDrawer = ({
 			onDragEnd={handleDragEnd}
 		>
 			<Rect
-				{...drawerStyle.element}
+				{...drawerStyle.element.primary}
 				ref={(ref) => setMainShapeRef(ref)}
 				id={id}
 				width={width}

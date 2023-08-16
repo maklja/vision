@@ -14,6 +14,7 @@ export const OfOperatorDrawer = ({
 	animation,
 	draggable,
 	highlight,
+	hasError,
 	select,
 	visible,
 	visibleConnectPoints,
@@ -54,6 +55,7 @@ export const OfOperatorDrawer = ({
 				animation={animation}
 				draggable={draggable}
 				highlight={highlight}
+				hasError={hasError}
 				select={select}
 				visible={visible}
 				onAnimationBegin={onAnimationBegin}
@@ -69,4 +71,3 @@ export const OfOperatorDrawer = ({
 		</Group>
 	);
 };
-

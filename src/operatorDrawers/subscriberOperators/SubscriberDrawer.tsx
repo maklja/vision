@@ -14,6 +14,7 @@ export const SubscriberDrawer = ({
 	animation,
 	draggable,
 	highlight,
+	hasError,
 	select,
 	visible,
 	visibleConnectPoints,
@@ -53,6 +54,7 @@ export const SubscriberDrawer = ({
 				animation={animation}
 				draggable={draggable}
 				highlight={highlight}
+				hasError={hasError}
 				select={select}
 				visible={visible}
 				onAnimationBegin={onAnimationBegin}
@@ -68,4 +70,3 @@ export const SubscriberDrawer = ({
 		</Group>
 	);
 };
-

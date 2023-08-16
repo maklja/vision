@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { Key, ReactNode } from 'react';
-import { DrawerAnimationTemplate } from '../animation';
+import { DrawerAnimationTemplate, AnimationEffectEvent } from '../animation';
 import { CircleShapeSize, RectangleShapeSize, ShapeSize, Theme } from '../theme';
 import { BoundingBox, ConnectPointPosition, ConnectPointType } from '../model';
 
@@ -9,15 +9,10 @@ export interface DrawerEvent {
 	originalEvent?: Konva.KonvaEventObject<MouseEvent>;
 }
 
-export interface DrawerAnimationEvent {
-	drawerId: string;
-	animationId: string;
-}
-
 export interface DrawerAnimationEvents {
-	onAnimationBegin?: (aEvent: DrawerAnimationEvent) => void;
-	onAnimationComplete?: (aEvent: DrawerAnimationEvent) => void;
-	onAnimationDestroy?: (aEvent: DrawerAnimationEvent) => void;
+	onAnimationBegin?: (aEvent: AnimationEffectEvent) => void;
+	onAnimationComplete?: (aEvent: AnimationEffectEvent) => void;
+	onAnimationDestroy?: (aEvent: AnimationEffectEvent) => void;
 }
 
 export interface DrawerEvents extends DrawerAnimationEvents {
@@ -39,6 +34,7 @@ export interface DrawerCommonProps {
 	highlight?: boolean;
 	select?: boolean;
 	visible?: boolean;
+	hasError?: boolean;
 	animation?: DrawerAnimationTemplate | null;
 }
 

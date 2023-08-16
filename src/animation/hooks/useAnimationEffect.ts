@@ -1,16 +1,10 @@
 import { useEffect } from 'react';
 import { Animation } from '../Animation';
 
-export interface AnimationEffectEvent {
-	animationId: string;
-	drawerId: string;
-}
-
 export interface AnimationEffectOptions {
-	onAnimationBegin?: (event: AnimationEffectEvent) => void;
-	onAnimationComplete?: (event: AnimationEffectEvent) => void;
-	onAnimationDestroy?: (event: AnimationEffectEvent) => void;
-	drawerId: string;
+	onAnimationBegin?: (animation: Animation) => void;
+	onAnimationComplete?: (animation: Animation) => void;
+	onAnimationDestroy?: (animation: Animation) => void;
 }
 
 export const useAnimationEffect = (animation: Animation | null, options: AnimationEffectOptions) =>
@@ -20,28 +14,14 @@ export const useAnimationEffect = (animation: Animation | null, options: Animati
 		}
 
 		const {
-			drawerId,
 			onAnimationBegin: onAnimationStart,
 			onAnimationComplete: onAnimationFinish,
 			onAnimationDestroy,
 		} = options;
 
-		animation.onAnimationBegin = (animation) =>
-			onAnimationStart?.({
-				animationId: animation.id,
-				drawerId,
-			});
-		animation.onAnimationComplete = () =>
-			onAnimationFinish?.({
-				animationId: animation.id,
-				drawerId,
-			});
-
-		animation.onAnimationDestroy = () =>
-			onAnimationDestroy?.({
-				animationId: animation.id,
-				drawerId,
-			});
+		animation.onAnimationBegin = (animation) => onAnimationStart?.(animation);
+		animation.onAnimationComplete = (animation) => onAnimationFinish?.(animation);
+		animation.onAnimationDestroy = (animation) => onAnimationDestroy?.(animation);
 
 		return () => {
 			animation.onAnimationBegin = null;
