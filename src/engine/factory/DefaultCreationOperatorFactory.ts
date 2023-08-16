@@ -1,9 +1,12 @@
-import { defer, from, iif, interval, map, Observable, of } from 'rxjs';
+import { defer, EMPTY, from, iif, interval, map, Observable, of } from 'rxjs';
+import { ajax } from 'rxjs/ajax';
 import {
+	AjaxElement,
 	ConnectPointPosition,
 	ConnectPointType,
 	Element,
 	ElementType,
+	EmptyElement,
 	FromElement,
 	IifElement,
 	IntervalElement,
@@ -27,6 +30,8 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			[ElementType.From, this.createFromCreationOperator.bind(this)],
 			[ElementType.Interval, this.createIntervalCreationOperator.bind(this)],
 			[ElementType.IIf, this.createIifCreationOperator.bind(this)],
+			[ElementType.Ajax, this.createAjaxCreationOperator.bind(this)],
+			[ElementType.Empty, this.createEmptyCreationOperator.bind(this)],
 		]);
 	}
 
@@ -109,6 +114,16 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 				return falseRefObservable.observable;
 			}),
 		);
+	}
+
+	private createAjaxCreationOperator(el: Element) {
+		const ajaxEl = el as AjaxElement;
+		return ajax(ajaxEl.properties).pipe(map((item) => this.createFlowValue(item, el.id)));
+	}
+
+	private createEmptyCreationOperator(el: Element) {
+		const emptyEl = el as EmptyElement;
+		return EMPTY.pipe(map((item) => this.createFlowValue(item, emptyEl.id)));
 	}
 
 	private createFlowValue(value: unknown, elementId: string): FlowValue {

@@ -12,6 +12,8 @@ export enum ElementType {
 	Map = 'map',
 	ConcatMap = 'concatMap',
 	MergeMap = 'mergeMap',
+	Ajax = 'ajax',
+	Empty = 'empty',
 }
 
 export const joinCreationOperators: ReadonlySet<ElementType> = new Set([ElementType.Merge]);
@@ -21,6 +23,8 @@ export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.From,
 	ElementType.Interval,
 	ElementType.IIf,
+	ElementType.Ajax,
+	ElementType.Empty,
 ]);
 
 export const transformationOperators: ReadonlySet<ElementType> = new Set([
