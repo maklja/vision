@@ -1,8 +1,8 @@
 import { ColorTheme } from './colors';
 
 export interface SimulationTheme {
-	stroke: string;
-	fill: string;
+	readonly stroke: string;
+	readonly fill: string;
 }
 
 export const simulationTheme = (themeColors: ColorTheme): SimulationTheme => {

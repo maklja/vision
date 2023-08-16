@@ -1,16 +1,16 @@
 import { ColorTheme } from './colors';
 
 export interface LineElementStyle {
-	stroke: string;
+	readonly stroke: string;
 }
 
 export interface ArrowElementStyle {
-	fill: string;
+	readonly fill: string;
 }
 
 export interface ConnectLineTheme {
-	line: LineElementStyle;
-	arrow: ArrowElementStyle;
+	readonly line: LineElementStyle;
+	readonly arrow: ArrowElementStyle;
 }
 
 export interface ConnectLineThemeOverride {

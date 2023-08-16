@@ -2,22 +2,22 @@ import { ConnectPointPosition } from '../model';
 import { ColorTheme } from './colors';
 
 export interface ConnectPointElementStyle {
-	stroke: string;
-	strokeWidth: number;
-	fill: string;
+	readonly stroke: string;
+	readonly strokeWidth: number;
+	readonly fill: string;
 }
 
 export interface ConnectPointIconStyle {
-	stroke: string;
-	strokeWidth: number;
-	fill: string;
+	readonly stroke: string;
+	readonly strokeWidth: number;
+	readonly fill: string;
 }
 
 export interface ConnectPointTheme {
-	element: ConnectPointElementStyle;
-	icon: ConnectPointIconStyle;
-	highlightElement: ConnectPointElementStyle;
-	highlightIcon: ConnectPointIconStyle;
+	readonly element: ConnectPointElementStyle;
+	readonly icon: ConnectPointIconStyle;
+	readonly highlightElement: ConnectPointElementStyle;
+	readonly highlightIcon: ConnectPointIconStyle;
 }
 
 export interface ConnectPointThemeOverride {

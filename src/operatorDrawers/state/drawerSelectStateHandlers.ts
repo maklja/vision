@@ -30,7 +30,6 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 			dispatch(
 				showTooltip({
 					elementId: id,
-					text: 'Test',
 				}),
 			);
 		}

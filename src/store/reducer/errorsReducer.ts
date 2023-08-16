@@ -35,7 +35,12 @@ export const clearErrorsReducer = (slice: Draft<StageSlice>) => {
 const errorsSelector = errorsAdapter.getSelectors<RootState>((state) => state.stage.errors);
 
 export const selectElementErrorById =
-	(elementId: string) =>
+	(elementId: string | null) =>
 	(state: RootState): ElementError | null => {
+		if (!elementId) {
+			return null;
+		}
+
 		return errorsSelector.selectById(state, elementId) ?? null;
 	};
+

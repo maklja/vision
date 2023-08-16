@@ -1,33 +1,33 @@
 import { ColorTheme } from './colors';
 
 export interface ElementDrawerPartStyle {
-	stroke: string;
-	fill: string;
-	strokeWidth: number;
-	cornerRadius: number;
+	readonly stroke: string;
+	readonly fill: string;
+	readonly strokeWidth: number;
+	readonly cornerRadius: number;
 }
 
 export interface ElementDrawerTextStyle {
-	stroke: string;
-	strokeWidth: number;
-	letterSpacing: number;
-	fontFamily: string;
+	readonly stroke: string;
+	readonly strokeWidth: number;
+	readonly letterSpacing: number;
+	readonly fontFamily: string;
 }
 
 export interface ElementDrawerStyle {
-	primary: ElementDrawerPartStyle;
-	secondary: ElementDrawerPartStyle;
+	readonly primary: ElementDrawerPartStyle;
+	readonly secondary: ElementDrawerPartStyle;
 }
 
 export interface ElementDrawerTheme {
-	element: ElementDrawerStyle;
-	text: ElementDrawerTextStyle;
-	highlightElement: ElementDrawerStyle;
-	highlightText: ElementDrawerTextStyle;
-	selectElement: ElementDrawerStyle;
-	selectText: ElementDrawerTextStyle;
-	errorElement: ElementDrawerStyle;
-	errorText: ElementDrawerTextStyle;
+	readonly element: ElementDrawerStyle;
+	readonly text: ElementDrawerTextStyle;
+	readonly highlightElement: ElementDrawerStyle;
+	readonly highlightText: ElementDrawerTextStyle;
+	readonly selectElement: ElementDrawerStyle;
+	readonly selectText: ElementDrawerTextStyle;
+	readonly errorElement: ElementDrawerStyle;
+	readonly errorText: ElementDrawerTextStyle;
 }
 
 export interface ElementDrawerThemeOverride {

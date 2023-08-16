@@ -16,12 +16,12 @@ import { iifConnectPointsTheme } from './iifDrawerTheme';
 import { TooltipTheme, tooltipTheme } from './tooltipTheme';
 
 export interface Theme {
-	colors: ColorTheme;
-	drawer: ElementDrawerTheme;
-	connectLine: ConnectLineTheme;
-	connectPoints: ConnectPointsTheme;
-	simulation: SimulationTheme;
-	tooltip: TooltipTheme;
+	readonly colors: ColorTheme;
+	readonly drawer: ElementDrawerTheme;
+	readonly connectLine: ConnectLineTheme;
+	readonly connectPoints: ConnectPointsTheme;
+	readonly simulation: SimulationTheme;
+	readonly tooltip: TooltipTheme;
 }
 
 export interface DrawerThemeOverride {

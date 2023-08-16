@@ -1,22 +1,22 @@
 import { ColorTheme } from './colors';
 
 export interface TooltipElementStyle {
-	stroke: string;
-	fill: string;
-	strokeWidth: number;
-	cornerRadius: number;
+	readonly stroke: string;
+	readonly fill: string;
+	readonly strokeWidth: number;
+	readonly cornerRadius: number;
 }
 
 export interface TooltipTextStyle {
-	fontStyle: string;
-	fontFamily: string;
-	textFill: string;
-	fill: string;
+	readonly fontStyle: string;
+	readonly fontFamily: string;
+	readonly textFill: string;
+	readonly fill: string;
 }
 
 export interface TooltipTheme {
-	element: TooltipElementStyle;
-	text: TooltipTextStyle;
+	readonly element: TooltipElementStyle;
+	readonly text: TooltipTextStyle;
 }
 
 export const tooltipTheme = (themeColors: ColorTheme): TooltipTheme => ({

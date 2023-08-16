@@ -6,24 +6,28 @@ export class BoundingBox {
 		public readonly height = 0,
 	) {}
 
-	public get topLeft() {
+	get topLeft() {
 		return { x: this.x, y: this.y };
 	}
 
-	public get topRight() {
+	get topRight() {
 		return { x: this.x + this.width, y: this.y };
 	}
 
-	public get bottomLeft() {
+	get bottomLeft() {
 		return { x: this.x, y: this.y + this.height };
 	}
 
-	public get bottomRight() {
+	get bottomRight() {
 		return { x: this.x + this.width, y: this.y + this.height };
 	}
 
-	public get center() {
+	get center() {
 		return { x: this.x + this.width / 2, y: this.y + this.height / 2 };
+	}
+
+	static empty(x = 0, y = 0) {
+		return new BoundingBox(x, y);
 	}
 }
 

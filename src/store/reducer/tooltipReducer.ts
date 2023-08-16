@@ -4,19 +4,22 @@ import { RootState } from '../rootState';
 
 export interface ElementTooltip {
 	elementId: string;
-	text: string;
+	text: string | null;
 }
 
 export interface ShowTooltipAction {
 	type: string;
 	payload: {
 		elementId: string;
-		text: string;
+		text?: string;
 	};
 }
 
 export const showTooltipReducer = (slice: Draft<StageSlice>, action: ShowTooltipAction) => {
-	slice.tooltip = action.payload;
+	slice.tooltip = {
+		elementId: action.payload.elementId,
+		text: action.payload.text ?? null,
+	};
 };
 
 export const hideTooltipReducer = (slice: Draft<StageSlice>) => {
