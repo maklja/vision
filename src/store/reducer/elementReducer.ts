@@ -36,3 +36,13 @@ export const clearDraftElementReducer = (slice: Draft<StageSlice>) => {
 	slice.draftElement = null;
 };
 
+export const removeSelectedElementsReducer = (slice: Draft<StageSlice>) => {
+	const selectedElementIds = slice.selected.map((s) => s.id);
+	slice.elements = slice.elements.filter((el) => !selectedElementIds.includes(el.id));
+	slice.connectLines = slice.connectLines.filter(
+		(cl) =>
+			!selectedElementIds.includes(cl.source.id) &&
+			!selectedElementIds.includes(cl.target.id),
+	);
+};
+
