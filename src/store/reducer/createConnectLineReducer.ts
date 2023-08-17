@@ -83,14 +83,14 @@ export const startConnectLineDrawReducer = (
 	const el = elements.find((curEl) => curEl.id === sourceId);
 	if (!el) {
 		// case when element is not found for some reason
-		slice.selected = [];
+		slice.selectedElements = [];
 		return;
 	}
 
 	const sourceCpDescriptor = getConnectPointDescriptor(el, type, connectLines);
 	// has element excited cardinality
 	if (sourceCpDescriptor.cardinalityExcited) {
-		slice.selected = [];
+		slice.selectedElements = [];
 		return;
 	}
 
@@ -101,7 +101,7 @@ export const startConnectLineDrawReducer = (
 	}, new Map<string, number>());
 
 	// leave only element that are allowed to connect and didn't excited cardinality
-	slice.selected = elements
+	slice.selectedElements = elements
 		.filter((curEl) => {
 			if (curEl.id === el.id) {
 				return false;
@@ -165,7 +165,7 @@ export const deleteConnectLineDrawReducer = (slice: Draft<StageSlice>) => {
 	slice.highlightedConnectPoints = [];
 	slice.draftConnectLine = null;
 
-	slice.selected = [
+	slice.selectedElements = [
 		{
 			id: draftConnectLine.source.id,
 			visibleConnectPoints: {
@@ -189,7 +189,7 @@ export const linkConnectLineDrawReducer = (
 	slice.highlightedConnectPoints = [];
 	slice.draftConnectLine = null;
 
-	slice.selected = [
+	slice.selectedElements = [
 		{
 			id: draftConnectLine.source.id,
 			visibleConnectPoints: {

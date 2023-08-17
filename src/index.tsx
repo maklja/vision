@@ -194,7 +194,7 @@ root.render(
 					draftElement: null,
 					highlighted: [],
 					highlightedConnectPoints: [],
-					selected: [],
+					selectedElements: [],
 					themes: createThemeContext(),
 					elementSizes: createElementSizesContext(),
 					state: StageState.Select,

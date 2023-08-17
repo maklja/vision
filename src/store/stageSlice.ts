@@ -69,7 +69,7 @@ export interface StageSlice {
 	elements: Element[];
 	connectLines: ConnectLine[];
 	highlightedConnectPoints: ConnectPoint[];
-	selected: SelectedElement[];
+	selectedElements: SelectedElement[];
 	highlighted: string[];
 	state: StageState;
 	draftConnectLine: DraftConnectLine | null;
@@ -129,7 +129,7 @@ const initialState: StageSlice = {
 	elements: [],
 	connectLines: [],
 	highlightedConnectPoints: [],
-	selected: [],
+	selectedElements: [],
 	highlighted: [],
 	state: StageState.Select,
 	draftConnectLine: null,
@@ -173,7 +173,7 @@ export const stageSlice = createSlice({
 			slice.elements = action.payload;
 		},
 		selectElements: (slice: Draft<StageSlice>, action: SelectElementsAction) => {
-			slice.selected = action.payload;
+			slice.selectedElements = action.payload;
 		},
 		highlightElements: (slice: Draft<StageSlice>, action: HighlightElementsAction) => {
 			slice.highlighted = action.payload;
@@ -294,10 +294,10 @@ export const selectHighlightedConnectPointsByElementId =
 		state.stage.highlightedConnectPoints.filter((cp) => cp.elementId === elementId);
 
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
-	state.stage.selected.some(({ id }) => id === elementId);
+	state.stage.selectedElements.some(({ id }) => id === elementId);
 
 export const selectElementSelection = (elementId: string) => (state: RootState) =>
-	state.stage.selected.find(({ id }) => id === elementId) ?? null;
+	state.stage.selectedElements.find(({ id }) => id === elementId) ?? null;
 
 export const isHighlightedElement = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
