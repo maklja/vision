@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
 import { AnimationsLayer } from '../layers/animations';
@@ -25,6 +25,7 @@ export interface StageEvents {
 	onDragEnd?: (event: Konva.KonvaEventObject<DragEvent>) => void;
 	onDragMove?: (event: Konva.KonvaEventObject<DragEvent>) => void;
 	onWheel?: (event: Konva.KonvaEventObject<WheelEvent>) => void;
+	onKeyUp?: (event: KeyboardEvent) => void;
 }
 
 export const SimulatorStage = () => {
@@ -65,6 +66,18 @@ export const SimulatorStage = () => {
 		}),
 		[],
 	);
+
+	useEffect(() => {
+		if (stageHandlers.onKeyUp) {
+			window.addEventListener('keyup', stageHandlers.onKeyUp, false);
+		}
+
+		return () => {
+			if (stageHandlers.onKeyUp) {
+				window.removeEventListener('keyup', stageHandlers.onKeyUp, false);
+			}
+		};
+	}, []);
 
 	return (
 		<div ref={drop}>

@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { AppDispatch } from '../../store/rootState';
 import { StageEvents } from '../SimulatorStage';
-import { selectElements } from '../../store/stageSlice';
+import { removeSelectedElements, selectElements } from '../../store/stageSlice';
 import { changeCursorStyle } from '../../operatorDrawers/utils';
 
 const PAN_MOUSE_BUTTON_KEY = 1;
@@ -65,4 +65,10 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 			y: pointerY - mousePointTo.y * newScale,
 		});
 	},
+	onKeyUp: (e: KeyboardEvent) => {
+		if (e.key === 'Delete') {
+			dispatch(removeSelectedElements());
+		}
+	},
 });
+

@@ -36,6 +36,7 @@ import {
 	errorsAdapter,
 	createElementErrorReducer,
 	clearErrorsReducer,
+	removeSelectedElementsReducer,
 } from './reducer';
 import { RootState } from './rootState';
 import { ElementTooltip, hideTooltipReducer, showTooltipReducer } from './reducer/tooltipReducer';
@@ -83,18 +84,6 @@ export interface StageSlice {
 export interface AddElementsAction {
 	type: string;
 	payload: Element[];
-}
-
-export interface AddElementAction {
-	type: string;
-	payload: Element;
-}
-
-export interface RemoveElementAction {
-	type: string;
-	payload: {
-		id: string;
-	};
 }
 
 export interface UpdateElementAction<P = unknown> {
@@ -165,12 +154,6 @@ export const stageSlice = createSlice({
 		changeState: (slice: Draft<StageSlice>, action: ChangeStateAction) => {
 			slice.state = action.payload;
 		},
-		addElement: (slice: Draft<StageSlice>, action: AddElementAction) => {
-			slice.elements = [...slice.elements, action.payload];
-		},
-		removeElement: (slice: Draft<StageSlice>, action: RemoveElementAction) => {
-			slice.elements = slice.elements.filter((el) => el.id !== action.payload.id);
-		},
 		updateElement: (slice: Draft<StageSlice>, action: UpdateElementAction) => {
 			const { payload } = action;
 			const elIdx = slice.elements.findIndex((el) => el.id === payload.id);
@@ -201,6 +184,7 @@ export const stageSlice = createSlice({
 		) => {
 			slice.highlightedConnectPoints = action.payload;
 		},
+		removeSelectedElements: removeSelectedElementsReducer,
 		startConnectLineDraw: startConnectLineDrawReducer,
 		moveConnectLineDraw: moveConnectLineDrawReducer,
 		linkConnectLineDraw: linkConnectLineDrawReducer,
@@ -257,9 +241,8 @@ export const stageSlice = createSlice({
 });
 
 export const {
-	addElement,
-	removeElement,
 	updateElement,
+	removeSelectedElements,
 	addElements,
 	selectElements,
 	highlightElements,
