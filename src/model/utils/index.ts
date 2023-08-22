@@ -1,2 +1,3 @@
 export * from './BoundingBox';
-export * from './intersections';
+export * from './lineToPolygon';
+export * from './linesIntersection';
