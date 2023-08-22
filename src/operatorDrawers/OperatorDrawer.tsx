@@ -13,7 +13,7 @@ import { FilterOperatorDrawer } from './filteringOperators';
 import { ResultDrawer } from './resultOperators';
 import { MergeOperatorDrawer } from './joinCreationOperators';
 import {
-	isHighlightedElement,
+	isHighlighted,
 	isSelectedElement,
 	selectElementErrorById,
 	useThemeContext,
@@ -77,7 +77,7 @@ export const OperatorDrawer = ({
 	const animation = useAppSelector(selectDrawerAnimationByDrawerId(element.id));
 	const drawerHandlers = useElementDrawerHandlers();
 	const select = useAppSelector(isSelectedElement(element.id));
-	const highlight = useAppSelector(isHighlightedElement(element.id));
+	const highlight = useAppSelector(isHighlighted(element.id));
 	const error = useAppSelector(selectElementErrorById(element.id));
 
 	const animationConfig = animation
@@ -138,3 +138,4 @@ export const OperatorDrawer = ({
 			return null;
 	}
 };
+

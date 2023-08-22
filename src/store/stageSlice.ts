@@ -37,6 +37,7 @@ import {
 	createElementErrorReducer,
 	clearErrorsReducer,
 	removeSelectedElementsReducer,
+	selectConnectLinesReducer,
 } from './reducer';
 import { RootState } from './rootState';
 import { ElementTooltip, hideTooltipReducer, showTooltipReducer } from './reducer/tooltipReducer';
@@ -70,6 +71,7 @@ export interface StageSlice {
 	connectLines: ConnectLine[];
 	highlightedConnectPoints: ConnectPoint[];
 	selectedElements: SelectedElement[];
+	selectedConnectLines: string[];
 	highlighted: string[];
 	state: StageState;
 	draftConnectLine: DraftConnectLine | null;
@@ -130,6 +132,7 @@ const initialState: StageSlice = {
 	connectLines: [],
 	highlightedConnectPoints: [],
 	selectedElements: [],
+	selectedConnectLines: [],
 	highlighted: [],
 	state: StageState.Select,
 	draftConnectLine: null,
@@ -237,6 +240,7 @@ export const stageSlice = createSlice({
 		clearErrors: clearErrorsReducer,
 		showTooltip: showTooltipReducer,
 		hideTooltip: hideTooltipReducer,
+		selectConnectLines: selectConnectLinesReducer,
 	},
 });
 
@@ -267,6 +271,7 @@ export const {
 	clearErrors,
 	showTooltip,
 	hideTooltip,
+	selectConnectLines: selectConnectLinesNew,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
@@ -299,7 +304,12 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 export const selectElementSelection = (elementId: string) => (state: RootState) =>
 	state.stage.selectedElements.find(({ id }) => id === elementId) ?? null;
 
-export const isHighlightedElement = (elementId: string) => (state: RootState) =>
+export const isSelectedConnectLine = (connectLineId: string) => (state: RootState) =>
+	state.stage.selectedConnectLines.some(
+		(currentConnectLineId) => currentConnectLineId === connectLineId,
+	);
+
+export const isHighlighted = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
 
 export const selectSimulation = (state: RootState) => state.stage.simulation;

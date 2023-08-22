@@ -87,3 +87,16 @@ export interface ConnectPointsDrawerEvents extends DrawerAnimationEvents {
 	onMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
 	onMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
 }
+
+export interface LineEvent {
+	id: string;
+	originalEvent?: Konva.KonvaEventObject<MouseEvent>;
+}
+
+export interface LineDrawerEvents {
+	onMouseDown?: (lineEvent: LineEvent) => void;
+	onMouseUp?: (lineEvent: LineEvent) => void;
+	onMouseOver?: (lineEvent: LineEvent) => void;
+	onMouseOut?: (lineEvent: LineEvent) => void;
+}
+

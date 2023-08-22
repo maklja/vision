@@ -1,21 +1,10 @@
 import Konva from 'konva';
+import { useMemo } from 'react';
 import { Line, Group } from 'react-konva';
 import { Point, lineToPolygon, linesIntersection } from '../../model';
+import { LineDrawerEvents } from '../DrawerProps';
 import { Theme, useLineDrawerTheme } from '../../theme';
 import { LineArrow } from './LineArrow';
-import { useMemo } from 'react';
-
-export interface LineEvent {
-	id: string;
-	originalEvent?: Konva.KonvaEventObject<MouseEvent>;
-}
-
-export interface LineDrawerEvents {
-	onMouseDown?: (lineEvent: LineEvent) => void;
-	onMouseUp?: (lineEvent: LineEvent) => void;
-	onMouseOver?: (lineEvent: LineEvent) => void;
-	onMouseOut?: (lineEvent: LineEvent) => void;
-}
 
 export interface LineDrawerProps extends LineDrawerEvents {
 	id: string;
