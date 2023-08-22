@@ -5,12 +5,12 @@ import { Point } from '../../model';
 const ARROW_SIZE = 15;
 const ARROW_ANGLE = Math.PI / 6;
 
-export interface ConnectLineArrowProps {
+export interface LineArrowProps {
 	points: Point[];
 	fill?: string;
 }
 
-export const ConnectLineArrow = ({ points, fill }: ConnectLineArrowProps) => {
+export const LineArrow = ({ points, fill }: LineArrowProps) => {
 	const path = useMemo(() => {
 		const sourcePoint = points[1];
 		const targetPoint = points[points.length - 2];

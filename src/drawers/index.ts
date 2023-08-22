@@ -1,5 +1,5 @@
 export * from './DrawerProps';
-export * from './connectLine';
+export * from './line';
 export * from './polygon';
 export * from './circle';
 export * from './connectPoints';

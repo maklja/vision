@@ -1,23 +1,23 @@
 import Konva from 'konva';
 import { Line, Group } from 'react-konva';
 import { Point, lineToPolygon, linesIntersection } from '../../model';
-import { Theme } from '../../theme';
-import { ConnectLineArrow } from './ConnectLineArrow';
+import { Theme, useLineDrawerTheme } from '../../theme';
+import { LineArrow } from './LineArrow';
 import { useMemo } from 'react';
 
-export interface ConnectLineEvent {
+export interface LineEvent {
 	id: string;
 	originalEvent?: Konva.KonvaEventObject<MouseEvent>;
 }
 
-export interface ConnectLineDrawerEvents {
-	onMouseDown?: (cEvent: ConnectLineEvent) => void;
-	onMouseUp?: (cEvent: ConnectLineEvent) => void;
-	onMouseOver?: (cEvent: ConnectLineEvent) => void;
-	onMouseOut?: (cEvent: ConnectLineEvent) => void;
+export interface LineDrawerEvents {
+	onMouseDown?: (lineEvent: LineEvent) => void;
+	onMouseUp?: (lineEvent: LineEvent) => void;
+	onMouseOver?: (lineEvent: LineEvent) => void;
+	onMouseOut?: (lineEvent: LineEvent) => void;
 }
 
-export interface ConnectLineDrawerProps extends ConnectLineDrawerEvents {
+export interface LineDrawerProps extends LineDrawerEvents {
 	id: string;
 	points: Point[];
 	theme: Theme;
@@ -26,16 +26,20 @@ export interface ConnectLineDrawerProps extends ConnectLineDrawerEvents {
 	select?: boolean;
 }
 
-export const ConnectLineDrawer = ({
+export const LineDrawer = ({
 	id,
 	points,
 	theme,
 	visible = true,
+	select = false,
+	highlight = false,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
 	onMouseOver,
-}: ConnectLineDrawerProps) => {
+}: LineDrawerProps) => {
+	const lineTheme = useLineDrawerTheme({ select, highlight }, theme);
+
 	const drawAnArrow = points.length > 3;
 
 	const boundingBoxPoints = useMemo(() => {
@@ -102,7 +106,6 @@ export const ConnectLineDrawer = ({
 			onMouseOut={handleMouseOut}
 		>
 			<Line
-				{...theme.connectLine.line}
 				perfectDrawEnabled={false}
 				points={boundingBoxPoints}
 				closed={true}
@@ -110,12 +113,12 @@ export const ConnectLineDrawer = ({
 			/>
 
 			<Line
-				{...theme.connectLine.line}
+				{...lineTheme.line}
 				perfectDrawEnabled={false}
 				listening={false}
 				points={points.flatMap((p) => [p.x, p.y])}
 			/>
-			{drawAnArrow ? <ConnectLineArrow {...theme.connectLine.arrow} points={points} /> : null}
+			{drawAnArrow ? <LineArrow {...lineTheme.arrow} points={points} /> : null}
 		</Group>
 	);
 };

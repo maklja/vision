@@ -195,6 +195,7 @@ root.render(
 					highlighted: [],
 					highlightedConnectPoints: [],
 					selectedElements: [],
+					selectedConnectLines: [],
 					themes: createThemeContext(),
 					elementSizes: createElementSizesContext(),
 					state: StageState.Select,
