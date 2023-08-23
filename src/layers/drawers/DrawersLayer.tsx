@@ -4,10 +4,10 @@ import {
 	SimulationState,
 	StageState,
 	selectSimulation,
-	selectStageElements,
 	selectStageState,
 } from '../../store/stageSlice';
 import { OperatorDrawer } from '../../operatorDrawers';
+import { selectStageElements } from '../../store/elements';
 
 export const DrawersLayer = () => {
 	const simulation = useAppSelector(selectSimulation);

@@ -80,7 +80,7 @@ export const startConnectLineDrawReducer = (
 	};
 
 	// first find an element
-	const el = elements.find((curEl) => curEl.id === sourceId);
+	const el = elements.entities
 	if (!el) {
 		// case when element is not found for some reason
 		slice.selectedElements = [];

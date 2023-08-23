@@ -9,9 +9,9 @@ import {
 	completeSimulation,
 	createElementError,
 	resetSimulation,
+	selectConnectLines,
 	selectElements,
 	selectSimulation,
-	selectStage,
 	startSimulation,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
@@ -23,10 +23,12 @@ import {
 	MissingReferenceObservableError,
 	createObservableSimulation,
 } from '../engine';
+import { selectStageElements } from '../store/elements';
 
 export const Simulator = () => {
 	const simulation = useAppSelector(selectSimulation);
-	const { elements, connectLines } = useAppSelector(selectStage);
+	const elements = useAppSelector(selectStageElements);
+	const connectLines = useAppSelector(selectConnectLines);
 	const appDispatch = useAppDispatch();
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
