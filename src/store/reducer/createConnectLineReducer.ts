@@ -10,6 +10,7 @@ import {
 	Point,
 } from '../../model';
 import { SelectedElement, StageSlice, StageState } from '../stageSlice';
+import { selectAllElements, selectElementById } from '../elements';
 
 export interface StartConnectLineDrawAction {
 	type: string;
@@ -23,10 +24,7 @@ export interface StartConnectLineDrawAction {
 
 export interface MoveConnectLineDrawAction {
 	type: string;
-	payload: {
-		x: number;
-		y: number;
-	};
+	payload: Point;
 }
 
 export interface LinkConnectLineDrawAction {
@@ -80,17 +78,17 @@ export const startConnectLineDrawReducer = (
 	};
 
 	// first find an element
-	const el = elements.entities
+	const el = selectElementById(elements, sourceId);
 	if (!el) {
 		// case when element is not found for some reason
-		slice.selectedElements = [];
+		elements.selectedIds = [];
 		return;
 	}
 
 	const sourceCpDescriptor = getConnectPointDescriptor(el, type, connectLines);
 	// has element excited cardinality
 	if (sourceCpDescriptor.cardinalityExcited) {
-		slice.selectedElements = [];
+		elements.selectedIds = [];
 		return;
 	}
 
@@ -101,7 +99,7 @@ export const startConnectLineDrawReducer = (
 	}, new Map<string, number>());
 
 	// leave only element that are allowed to connect and didn't excited cardinality
-	slice.selectedElements = elements
+	elements.selectedIds = selectAllElements(elements)
 		.filter((curEl) => {
 			if (curEl.id === el.id) {
 				return false;
@@ -139,10 +137,7 @@ export const startConnectLineDrawReducer = (
 		);
 };
 
-export const moveConnectLineDrawReducer = (
-	slice: Draft<StageSlice>,
-	action: MoveConnectLineDrawAction,
-) => {
+export const moveConnectLineDraw = (slice: Draft<StageSlice>, position: Point) => {
 	if (slice.state !== StageState.DrawConnectLine || !slice.draftConnectLine) {
 		return;
 	}
@@ -152,7 +147,14 @@ export const moveConnectLineDrawReducer = (
 		return;
 	}
 
-	draftConnectLine.points.splice(-1, 1, { x: action.payload.x, y: action.payload.y });
+	draftConnectLine.points.splice(-1, 1, position);
+};
+
+export const moveConnectLineDrawReducer = (
+	slice: Draft<StageSlice>,
+	action: MoveConnectLineDrawAction,
+) => {
+	moveConnectLineDraw(slice, action.payload);
 };
 
 export const deleteConnectLineDrawReducer = (slice: Draft<StageSlice>) => {
@@ -165,7 +167,7 @@ export const deleteConnectLineDrawReducer = (slice: Draft<StageSlice>) => {
 	slice.highlightedConnectPoints = [];
 	slice.draftConnectLine = null;
 
-	slice.selectedElements = [
+	slice.elements.selectedIds = [
 		{
 			id: draftConnectLine.source.id,
 			visibleConnectPoints: {
@@ -189,7 +191,7 @@ export const linkConnectLineDrawReducer = (
 	slice.highlightedConnectPoints = [];
 	slice.draftConnectLine = null;
 
-	slice.selectedElements = [
+	slice.elements.selectedIds = [
 		{
 			id: draftConnectLine.source.id,
 			visibleConnectPoints: {
@@ -197,7 +199,7 @@ export const linkConnectLineDrawReducer = (
 			},
 		},
 	];
-	const el = slice.elements.find((curEl) => curEl.id === payload.targetId);
+	const el = selectElementById(slice.elements, payload.targetId);
 	if (!el) {
 		return;
 	}
@@ -214,4 +216,3 @@ export const linkConnectLineDrawReducer = (
 		},
 	});
 };
-

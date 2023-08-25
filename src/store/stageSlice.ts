@@ -21,7 +21,6 @@ import {
 	deleteConnectLineDrawReducer,
 	pinConnectLineReducer,
 	unpinConnectLineReducer,
-	clearDraftElementReducer,
 	resetSimulationReducer,
 	completeSimulationReducer,
 	addObservableEventReducer,
@@ -40,6 +39,7 @@ import {
 import { RootState } from './rootState';
 import { ElementTooltip, hideTooltipReducer, showTooltipReducer } from './reducer/tooltipReducer';
 import { createElementsAdapterInitialState, elementsAdapterReducers } from './elements';
+import { createSelectedElementsAdapterInitialState, selectElementsAdapterReducers } from './elements/selectedElementsAdapter';
 
 export * from './hooks/theme';
 
@@ -67,9 +67,9 @@ export enum StageState {
 
 export interface StageSlice {
 	elements: EntityState<Element>;
+	selectedElements: EntityState<SelectedElement>;
 	connectLines: ConnectLine[];
 	highlightedConnectPoints: ConnectPoint[];
-	selectedElements: SelectedElement[];
 	selectedConnectLines: string[];
 	highlighted: string[];
 	state: StageState;
@@ -80,11 +80,6 @@ export interface StageSlice {
 	elementSizes: ElementSizesContext;
 	errors: EntityState<ElementError>;
 	tooltip: ElementTooltip | null;
-}
-
-export interface SelectElementsAction {
-	type: string;
-	payload: SelectedElement[];
 }
 
 export interface HighlightElementsAction {
@@ -102,16 +97,16 @@ export interface HighlightConnectPointsAction {
 	payload: ConnectPoint[];
 }
 
-const initialState: StageSlice = {
-	elements: createElementsAdapterInitialState(),
+export const createStageInitialState = (elements: Element[] = []): StageSlice => ({
+	elements: createElementsAdapterInitialState(elements),
+	selectedElements: createSelectedElementsAdapterInitialState(),
+	draftElement: null,
 	connectLines: [],
 	highlightedConnectPoints: [],
-	selectedElements: [],
 	selectedConnectLines: [],
 	highlighted: [],
 	state: StageState.Select,
 	draftConnectLine: null,
-	draftElement: null,
 	simulation: {
 		id: v1(),
 		state: SimulationState.Stopped,
@@ -123,18 +118,16 @@ const initialState: StageSlice = {
 	elementSizes: createElementSizesContext(),
 	errors: errorsAdapter.getInitialState(),
 	tooltip: null,
-};
+});
 
 export const stageSlice = createSlice({
 	name: 'stage',
-	initialState: initialState,
+	initialState: createStageInitialState(),
 	reducers: {
 		...elementsAdapterReducers,
+		...selectElementsAdapterReducers,
 		changeState: (slice: Draft<StageSlice>, action: ChangeStateAction) => {
 			slice.state = action.payload;
-		},
-		selectElements: (slice: Draft<StageSlice>, action: SelectElementsAction) => {
-			slice.selectedElements = action.payload;
 		},
 		highlightElements: (slice: Draft<StageSlice>, action: HighlightElementsAction) => {
 			slice.highlighted = action.payload;
@@ -152,7 +145,6 @@ export const stageSlice = createSlice({
 		deleteConnectLineDraw: deleteConnectLineDrawReducer,
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
-		clearDraftElement: clearDraftElementReducer,
 		startSimulation: startSimulationReducer,
 		resetSimulation: resetSimulationReducer,
 		completeSimulation: completeSimulationReducer,
@@ -212,12 +204,6 @@ export const selectHighlightedConnectPointsByElementId =
 	(elementId: string) => (state: RootState) =>
 		state.stage.highlightedConnectPoints.filter((cp) => cp.elementId === elementId);
 
-export const isSelectedElement = (elementId: string) => (state: RootState) =>
-	state.stage.selectedElements.some(({ id }) => id === elementId);
-
-export const selectElementSelection = (elementId: string) => (state: RootState) =>
-	state.stage.selectedElements.find(({ id }) => id === elementId) ?? null;
-
 export const isSelectedConnectLine = (connectLineId: string) => (state: RootState) =>
 	state.stage.selectedConnectLines.some(
 		(currentConnectLineId) => currentConnectLineId === connectLineId,
@@ -230,4 +216,3 @@ export const selectSimulation = (state: RootState) => state.stage.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.stage.simulation.animationsQueue.at(0) ?? null;
-

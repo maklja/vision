@@ -1,13 +1,8 @@
 import { Draft } from '@reduxjs/toolkit';
 import { StageSlice, StageState } from '../stageSlice';
 
-export const clearDraftElementReducer = (slice: Draft<StageSlice>) => {
-	slice.state = StageState.Select;
-	slice.draftElement = null;
-};
-
 export const removeSelectedElementsReducer = (slice: Draft<StageSlice>) => {
-	const selectedElementIds = slice.selectedElements.map((s) => s.id);
+	// const selectedElementIds = slice.selectedElements.map((s) => s.id);
 	// slice.elements = slice.elements.filter((el) => !selectedElementIds.includes(el.id));
 	// slice.connectLines = slice.connectLines.filter(
 	// 	(cl) =>
@@ -15,4 +10,3 @@ export const removeSelectedElementsReducer = (slice: Draft<StageSlice>) => {
 	// 		!selectedElementIds.includes(cl.target.id),
 	// );
 };
-

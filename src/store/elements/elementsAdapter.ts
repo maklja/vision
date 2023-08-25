@@ -3,23 +3,27 @@ import { StageSlice, StageState } from '../stageSlice';
 import { Element } from '../../model';
 import { RootState } from '../rootState';
 
+export interface UpdateElementPayload<P = unknown> {
+	id: string;
+	visible?: boolean;
+	scale?: number;
+	properties?: P;
+}
+
 export interface UpdateElementAction<P = unknown> {
 	type: string;
-	payload: {
-		id: string;
-		visible?: boolean;
-		scale?: number;
-		properties?: P;
-	};
+	payload: UpdateElementPayload<P>;
+}
+
+export interface MoveElementPayload {
+	id: string;
+	x: number;
+	y: number;
 }
 
 export interface MoveElementAction {
 	type: string;
-	payload: {
-		id: string;
-		x: number;
-		y: number;
-	};
+	payload: MoveElementPayload;
 }
 
 export interface CreateDraftElementAction {
@@ -36,50 +40,53 @@ const elementsAdapter = createEntityAdapter<Element>({
 	selectId: (el) => el.id,
 });
 
-export const createElementsAdapterInitialState = () => elementsAdapter.getInitialState();
+export const createElementsAdapterInitialState = (elements: Element[] = []) =>
+	elementsAdapter.addMany(elementsAdapter.getInitialState(), elements);
 
-export const elementsAdapterReducers = {
-	updateElement: (slice: Draft<StageSlice>, action: UpdateElementAction) => {
-		const { payload } = action;
+export const updateElement = (slice: Draft<StageSlice>, payload: UpdateElementPayload) => {
+	slice.elements = elementsAdapter.updateOne(slice.elements, {
+		id: payload.id,
+		changes: payload,
+	});
+};
 
-		slice.elements = elementsAdapter.updateOne(slice.elements, {
-			id: payload.id,
-			changes: payload,
-		});
-	},
-	moveElement: (slice: Draft<StageSlice>, action: MoveElementAction) => {
-		const { payload } = action;
+export const moveElement = (slice: Draft<StageSlice>, payload: MoveElementPayload) => {
+	slice.elements = elementsAdapter.updateOne(slice.elements, {
+		id: payload.id,
+		changes: payload,
+	});
 
-		slice.elements = elementsAdapter.updateOne(slice.elements, {
-			id: payload.id,
-			changes: payload,
-		});
+	const el = slice.elements.entities[payload.id];
+	if (!el) {
+		return;
+	}
 
-		const el = slice.elements.entities[payload.id];
-		if (!el) {
-			return;
+	const dx = payload.x - el.x;
+	const dy = payload.y - el.y;
+	slice.connectLines.forEach((cl) => {
+		if (cl.source.id === el.id) {
+			const [p0, p1] = cl.points;
+			p0.x += dx;
+			p0.y += dy;
+			p1.x += dx;
+			p1.y += dy;
 		}
 
-		const dx = payload.x - el.x;
-		const dy = payload.y - el.y;
-		slice.connectLines.forEach((cl) => {
-			if (cl.source.id === el.id) {
-				const [p0, p1] = cl.points;
-				p0.x += dx;
-				p0.y += dy;
-				p1.x += dx;
-				p1.y += dy;
-			}
+		if (cl.target.id === el.id) {
+			const [p0, p1] = cl.points.slice(-2);
+			p0.x += dx;
+			p0.y += dy;
+			p1.x += dx;
+			p1.y += dy;
+		}
+	});
+};
 
-			if (cl.target.id === el.id) {
-				const [p0, p1] = cl.points.slice(-2);
-				p0.x += dx;
-				p0.y += dy;
-				p1.x += dx;
-				p1.y += dy;
-			}
-		});
-	},
+export const elementsAdapterReducers = {
+	updateElement: (slice: Draft<StageSlice>, action: UpdateElementAction) =>
+		updateElement(slice, action.payload),
+	moveElement: (slice: Draft<StageSlice>, action: MoveElementAction) =>
+		moveElement(slice, action.payload),
 	createDraftElement: (slice: Draft<StageSlice>, action: CreateDraftElementAction) => {
 		slice.state = StageState.DrawElement;
 		slice.draftElement = action.payload;
@@ -94,12 +101,20 @@ export const elementsAdapterReducers = {
 		slice.elements = elementsAdapter.addOne(slice.elements, action.payload);
 		slice.draftElement = null;
 	},
+	clearDraftElement: (slice: Draft<StageSlice>) => {
+		slice.state = StageState.Select;
+		slice.draftElement = null;
+	},
 };
 
-const elementsSelector = elementsAdapter.getSelectors<RootState>((state) => state.stage.elements);
+export const { selectAll: selectAllElements, selectById: selectElementById } =
+	elementsAdapter.getSelectors();
 
-export const selectStageElements = (state: RootState) => elementsSelector.selectAll(state);
+const globalElementsSelector = elementsAdapter.getSelectors<RootState>(
+	(state) => state.stage.elements,
+);
+
+export const selectStageElements = (state: RootState) => globalElementsSelector.selectAll(state);
 
 export const selectStageElementById = (id: string | null) => (state: RootState) =>
-	!id ? null : elementsSelector.selectById(state, id) ?? null;
-
+	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
