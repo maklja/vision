@@ -9,7 +9,6 @@ import {
 	completeSimulation,
 	createElementError,
 	resetSimulation,
-	selectConnectLines,
 	selectElements,
 	selectSimulation,
 	startSimulation,
@@ -24,11 +23,12 @@ import {
 	createObservableSimulation,
 } from '../engine';
 import { selectStageElements } from '../store/elements';
+import { selectStageConnectLines } from '../store/connectLines';
 
 export const Simulator = () => {
 	const simulation = useAppSelector(selectSimulation);
 	const elements = useAppSelector(selectStageElements);
-	const connectLines = useAppSelector(selectConnectLines);
+	const connectLines = useAppSelector(selectStageConnectLines);
 	const appDispatch = useAppDispatch();
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,

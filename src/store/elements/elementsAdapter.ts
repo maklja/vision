@@ -2,6 +2,7 @@ import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
 import { StageSlice, StageState } from '../stageSlice';
 import { Element } from '../../model';
 import { RootState } from '../rootState';
+import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
 
 export interface UpdateElementPayload<P = unknown> {
 	id: string;
@@ -36,6 +37,15 @@ export interface AddDraftElementAction {
 	payload: Element;
 }
 
+export interface RemoveElementsPayload {
+	elementIds: string[];
+}
+
+export interface RemoveElementsAction {
+	type: string;
+	payload: RemoveElementsPayload;
+}
+
 const elementsAdapter = createEntityAdapter<Element>({
 	selectId: (el) => el.id,
 });
@@ -43,50 +53,66 @@ const elementsAdapter = createEntityAdapter<Element>({
 export const createElementsAdapterInitialState = (elements: Element[] = []) =>
 	elementsAdapter.addMany(elementsAdapter.getInitialState(), elements);
 
-export const updateElement = (slice: Draft<StageSlice>, payload: UpdateElementPayload) => {
+export const updateElementStateChange = (
+	slice: Draft<StageSlice>,
+	payload: UpdateElementPayload,
+) => {
 	slice.elements = elementsAdapter.updateOne(slice.elements, {
 		id: payload.id,
 		changes: payload,
 	});
 };
 
-export const moveElement = (slice: Draft<StageSlice>, payload: MoveElementPayload) => {
-	slice.elements = elementsAdapter.updateOne(slice.elements, {
-		id: payload.id,
-		changes: payload,
-	});
-
-	const el = slice.elements.entities[payload.id];
+export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveElementPayload) => {
+	const el = selectElementById(slice.elements, payload.id);
 	if (!el) {
 		return;
 	}
 
+	slice.elements = elementsAdapter.updateOne(slice.elements, {
+		id: payload.id,
+		changes: payload,
+	});
+
 	const dx = payload.x - el.x;
 	const dy = payload.y - el.y;
-	slice.connectLines.forEach((cl) => {
+
+	const connectLines = selectAllConnectLines(slice.connectLines);
+	connectLines.forEach((cl) => {
 		if (cl.source.id === el.id) {
-			const [p0, p1] = cl.points;
-			p0.x += dx;
-			p0.y += dy;
-			p1.x += dx;
-			p1.y += dy;
+			moveConnectLinePointsByDeltaStateChange(slice, {
+				id: cl.id,
+				pointIndexes: [0, 1],
+				dx,
+				dy,
+			});
 		}
 
 		if (cl.target.id === el.id) {
-			const [p0, p1] = cl.points.slice(-2);
-			p0.x += dx;
-			p0.y += dy;
-			p1.x += dx;
-			p1.y += dy;
+			moveConnectLinePointsByDeltaStateChange(slice, {
+				id: cl.id,
+				pointIndexes: [cl.points.length - 2, cl.points.length - 1],
+				dx,
+				dy,
+			});
 		}
 	});
 };
 
+export const removeElementsStateChange = (
+	slice: Draft<StageSlice>,
+	payload: RemoveElementsPayload,
+) => {
+	slice.elements = elementsAdapter.removeMany(slice.elements, payload.elementIds);
+};
+
 export const elementsAdapterReducers = {
 	updateElement: (slice: Draft<StageSlice>, action: UpdateElementAction) =>
-		updateElement(slice, action.payload),
+		updateElementStateChange(slice, action.payload),
 	moveElement: (slice: Draft<StageSlice>, action: MoveElementAction) =>
-		moveElement(slice, action.payload),
+		moveElementStateChange(slice, action.payload),
+	removeElements: (slice: Draft<StageSlice>, payload: RemoveElementsAction) =>
+		removeElementsStateChange(slice, payload.payload),
 	createDraftElement: (slice: Draft<StageSlice>, action: CreateDraftElementAction) => {
 		slice.state = StageState.DrawElement;
 		slice.draftElement = action.payload;
@@ -118,3 +144,6 @@ export const selectStageElements = (state: RootState) => globalElementsSelector.
 
 export const selectStageElementById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
+
+export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
+

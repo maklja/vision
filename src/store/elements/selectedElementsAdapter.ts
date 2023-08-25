@@ -20,13 +20,19 @@ const selectedElementsAdapter = createEntityAdapter<SelectedElement>({
 export const createSelectedElementsAdapterInitialState = () =>
 	selectedElementsAdapter.getInitialState();
 
-const selectElements = (slice: Draft<StageSlice>, elements: SelectedElement[]) => {
-	slice.selectedElements = selectedElementsAdapter.addMany(slice.selectedElements, elements);
+export const selectElementsStateChange = (
+	slice: Draft<StageSlice>,
+	elements: SelectedElement[],
+) => {
+	slice.selectedElements = selectedElementsAdapter.addMany(
+		selectedElementsAdapter.removeAll(slice.selectedElements),
+		elements,
+	);
 };
 
 export const selectElementsAdapterReducers = {
 	selectElements: (slice: Draft<StageSlice>, action: SelectElementsAction) =>
-		selectElements(slice, action.payload),
+		selectElementsStateChange(slice, action.payload),
 };
 
 export const { selectAll: selectAllSelectedElements, selectById: selectSelectedElementById } =
@@ -41,3 +47,4 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 
 export const selectElementSelection = (elementId: string) => (state: RootState) =>
 	globalElementsSelector.selectById(state, elementId) ?? null;
+
