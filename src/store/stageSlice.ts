@@ -23,7 +23,6 @@ import {
 	createElementErrorReducer,
 	clearErrorsReducer,
 	removeSelectedElementsReducer,
-	selectConnectLinesReducer,
 } from './reducer';
 import { RootState } from './rootState';
 import { ElementTooltip, hideTooltipReducer, showTooltipReducer } from './reducer/tooltipReducer';
@@ -37,7 +36,10 @@ import {
 import {
 	connectLinesAdapterReducers,
 	createConnectLinesAdapterInitialState,
+	createSelectedConnectLinesAdapterInitialState,
 	DraftConnectLine,
+	selectConnectLinesAdapterReducers,
+	SelectedConnectLine,
 } from './connectLines';
 
 export * from './hooks/theme';
@@ -55,13 +57,13 @@ export enum StageState {
 export interface StageSlice {
 	elements: EntityState<Element>;
 	selectedElements: EntityState<SelectedElement>;
+	draftElement: Element | null;
 	connectLines: EntityState<ConnectLine>;
+	selectedConnectLines: EntityState<SelectedConnectLine>;
 	draftConnectLine: DraftConnectLine | null;
 	highlightedConnectPoints: ConnectPoint[];
-	selectedConnectLines: string[];
 	highlighted: string[];
 	state: StageState;
-	draftElement: Element | null;
 	simulation: Simulation;
 	themes: ThemesContext;
 	elementSizes: ElementSizesContext;
@@ -89,9 +91,9 @@ export const createStageInitialState = (elements: Element[] = []): StageSlice =>
 	selectedElements: createSelectedElementsAdapterInitialState(),
 	draftElement: null,
 	connectLines: createConnectLinesAdapterInitialState(),
+	selectedConnectLines: createSelectedConnectLinesAdapterInitialState(),
 	draftConnectLine: null,
 	highlightedConnectPoints: [],
-	selectedConnectLines: [],
 	highlighted: [],
 	state: StageState.Select,
 	simulation: {
@@ -114,6 +116,7 @@ export const stageSlice = createSlice({
 		...elementsAdapterReducers,
 		...selectElementsAdapterReducers,
 		...connectLinesAdapterReducers,
+		...selectConnectLinesAdapterReducers,
 		changeState: (slice: Draft<StageSlice>, action: ChangeStateAction) => {
 			slice.state = action.payload;
 		},
@@ -138,7 +141,6 @@ export const stageSlice = createSlice({
 		clearErrors: clearErrorsReducer,
 		showTooltip: showTooltipReducer,
 		hideTooltip: hideTooltipReducer,
-		selectConnectLines: selectConnectLinesReducer,
 	},
 });
 
@@ -168,7 +170,7 @@ export const {
 	clearErrors,
 	showTooltip,
 	hideTooltip,
-	selectConnectLines: selectConnectLinesNew,
+	selectConnectLines,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
@@ -178,11 +180,6 @@ export const selectStageState = (state: RootState) => state.stage.state;
 export const selectHighlightedConnectPointsByElementId =
 	(elementId: string) => (state: RootState) =>
 		state.stage.highlightedConnectPoints.filter((cp) => cp.elementId === elementId);
-
-export const isSelectedConnectLine = (connectLineId: string) => (state: RootState) =>
-	state.stage.selectedConnectLines.some(
-		(currentConnectLineId) => currentConnectLineId === connectLineId,
-	);
 
 export const isHighlighted = (elementId: string) => (state: RootState) =>
 	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);

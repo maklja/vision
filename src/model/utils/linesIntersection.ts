@@ -10,5 +10,10 @@ export const linesIntersection = (p0: Point, p1: Point, p2: Point, p3: Point): P
 	const x = (yIntercept2 - yIntercept1) / (slope1 - slope2);
 	const y = slope1 * x + yIntercept1;
 
+	if (isNaN(x) || isNaN(y)) {
+		return p1;
+	}
+
 	return { x, y };
 };
+
