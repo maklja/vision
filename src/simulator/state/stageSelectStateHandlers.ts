@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { AppDispatch } from '../../store/rootState';
 import { StageEvents } from '../SimulatorStage';
-import { removeSelectedElements, selectElements } from '../../store/stageSlice';
+import { removeSelected, clearSelected } from '../../store/stageSlice';
 import { changeCursorStyle } from '../../operatorDrawers/utils';
 
 const PAN_MOUSE_BUTTON_KEY = 1;
@@ -13,7 +13,7 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 	onMouseDown: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 
-		dispatch(selectElements([]));
+		dispatch(clearSelected());
 	},
 	onDragStart: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		const stage = e.currentTarget.getStage();
@@ -27,10 +27,10 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 			return;
 		}
 
-		changeCursorStyle('grabbing', e);
+		changeCursorStyle('grabbing', e.currentTarget.getStage());
 	},
 	onDragEnd: (e: Konva.KonvaEventObject<MouseEvent>) => {
-		changeCursorStyle('default', e);
+		changeCursorStyle('default', e.currentTarget.getStage());
 	},
 	onWheel: (e: Konva.KonvaEventObject<WheelEvent>) => {
 		e.evt.preventDefault();
@@ -65,10 +65,10 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 			y: pointerY - mousePointTo.y * newScale,
 		});
 	},
-	onKeyUp: (e: KeyboardEvent) => {
+	onKeyUp: (e: KeyboardEvent, stage: Konva.Stage | null) => {
 		if (e.key === 'Delete') {
-			dispatch(removeSelectedElements());
+			dispatch(removeSelected());
+			changeCursorStyle('default', stage);
 		}
 	},
 });
-

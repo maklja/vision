@@ -6,12 +6,11 @@ import {
 	SimulationState,
 	addObservableEvent,
 	clearErrors,
+	clearSelected,
 	completeSimulation,
 	createElementError,
 	resetSimulation,
-	selectElements,
 	selectSimulation,
-	selectStage,
 	startSimulation,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
@@ -23,10 +22,13 @@ import {
 	MissingReferenceObservableError,
 	createObservableSimulation,
 } from '../engine';
+import { selectStageElements } from '../store/elements';
+import { selectStageConnectLines } from '../store/connectLines';
 
 export const Simulator = () => {
 	const simulation = useAppSelector(selectSimulation);
-	const { elements, connectLines } = useAppSelector(selectStage);
+	const elements = useAppSelector(selectStageElements);
+	const connectLines = useAppSelector(selectStageConnectLines);
 	const appDispatch = useAppDispatch();
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
@@ -58,7 +60,7 @@ export const Simulator = () => {
 		try {
 			appDispatch(clearErrors());
 			appDispatch(startSimulation());
-			appDispatch(selectElements([]));
+			appDispatch(clearSelected());
 			const subscription = createObservableSimulation(
 				entryElementId,
 				elements,
@@ -148,4 +150,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-

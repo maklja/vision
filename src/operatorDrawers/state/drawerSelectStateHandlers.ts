@@ -2,6 +2,7 @@ import { DrawerEvent, DrawerEvents } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
 import {
 	changeState,
+	clearSelected,
 	hideTooltip,
 	highlightElements,
 	moveElement,
@@ -19,13 +20,14 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 			e.originalEvent.cancelBubble = true;
 		}
 
+		dispatch(clearSelected());
 		dispatch(selectElements([{ id: e.id, visibleConnectPoints: { input: false } }]));
 	},
 	onMouseOver: (e: DrawerEvent) => {
 		const { id, originalEvent } = e;
 		if (originalEvent) {
 			originalEvent.cancelBubble = true;
-			changeCursorStyle('pointer', originalEvent);
+			changeCursorStyle('pointer', originalEvent.currentTarget.getStage());
 			dispatch(highlightElements([id]));
 			dispatch(
 				showTooltip({
@@ -38,7 +40,7 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 		const { originalEvent } = e;
 		if (originalEvent) {
 			originalEvent.cancelBubble = true;
-			changeCursorStyle('default', originalEvent);
+			changeCursorStyle('default', originalEvent.currentTarget.getStage());
 			dispatch(highlightElements([]));
 			dispatch(hideTooltip());
 		}
@@ -70,4 +72,3 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 		}
 	},
 });
-

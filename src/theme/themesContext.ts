@@ -1,5 +1,5 @@
 import { ColorTheme, retrieveThemeColors } from './colors';
-import { connectLineTheme, ConnectLineTheme } from './connectLineTheme';
+import { lineDrawerTheme, LineTheme } from './lineDrawerTheme';
 import {
 	connectPointsTheme,
 	ConnectPointsTheme,
@@ -18,7 +18,7 @@ import { TooltipTheme, tooltipTheme } from './tooltipTheme';
 export interface Theme {
 	readonly colors: ColorTheme;
 	readonly drawer: ElementDrawerTheme;
-	readonly connectLine: ConnectLineTheme;
+	readonly connectLine: LineTheme;
 	readonly connectPoints: ConnectPointsTheme;
 	readonly simulation: SimulationTheme;
 	readonly tooltip: TooltipTheme;
@@ -38,7 +38,7 @@ export const createThemeContext = (): ThemesContext => {
 	const defaultTheme = {
 		colors: defaultColorTheme,
 		drawer: elementDrawerTheme(defaultColorTheme),
-		connectLine: connectLineTheme(defaultColorTheme),
+		connectLine: lineDrawerTheme(defaultColorTheme),
 		connectPoints: connectPointsTheme(defaultColorTheme),
 		simulation: simulationTheme(defaultColorTheme),
 		tooltip: tooltipTheme(defaultColorTheme),
@@ -51,9 +51,12 @@ export const createThemeContext = (): ThemesContext => {
 	};
 };
 
-export interface DrawerThemeState {
+export interface DrawerCommonThemeState {
 	highlight?: boolean;
 	select?: boolean;
+}
+
+export interface DrawerThemeState extends DrawerCommonThemeState {
 	hasError?: boolean;
 }
 
@@ -128,6 +131,27 @@ export const useTooltipTheme = (theme: Theme) => {
 	return {
 		element: tooltipTheme.element,
 		text: tooltipTheme.text,
+	};
+};
+
+export const useLineDrawerTheme = (state: DrawerCommonThemeState, theme: Theme) => {
+	if (state.highlight) {
+		return {
+			line: theme.connectLine.highlightLine,
+			arrow: theme.connectLine.highlightArrow,
+		};
+	}
+
+	if (state.select) {
+		return {
+			line: theme.connectLine.selectedLine,
+			arrow: theme.connectLine.selectedArrow,
+		};
+	}
+
+	return {
+		line: theme.connectLine.line,
+		arrow: theme.connectLine.arrow,
 	};
 };
 

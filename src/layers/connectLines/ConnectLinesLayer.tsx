@@ -1,24 +1,22 @@
 import { Layer } from 'react-konva';
-import { ConnectLineDrawer } from '../../drawers';
+import { LineDrawer } from '../../drawers';
 import { useAppSelector } from '../../store/rootState';
-import {
-	selectConnectLines,
-	selectDraftConnectLine,
-	useThemeContext,
-} from '../../store/stageSlice';
+import { useThemeContext } from '../../store/stageSlice';
+import { ConnectLineDrawer } from '../../operatorDrawers';
+import { selectStageConnectLines, selectStageDraftConnectLine } from '../../store/connectLines';
 
 export const ConnectLinesLayer = () => {
 	const theme = useThemeContext();
-	const connectLines = useAppSelector(selectConnectLines);
-	const draftConnectLine = useAppSelector(selectDraftConnectLine);
+	const connectLines = useAppSelector(selectStageConnectLines);
+	const draftConnectLine = useAppSelector(selectStageDraftConnectLine);
 
 	return (
 		<Layer>
 			{connectLines.map((cl) => (
-				<ConnectLineDrawer key={cl.id} id={cl.id} points={cl.points} theme={theme} />
+				<ConnectLineDrawer key={cl.id} connectLine={cl} />
 			))}
 			{draftConnectLine ? (
-				<ConnectLineDrawer
+				<LineDrawer
 					key={draftConnectLine.id}
 					id={draftConnectLine.id}
 					points={draftConnectLine.points}

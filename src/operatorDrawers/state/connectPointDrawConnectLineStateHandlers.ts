@@ -4,6 +4,7 @@ import {
 	refreshDrawerAnimation,
 	removeDrawerAnimation,
 	disposeDrawerAnimation,
+	removeAllDrawerAnimation,
 } from '../../store/drawerAnimationsSlice';
 import { AppDispatch } from '../../store/rootState';
 import { linkConnectLineDraw, pinConnectLine, unpinConnectLine } from '../../store/stageSlice';
@@ -21,6 +22,7 @@ export const connectPointDrawConnectLineStateHandlers = (
 				targetConnectPointPosition: connectPoint.position,
 			}),
 		);
+		dispatch(removeAllDrawerAnimation({ drawerId: connectPoint.id }));
 	},
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent) => {
 		const { connectPoint, id } = cEvent;
@@ -66,4 +68,3 @@ export const connectPointDrawConnectLineStateHandlers = (
 		);
 	},
 });
-

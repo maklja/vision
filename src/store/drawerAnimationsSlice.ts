@@ -43,6 +43,13 @@ export interface RemoveDrawerAnimationAction {
 	};
 }
 
+export interface RemoveAllDrawerAnimationAction {
+	type: string;
+	payload: {
+		drawerId: string;
+	};
+}
+
 export interface DisposeDrawerAnimationAction {
 	type: string;
 	payload: {
@@ -201,6 +208,15 @@ export const drawerAnimationsSlice = createSlice({
 					  })
 					: animationsAdapter.removeOne(animations, drawerId);
 		},
+		removeAllDrawerAnimation: (
+			slice: DrawerAnimationState,
+			action: RemoveAllDrawerAnimationAction,
+		) => {
+			slice.animations = animationsAdapter.removeOne(
+				slice.animations,
+				action.payload.drawerId,
+			);
+		},
 	},
 });
 
@@ -209,6 +225,7 @@ export const {
 	removeDrawerAnimation,
 	refreshDrawerAnimation,
 	disposeDrawerAnimation,
+	removeAllDrawerAnimation,
 } = drawerAnimationsSlice.actions;
 
 const drawerAnimationsSelector = animationsAdapter.getSelectors<RootState>(

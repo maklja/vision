@@ -1,5 +1,4 @@
 import { StrictMode } from 'react';
-import { v1 } from 'uuid';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import { DndProvider } from 'react-dnd';
@@ -19,8 +18,9 @@ import {
 	MergeElement,
 	MapElement,
 } from './model';
-import { SimulationState, StageState, errorsAdapter } from './store/stageSlice';
-import { createThemeContext, createElementSizesContext } from './theme';
+import {
+	createStageInitialState,
+} from './store/stageSlice';
 
 const e1: OfElement = {
 	id: 'ofElement',
@@ -173,41 +173,21 @@ root.render(
 	<StrictMode>
 		<Provider
 			store={setupStore({
-				stage: {
-					elements: [
-						e1,
-						subscriber1,
-						subscriber2,
-						subscriber3,
-						subscriber4,
-						e3,
-						e4,
-						e5,
-						i1,
-						ce1,
-						mapElement,
-						merge1,
-						merge2,
-					],
-					connectLines: [],
-					draftConnectLine: null,
-					draftElement: null,
-					highlighted: [],
-					highlightedConnectPoints: [],
-					selected: [],
-					themes: createThemeContext(),
-					elementSizes: createElementSizesContext(),
-					state: StageState.Select,
-					simulation: {
-						id: v1(),
-						state: SimulationState.Stopped,
-						completed: false,
-						animationsQueue: [],
-						events: [],
-					},
-					errors: errorsAdapter.getInitialState(),
-					tooltip: null,
-				},
+				stage: createStageInitialState([
+					e1,
+					subscriber1,
+					subscriber2,
+					subscriber3,
+					subscriber4,
+					e3,
+					e4,
+					e5,
+					i1,
+					ce1,
+					mapElement,
+					merge1,
+					merge2,
+				]),
 			})}
 		>
 			<DndProvider backend={HTML5Backend}>
@@ -221,4 +201,3 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
-

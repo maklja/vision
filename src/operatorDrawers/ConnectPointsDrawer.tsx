@@ -7,11 +7,7 @@ import {
 } from '../model';
 import { useConnectPointHandlers } from './state';
 import { useAppSelector } from '../store/rootState';
-import {
-	selectElementSelection,
-	selectHighlightedConnectPointsByElementId,
-	useThemeContext,
-} from '../store/stageSlice';
+import { selectHighlightedConnectPointsByElementId, useThemeContext } from '../store/stageSlice';
 import {
 	CircleConnectPointsDrawer,
 	ConnectPointsOptions,
@@ -29,6 +25,7 @@ import {
 } from '../theme';
 import { DrawerAnimation, selectDrawerAnimationByDrawerId } from '../store/drawerAnimationsSlice';
 import { DrawerAnimationTemplate, animationRegistry } from '../animation';
+import { selectElementSelection } from '../store/elements';
 
 export const createDefaultElementProps = <T extends ShapeSize>(
 	elType: ElementType,

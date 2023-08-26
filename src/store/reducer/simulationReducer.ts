@@ -5,6 +5,7 @@ import { createAnimations } from './createAnimations';
 import { FlowValueType } from '../../engine';
 import { errorsAdapter } from './errorsReducer';
 import { AnimationKey, MoveAnimation } from '../../animation';
+import { selectAllConnectLines } from '../connectLines';
 
 export interface SimulationAnimation<D = unknown> extends DrawerAnimation<D> {
 	readonly drawerId: string;
@@ -99,6 +100,7 @@ export const addObservableEventReducer = (
 	const { simulation } = slice;
 	const updatedEvents = [...simulation.events, action.payload.event];
 
+	const connectLines = selectAllConnectLines(slice.connectLines);
 	// create simulation animations for each drawer that is affected by events
 	const beginIndex = updatedEvents.length - 1;
 	const animations: SimulationAnimation[] = updatedEvents
@@ -113,7 +115,7 @@ export const addObservableEventReducer = (
 
 			return [...group, [prevEvent, currentEvent]];
 		}, [])
-		.flatMap((eventsPair) => createAnimations(eventsPair, slice.connectLines, simulation.id));
+		.flatMap((eventsPair) => createAnimations(eventsPair, connectLines, simulation.id));
 
 	simulation.events = updatedEvents;
 	simulation.animationsQueue = [...simulation.animationsQueue, ...animations];
