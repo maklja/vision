@@ -25,7 +25,7 @@ export interface StageEvents {
 	onDragEnd?: (event: Konva.KonvaEventObject<DragEvent>) => void;
 	onDragMove?: (event: Konva.KonvaEventObject<DragEvent>) => void;
 	onWheel?: (event: Konva.KonvaEventObject<WheelEvent>) => void;
-	onKeyUp?: (event: KeyboardEvent) => void;
+	onKeyUp?: (event: KeyboardEvent, stage: Konva.Stage | null) => void;
 }
 
 export const SimulatorStage = () => {
@@ -68,13 +68,14 @@ export const SimulatorStage = () => {
 	);
 
 	useEffect(() => {
+		const handler = (e: KeyboardEvent) => stageHandlers.onKeyUp?.(e, stageRef.current);
 		if (stageHandlers.onKeyUp) {
-			window.addEventListener('keyup', stageHandlers.onKeyUp, false);
+			window.addEventListener('keyup', handler, false);
 		}
 
 		return () => {
 			if (stageHandlers.onKeyUp) {
-				window.removeEventListener('keyup', stageHandlers.onKeyUp, false);
+				window.removeEventListener('keyup', handler, false);
 			}
 		};
 	}, []);
@@ -98,4 +99,3 @@ export const SimulatorStage = () => {
 		</div>
 	);
 };
-

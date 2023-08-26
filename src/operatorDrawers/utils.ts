@@ -1,7 +1,6 @@
 import Konva from 'konva';
 
-export const changeCursorStyle = (cursorStyle: string, e: Konva.KonvaEventObject<MouseEvent>) => {
-	const stage = e?.currentTarget.getStage();
+export const changeCursorStyle = (cursorStyle: string, stage?: Konva.Stage | null) => {
 	if (!stage) {
 		return;
 	}

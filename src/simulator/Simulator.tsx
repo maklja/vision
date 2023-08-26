@@ -6,10 +6,10 @@ import {
 	SimulationState,
 	addObservableEvent,
 	clearErrors,
+	clearSelected,
 	completeSimulation,
 	createElementError,
 	resetSimulation,
-	selectElements,
 	selectSimulation,
 	startSimulation,
 } from '../store/stageSlice';
@@ -60,7 +60,7 @@ export const Simulator = () => {
 		try {
 			appDispatch(clearErrors());
 			appDispatch(startSimulation());
-			appDispatch(selectElements([]));
+			appDispatch(clearSelected());
 			const subscription = createObservableSimulation(
 				entryElementId,
 				elements,
@@ -150,4 +150,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-

@@ -35,8 +35,11 @@ export const selectElementsAdapterReducers = {
 		selectElementsStateChange(slice, action.payload),
 };
 
-export const { selectAll: selectAllSelectedElements, selectById: selectSelectedElementById } =
-	selectedElementsAdapter.getSelectors();
+export const {
+	selectAll: selectAllSelectedElements,
+	selectById: selectSelectedElementById,
+	selectEntities: selectSelectedElementEntities,
+} = selectedElementsAdapter.getSelectors();
 
 const globalElementsSelector = selectedElementsAdapter.getSelectors<RootState>(
 	(state) => state.stage.selectedElements,
@@ -47,4 +50,3 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 
 export const selectElementSelection = (elementId: string) => (state: RootState) =>
 	globalElementsSelector.selectById(state, elementId) ?? null;
-

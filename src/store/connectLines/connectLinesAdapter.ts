@@ -67,6 +67,15 @@ export interface MoveConnectLinePointsByDeltaAction {
 	payload: MoveConnectLinePointsByDeltaPayload;
 }
 
+export interface RemoveConnectLinesPayload {
+	connectLineIds: string[];
+}
+
+export interface RemoveConnectLinesAction {
+	type: string;
+	payload: RemoveConnectLinesPayload;
+}
+
 const getConnectPointDescriptor = (
 	el: Element,
 	cpType: ConnectPointType,
@@ -92,6 +101,13 @@ const getConnectPointDescriptor = (
 const connectLinesAdapter = createEntityAdapter<ConnectLine>({
 	selectId: (el) => el.id,
 });
+
+export const removeConnectLinesStateChange = (
+	slice: Draft<StageSlice>,
+	payload: RemoveConnectLinesPayload,
+) => {
+	slice.connectLines = connectLinesAdapter.removeMany(slice.connectLines, payload.connectLineIds);
+};
 
 export const { selectAll: selectAllConnectLines, selectById: selectConnectLineById } =
 	connectLinesAdapter.getSelectors();
@@ -282,6 +298,8 @@ export const connectLinesAdapterReducers = {
 		slice: Draft<StageSlice>,
 		action: MoveConnectLinePointsByDeltaAction,
 	) => moveConnectLinePointsByDeltaStateChange(slice, action.payload),
+	removeConnectLines: (slice: Draft<StageSlice>, action: RemoveConnectLinesAction) =>
+		removeConnectLinesStateChange(slice, action.payload),
 };
 
 const globalConnectLinesSelector = connectLinesAdapter.getSelectors<RootState>(
@@ -295,4 +313,3 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
-

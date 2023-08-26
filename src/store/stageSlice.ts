@@ -22,7 +22,6 @@ import {
 	errorsAdapter,
 	createElementErrorReducer,
 	clearErrorsReducer,
-	removeSelectedElementsReducer,
 } from './reducer';
 import { RootState } from './rootState';
 import { ElementTooltip, hideTooltipReducer, showTooltipReducer } from './reducer/tooltipReducer';
@@ -41,6 +40,7 @@ import {
 	selectConnectLinesAdapterReducers,
 	SelectedConnectLine,
 } from './connectLines';
+import { selectReducers } from './select';
 
 export * from './hooks/theme';
 
@@ -117,6 +117,7 @@ export const stageSlice = createSlice({
 		...selectElementsAdapterReducers,
 		...connectLinesAdapterReducers,
 		...selectConnectLinesAdapterReducers,
+		...selectReducers,
 		changeState: (slice: Draft<StageSlice>, action: ChangeStateAction) => {
 			slice.state = action.payload;
 		},
@@ -129,7 +130,6 @@ export const stageSlice = createSlice({
 		) => {
 			slice.highlightedConnectPoints = action.payload;
 		},
-		removeSelectedElements: removeSelectedElementsReducer,
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
 		startSimulation: startSimulationReducer,
@@ -147,8 +147,8 @@ export const stageSlice = createSlice({
 export const {
 	updateElement,
 	moveElement,
-	removeSelectedElements,
 	selectElements,
+	removeSelected,
 	highlightElements,
 	changeState,
 	startConnectLineDraw,
@@ -171,6 +171,10 @@ export const {
 	showTooltip,
 	hideTooltip,
 	selectConnectLines,
+	moveConnectLinePointsByDelta,
+	removeConnectLines,
+	removeElements,
+	clearSelected,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
@@ -188,4 +192,3 @@ export const selectSimulation = (state: RootState) => state.stage.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.stage.simulation.animationsQueue.at(0) ?? null;
-

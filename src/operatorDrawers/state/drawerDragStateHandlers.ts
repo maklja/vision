@@ -12,7 +12,7 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 			return;
 		}
 
-		changeCursorStyle('pointer', originalEvent);
+		changeCursorStyle('pointer', originalEvent.currentTarget.getStage());
 		originalEvent.cancelBubble = true;
 		dispatch(changeState(StageState.Select));
 	},
@@ -22,7 +22,7 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 			return;
 		}
 
-		changeCursorStyle('grabbing', originalEvent);
+		changeCursorStyle('grabbing', originalEvent.currentTarget.getStage());
 		originalEvent.cancelBubble = true;
 		const position = originalEvent.currentTarget.getPosition();
 		dispatch(
@@ -34,4 +34,3 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 		);
 	},
 });
-

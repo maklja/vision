@@ -133,8 +133,11 @@ export const elementsAdapterReducers = {
 	},
 };
 
-export const { selectAll: selectAllElements, selectById: selectElementById } =
-	elementsAdapter.getSelectors();
+export const {
+	selectAll: selectAllElements,
+	selectById: selectElementById,
+	selectEntities: selectElementEntities,
+} = elementsAdapter.getSelectors();
 
 const globalElementsSelector = elementsAdapter.getSelectors<RootState>(
 	(state) => state.stage.elements,
@@ -146,4 +149,3 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
-
