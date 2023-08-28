@@ -1,8 +1,9 @@
 import { LineDrawer } from '../../drawers';
 import { ConnectLine } from '../../model';
 import { isSelectedConnectLine } from '../../store/connectLines';
+import { isHighlighted } from '../../store/highlight';
 import { useAppSelector } from '../../store/rootState';
-import { isHighlighted, useThemeContext } from '../../store/stageSlice';
+import { useThemeContext } from '../../store/stageSlice';
 import { useLineDrawerHandlers } from '../state';
 
 export interface ConnectLineDrawerProps {

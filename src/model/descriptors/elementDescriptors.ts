@@ -42,8 +42,16 @@ export const creationElementDescriptor: ElementDescriptor = {
 export const iifElementDescriptor: ElementDescriptor = {
 	...creationElementDescriptor,
 	event: {
-		allowedTypes: new Set<ElementType>([...creationOperators]),
+		allowedTypes: new Set<ElementType>([...joinCreationOperators, ...creationOperators]),
 		cardinality: 2,
+	},
+};
+
+export const deferElementDescriptor: ElementDescriptor = {
+	...creationElementDescriptor,
+	event: {
+		allowedTypes: new Set<ElementType>([...joinCreationOperators, ...creationOperators]),
+		cardinality: 1,
 	},
 };
 
@@ -89,6 +97,8 @@ const findCreationElementDescriptor = (elementType: ElementType): ElementDescrip
 	switch (elementType) {
 		case ElementType.IIf:
 			return iifElementDescriptor;
+		case ElementType.Defer:
+			return deferElementDescriptor;
 		default:
 			return creationElementDescriptor;
 	}
@@ -130,4 +140,3 @@ export const calcConnectPointVisibility = (elType: ElementType) => {
 		eventsVisible,
 	};
 };
-

@@ -41,6 +41,11 @@ import {
 	SelectedConnectLine,
 } from './connectLines';
 import { selectReducers } from './select';
+import {
+	createHighlightedAdapterInitialState,
+	HighlightElement,
+	selectHighlighAdapterReducers,
+} from './highlight';
 
 export * from './hooks/theme';
 
@@ -61,19 +66,14 @@ export interface StageSlice {
 	connectLines: EntityState<ConnectLine>;
 	selectedConnectLines: EntityState<SelectedConnectLine>;
 	draftConnectLine: DraftConnectLine | null;
+	highlighted: EntityState<HighlightElement>;
 	highlightedConnectPoints: ConnectPoint[];
-	highlighted: string[];
 	state: StageState;
 	simulation: Simulation;
 	themes: ThemesContext;
 	elementSizes: ElementSizesContext;
 	errors: EntityState<ElementError>;
 	tooltip: ElementTooltip | null;
-}
-
-export interface HighlightElementsAction {
-	type: string;
-	payload: string[];
 }
 
 export interface ChangeStateAction {
@@ -94,7 +94,7 @@ export const createStageInitialState = (elements: Element[] = []): StageSlice =>
 	selectedConnectLines: createSelectedConnectLinesAdapterInitialState(),
 	draftConnectLine: null,
 	highlightedConnectPoints: [],
-	highlighted: [],
+	highlighted: createHighlightedAdapterInitialState(),
 	state: StageState.Select,
 	simulation: {
 		id: v1(),
@@ -118,11 +118,9 @@ export const stageSlice = createSlice({
 		...connectLinesAdapterReducers,
 		...selectConnectLinesAdapterReducers,
 		...selectReducers,
+		...selectHighlighAdapterReducers,
 		changeState: (slice: Draft<StageSlice>, action: ChangeStateAction) => {
 			slice.state = action.payload;
-		},
-		highlightElements: (slice: Draft<StageSlice>, action: HighlightElementsAction) => {
-			slice.highlighted = action.payload;
 		},
 		highlightConnectPoints: (
 			slice: Draft<StageSlice>,
@@ -149,7 +147,7 @@ export const {
 	moveElement,
 	selectElements,
 	removeSelected,
-	highlightElements,
+	highlight,
 	changeState,
 	startConnectLineDraw,
 	moveConnectLineDraw,
@@ -185,10 +183,8 @@ export const selectHighlightedConnectPointsByElementId =
 	(elementId: string) => (state: RootState) =>
 		state.stage.highlightedConnectPoints.filter((cp) => cp.elementId === elementId);
 
-export const isHighlighted = (elementId: string) => (state: RootState) =>
-	state.stage.highlighted.some((currentElementId) => currentElementId === elementId);
-
 export const selectSimulation = (state: RootState) => state.stage.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.stage.simulation.animationsQueue.at(0) ?? null;
+
