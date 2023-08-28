@@ -81,6 +81,16 @@ export interface RemoveConnectLinesAction {
 	payload: RemoveConnectLinesPayload;
 }
 
+export interface MoveConnectLinePointAction {
+	type: string;
+	payload: {
+		id: string;
+		index: number;
+		x: number;
+		y: number;
+	};
+}
+
 const getConnectPointDescriptor = (
 	el: Element,
 	cpType: ConnectPointType,
@@ -316,6 +326,27 @@ export const connectLinesAdapterReducers = {
 	) => moveConnectLinePointsByDeltaStateChange(slice, action.payload),
 	removeConnectLines: (slice: Draft<StageSlice>, action: RemoveConnectLinesAction) =>
 		removeConnectLinesStateChange(slice, action.payload),
+	movePointConnectLine: (slice: Draft<StageSlice>, action: MoveConnectLinePointAction) => {
+		const { payload } = action;
+		const cl = selectConnectLineById(slice.connectLines, payload.id);
+		if (!cl) {
+			return;
+		}
+	
+		slice.connectLines = connectLinesAdapter.updateOne(slice.connectLines, {
+			id: cl.id,
+			changes: {
+				points: cl.points.map((p, i) =>
+					i !== payload.index
+						? p
+						: {
+								x: payload.x,
+								y: payload.y,
+						  },
+				),
+			},
+		});
+	},
 };
 
 const globalConnectLinesSelector = connectLinesAdapter.getSelectors<RootState>(

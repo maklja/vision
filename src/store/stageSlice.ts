@@ -154,6 +154,7 @@ export const {
 	linkConnectLineDraw,
 	addNextPointConnectLineDraw,
 	deleteConnectLineDraw,
+	movePointConnectLine,
 	pinConnectLine,
 	unpinConnectLine,
 	highlightConnectPoints,
