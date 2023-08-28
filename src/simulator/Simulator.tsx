@@ -3,14 +3,12 @@ import { useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
-	SimulationState,
 	addObservableEvent,
 	clearErrors,
 	clearSelected,
 	completeSimulation,
 	createElementError,
 	resetSimulation,
-	selectSimulation,
 	startSimulation,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
@@ -24,6 +22,7 @@ import {
 } from '../engine';
 import { selectStageElements } from '../store/elements';
 import { selectStageConnectLines } from '../store/connectLines';
+import { SimulationState, selectSimulation } from '../store/simulation';
 
 export const Simulator = () => {
 	const simulation = useAppSelector(selectSimulation);
