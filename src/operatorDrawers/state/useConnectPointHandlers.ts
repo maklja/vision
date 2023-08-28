@@ -1,14 +1,14 @@
-import { useMemo } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/rootState";
-import { selectStageState, StageState } from "../../store/stageSlice";
-import { connectPointDrawConnectLineStateHandlers } from "./connectPointDrawConnectLineStateHandlers";
-import { connectPointSelectStateHandlers } from "./connectPointSelectStateHandlers";
+import { useMemo } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/rootState';
+import { selectStageState, StageState } from '../../store/stageSlice';
+import { connectPointDrawConnectLineStateHandlers } from './connectPointDrawConnectLineStateHandlers';
+import { connectPointSelectStateHandlers } from './connectPointSelectStateHandlers';
 
 export const useConnectPointHandlers = () => {
-    const stageState = useAppSelector(selectStageState);
+	const stageState = useAppSelector(selectStageState);
 	const appDispatch = useAppDispatch();
 
-    return useMemo(() => {
+	return useMemo(() => {
 		if (stageState === StageState.Select) {
 			return connectPointSelectStateHandlers(appDispatch);
 		}
@@ -19,4 +19,5 @@ export const useConnectPointHandlers = () => {
 
 		return {};
 	}, [stageState]);
-}
+};
+

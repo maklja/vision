@@ -43,6 +43,11 @@ export interface MoveConnectLineDrawAction {
 	payload: Point;
 }
 
+export interface AddPointConnectLineDrawAction {
+	type: string;
+	payload: Point;
+}
+
 export interface LinkConnectLineDrawPayload {
 	targetId: string;
 	targetPoint: Point;
@@ -74,6 +79,16 @@ export interface RemoveConnectLinesPayload {
 export interface RemoveConnectLinesAction {
 	type: string;
 	payload: RemoveConnectLinesPayload;
+}
+
+export interface MoveConnectLinePointAction {
+	type: string;
+	payload: {
+		id: string;
+		index: number;
+		x: number;
+		y: number;
+	};
 }
 
 const getConnectPointDescriptor = (
@@ -239,6 +254,17 @@ export const connectLinesAdapterReducers = {
 
 		draftConnectLine.points.splice(-1, 1, action.payload);
 	},
+	addNextPointConnectLineDraw: (
+		slice: Draft<StageSlice>,
+		action: AddPointConnectLineDrawAction,
+	) => {
+		const { draftConnectLine } = slice;
+		if (!draftConnectLine) {
+			return;
+		}
+
+		draftConnectLine.points.push({ x: action.payload.x, y: action.payload.y });
+	},
 	deleteConnectLineDraw: (slice: Draft<StageSlice>) => {
 		const { draftConnectLine } = slice;
 		if (slice.state !== StageState.DrawConnectLine || !draftConnectLine) {
@@ -300,6 +326,27 @@ export const connectLinesAdapterReducers = {
 	) => moveConnectLinePointsByDeltaStateChange(slice, action.payload),
 	removeConnectLines: (slice: Draft<StageSlice>, action: RemoveConnectLinesAction) =>
 		removeConnectLinesStateChange(slice, action.payload),
+	movePointConnectLine: (slice: Draft<StageSlice>, action: MoveConnectLinePointAction) => {
+		const { payload } = action;
+		const cl = selectConnectLineById(slice.connectLines, payload.id);
+		if (!cl) {
+			return;
+		}
+	
+		slice.connectLines = connectLinesAdapter.updateOne(slice.connectLines, {
+			id: cl.id,
+			changes: {
+				points: cl.points.map((p, i) =>
+					i !== payload.index
+						? p
+						: {
+								x: payload.x,
+								y: payload.y,
+						  },
+				),
+			},
+		});
+	},
 };
 
 const globalConnectLinesSelector = connectLinesAdapter.getSelectors<RootState>(
@@ -313,3 +360,4 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
+

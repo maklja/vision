@@ -1,6 +1,12 @@
-import { LineDrawerEvents, LineEvent } from '../../drawers';
+import { LineDotEvent, LineDrawerEvents, LineEvent } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
-import { clearSelected, highlight, selectConnectLines } from '../../store/stageSlice';
+import {
+	StageState,
+	changeState,
+	clearSelected,
+	highlight,
+	selectConnectLines,
+} from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 
 export const connectLineSelectStateHandlers = (dispatch: AppDispatch): LineDrawerEvents => ({
@@ -27,6 +33,20 @@ export const connectLineSelectStateHandlers = (dispatch: AppDispatch): LineDrawe
 			changeCursorStyle('default', originalEvent.currentTarget.getStage());
 			dispatch(highlight([]));
 		}
+	},
+	onDotMouseDown: (e: LineDotEvent) => {
+		const { originalEvent } = e;
+		if (!originalEvent) {
+			return;
+		}
+		originalEvent.cancelBubble = true;
+	},
+	onDotDragStart: (e: LineDotEvent) => {
+		if (e.originalEvent) {
+			e.originalEvent.cancelBubble = true;
+		}
+
+		dispatch(changeState(StageState.Dragging));
 	},
 });
 

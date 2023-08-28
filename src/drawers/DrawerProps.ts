@@ -93,10 +93,20 @@ export interface LineEvent {
 	originalEvent?: Konva.KonvaEventObject<MouseEvent>;
 }
 
+export interface LineDotEvent extends LineEvent {
+	index: number;
+}
+
 export interface LineDrawerEvents {
 	onMouseDown?: (lineEvent: LineEvent) => void;
 	onMouseUp?: (lineEvent: LineEvent) => void;
 	onMouseOver?: (lineEvent: LineEvent) => void;
 	onMouseOut?: (lineEvent: LineEvent) => void;
+	onDotMouseDown?: (lineDotEvent: LineDotEvent) => void;
+	onDotMouseOver?: (lineDotEvent: LineDotEvent) => void;
+	onDotMouseOut?: (lineDotEvent: LineDotEvent) => void;
+	onDotDragStart?: (lineDotEvent: LineDotEvent) => void;
+	onDotDragEnd?: (lineDotEvent: LineDotEvent) => void;
+	onDotDragMove?: (lineDotEvent: LineDotEvent) => void;
 }
 

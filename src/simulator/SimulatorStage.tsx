@@ -18,6 +18,7 @@ Konva.hitOnDragEnabled = true;
 export interface StageEvents {
 	onMouseDown?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseUp?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+	onContextMenu?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseOver?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseOut?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
 	onMouseMove?: (event: Konva.KonvaEventObject<MouseEvent>) => void;
@@ -99,3 +100,4 @@ export const SimulatorStage = () => {
 		</div>
 	);
 };
+
