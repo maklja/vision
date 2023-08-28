@@ -16,9 +16,7 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 			return;
 		}
 
-		const pointerPosition = stage.getRelativePointerPosition();
-		const x = pointerPosition.x;
-		const y = pointerPosition.y;
+		const { x, y } = stage.getRelativePointerPosition();
 		dispatch(
 			moveConnectLineDraw({
 				x,
@@ -34,10 +32,7 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 			return;
 		}
 
-		const pointerPosition = stage.getRelativePointerPosition();
-		const x = pointerPosition.x;
-		const y = pointerPosition.y;
-
+		const { x, y } = stage.getRelativePointerPosition();
 		dispatch(
 			addNextPointConnectLineDraw({
 				x,
