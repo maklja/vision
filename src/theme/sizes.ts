@@ -11,6 +11,12 @@ export interface FontSizes {
 	readonly secondary: number;
 }
 
+export interface LineSize {
+	readonly arrowAngle: number;
+	readonly arrowSize: number;
+	readonly dotSize: number;
+}
+
 interface SizeConfig {
 	readonly drawerSizes: {
 		readonly width: number;
@@ -18,6 +24,7 @@ interface SizeConfig {
 		readonly radius: number;
 	};
 	readonly fontSizes: FontSizes;
+	readonly lineSize: LineSize;
 }
 
 const defaultSizeConfig: SizeConfig = {
@@ -29,6 +36,11 @@ const defaultSizeConfig: SizeConfig = {
 	fontSizes: {
 		primary: 15,
 		secondary: 12,
+	},
+	lineSize: {
+		arrowAngle: Math.PI / 6,
+		arrowSize: 15,
+		dotSize: 8,
 	},
 };
 
@@ -200,4 +212,14 @@ export const calculateShapeSizeBoundingBox = (position: Point, shape: ShapeSize)
 
 	throw new Error('Unsupported shape type received for bounding box creation');
 };
+
+export const useLineSize = (scale = 1): LineSize =>
+	useMemo(
+		() => ({
+			arrowAngle: defaultSizeConfig.lineSize.arrowAngle,
+			arrowSize: fromSize(defaultSizeConfig.lineSize.arrowSize, scale),
+			dotSize: fromSize(defaultSizeConfig.lineSize.dotSize, scale),
+		}),
+		[scale],
+	);
 

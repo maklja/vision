@@ -1,27 +1,31 @@
 import Konva from 'konva';
 import { useMemo } from 'react';
-import { Line, Group } from 'react-konva';
+import { Line, Group, Circle } from 'react-konva';
 import { Point, lineToPolygon, linesIntersection } from '../../model';
 import { LineDrawerEvents } from '../DrawerProps';
-import { Theme, useLineDrawerTheme } from '../../theme';
+import { LineSize, Theme, useLineDrawerTheme } from '../../theme';
 import { LineArrow } from './LineArrow';
 
 export interface LineDrawerProps extends LineDrawerEvents {
 	id: string;
 	points: Point[];
+	size: LineSize;
 	theme: Theme;
 	visible?: boolean;
 	highlight?: boolean;
 	select?: boolean;
+	arrowVisible?: boolean;
 }
 
 export const LineDrawer = ({
 	id,
 	points,
+	size,
 	theme,
 	visible = true,
 	select = false,
 	highlight = false,
+	arrowVisible = true,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
@@ -29,7 +33,7 @@ export const LineDrawer = ({
 }: LineDrawerProps) => {
 	const lineTheme = useLineDrawerTheme({ select, highlight }, theme);
 
-	const drawAnArrow = points.length > 3;
+	const drawAnArrow = arrowVisible && points.length > 3;
 
 	const boundingBoxPoints = useMemo(() => {
 		const groupedPoints: [Point, Point, Point, Point][] = points.reduce(
@@ -107,7 +111,21 @@ export const LineDrawer = ({
 				listening={false}
 				points={points.flatMap((p) => [p.x, p.y])}
 			/>
-			{drawAnArrow ? <LineArrow {...lineTheme.arrow} points={points} /> : null}
+			{drawAnArrow ? <LineArrow {...lineTheme.arrow} points={points} size={size} /> : null}
+
+			{drawAnArrow
+				? points
+						.slice(2, -2)
+						.map((p, i) => (
+							<Circle
+								{...lineTheme.dot}
+								key={i}
+								x={p.x}
+								y={p.y}
+								radius={size.dotSize}
+							/>
+						))
+				: null}
 		</Group>
 	);
 };

@@ -152,6 +152,7 @@ export const {
 	startConnectLineDraw,
 	moveConnectLineDraw,
 	linkConnectLineDraw,
+	addNextPointConnectLineDraw,
 	deleteConnectLineDraw,
 	pinConnectLine,
 	unpinConnectLine,

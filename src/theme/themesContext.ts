@@ -139,6 +139,7 @@ export const useLineDrawerTheme = (state: DrawerCommonThemeState, theme: Theme) 
 		return {
 			line: theme.connectLine.highlightLine,
 			arrow: theme.connectLine.highlightArrow,
+			dot: theme.connectLine.highlightDot,
 		};
 	}
 
@@ -146,12 +147,14 @@ export const useLineDrawerTheme = (state: DrawerCommonThemeState, theme: Theme) 
 		return {
 			line: theme.connectLine.selectedLine,
 			arrow: theme.connectLine.selectedArrow,
+			dot: theme.connectLine.selectedDot,
 		};
 	}
 
 	return {
 		line: theme.connectLine.line,
 		arrow: theme.connectLine.arrow,
+		dot: theme.connectLine.dot,
 	};
 };
 
