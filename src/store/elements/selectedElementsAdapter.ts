@@ -41,12 +41,13 @@ export const {
 	selectEntities: selectSelectedElementEntities,
 } = selectedElementsAdapter.getSelectors();
 
-const globalElementsSelector = selectedElementsAdapter.getSelectors<RootState>(
+const globalSelectedElementsSelector = selectedElementsAdapter.getSelectors<RootState>(
 	(state) => state.stage.selectedElements,
 );
 
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
-	Boolean(globalElementsSelector.selectById(state, elementId));
+	Boolean(globalSelectedElementsSelector.selectById(state, elementId));
 
 export const selectElementSelection = (elementId: string) => (state: RootState) =>
-	globalElementsSelector.selectById(state, elementId) ?? null;
+	globalSelectedElementsSelector.selectById(state, elementId) ?? null;
+
