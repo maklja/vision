@@ -3,6 +3,7 @@ import {
 	DeferOperatorDrawer,
 	EmptyOperatorDrawer,
 	FromOperatorDrawer,
+	GenerateOperatorDrawer,
 	IifOperatorDrawer,
 	IntervalOperatorDrawer,
 	OfOperatorDrawer,
@@ -57,6 +58,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <EmptyOperatorDrawer {...props} />;
 		case ElementType.Defer:
 			return <DeferOperatorDrawer {...props} />;
+		case ElementType.Generate:
+			return <GenerateOperatorDrawer {...props} />;
 		default:
 			return null;
 	}

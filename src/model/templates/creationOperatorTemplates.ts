@@ -1,6 +1,7 @@
 import {
 	ajaxElementPropsTemplate,
 	fromElementPropsTemplate,
+	generateElementPropsTemplate,
 	iifElementPropsTemplate,
 	intervalElementPropsTemplate,
 	ofElementPropsTemplate,
@@ -19,7 +20,10 @@ export const mapToCreationOperatorPropsTemplates = (elType: ElementType): Elemen
 			return ofElementPropsTemplate;
 		case ElementType.Ajax:
 			return ajaxElementPropsTemplate;
+		case ElementType.Generate:
+			return generateElementPropsTemplate;
 		default:
 			return {};
 	}
 };
+

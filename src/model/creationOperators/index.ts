@@ -5,3 +5,4 @@ export * from './IifElement';
 export * from './AjaxElement';
 export * from './EmptyElement';
 export * from './DeferElement';
+export * from './GenerateElement';

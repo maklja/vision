@@ -5,3 +5,4 @@ export * from './IntervalOperatorDrawer';
 export * from './AjaxOperatorDrawer';
 export * from './EmptyOperatorDrawer';
 export * from './DeferOperatorDrawer';
+export * from './GenerateOperatorDrawer';
