@@ -4,6 +4,7 @@ import {
 	AjaxElement,
 	ConnectPointPosition,
 	ConnectPointType,
+	DeferElement,
 	Element,
 	ElementType,
 	EmptyElement,
@@ -32,6 +33,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			[ElementType.IIf, this.createIifCreationOperator.bind(this)],
 			[ElementType.Ajax, this.createAjaxCreationOperator.bind(this)],
 			[ElementType.Empty, this.createEmptyCreationOperator.bind(this)],
+			[ElementType.Defer, this.createDeferCreationOperator.bind(this)],
 		]);
 	}
 
@@ -124,6 +126,26 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	private createEmptyCreationOperator(el: Element) {
 		const emptyEl = el as EmptyElement;
 		return EMPTY.pipe(map((item) => this.createFlowValue(item, emptyEl.id)));
+	}
+
+	private createDeferCreationOperator(el: Element, options: OperatorOptions) {
+		if (options.referenceObservables.length === 0) {
+			throw new MissingReferenceObservableError(
+				el.id,
+				'Reference observable is required for defer operator',
+			);
+		}
+
+		if (options.referenceObservables.length > 1) {
+			throw new Error('Too many reference observables for defer operator');
+		}
+
+		const deferEl = el as DeferElement;
+		const [refObservable] = options.referenceObservables;
+		return defer(() => {
+			refObservable.invokeTrigger?.(FlowValue.createEmptyValue(deferEl.id));
+			return refObservable.observable;
+		});
 	}
 
 	private createFlowValue(value: unknown, elementId: string): FlowValue {

@@ -14,6 +14,7 @@ export enum ElementType {
 	MergeMap = 'mergeMap',
 	Ajax = 'ajax',
 	Empty = 'empty',
+	Defer = 'defer',
 }
 
 export const joinCreationOperators: ReadonlySet<ElementType> = new Set([ElementType.Merge]);
@@ -25,6 +26,7 @@ export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.IIf,
 	ElementType.Ajax,
 	ElementType.Empty,
+	ElementType.Defer,
 ]);
 
 export const transformationOperators: ReadonlySet<ElementType> = new Set([
@@ -46,6 +48,7 @@ export const pipeOperators: ReadonlySet<ElementType> = new Set([
 export const eventPipeOperators: ReadonlySet<ElementType> = new Set([
 	...errorHandlerOperators,
 	ElementType.IIf,
+	ElementType.Defer,
 	ElementType.ConcatMap,
 	ElementType.MergeMap,
 ]);

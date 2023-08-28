@@ -1,5 +1,6 @@
 import {
 	AjaxOperatorDrawer,
+	DeferOperatorDrawer,
 	EmptyOperatorDrawer,
 	FromOperatorDrawer,
 	IifOperatorDrawer,
@@ -53,6 +54,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <AjaxOperatorDrawer {...props} />;
 		case ElementType.Empty:
 			return <EmptyOperatorDrawer {...props} />;
+		case ElementType.Defer:
+			return <DeferOperatorDrawer {...props} />;
 		default:
 			return null;
 	}
@@ -85,34 +88,6 @@ export const OperatorDrawer = ({
 		: null;
 
 	switch (element.type) {
-		case ElementType.Of:
-		case ElementType.Filter:
-		case ElementType.CatchError:
-		case ElementType.Interval:
-		case ElementType.From:
-		case ElementType.Subscriber:
-		case ElementType.Merge:
-		case ElementType.IIf:
-		case ElementType.Map:
-		case ElementType.ConcatMap:
-		case ElementType.MergeMap:
-		case ElementType.Ajax:
-		case ElementType.Empty:
-			return createOperatorDrawer(element.type, {
-				...drawerHandlers,
-				id: element.id,
-				x: element.x,
-				y: element.y,
-				scale: element.scale,
-				visible: element.visible,
-				animation: animationConfig,
-				theme,
-				select,
-				highlight,
-				draggable,
-				visibleConnectPoints,
-				hasError: Boolean(error),
-			});
 		case ElementType.Result:
 			return (
 				<ResultDrawer
@@ -131,6 +106,20 @@ export const OperatorDrawer = ({
 				/>
 			);
 		default:
-			return null;
+			return createOperatorDrawer(element.type, {
+				...drawerHandlers,
+				id: element.id,
+				x: element.x,
+				y: element.y,
+				scale: element.scale,
+				visible: element.visible,
+				animation: animationConfig,
+				theme,
+				select,
+				highlight,
+				draggable,
+				visibleConnectPoints,
+				hasError: Boolean(error),
+			});
 	}
 };
