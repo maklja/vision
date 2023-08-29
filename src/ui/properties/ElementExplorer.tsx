@@ -126,7 +126,7 @@ export const ElementExplorer = ({
 							/>
 						</FormGroup>
 
-						<FormLabel>Scale</FormLabel>
+						<FormLabel>Size</FormLabel>
 						<FormGroup row sx={{ gap: 1.5, flexWrap: 'nowrap' }}>
 							<TextField
 								id="scale"
@@ -147,4 +147,3 @@ export const ElementExplorer = ({
 		</Box>
 	);
 };
-
