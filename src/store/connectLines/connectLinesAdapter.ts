@@ -121,6 +121,10 @@ export const removeConnectLinesStateChange = (
 	slice: Draft<StageSlice>,
 	payload: RemoveConnectLinesPayload,
 ) => {
+	if (payload.connectLineIds.length === 0) {
+		return;
+	}
+
 	slice.connectLines = connectLinesAdapter.removeMany(slice.connectLines, payload.connectLineIds);
 };
 
@@ -332,7 +336,7 @@ export const connectLinesAdapterReducers = {
 		if (!cl) {
 			return;
 		}
-	
+
 		slice.connectLines = connectLinesAdapter.updateOne(slice.connectLines, {
 			id: cl.id,
 			changes: {

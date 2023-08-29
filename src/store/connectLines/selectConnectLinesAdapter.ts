@@ -18,10 +18,21 @@ const selectedConnectLinesAdapter = createEntityAdapter<SelectedConnectLine>({
 export const createSelectedConnectLinesAdapterInitialState = () =>
 	selectedConnectLinesAdapter.getInitialState();
 
+export const {
+	selectAll: selectAllSelectedConnectLines,
+	selectById: selectSelectedConnectLineById,
+	selectTotal: selectSelectedConnectLinesTotal,
+} = selectedConnectLinesAdapter.getSelectors();
+
 export const selectConnectLinesStateChange = (
 	slice: Draft<StageSlice>,
 	connectLines: SelectedConnectLine[],
 ) => {
+	const totalSelected = selectSelectedConnectLinesTotal(slice.connectLines);
+	if (totalSelected === 0 && connectLines.length === 0) {
+		return;
+	}
+
 	slice.selectedConnectLines = selectedConnectLinesAdapter.addMany(
 		selectedConnectLinesAdapter.removeAll(slice.selectedConnectLines),
 		connectLines,
@@ -32,11 +43,6 @@ export const selectConnectLinesAdapterReducers = {
 	selectConnectLines: (slice: Draft<StageSlice>, action: SelectConnectLinesAction) =>
 		selectConnectLinesStateChange(slice, action.payload),
 };
-
-export const {
-	selectAll: selectAllSelectedConnectLines,
-	selectById: selectSelectedConnectLineById,
-} = selectedConnectLinesAdapter.getSelectors();
 
 const globalConnectLineSelector = selectedConnectLinesAdapter.getSelectors<RootState>(
 	(state) => state.stage.selectedConnectLines,

@@ -103,6 +103,10 @@ export const removeElementsStateChange = (
 	slice: Draft<StageSlice>,
 	payload: RemoveElementsPayload,
 ) => {
+	if (payload.elementIds.length === 0) {
+		return;
+	}
+
 	slice.elements = elementsAdapter.removeMany(slice.elements, payload.elementIds);
 };
 
@@ -149,3 +153,4 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
+

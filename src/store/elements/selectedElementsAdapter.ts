@@ -1,7 +1,8 @@
-import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
+import { Draft, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { ConnectPointTypeVisibility } from '../../model';
 import { StageSlice } from '../stageSlice';
 import { RootState } from '../rootState';
+import { selectAllElements } from './elementsAdapter';
 
 export interface SelectedElement {
 	id: string;
@@ -20,10 +21,22 @@ const selectedElementsAdapter = createEntityAdapter<SelectedElement>({
 export const createSelectedElementsAdapterInitialState = () =>
 	selectedElementsAdapter.getInitialState();
 
+export const {
+	selectAll: selectAllSelectedElements,
+	selectById: selectSelectedElementById,
+	selectEntities: selectSelectedElementEntities,
+	selectTotal: selectSelectedElementsTotal,
+} = selectedElementsAdapter.getSelectors();
+
 export const selectElementsStateChange = (
 	slice: Draft<StageSlice>,
 	elements: SelectedElement[],
 ) => {
+	const totalSelected = selectSelectedElementsTotal(slice.selectedElements);
+	if (totalSelected === 0 && elements.length === 0) {
+		return;
+	}
+
 	slice.selectedElements = selectedElementsAdapter.addMany(
 		selectedElementsAdapter.removeAll(slice.selectedElements),
 		elements,
@@ -35,14 +48,18 @@ export const selectElementsAdapterReducers = {
 		selectElementsStateChange(slice, action.payload),
 };
 
-export const {
-	selectAll: selectAllSelectedElements,
-	selectById: selectSelectedElementById,
-	selectEntities: selectSelectedElementEntities,
-} = selectedElementsAdapter.getSelectors();
-
 const globalSelectedElementsSelector = selectedElementsAdapter.getSelectors<RootState>(
 	(state) => state.stage.selectedElements,
+);
+
+export const selectElementsInSelection = createSelector(
+	(state: RootState) => state.stage.selectedElements,
+	(state: RootState) => state.stage.elements,
+	(selectedEntities, elementEntities) => {
+		const selectedElement = selectSelectedElementEntities(selectedEntities);
+		const elements = selectAllElements(elementEntities);
+		return elements.filter((el) => Boolean(selectedElement[el.id]));
+	},
 );
 
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
