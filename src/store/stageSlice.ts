@@ -1,4 +1,3 @@
-import { v1 } from 'uuid';
 import { createSlice, Draft, EntityState } from '@reduxjs/toolkit';
 import { ConnectLine, ConnectPoint, Element } from '../model';
 import {
@@ -10,14 +9,6 @@ import {
 import {
 	pinConnectLineReducer,
 	unpinConnectLineReducer,
-	resetSimulationReducer,
-	completeSimulationReducer,
-	addObservableEventReducer,
-	Simulation,
-	SimulationAnimation,
-	removeSimulationAnimationReducer,
-	SimulationState,
-	startSimulationReducer,
 	ElementError,
 	errorsAdapter,
 	createElementErrorReducer,
@@ -46,11 +37,11 @@ import {
 	HighlightElement,
 	selectHighlighAdapterReducers,
 } from './highlight';
+import { createSimulationInitialState, Simulation, simulationReducers } from './simulation';
 
 export * from './hooks/theme';
 
-export type { ObservableEvent } from './reducer';
-export { SimulationState, errorsAdapter, selectElementErrorById, selectTooltip } from './reducer';
+export { errorsAdapter, selectElementErrorById, selectTooltip } from './reducer';
 
 export enum StageState {
 	Select = 'select',
@@ -96,13 +87,7 @@ export const createStageInitialState = (elements: Element[] = []): StageSlice =>
 	highlightedConnectPoints: [],
 	highlighted: createHighlightedAdapterInitialState(),
 	state: StageState.Select,
-	simulation: {
-		id: v1(),
-		state: SimulationState.Stopped,
-		completed: false,
-		animationsQueue: [],
-		events: [],
-	},
+	simulation: createSimulationInitialState(),
 	themes: createThemeContext(),
 	elementSizes: createElementSizesContext(),
 	errors: errorsAdapter.getInitialState(),
@@ -119,6 +104,7 @@ export const stageSlice = createSlice({
 		...selectConnectLinesAdapterReducers,
 		...selectReducers,
 		...selectHighlighAdapterReducers,
+		...simulationReducers,
 		changeState: (slice: Draft<StageSlice>, action: ChangeStateAction) => {
 			slice.state = action.payload;
 		},
@@ -130,11 +116,6 @@ export const stageSlice = createSlice({
 		},
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
-		startSimulation: startSimulationReducer,
-		resetSimulation: resetSimulationReducer,
-		completeSimulation: completeSimulationReducer,
-		addObservableEvent: addObservableEventReducer,
-		removeSimulationAnimation: removeSimulationAnimationReducer,
 		createElementError: createElementErrorReducer,
 		clearErrors: clearErrorsReducer,
 		showTooltip: showTooltipReducer,
@@ -184,9 +165,3 @@ export const selectStageState = (state: RootState) => state.stage.state;
 export const selectHighlightedConnectPointsByElementId =
 	(elementId: string) => (state: RootState) =>
 		state.stage.highlightedConnectPoints.filter((cp) => cp.elementId === elementId);
-
-export const selectSimulation = (state: RootState) => state.stage.simulation;
-
-export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
-	state.stage.simulation.animationsQueue.at(0) ?? null;
-

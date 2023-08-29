@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/rootState';
-import { selectSimulation, selectStageState, StageState } from '../../store/stageSlice';
+import { selectStageState, StageState } from '../../store/stageSlice';
 import { connectLineSelectStateHandlers } from './connectLineSelectStateHandlers';
 import { connectLineDragStateHandlers } from './connectLineDragStateHandlers';
+import { selectSimulation } from '../../store/simulation';
 
 export const useLineDrawerHandlers = () => {
 	const simulation = useAppSelector(selectSimulation);
@@ -21,4 +22,3 @@ export const useLineDrawerHandlers = () => {
 		return {};
 	}, [stageState, simulation.state]);
 };
-

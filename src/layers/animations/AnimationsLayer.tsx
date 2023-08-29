@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
 import { Layer } from 'react-konva';
 import { useAppDispatch, useAppSelector } from '../../store/rootState';
-import {
-	removeSimulationAnimation,
-	selectSimulation,
-	selectSimulationNextAnimation,
-} from '../../store/stageSlice';
+import { removeSimulationAnimation } from '../../store/stageSlice';
 import { ElementType } from '../../model';
 import { addDrawerAnimation, selectDrawerAnimationById } from '../../store/drawerAnimationsSlice';
 import { OperatorDrawer } from '../../operatorDrawers';
 import { AnimationKey } from '../../animation';
-import { MoveSimulationAnimation } from '../../store/reducer';
+import {
+	MoveSimulationAnimation,
+	selectSimulation,
+	selectSimulationNextAnimation,
+} from '../../store/simulation';
 
 export const AnimationsLayer = () => {
 	const appDispatch = useAppDispatch();
@@ -72,4 +72,3 @@ export const AnimationsLayer = () => {
 		</Layer>
 	);
 };
-

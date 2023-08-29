@@ -1,14 +1,10 @@
 import { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/rootState';
-import {
-	selectSimulation,
-	selectStageState,
-	SimulationState,
-	StageState,
-} from '../../store/stageSlice';
+import { selectStageState, StageState } from '../../store/stageSlice';
 import { drawerDragStateHandlers } from './drawerDragStateHandlers';
 import { drawerSelectStateHandlers } from './drawerSelectStateHandlers';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
+import { SimulationState, selectSimulation } from '../../store/simulation';
 
 export const useElementDrawerHandlers = () => {
 	const simulation = useAppSelector(selectSimulation);

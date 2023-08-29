@@ -15,6 +15,7 @@ export enum ElementType {
 	Ajax = 'ajax',
 	Empty = 'empty',
 	Defer = 'defer',
+	Generate = 'generate',
 }
 
 export const joinCreationOperators: ReadonlySet<ElementType> = new Set([ElementType.Merge]);
@@ -27,6 +28,7 @@ export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Ajax,
 	ElementType.Empty,
 	ElementType.Defer,
+	ElementType.Generate,
 ]);
 
 export const transformationOperators: ReadonlySet<ElementType> = new Set([
@@ -77,3 +79,4 @@ export const isConnectPointType = (type: ElementType) => connectPointOperators.h
 
 export const isEntryOperatorType = (type: ElementType) =>
 	isCreationOperatorType(type) || isJoinCreationOperatorType(type);
+

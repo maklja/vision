@@ -10,7 +10,7 @@ import StopIcon from '@mui/icons-material/Stop';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Box from '@mui/material/Box';
 import { Element } from '../model';
-import { SimulationState } from '../store/reducer';
+import { SimulationState } from '../store/simulation';
 
 export interface SimulationControlsProps {
 	simulatorId: string;
@@ -109,4 +109,3 @@ export const SimulationControls = ({
 		</Box>
 	);
 };
-

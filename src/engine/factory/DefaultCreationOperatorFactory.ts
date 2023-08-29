@@ -1,4 +1,4 @@
-import { defer, EMPTY, from, iif, interval, map, Observable, of } from 'rxjs';
+import { defer, EMPTY, from, generate, iif, interval, map, Observable, of } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import {
 	AjaxElement,
@@ -9,6 +9,7 @@ import {
 	ElementType,
 	EmptyElement,
 	FromElement,
+	GenerateElement,
 	IifElement,
 	IntervalElement,
 	OfElement,
@@ -34,6 +35,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			[ElementType.Ajax, this.createAjaxCreationOperator.bind(this)],
 			[ElementType.Empty, this.createEmptyCreationOperator.bind(this)],
 			[ElementType.Defer, this.createDeferCreationOperator.bind(this)],
+			[ElementType.Generate, this.createGenerateCreationOperator.bind(this)],
 		]);
 	}
 
@@ -148,7 +150,23 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		});
 	}
 
+	private createGenerateCreationOperator(el: Element) {
+		const generateEl = el as GenerateElement;
+		const { initialState, iterate, resultSelector, condition } = generateEl.properties.options;
+		const conditionFn = condition ? new Function(`return ${condition}`) : undefined;
+		const iterateFn = new Function(`return ${iterate}`);
+		const resultSelectorFn = new Function(`return ${resultSelector}`);
+
+		return generate({
+			initialState,
+			condition: conditionFn?.(),
+			iterate: iterateFn(),
+			resultSelector: resultSelectorFn(),
+		}).pipe(map((item) => this.createFlowValue(item, generateEl.id)));
+	}
+
 	private createFlowValue(value: unknown, elementId: string): FlowValue {
 		return new FlowValue(value, elementId, FlowValueType.Next);
 	}
 }
+
