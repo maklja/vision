@@ -31,7 +31,7 @@ export const OperatorPanelPopper = ({
 		>
 			<Paper>
 				<Grid container sx={{ minHeight: '50px' }}>
-					{[...elementTypes].map((elType) => (
+					{[...elementTypes].sort().map((elType) => (
 						<Grid
 							item
 							xs={4}

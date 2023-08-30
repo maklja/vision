@@ -46,12 +46,29 @@ export interface RemoveElementsAction {
 	payload: RemoveElementsPayload;
 }
 
+export interface UpdateElementPropertyPayload {
+	id: string;
+	propertyName: string;
+	propertyValue: unknown;
+}
+
+export interface UpdateElementPropertyAction {
+	type: string;
+	payload: UpdateElementPropertyPayload;
+}
+
 const elementsAdapter = createEntityAdapter<Element>({
 	selectId: (el) => el.id,
 });
 
 export const createElementsAdapterInitialState = (elements: Element[] = []) =>
 	elementsAdapter.addMany(elementsAdapter.getInitialState(), elements);
+
+export const {
+	selectAll: selectAllElements,
+	selectById: selectElementById,
+	selectEntities: selectElementEntities,
+} = elementsAdapter.getSelectors();
 
 export const updateElementStateChange = (
 	slice: Draft<StageSlice>,
@@ -110,13 +127,35 @@ export const removeElementsStateChange = (
 	slice.elements = elementsAdapter.removeMany(slice.elements, payload.elementIds);
 };
 
+export const updateElementPropertyStateChange = (
+	slice: Draft<StageSlice>,
+	payload: UpdateElementPropertyPayload,
+) => {
+	const element = selectElementById(slice.elements, payload.id);
+	if (!element) {
+		return;
+	}
+
+	slice.elements = elementsAdapter.updateOne(slice.elements, {
+		id: element.id,
+		changes: {
+			properties: {
+				...element,
+				[payload.propertyName]: payload.propertyValue,
+			},
+		},
+	});
+};
+
 export const elementsAdapterReducers = {
 	updateElement: (slice: Draft<StageSlice>, action: UpdateElementAction) =>
 		updateElementStateChange(slice, action.payload),
 	moveElement: (slice: Draft<StageSlice>, action: MoveElementAction) =>
 		moveElementStateChange(slice, action.payload),
-	removeElements: (slice: Draft<StageSlice>, payload: RemoveElementsAction) =>
-		removeElementsStateChange(slice, payload.payload),
+	removeElements: (slice: Draft<StageSlice>, action: RemoveElementsAction) =>
+		removeElementsStateChange(slice, action.payload),
+	updateElementProperty: (slice: Draft<StageSlice>, action: UpdateElementPropertyAction) =>
+		updateElementPropertyStateChange(slice, action.payload),
 	createDraftElement: (slice: Draft<StageSlice>, action: CreateDraftElementAction) => {
 		slice.state = StageState.DrawElement;
 		slice.draftElement = action.payload;
@@ -136,12 +175,6 @@ export const elementsAdapterReducers = {
 		slice.draftElement = null;
 	},
 };
-
-export const {
-	selectAll: selectAllElements,
-	selectById: selectElementById,
-	selectEntities: selectElementEntities,
-} = elementsAdapter.getSelectors();
 
 const globalElementsSelector = elementsAdapter.getSelectors<RootState>(
 	(state) => state.stage.elements,

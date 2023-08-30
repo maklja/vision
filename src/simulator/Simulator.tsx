@@ -11,6 +11,7 @@ import {
 	moveElement,
 	resetSimulation,
 	startSimulation,
+	updateElementProperty,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
 import { Point, isEntryOperatorType } from '../model';
@@ -118,6 +119,19 @@ export const Simulator = () => {
 			}),
 		);
 
+	const handleElementPropertyChange = (
+		id: string,
+		propertyName: string,
+		propertyValue: unknown,
+	) =>
+		appDispatch(
+			updateElementProperty({
+				id,
+				propertyName,
+				propertyValue,
+			}),
+		);
+
 	if (!simulation) {
 		return null;
 	}
@@ -173,6 +187,7 @@ export const Simulator = () => {
 					<OperatorPropertiesPanel
 						element={selectedElements[0]}
 						onPositionChange={handleElementPositionChange}
+						onPropertyValueChange={handleElementPropertyChange}
 					/>
 				</Box>
 			) : null}

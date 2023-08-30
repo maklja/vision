@@ -156,6 +156,7 @@ export const {
 	removeConnectLines,
 	removeElements,
 	clearSelected,
+	updateElementProperty,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
@@ -165,3 +166,4 @@ export const selectStageState = (state: RootState) => state.stage.state;
 export const selectHighlightedConnectPointsByElementId =
 	(elementId: string) => (state: RootState) =>
 		state.stage.highlightedConnectPoints.filter((cp) => cp.elementId === elementId);
+

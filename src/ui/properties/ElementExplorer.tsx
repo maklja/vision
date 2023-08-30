@@ -1,3 +1,4 @@
+import { ChangeEventHandler, Fragment } from 'react';
 import FormGroup from '@mui/material/FormGroup';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -9,7 +10,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import { ElementType, Point, mapElementTypeToGroup } from '../../model';
-import { ChangeEventHandler } from 'react';
+import { useShapeSize } from '../../store/stageSlice';
+import { ElementShape } from '../../theme';
 
 export interface ElementExplorerProps {
 	id: string;
@@ -29,21 +31,16 @@ export const ElementExplorer = ({
 	onPositionChange,
 }: ElementExplorerProps) => {
 	const operatorGroup = mapElementTypeToGroup(type);
+	const shapeSize = useShapeSize(type);
 
 	const handleXChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
 		const newX = Number(e.target.value);
-		if (isNaN(newX)) {
-			return;
-		}
-		onPositionChange?.(id, { x: newX, y });
+		onPositionChange?.(id, { x: isNaN(newX) ? x : newX, y });
 	};
 
 	const handleYChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
 		const newY = Number(e.target.value);
-		if (isNaN(newY)) {
-			return;
-		}
-		onPositionChange?.(id, { x, y: newY });
+		onPositionChange?.(id, { x, y: isNaN(newY) ? y : newY });
 	};
 
 	return (
@@ -128,9 +125,56 @@ export const ElementExplorer = ({
 
 						<FormLabel>Size</FormLabel>
 						<FormGroup row sx={{ gap: 1.5, flexWrap: 'nowrap' }}>
+							{shapeSize.type === ElementShape.Circle ? (
+								<TextField
+									id="element-radius"
+									label="Radius"
+									value={shapeSize.radius}
+									type="number"
+									size="small"
+									InputProps={{
+										readOnly: true,
+									}}
+									InputLabelProps={{
+										shrink: true,
+									}}
+								/>
+							) : null}
+
+							{shapeSize.type === ElementShape.Rectangle ? (
+								<Fragment>
+									<TextField
+										id="element-width"
+										label="Width"
+										value={shapeSize.width}
+										type="number"
+										size="small"
+										InputProps={{
+											readOnly: true,
+										}}
+										InputLabelProps={{
+											shrink: true,
+										}}
+									/>
+									<TextField
+										id="element-height"
+										label="Height"
+										value={shapeSize.height}
+										type="number"
+										size="small"
+										InputProps={{
+											readOnly: true,
+										}}
+										InputLabelProps={{
+											shrink: true,
+										}}
+									/>
+								</Fragment>
+							) : null}
+
 							<TextField
 								id="scale"
-								label="scale"
+								label="Scale"
 								value={`${scale * 100}%`}
 								size="small"
 								InputProps={{
@@ -147,3 +191,4 @@ export const ElementExplorer = ({
 		</Box>
 	);
 };
+
