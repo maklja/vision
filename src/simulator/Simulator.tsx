@@ -18,6 +18,7 @@ import { Point, isEntryOperatorType } from '../model';
 import { OperatorsPanel, SimulationControls } from '../ui';
 import {
 	FlowValueEvent,
+	InvalidElementParameterError,
 	MissingNextElementError,
 	MissingReferenceObservableError,
 	createObservableSimulation,
@@ -78,7 +79,8 @@ export const Simulator = () => {
 		} catch (e) {
 			if (
 				e instanceof MissingReferenceObservableError ||
-				e instanceof MissingNextElementError
+				e instanceof MissingNextElementError ||
+				e instanceof InvalidElementParameterError
 			) {
 				appDispatch(resetSimulation());
 				appDispatch(

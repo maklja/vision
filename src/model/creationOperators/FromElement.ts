@@ -9,5 +9,6 @@ export interface FromElement extends Element<FromElementProperties> {
 }
 
 export const fromElementPropsTemplate: FromElementProperties = {
-	input: '[1, 2, 3, 4]',
+	input: '() => [1, 2, 3, 4]',
 };
+

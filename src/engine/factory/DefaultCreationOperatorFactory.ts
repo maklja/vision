@@ -16,7 +16,7 @@ import {
 } from '../../model';
 import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
-import { MissingReferenceObservableError } from '../errors';
+import {  MissingReferenceObservableError } from '../errors';
 
 type CreationOperatorFunctionFactory = (
 	el: Element,
@@ -67,9 +67,8 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	private createFromCreationOperator(el: Element) {
 		const fromEl = el as FromElement;
-		return from(fromEl.properties.input).pipe(
-			map((item) => this.createFlowValue(item, fromEl.id)),
-		);
+		const inputFn = new Function(`return ${fromEl.properties.input}`);
+		return from(inputFn()()).pipe(map((item) => this.createFlowValue(item, fromEl.id)));
 	}
 
 	private createIntervalCreationOperator(el: Element) {
@@ -169,3 +168,4 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		return new FlowValue(value, elementId, FlowValueType.Next);
 	}
 }
+
