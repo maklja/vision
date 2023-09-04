@@ -66,7 +66,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	}
 
 	private createFromCreationOperator(el: Element) {
-		const fromEl = el as FromElement<unknown>;
+		const fromEl = el as FromElement;
 		return from(fromEl.properties.input).pipe(
 			map((item) => this.createFlowValue(item, fromEl.id)),
 		);
@@ -169,4 +169,3 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		return new FlowValue(value, elementId, FlowValueType.Next);
 	}
 }
-

@@ -4,8 +4,8 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { ElementType, IntervalElementProperties } from '../../model';
-import { IntervalElementPropertiesForm } from './creationElementForms';
+import { ElementType, FromElementProperties, IntervalElementProperties } from '../../model';
+import { FromElementPropertiesForm, IntervalElementPropertiesForm } from './creationElementForms';
 
 export interface ElementPropertiesFormProps {
 	id: string;
@@ -29,6 +29,14 @@ const createElementPropertiesForm = ({
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
+		case ElementType.From:
+			return (
+				<FromElementPropertiesForm
+					id={id}
+					properties={properties as FromElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
 		default:
 			return null;
 	}
@@ -42,7 +50,7 @@ export const ElementPropertiesForm = ({
 }: ElementPropertiesFormProps) => {
 	return (
 		<Box component="form" noValidate autoComplete="off">
-			<Accordion disableGutters>
+			<Accordion disableGutters expanded={true}>
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}>
 					<Typography>Element properties</Typography>
 				</AccordionSummary>
@@ -58,4 +66,3 @@ export const ElementPropertiesForm = ({
 		</Box>
 	);
 };
-

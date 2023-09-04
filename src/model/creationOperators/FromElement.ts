@@ -1,15 +1,13 @@
-import { ObservableInput } from 'rxjs';
 import { Element, ElementType } from '../element';
 
-export interface FromElementProperties<T> {
-	input: ObservableInput<T>;
+export interface FromElementProperties {
+	input: string;
 }
 
-export interface FromElement<T = unknown> extends Element<FromElementProperties<T>> {
+export interface FromElement extends Element<FromElementProperties> {
 	type: ElementType.From;
 }
 
-export const fromElementPropsTemplate: FromElementProperties<unknown> = {
-	input: [1, 2, 3, 4],
+export const fromElementPropsTemplate: FromElementProperties = {
+	input: '[1, 2, 3, 4]',
 };
-
