@@ -1,3 +1,4 @@
+import { FromElementProperties } from '../creationOperators';
 import {
 	ElementProps,
 	ElementType,
@@ -115,7 +116,10 @@ const findCreationElementDescriptor = (
 	}
 
 	if (elementType === ElementType.From) {
-		return fromElementDescriptor;
+		const fromProperties = elementProps as FromElementProperties;
+		return fromProperties.enableObservableEvent
+			? fromElementDescriptor
+			: creationElementDescriptor;
 	}
 
 	return creationElementDescriptor;
@@ -160,3 +164,4 @@ export const calcConnectPointVisibility = (elType: ElementType, elementProps: El
 		eventsVisible,
 	};
 };
+

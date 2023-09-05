@@ -25,6 +25,7 @@ export const CreationOperatorDrawer = ({
 	visibleConnectPoints,
 	elementType,
 	title,
+	properties,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -37,7 +38,7 @@ export const CreationOperatorDrawer = ({
 }: CreationOperatorDrawer) => {
 	const circleShapeSize = useCircleShapeSize(elementType, scale);
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
-	const connectPointsOptions = createDefaultElementProps(elementType, circleCPSize);
+	const connectPointsOptions = createDefaultElementProps(elementType, properties, circleCPSize);
 
 	return (
 		<Group>

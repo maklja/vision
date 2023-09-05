@@ -2,6 +2,7 @@ import {
 	ConnectPointPosition,
 	ConnectPointType,
 	ConnectPointTypeVisibility,
+	ElementProps,
 	ElementType,
 	calcConnectPointVisibility,
 } from '../model';
@@ -29,9 +30,13 @@ import { selectElementSelection } from '../store/elements';
 
 export const createDefaultElementProps = <T extends ShapeSize>(
 	elType: ElementType,
+	elProperties: ElementProps,
 	shapeSize: T,
 ): ConnectPointsOptions<T> => {
-	const { inputVisible, eventsVisible, outputVisible } = calcConnectPointVisibility(elType);
+	const { inputVisible, eventsVisible, outputVisible } = calcConnectPointVisibility(
+		elType,
+		elProperties,
+	);
 	return {
 		left: {
 			type: ConnectPointType.Input,
@@ -230,3 +235,4 @@ export const ConnectPointsDrawer = ({
 		/>
 	);
 };
+

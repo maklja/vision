@@ -51,6 +51,7 @@ export const eventPipeOperators: ReadonlySet<ElementType> = new Set([
 	...errorHandlerOperators,
 	ElementType.IIf,
 	ElementType.Defer,
+	ElementType.From,
 	ElementType.ConcatMap,
 	ElementType.MergeMap,
 ]);

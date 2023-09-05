@@ -50,6 +50,7 @@ export const DragNDropLayer = () => {
 		y: yPosition,
 		scale: element.scale,
 		visible: element.visible,
+		properties: element.properties,
 		select: true,
 		draggable: false,
 		theme,

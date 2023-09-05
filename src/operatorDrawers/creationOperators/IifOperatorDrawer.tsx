@@ -18,6 +18,7 @@ export const IifOperatorDrawer = ({
 	select,
 	visible,
 	visibleConnectPoints,
+	properties,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -31,7 +32,7 @@ export const IifOperatorDrawer = ({
 	const elType = ElementType.IIf;
 	const circleShapeSize = useCircleShapeSize(elType, scale);
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
-	const connectPointsOptions = createDefaultElementProps(elType, circleCPSize);
+	const connectPointsOptions = createDefaultElementProps(elType, properties, circleCPSize);
 
 	return (
 		<Group>
@@ -95,3 +96,4 @@ export const IifOperatorDrawer = ({
 		</Group>
 	);
 };
+

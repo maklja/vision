@@ -101,6 +101,7 @@ export const OperatorDrawer = ({
 					y={element.y}
 					scale={element.scale}
 					visible={element.visible}
+					properties={element.properties}
 					animation={animationConfig}
 					theme={theme}
 					select={select}
@@ -117,6 +118,7 @@ export const OperatorDrawer = ({
 				y: element.y,
 				scale: element.scale,
 				visible: element.visible,
+				properties: element.properties,
 				animation: animationConfig,
 				theme,
 				select,
