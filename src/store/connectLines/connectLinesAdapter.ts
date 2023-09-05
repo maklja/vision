@@ -96,7 +96,7 @@ const getConnectPointDescriptor = (
 	cpType: ConnectPointType,
 	connectLines: ConnectLine[],
 ) => {
-	const elDescriptor: ElementDescriptor = findElementDescriptor(el.type);
+	const elDescriptor: ElementDescriptor = findElementDescriptor(el.type, el.properties);
 
 	const elConnectTypeCardinality = connectLines.reduce((cardinality, cl) => {
 		if (cl.source.id !== el.id || cl.source.connectPointType !== cpType) {
@@ -188,6 +188,7 @@ export const startConnectLineDrawStateChange = (
 
 			const { input = { cardinality: 0, allowedTypes: new Set() } } = findElementDescriptor(
 				curEl.type,
+				curEl.properties,
 			);
 			const inputCardinality = elInputCardinality.get(curEl.id) ?? 0;
 			const inputCardinalityNotExcited = inputCardinality < input.cardinality;
@@ -364,4 +365,3 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
-

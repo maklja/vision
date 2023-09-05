@@ -167,7 +167,7 @@ export const SimpleCodeEditor = ({
 				</InputLabel>
 				<Box
 					sx={{
-						padding: '22.5px 14px 16.5px',
+						padding: '17.5px 14px 16.5px',
 					}}
 				>
 					<Editor
@@ -192,4 +192,3 @@ export const SimpleCodeEditor = ({
 		</Box>
 	);
 };
-

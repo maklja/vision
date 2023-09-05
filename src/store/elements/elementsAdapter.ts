@@ -1,17 +1,17 @@
 import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
 import { StageSlice, StageState } from '../stageSlice';
-import { Element } from '../../model';
+import { Element, ElementProps } from '../../model';
 import { RootState } from '../rootState';
 import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
 
-export interface UpdateElementPayload<P = unknown> {
+export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
 	visible?: boolean;
 	scale?: number;
 	properties?: P;
 }
 
-export interface UpdateElementAction<P = unknown> {
+export interface UpdateElementAction<P = ElementProps> {
 	type: string;
 	payload: UpdateElementPayload<P>;
 }
@@ -140,7 +140,7 @@ export const updateElementPropertyStateChange = (
 		id: element.id,
 		changes: {
 			properties: {
-				...element,
+				...element.properties,
 				[payload.propertyName]: payload.propertyValue,
 			},
 		},
@@ -186,4 +186,3 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
-

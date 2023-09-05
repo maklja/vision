@@ -1,4 +1,5 @@
 import {
+	ElementProps,
 	ElementType,
 	creationOperators,
 	eventPipeOperators,
@@ -55,6 +56,14 @@ export const deferElementDescriptor: ElementDescriptor = {
 	},
 };
 
+export const fromElementDescriptor: ElementDescriptor = {
+	...creationElementDescriptor,
+	event: {
+		allowedTypes: new Set<ElementType>([...joinCreationOperators, ...creationOperators]),
+		cardinality: 1,
+	},
+};
+
 export const pipeElementDescriptor: ElementDescriptor = {
 	input: {
 		allowedTypes: new Set<ElementType>([
@@ -93,24 +102,35 @@ export const subscriberElementDescriptor: ElementDescriptor = {
 	},
 };
 
-const findCreationElementDescriptor = (elementType: ElementType): ElementDescriptor => {
-	switch (elementType) {
-		case ElementType.IIf:
-			return iifElementDescriptor;
-		case ElementType.Defer:
-			return deferElementDescriptor;
-		default:
-			return creationElementDescriptor;
+const findCreationElementDescriptor = (
+	elementType: ElementType,
+	elementProps: ElementProps,
+): ElementDescriptor => {
+	if (elementType === ElementType.IIf) {
+		return iifElementDescriptor;
 	}
+
+	if (elementType === ElementType.Defer) {
+		return deferElementDescriptor;
+	}
+
+	if (elementType === ElementType.From) {
+		return fromElementDescriptor;
+	}
+
+	return creationElementDescriptor;
 };
 
-export const findElementDescriptor = (elementType: ElementType): ElementDescriptor => {
+export const findElementDescriptor = (
+	elementType: ElementType,
+	elementProps: ElementProps,
+): ElementDescriptor => {
 	if (isJoinCreationOperatorType(elementType)) {
 		return joinCreationElementDescriptor;
 	}
 
 	if (isCreationOperatorType(elementType)) {
-		return findCreationElementDescriptor(elementType);
+		return findCreationElementDescriptor(elementType, elementProps);
 	}
 
 	if (isSubscriberType(elementType)) {
@@ -128,8 +148,8 @@ export const findElementDescriptor = (elementType: ElementType): ElementDescript
 	return {};
 };
 
-export const calcConnectPointVisibility = (elType: ElementType) => {
-	const { input, event, output } = findElementDescriptor(elType);
+export const calcConnectPointVisibility = (elType: ElementType, elementProps: ElementProps) => {
+	const { input, event, output } = findElementDescriptor(elType, elementProps);
 
 	const inputVisible = Boolean(input?.cardinality);
 	const outputVisible = Boolean(output?.cardinality);

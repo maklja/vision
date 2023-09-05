@@ -50,7 +50,7 @@ export const ElementPropertiesForm = ({
 }: ElementPropertiesFormProps) => {
 	return (
 		<Box component="form" noValidate autoComplete="off">
-			<Accordion disableGutters expanded={true}>
+			<Accordion disableGutters defaultExpanded={true}>
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}>
 					<Typography>Element properties</Typography>
 				</AccordionSummary>
