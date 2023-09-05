@@ -375,6 +375,7 @@ export const connectLinesAdapterReducers = {
 				slice.connectLines,
 				elConnectLines.map((cl) => cl.id),
 			);
+			return;
 		}
 
 		const eventConnectLineIds = elConnectLines
@@ -402,4 +403,3 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
-
