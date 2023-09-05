@@ -1,5 +1,9 @@
 import { ElementType } from './ElementType';
 
+export enum CommonProps {
+	EnableObservableEvent = 'enableObservableEvent',
+}
+
 export type ElementProps = object;
 
 export interface Element<P extends ElementProps = object> {
@@ -11,3 +15,4 @@ export interface Element<P extends ElementProps = object> {
 	visible: boolean;
 	properties: P;
 }
+

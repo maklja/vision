@@ -16,7 +16,7 @@ import {
 } from '../../model';
 import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
-import {  MissingReferenceObservableError } from '../errors';
+import { MissingReferenceObservableError } from '../errors';
 
 type CreationOperatorFunctionFactory = (
 	el: Element,
@@ -65,10 +65,30 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			: of(this.createFlowValue(null, ofEl.id));
 	}
 
-	private createFromCreationOperator(el: Element) {
-		const fromEl = el as FromElement;
-		const inputFn = new Function(`return ${fromEl.properties.input}`);
-		return from(inputFn()()).pipe(map((item) => this.createFlowValue(item, fromEl.id)));
+	private createFromCreationOperator(el: Element, options: OperatorOptions) {
+		const { id, properties } = el as FromElement;
+
+		if (!properties.enableObservableEvent) {
+			const inputFn = new Function(`return ${properties.input}`);
+			return from(inputFn()()).pipe(map((item) => this.createFlowValue(item, id)));
+		}
+
+		if (options.referenceObservables.length === 0) {
+			throw new MissingReferenceObservableError(
+				el.id,
+				'Reference observable is required for from operator',
+			);
+		}
+
+		if (options.referenceObservables.length > 1) {
+			throw new Error('Too many reference observables for from operator');
+		}
+
+		const [refObservable] = options.referenceObservables;
+		return defer(() => {
+			refObservable.invokeTrigger?.(FlowValue.createEmptyValue(id));
+			return from(refObservable.observable);
+		}).pipe(map((item) => this.createFlowValue(item, id)));
 	}
 
 	private createIntervalCreationOperator(el: Element) {

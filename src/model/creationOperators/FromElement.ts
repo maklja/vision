@@ -1,7 +1,7 @@
-import { Element, ElementType } from '../element';
+import { Element, ElementType, CommonProps } from '../element';
 
 export interface FromElementProperties {
-	enableObservableEvent: boolean;
+	[CommonProps.EnableObservableEvent]: boolean;
 	input: string;
 }
 
@@ -13,3 +13,4 @@ export const fromElementPropsTemplate: FromElementProperties = {
 	enableObservableEvent: true,
 	input: '() => [1, 2, 3, 4]',
 };
+

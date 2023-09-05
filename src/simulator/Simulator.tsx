@@ -9,12 +9,13 @@ import {
 	completeSimulation,
 	createElementError,
 	moveElement,
+	removeElementConnectLines,
 	resetSimulation,
 	startSimulation,
 	updateElementProperty,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
-import { Point, isEntryOperatorType } from '../model';
+import { CommonProps, ConnectPointType, Point, isEntryOperatorType } from '../model';
 import { OperatorsPanel, SimulationControls } from '../ui';
 import {
 	FlowValueEvent,
@@ -123,7 +124,7 @@ export const Simulator = () => {
 		id: string,
 		propertyName: string,
 		propertyValue: unknown,
-	) =>
+	) => {
 		appDispatch(
 			updateElementProperty({
 				id,
@@ -131,6 +132,16 @@ export const Simulator = () => {
 				propertyValue,
 			}),
 		);
+
+		if (propertyName === CommonProps.EnableObservableEvent && !propertyValue) {
+			appDispatch(
+				removeElementConnectLines({
+					elementId: id,
+					connectPointType: ConnectPointType.Event,
+				}),
+			);
+		}
+	};
 
 	if (!simulation) {
 		return null;
@@ -194,3 +205,4 @@ export const Simulator = () => {
 		</Box>
 	);
 };
+

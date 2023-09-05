@@ -81,6 +81,14 @@ export interface RemoveConnectLinesAction {
 	payload: RemoveConnectLinesPayload;
 }
 
+export interface RemoveElementConnectLinesAction {
+	type: string;
+	payload: {
+		elementId: string;
+		connectPointType?: ConnectPointType;
+	};
+}
+
 export interface MoveConnectLinePointAction {
 	type: string;
 	payload: {
@@ -352,6 +360,35 @@ export const connectLinesAdapterReducers = {
 			},
 		});
 	},
+	removeElementConnectLines: (
+		slice: Draft<StageSlice>,
+		action: RemoveElementConnectLinesAction,
+	) => {
+		const { elementId, connectPointType } = action.payload;
+		const connectLines = selectAllConnectLines(slice.connectLines);
+		const elConnectLines = connectLines.filter(
+			({ source, target }) => source.id === elementId || target.id === elementId,
+		);
+
+		if (!connectPointType) {
+			slice.connectLines = connectLinesAdapter.removeMany(
+				slice.connectLines,
+				elConnectLines.map((cl) => cl.id),
+			);
+		}
+
+		const eventConnectLineIds = elConnectLines
+			.filter(
+				({ source, target }) =>
+					source.connectPointType === connectPointType ||
+					target.connectPointType === connectPointType,
+			)
+			.map((cl) => cl.id);
+		slice.connectLines = connectLinesAdapter.removeMany(
+			slice.connectLines,
+			eventConnectLineIds,
+		);
+	},
 };
 
 const globalConnectLinesSelector = connectLinesAdapter.getSelectors<RootState>(
@@ -365,3 +402,4 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
+

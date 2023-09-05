@@ -157,6 +157,7 @@ export const {
 	removeElements,
 	clearSelected,
 	updateElementProperty,
+	removeElementConnectLines,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;

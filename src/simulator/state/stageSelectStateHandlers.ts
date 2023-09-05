@@ -5,16 +5,12 @@ import { removeSelected, clearSelected } from '../../store/stageSlice';
 import { changeCursorStyle } from '../../operatorDrawers/utils';
 
 const PAN_MOUSE_BUTTON_KEY = 1;
+const CANCEL_MOUSE_BUTTON_KEY = 2;
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 10;
 const ZOOM_BY = 2.01;
 
 export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => ({
-	onMouseDown: (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-
-		dispatch(clearSelected());
-	},
 	onDragStart: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		const stage = e.currentTarget.getStage();
 		if (!stage) {
@@ -71,4 +67,16 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 			changeCursorStyle('default', stage);
 		}
 	},
+	onContextMenu: (e: Konva.KonvaEventObject<MouseEvent>) => {
+		e.cancelBubble = true;
+		e.evt.preventDefault();
+
+		const { button, buttons } = e.evt;
+		if (button !== CANCEL_MOUSE_BUTTON_KEY && buttons !== CANCEL_MOUSE_BUTTON_KEY) {
+			return;
+		}
+
+		dispatch(clearSelected());
+	},
 });
+
