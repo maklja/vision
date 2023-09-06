@@ -85,6 +85,7 @@ export const OperatorButton = ({ elementType, padding = 4, scale = 0.65 }: Opera
 						draggable: false,
 						highlight: highlighted,
 						select: isDragging,
+						properties: {},
 						onMouseOver: () => setHighlighted(true),
 						onMouseOut: () => setHighlighted(false),
 					})}

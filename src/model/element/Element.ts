@@ -1,8 +1,12 @@
 import { ElementType } from './ElementType';
 
-export type ElementProps = unknown | Record<string, unknown>;
+export enum CommonProps {
+	EnableObservableEvent = 'enableObservableEvent',
+}
 
-export interface Element<P extends ElementProps = unknown> {
+export type ElementProps = object;
+
+export interface Element<P extends ElementProps = object> {
 	id: string;
 	type: ElementType;
 	x: number;

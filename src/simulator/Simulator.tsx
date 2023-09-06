@@ -8,11 +8,14 @@ import {
 	clearSelected,
 	completeSimulation,
 	createElementError,
+	moveElement,
+	removeElementConnectLines,
 	resetSimulation,
 	startSimulation,
+	updateElementProperty,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
-import { isEntryOperatorType } from '../model';
+import { CommonProps, ConnectPointType, Point, isEntryOperatorType } from '../model';
 import { OperatorsPanel, SimulationControls } from '../ui';
 import {
 	FlowValueEvent,
@@ -20,14 +23,17 @@ import {
 	MissingReferenceObservableError,
 	createObservableSimulation,
 } from '../engine';
-import { selectStageElements } from '../store/elements';
+import { selectElementsInSelection, selectStageElements } from '../store/elements';
 import { selectStageConnectLines } from '../store/connectLines';
 import { SimulationState, selectSimulation } from '../store/simulation';
+import { OperatorPropertiesPanel } from '../ui/properties';
 
 export const Simulator = () => {
 	const simulation = useAppSelector(selectSimulation);
 	const elements = useAppSelector(selectStageElements);
 	const connectLines = useAppSelector(selectStageConnectLines);
+	const selectedElements = useAppSelector(selectElementsInSelection);
+
 	const appDispatch = useAppDispatch();
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
@@ -105,6 +111,38 @@ export const Simulator = () => {
 		handleSimulationStart(entryElementId);
 	};
 
+	const handleElementPositionChange = (id: string, position: Point) =>
+		appDispatch(
+			moveElement({
+				id,
+				x: position.x,
+				y: position.y,
+			}),
+		);
+
+	const handleElementPropertyChange = (
+		id: string,
+		propertyName: string,
+		propertyValue: unknown,
+	) => {
+		appDispatch(
+			updateElementProperty({
+				id,
+				propertyName,
+				propertyValue,
+			}),
+		);
+
+		if (propertyName === CommonProps.EnableObservableEvent && !propertyValue) {
+			appDispatch(
+				removeElementConnectLines({
+					elementId: id,
+					connectPointType: ConnectPointType.Event,
+				}),
+			);
+		}
+	};
+
 	if (!simulation) {
 		return null;
 	}
@@ -146,6 +184,25 @@ export const Simulator = () => {
 					disabled={simulation.state === SimulationState.Running}
 				/>
 			</Box>
+
+			{selectedElements.length === 1 ? (
+				<Box
+					sx={{
+						position: 'absolute',
+						top: '15%',
+						right: '25px',
+						width: '400px',
+						height: '70%',
+					}}
+				>
+					<OperatorPropertiesPanel
+						element={selectedElements[0]}
+						onPositionChange={handleElementPositionChange}
+						onPropertyValueChange={handleElementPropertyChange}
+					/>
+				</Box>
+			) : null}
 		</Box>
 	);
 };
+

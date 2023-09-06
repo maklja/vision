@@ -18,6 +18,7 @@ export const FilterOperatorDrawer = ({
 	select,
 	visible,
 	visibleConnectPoints,
+	properties,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -31,7 +32,7 @@ export const FilterOperatorDrawer = ({
 	const elType = ElementType.Filter;
 	const rectangleShapeSize = useRectangleShapeSize(elType, scale);
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
-	const connectPointsOptions = createDefaultElementProps(elType, circleCPSize);
+	const connectPointsOptions = createDefaultElementProps(elType, properties, circleCPSize);
 
 	return (
 		<Group>
@@ -71,3 +72,4 @@ export const FilterOperatorDrawer = ({
 		</Group>
 	);
 };
+

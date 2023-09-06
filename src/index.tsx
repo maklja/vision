@@ -18,9 +18,7 @@ import {
 	MergeElement,
 	MapElement,
 } from './model';
-import {
-	createStageInitialState,
-} from './store/stageSlice';
+import { createStageInitialState } from './store/stageSlice';
 
 const e1: OfElement = {
 	id: 'ofElement',
@@ -40,7 +38,8 @@ const e3: FromElement = {
 	type: ElementType.From,
 	visible: true,
 	properties: {
-		input: [3, 2, 3, 4],
+		enableObservableEvent: true,
+		input: '() => [1, 2, 3, 4]',
 	},
 };
 

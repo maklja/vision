@@ -1,15 +1,16 @@
-import { ObservableInput } from 'rxjs';
-import { Element, ElementType } from '../element';
+import { Element, ElementType, CommonProps } from '../element';
 
-export interface FromElementProperties<T> {
-	input: ObservableInput<T>;
+export interface FromElementProperties {
+	[CommonProps.EnableObservableEvent]: boolean;
+	input: string;
 }
 
-export interface FromElement<T = unknown> extends Element<FromElementProperties<T>> {
+export interface FromElement extends Element<FromElementProperties> {
 	type: ElementType.From;
 }
 
-export const fromElementPropsTemplate: FromElementProperties<unknown> = {
-	input: [1, 2, 3, 4],
+export const fromElementPropsTemplate: FromElementProperties = {
+	enableObservableEvent: true,
+	input: '() => [1, 2, 3, 4]',
 };
 
