@@ -7,6 +7,7 @@ import {
 	IifOperatorDrawer,
 	IntervalOperatorDrawer,
 	OfOperatorDrawer,
+	RangeOperatorDrawer,
 } from './creationOperators';
 import { CatchErrorOperatorDrawer } from './errorHandlingOperators';
 import { Element, ElementType, ResultElement } from '../model';
@@ -60,6 +61,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <DeferOperatorDrawer {...props} />;
 		case ElementType.Generate:
 			return <GenerateOperatorDrawer {...props} />;
+		case ElementType.Range:
+			return <RangeOperatorDrawer {...props} />;
 		default:
 			return null;
 	}

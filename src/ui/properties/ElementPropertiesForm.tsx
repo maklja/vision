@@ -4,8 +4,17 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { ElementType, FromElementProperties, IntervalElementProperties } from '../../model';
-import { FromElementPropertiesForm, IntervalElementPropertiesForm } from './creationElementForms';
+import {
+	ElementType,
+	FromElementProperties,
+	IntervalElementProperties,
+	RangeElementProperties,
+} from '../../model';
+import {
+	FromElementPropertiesForm,
+	IntervalElementPropertiesForm,
+	RangeElementPropertiesForm,
+} from './creationElementForms';
 
 export interface ElementPropertiesFormProps {
 	id: string;
@@ -34,6 +43,14 @@ const createElementPropertiesForm = ({
 				<FromElementPropertiesForm
 					id={id}
 					properties={properties as FromElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Range:
+			return (
+				<RangeElementPropertiesForm
+					id={id}
+					properties={properties as RangeElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
@@ -66,3 +83,4 @@ export const ElementPropertiesForm = ({
 		</Box>
 	);
 };
+

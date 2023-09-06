@@ -1,7 +1,8 @@
 import { defer, merge, Observable } from 'rxjs';
-import { Element, ElementType } from '../../model';
+import { Element, ElementGroup, ElementType } from '../../model';
 import { JoinCreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue } from '../context';
+import { UnsupportedElementTypeError } from '../errors';
 
 type JoinCreationOperatorFunctionFactory = (
 	el: Element,
@@ -26,7 +27,7 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 	): Observable<FlowValue> {
 		const factory = this.supportedOperators.get(el.type);
 		if (!factory) {
-			throw new Error(`Unsupported element type ${el.type} as join creation operator.`);
+			throw new UnsupportedElementTypeError(el.id, el.type, ElementGroup.JoinCreation);
 		}
 
 		return factory(el, options);
@@ -47,3 +48,4 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		);
 	}
 }
+

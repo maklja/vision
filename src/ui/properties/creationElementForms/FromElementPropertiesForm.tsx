@@ -4,6 +4,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { FromElementProperties } from '../../../model';
 import { SimpleCodeEditor } from '../../code';
+import { formStyle } from '../commonStyles';
 
 export interface FromElementPropertiesFormProps {
 	id: string;
@@ -24,7 +25,7 @@ export const FromElementPropertiesForm = ({
 	) => onPropertyValueChange?.(id, 'enableObservableEvent', checked);
 
 	return (
-		<Stack gap={1.5}>
+		<Stack gap={formStyle.componentGap}>
 			<FormControlLabel
 				control={<Checkbox defaultChecked />}
 				label="Observable event"
@@ -42,3 +43,4 @@ export const FromElementPropertiesForm = ({
 		</Stack>
 	);
 };
+

@@ -2,6 +2,7 @@ import { ChangeEventHandler } from 'react';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { IntervalElementProperties } from '../../../model';
+import { formStyle } from '../commonStyles';
 
 export interface IntervalElementPropertiesFormProps {
 	id: string;
@@ -24,7 +25,7 @@ export const IntervalElementPropertiesForm = ({
 	};
 
 	return (
-		<Stack gap={1.5}>
+		<Stack gap={formStyle.componentGap}>
 			<TextField
 				id="interval-el-period-prop"
 				label="Period"
@@ -33,6 +34,9 @@ export const IntervalElementPropertiesForm = ({
 				size="small"
 				InputLabelProps={{
 					shrink: true,
+				}}
+				InputProps={{
+					inputProps: { min: 0 },
 				}}
 				onChange={handlePeriodChanged}
 				helperText="The interval size in milliseconds (by default) or the time unit determined by the scheduler's clock."

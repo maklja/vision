@@ -1,4 +1,4 @@
-import { defer, EMPTY, from, generate, iif, interval, map, Observable, of } from 'rxjs';
+import { defer, EMPTY, from, generate, iif, interval, map, Observable, of, range } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import {
 	AjaxElement,
@@ -6,6 +6,7 @@ import {
 	ConnectPointType,
 	DeferElement,
 	Element,
+	ElementGroup,
 	ElementType,
 	EmptyElement,
 	FromElement,
@@ -13,10 +14,11 @@ import {
 	IifElement,
 	IntervalElement,
 	OfElement,
+	RangeElement,
 } from '../../model';
 import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
-import { MissingReferenceObservableError } from '../errors';
+import { MissingReferenceObservableError, UnsupportedElementTypeError } from '../errors';
 
 type CreationOperatorFunctionFactory = (
 	el: Element,
@@ -36,6 +38,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			[ElementType.Empty, this.createEmptyCreationOperator.bind(this)],
 			[ElementType.Defer, this.createDeferCreationOperator.bind(this)],
 			[ElementType.Generate, this.createGenerateCreationOperator.bind(this)],
+			[ElementType.Range, this.createRangeCreationOperator.bind(this)],
 		]);
 	}
 
@@ -45,7 +48,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	): Observable<FlowValue> {
 		const factory = this.supportedOperators.get(el.type);
 		if (!factory) {
-			throw new Error(`Unsupported element type ${el.type} as creation operator.`);
+			throw new UnsupportedElementTypeError(el.id, el.type, ElementGroup.Creation);
 		}
 
 		return factory(el, options);
@@ -182,6 +185,12 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			iterate: iterateFn(),
 			resultSelector: resultSelectorFn(),
 		}).pipe(map((item) => this.createFlowValue(item, generateEl.id)));
+	}
+
+	private createRangeCreationOperator(el: Element) {
+		const rangeEl = el as RangeElement;
+		const { start, count } = rangeEl.properties;
+		return range(start, count).pipe(map((item) => this.createFlowValue(item, rangeEl.id)));
 	}
 
 	private createFlowValue(value: unknown, elementId: string): FlowValue {

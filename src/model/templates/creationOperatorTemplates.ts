@@ -5,6 +5,7 @@ import {
 	iifElementPropsTemplate,
 	intervalElementPropsTemplate,
 	ofElementPropsTemplate,
+	rangeElementPropsTemplate,
 } from '../creationOperators';
 import { ElementProps, ElementType } from '../element';
 
@@ -22,6 +23,8 @@ export const mapToCreationOperatorPropsTemplates = (elType: ElementType): Elemen
 			return ajaxElementPropsTemplate;
 		case ElementType.Generate:
 			return generateElementPropsTemplate;
+		case ElementType.Range:
+			return rangeElementPropsTemplate;
 		default:
 			return {};
 	}
