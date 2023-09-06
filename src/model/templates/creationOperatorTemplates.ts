@@ -6,6 +6,7 @@ import {
 	intervalElementPropsTemplate,
 	ofElementPropsTemplate,
 	rangeElementPropsTemplate,
+	throwErrorElementPropsTemplate,
 } from '../creationOperators';
 import { ElementProps, ElementType } from '../element';
 
@@ -25,6 +26,8 @@ export const mapToCreationOperatorPropsTemplates = (elType: ElementType): Elemen
 			return generateElementPropsTemplate;
 		case ElementType.Range:
 			return rangeElementPropsTemplate;
+		case ElementType.ThrowError:
+			return throwErrorElementPropsTemplate;
 		default:
 			return {};
 	}

@@ -8,6 +8,7 @@ import {
 	IntervalOperatorDrawer,
 	OfOperatorDrawer,
 	RangeOperatorDrawer,
+	ThrowErrorOperatorDrawer,
 } from './creationOperators';
 import { CatchErrorOperatorDrawer } from './errorHandlingOperators';
 import { Element, ElementType, ResultElement } from '../model';
@@ -63,6 +64,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <GenerateOperatorDrawer {...props} />;
 		case ElementType.Range:
 			return <RangeOperatorDrawer {...props} />;
+		case ElementType.ThrowError:
+			return <ThrowErrorOperatorDrawer {...props} />;
 		default:
 			return null;
 	}

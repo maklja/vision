@@ -7,3 +7,4 @@ export * from './EmptyElement';
 export * from './DeferElement';
 export * from './GenerateElement';
 export * from './RangeElement';
+export * from './ThrowErrorElement';

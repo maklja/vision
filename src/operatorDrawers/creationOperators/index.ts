@@ -7,3 +7,4 @@ export * from './EmptyOperatorDrawer';
 export * from './DeferOperatorDrawer';
 export * from './GenerateOperatorDrawer';
 export * from './RangeOperatorDrawer';
+export * from './ThrowErrorOperatorDrawer';

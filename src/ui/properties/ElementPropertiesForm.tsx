@@ -9,11 +9,13 @@ import {
 	FromElementProperties,
 	IntervalElementProperties,
 	RangeElementProperties,
+	ThrowErrorElementProperties,
 } from '../../model';
 import {
 	FromElementPropertiesForm,
 	IntervalElementPropertiesForm,
 	RangeElementPropertiesForm,
+	ThrowErrorElementPropertiesForm,
 } from './creationElementForms';
 
 export interface ElementPropertiesFormProps {
@@ -51,6 +53,14 @@ const createElementPropertiesForm = ({
 				<RangeElementPropertiesForm
 					id={id}
 					properties={properties as RangeElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.ThrowError:
+			return (
+				<ThrowErrorElementPropertiesForm
+					id={id}
+					properties={properties as ThrowErrorElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);

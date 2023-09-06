@@ -1,4 +1,16 @@
-import { defer, EMPTY, from, generate, iif, interval, map, Observable, of, range } from 'rxjs';
+import {
+	defer,
+	EMPTY,
+	from,
+	generate,
+	iif,
+	interval,
+	map,
+	Observable,
+	of,
+	range,
+	throwError,
+} from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import {
 	AjaxElement,
@@ -15,6 +27,7 @@ import {
 	IntervalElement,
 	OfElement,
 	RangeElement,
+	ThrowErrorElement,
 } from '../../model';
 import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
@@ -39,6 +52,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			[ElementType.Defer, this.createDeferCreationOperator.bind(this)],
 			[ElementType.Generate, this.createGenerateCreationOperator.bind(this)],
 			[ElementType.Range, this.createRangeCreationOperator.bind(this)],
+			[ElementType.ThrowError, this.createThrowErrorCreationOperator.bind(this)],
 		]);
 	}
 
@@ -185,6 +199,15 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			iterate: iterateFn(),
 			resultSelector: resultSelectorFn(),
 		}).pipe(map((item) => this.createFlowValue(item, generateEl.id)));
+	}
+
+	private createThrowErrorCreationOperator(el: Element) {
+		const throwErrorEl = el as ThrowErrorElement;
+		const errorFactoryFn = new Function(
+			`return ${throwErrorEl.properties.errorOrErrorFactory}`,
+		)();
+
+		return throwError(errorFactoryFn as () => unknown);
 	}
 
 	private createRangeCreationOperator(el: Element) {

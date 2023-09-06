@@ -100,8 +100,8 @@ export const RectangleOperatorDrawer = ({
 			originalEvent: e,
 		});
 
-	const textX = (mainTextRef?.textWidth ?? 0) / -2 + width / 2;
-	const textY = (mainTextRef?.textHeight ?? 0) / -2 + height / 2;
+	const textX = (mainTextRef?.width() ?? 0) / -2 + width / 2;
+	const textY = (mainTextRef?.height() ?? 0) / -2 + height / 2;
 
 	return (
 		<Group
@@ -137,3 +137,4 @@ export const RectangleOperatorDrawer = ({
 		</Group>
 	);
 };
+
