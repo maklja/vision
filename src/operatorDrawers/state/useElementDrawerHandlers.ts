@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/rootState';
-import { selectStageState, StageState } from '../../store/stageSlice';
 import { drawerDragStateHandlers } from './drawerDragStateHandlers';
 import { drawerSelectStateHandlers } from './drawerSelectStateHandlers';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 import { SimulationState, selectSimulation } from '../../store/simulation';
+import { StageState, selectStageState } from '../../store/stage';
 
 export const useElementDrawerHandlers = () => {
 	const simulation = useAppSelector(selectSimulation);
@@ -27,3 +27,4 @@ export const useElementDrawerHandlers = () => {
 		return {};
 	}, [stageState, simulation.state]);
 };
+

@@ -1,12 +1,7 @@
 import { LineDotEvent, LineDrawerEvents, LineEvent } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
-import {
-	StageState,
-	changeState,
-	clearSelected,
-	highlight,
-	selectConnectLines,
-} from '../../store/stageSlice';
+import { StageState } from '../../store/stage';
+import { changeState, clearSelected, highlight, selectConnectLines } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 
 export const connectLineSelectStateHandlers = (dispatch: AppDispatch): LineDrawerEvents => ({

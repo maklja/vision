@@ -21,6 +21,7 @@ import {
 	FlowValueEvent,
 	MissingNextElementError,
 	MissingReferenceObservableError,
+	UnsupportedElementTypeError,
 	createObservableSimulation,
 } from '../engine';
 import { selectElementsInSelection, selectStageElements } from '../store/elements';
@@ -79,7 +80,8 @@ export const Simulator = () => {
 		} catch (e) {
 			if (
 				e instanceof MissingReferenceObservableError ||
-				e instanceof MissingNextElementError
+				e instanceof MissingNextElementError ||
+				e instanceof UnsupportedElementTypeError
 			) {
 				appDispatch(resetSimulation());
 				appDispatch(

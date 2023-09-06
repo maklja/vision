@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/rootState';
-import { StageState, selectStageState } from '../../store/stageSlice';
 import { stageSelectStateHandlers } from './stageSelectStateHandlers';
 import { stageDrawConnectLineStateHandlers } from './stageDrawConnectLineStateHandlers';
+import { StageState, selectStageState } from '../../store/stage';
 
 export const useStageHandlers = () => {
 	const stageState = useAppSelector(selectStageState);

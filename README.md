@@ -1,3 +1,24 @@
-
 -   refactor store
+-   align elements
+-   90 lines
+-   grid move
+-   laso and multi selection
+-   save/load
+-   copy/paste
+-   elements names, filter element name, search element names
+-   scheduler, multi result animations
+-   results preview
+-   marble diagrams
+-   DOM events
+-   form validation
+-   group elements move, delete, copy paste
+-   background grid
+-   themes
+-   multi-tabs
+-   full size editor
+-   show code error
+-   nx project split
+-   move engine to workers
+-   offline support
+-   google drive integration
 

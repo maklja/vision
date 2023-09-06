@@ -16,6 +16,8 @@ export enum ElementType {
 	Empty = 'empty',
 	Defer = 'defer',
 	Generate = 'generate',
+	Range = 'range',
+	ThrowError = 'throwError',
 }
 
 export const joinCreationOperators: ReadonlySet<ElementType> = new Set([ElementType.Merge]);
@@ -29,6 +31,8 @@ export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Empty,
 	ElementType.Defer,
 	ElementType.Generate,
+	ElementType.Range,
+	ElementType.ThrowError,
 ]);
 
 export const transformationOperators: ReadonlySet<ElementType> = new Set([

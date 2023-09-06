@@ -64,8 +64,8 @@ export const HexagonOperatorDrawer = ({
 		drawerId: id,
 	});
 
-	const textX = radius - (mainTextRef?.textWidth ?? 0) / 2;
-	const textY = radius - (mainTextRef?.textHeight ?? 0) / 2;
+	const textX = radius - (mainTextRef?.width() ?? 0) / 2;
+	const textY = radius - (mainTextRef?.height() ?? 0) / 2;
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -140,3 +140,4 @@ export const HexagonOperatorDrawer = ({
 		</Group>
 	);
 };
+

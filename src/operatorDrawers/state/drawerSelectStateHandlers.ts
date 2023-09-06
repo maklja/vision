@@ -1,5 +1,6 @@
 import { DrawerEvent, DrawerEvents } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
+import { StageState } from '../../store/stage';
 import {
 	changeState,
 	clearSelected,
@@ -8,7 +9,6 @@ import {
 	moveElement,
 	selectElements,
 	showTooltip,
-	StageState,
 } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';

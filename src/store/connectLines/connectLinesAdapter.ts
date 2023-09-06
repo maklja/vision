@@ -1,5 +1,5 @@
 import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
-import { StageSlice, StageState } from '../stageSlice';
+import { StageSlice } from '../stageSlice';
 import {
 	ConnectLine,
 	ConnectPointPosition,
@@ -18,6 +18,7 @@ import {
 	selectElementById,
 	selectElementsStateChange,
 } from '../elements';
+import { StageState } from '../stage';
 
 export interface DraftConnectLine {
 	id: string;
@@ -403,3 +404,4 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
+
