@@ -1,6 +1,7 @@
 import { LineDotEvent, LineDrawerEvents } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
-import { changeState, movePointConnectLine, StageState } from '../../store/stageSlice';
+import { StageState } from '../../store/stage';
+import { changeState, movePointConnectLine } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 
 export const connectLineDragStateHandlers = (dispatch: AppDispatch): LineDrawerEvents => ({

@@ -1,8 +1,9 @@
 import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
-import { StageSlice, StageState } from '../stageSlice';
+import { StageSlice } from '../stageSlice';
 import { Element, ElementProps } from '../../model';
 import { RootState } from '../rootState';
 import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
+import { StageState, updateStateChange } from '../stage';
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
@@ -157,11 +158,11 @@ export const elementsAdapterReducers = {
 	updateElementProperty: (slice: Draft<StageSlice>, action: UpdateElementPropertyAction) =>
 		updateElementPropertyStateChange(slice, action.payload),
 	createDraftElement: (slice: Draft<StageSlice>, action: CreateDraftElementAction) => {
-		slice.state = StageState.DrawElement;
+		updateStateChange(slice, StageState.DrawElement);
 		slice.draftElement = action.payload;
 	},
 	addDraftElement: (slice: Draft<StageSlice>, action: AddDraftElementAction) => {
-		slice.state = StageState.Select;
+		updateStateChange(slice, StageState.Select);
 
 		if (!slice.draftElement) {
 			return;
@@ -171,7 +172,7 @@ export const elementsAdapterReducers = {
 		slice.draftElement = null;
 	},
 	clearDraftElement: (slice: Draft<StageSlice>) => {
-		slice.state = StageState.Select;
+		updateStateChange(slice, StageState.Select);
 		slice.draftElement = null;
 	},
 };
@@ -186,3 +187,4 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
+

@@ -38,17 +38,11 @@ import {
 	selectHighlighAdapterReducers,
 } from './highlight';
 import { createSimulationInitialState, Simulation, simulationReducers } from './simulation';
+import { StageState, stageReducers } from './stage';
 
 export * from './hooks/theme';
 
 export { errorsAdapter, selectElementErrorById, selectTooltip } from './reducer';
-
-export enum StageState {
-	Select = 'select',
-	DrawConnectLine = 'drawConnectLine',
-	Dragging = 'dragging',
-	DrawElement = 'drawElement',
-}
 
 export interface StageSlice {
 	elements: EntityState<Element>;
@@ -65,11 +59,6 @@ export interface StageSlice {
 	elementSizes: ElementSizesContext;
 	errors: EntityState<ElementError>;
 	tooltip: ElementTooltip | null;
-}
-
-export interface ChangeStateAction {
-	type: string;
-	payload: StageState;
 }
 
 export interface HighlightConnectPointsAction {
@@ -105,9 +94,7 @@ export const stageSlice = createSlice({
 		...selectReducers,
 		...selectHighlighAdapterReducers,
 		...simulationReducers,
-		changeState: (slice: Draft<StageSlice>, action: ChangeStateAction) => {
-			slice.state = action.payload;
-		},
+		...stageReducers,
 		highlightConnectPoints: (
 			slice: Draft<StageSlice>,
 			action: HighlightConnectPointsAction,
@@ -161,8 +148,6 @@ export const {
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
-
-export const selectStageState = (state: RootState) => state.stage.state;
 
 export const selectHighlightedConnectPointsByElementId =
 	(elementId: string) => (state: RootState) =>

@@ -1,6 +1,7 @@
 import { DrawerEvent, DrawerEvents } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
-import { changeState, moveElement, StageState } from '../../store/stageSlice';
+import { StageState } from '../../store/stage';
+import { changeState, moveElement } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 
@@ -34,3 +35,4 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 		);
 	},
 });
+
