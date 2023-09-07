@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+	AjaxElementProperties,
 	ElementType,
 	FromElementProperties,
 	IntervalElementProperties,
@@ -12,6 +13,7 @@ import {
 	ThrowErrorElementProperties,
 } from '../../model';
 import {
+	AjaxElementPropertiesForm,
 	FromElementPropertiesForm,
 	IntervalElementPropertiesForm,
 	RangeElementPropertiesForm,
@@ -61,6 +63,14 @@ const createElementPropertiesForm = ({
 				<ThrowErrorElementPropertiesForm
 					id={id}
 					properties={properties as ThrowErrorElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Ajax:
+			return (
+				<AjaxElementPropertiesForm
+					id={id}
+					properties={properties as AjaxElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);

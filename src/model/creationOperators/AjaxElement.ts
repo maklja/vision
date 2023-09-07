@@ -1,11 +1,33 @@
-import { AjaxConfig } from 'rxjs/ajax';
 import { Element, ElementType } from '../element';
 
-export interface AjaxElement extends Element<AjaxConfig> {
+export enum HttpMethod {
+	Get = 'GET',
+	Head = 'HEAD',
+	Post = 'POST',
+	Put = 'PUT',
+	Delete = 'DELETE',
+	Connect = 'CONNECT',
+	Options = 'OPTIONS',
+	Trace = 'TRACE',
+	Patch = 'PATCH',
+}
+
+export interface AjaxElementProperties {
+	url: string;
+	method: HttpMethod;
+	body?: string;
+	headers?: Readonly<Record<string, string>>;
+	timeout?: number;
+	responseType?: XMLHttpRequestResponseType;
+	queryParams?: Record<string, string | number | boolean | string[] | number[] | boolean[]>;
+}
+
+export interface AjaxElement extends Element<AjaxElementProperties> {
 	type: ElementType.Ajax;
 }
 
-export const ajaxElementPropsTemplate: AjaxConfig = {
+export const ajaxElementPropsTemplate: AjaxElementProperties = {
 	url: 'https://api.github.com/users/mralexgray/repos',
-	method: 'GET',
+	method: HttpMethod.Get,
 };
+

@@ -31,7 +31,11 @@ import {
 } from '../../model';
 import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
-import { MissingReferenceObservableError, UnsupportedElementTypeError } from '../errors';
+import {
+	InvalidElementPropertyValueError,
+	MissingReferenceObservableError,
+	UnsupportedElementTypeError,
+} from '../errors';
 
 type CreationOperatorFunctionFactory = (
 	el: Element,
@@ -158,7 +162,24 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	private createAjaxCreationOperator(el: Element) {
 		const ajaxEl = el as AjaxElement;
-		return ajax(ajaxEl.properties).pipe(map((item) => this.createFlowValue(item, el.id)));
+		const { url, method, headers, queryParams, responseType, timeout, body } =
+			ajaxEl.properties;
+		let bodyJson: object | undefined;
+		try {
+			bodyJson = body ? JSON.parse(body) : undefined;
+		} catch (e) {
+			throw new InvalidElementPropertyValueError(ajaxEl.id, 'body');
+		}
+
+		return ajax({
+			url,
+			method,
+			headers,
+			queryParams,
+			responseType,
+			timeout,
+			body: bodyJson,
+		}).pipe(map((item) => this.createFlowValue(item, ajaxEl.id)));
 	}
 
 	private createEmptyCreationOperator(el: Element) {
