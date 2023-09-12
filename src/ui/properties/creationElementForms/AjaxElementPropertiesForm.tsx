@@ -5,10 +5,15 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import { FormHelperText } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import FormHelperText from '@mui/material/FormHelperText';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 import { AjaxElementProperties, HttpMethod } from '../../../model';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 
 const responseTypes = [
 	{
@@ -149,7 +154,60 @@ export const AjaxElementPropertiesForm = ({
 				</Select>
 				<FormHelperText>Can be set to change the response type.</FormHelperText>
 			</FormControl>
+
+			<Stack gap={0.5}>
+				<InputLabel shrink>Headers</InputLabel>
+
+				<Stack gap={1.2}>
+					<Stack direction="row" gap={0.5}>
+						<TextField
+							label="Key"
+							type="text"
+							size="small"
+							InputLabelProps={{
+								shrink: true,
+							}}
+						/>
+
+						<TextField
+							label="Value"
+							type="text"
+							size="small"
+							InputLabelProps={{
+								shrink: true,
+							}}
+						/>
+
+						<IconButton color="primary">
+							<RemoveCircleIcon />
+						</IconButton>
+					</Stack>
+
+					<Stack direction="row" gap={0.5}>
+						<TextField
+							label="Key"
+							type="text"
+							size="small"
+							InputLabelProps={{
+								shrink: true,
+							}}
+						/>
+
+						<TextField
+							label="Value"
+							type="text"
+							size="small"
+							InputLabelProps={{
+								shrink: true,
+							}}
+						/>
+
+						<IconButton color="primary">
+							<RemoveCircleIcon />
+						</IconButton>
+					</Stack>
+				</Stack>
+			</Stack>
 		</Stack>
 	);
 };
-

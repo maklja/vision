@@ -197,6 +197,8 @@ export const Simulator = () => {
 						right: '25px',
 						width: '400px',
 						height: '70%',
+						maxHeight: '70%',
+						overflow: 'auto',
 					}}
 				>
 					<OperatorPropertiesPanel
@@ -209,4 +211,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-
