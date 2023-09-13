@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+	AjaxElementProperties,
 	ElementType,
 	FromElementProperties,
 	IntervalElementProperties,
@@ -12,6 +13,7 @@ import {
 	ThrowErrorElementProperties,
 } from '../../model';
 import {
+	AjaxElementPropertiesForm,
 	FromElementPropertiesForm,
 	IntervalElementPropertiesForm,
 	RangeElementPropertiesForm,
@@ -64,6 +66,14 @@ const createElementPropertiesForm = ({
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
+		case ElementType.Ajax:
+			return (
+				<AjaxElementPropertiesForm
+					id={id}
+					properties={properties as AjaxElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
 		default:
 			return null;
 	}
@@ -76,7 +86,15 @@ export const ElementPropertiesForm = ({
 	onPropertyValueChange,
 }: ElementPropertiesFormProps) => {
 	return (
-		<Box component="form" noValidate autoComplete="off">
+		<Box
+			sx={{
+				overflow: 'auto',
+				maxHeight: '100%',
+			}}
+			component="form"
+			noValidate
+			autoComplete="off"
+		>
 			<Accordion disableGutters defaultExpanded={true}>
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}>
 					<Typography>Element properties</Typography>

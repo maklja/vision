@@ -15,15 +15,16 @@ export interface ShowTooltipAction {
 	};
 }
 
-export const showTooltipReducer = (slice: Draft<StageSlice>, action: ShowTooltipAction) => {
-	slice.tooltip = {
-		elementId: action.payload.elementId,
-		text: action.payload.text ?? null,
-	};
-};
-
-export const hideTooltipReducer = (slice: Draft<StageSlice>) => {
-	slice.tooltip = null;
+export const tooltipReducers = {
+	showTooltip: (slice: Draft<StageSlice>, action: ShowTooltipAction) => {
+		slice.tooltip = {
+			elementId: action.payload.elementId,
+			text: action.payload.text ?? null,
+		};
+	},
+	hideTooltip: (slice: Draft<StageSlice>) => {
+		slice.tooltip = null;
+	},
 };
 
 export const selectTooltip = (state: RootState) => state.stage.tooltip;

@@ -19,6 +19,7 @@ import { CommonProps, ConnectPointType, Point, isEntryOperatorType } from '../mo
 import { OperatorsPanel, SimulationControls } from '../ui';
 import {
 	FlowValueEvent,
+	InvalidElementPropertyValueError,
 	MissingNextElementError,
 	MissingReferenceObservableError,
 	UnsupportedElementTypeError,
@@ -81,7 +82,8 @@ export const Simulator = () => {
 			if (
 				e instanceof MissingReferenceObservableError ||
 				e instanceof MissingNextElementError ||
-				e instanceof UnsupportedElementTypeError
+				e instanceof UnsupportedElementTypeError ||
+				e instanceof InvalidElementPropertyValueError
 			) {
 				appDispatch(resetSimulation());
 				appDispatch(
@@ -195,6 +197,7 @@ export const Simulator = () => {
 						right: '25px',
 						width: '400px',
 						height: '70%',
+						maxHeight: '70%',
 					}}
 				>
 					<OperatorPropertiesPanel

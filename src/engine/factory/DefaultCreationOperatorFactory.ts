@@ -31,7 +31,11 @@ import {
 } from '../../model';
 import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
-import { MissingReferenceObservableError, UnsupportedElementTypeError } from '../errors';
+import {
+	InvalidElementPropertyValueError,
+	MissingReferenceObservableError,
+	UnsupportedElementTypeError,
+} from '../errors';
 
 type CreationOperatorFunctionFactory = (
 	el: Element,
@@ -158,7 +162,54 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	private createAjaxCreationOperator(el: Element) {
 		const ajaxEl = el as AjaxElement;
-		return ajax(ajaxEl.properties).pipe(map((item) => this.createFlowValue(item, el.id)));
+		const { url, method, headers, queryParams, responseType, timeout, body } =
+			ajaxEl.properties;
+		let bodyJson: object | undefined;
+		try {
+			bodyJson = body ? JSON.parse(body) : undefined;
+		} catch (e) {
+			throw new InvalidElementPropertyValueError(ajaxEl.id, 'body');
+		}
+
+		const headersPayload = headers?.reduce(
+			(headers, [key, value]) => ({
+				...headers,
+				[key]: value,
+			}),
+			{},
+		);
+
+		const queryParamsMap =
+			queryParams?.reduce((queryParams: Map<string, string | string[]>, [key, value]) => {
+				const queryParam = queryParams.get(key);
+
+				if (queryParam === undefined) {
+					return queryParams.set(key, value);
+				}
+
+				if (Array.isArray(queryParam)) {
+					return queryParams.set(key, [...queryParam, value]);
+				}
+
+				return queryParams.set(key, [queryParam, value]);
+			}, new Map<string, string | string[]>()) ?? new Map<string, string | string[]>();
+		const queryParametersPayload = [...queryParamsMap.entries()].reduce(
+			(queryParams, [key, value]) => ({
+				...queryParams,
+				[key]: value,
+			}),
+			{},
+		);
+
+		return ajax({
+			url,
+			method,
+			headers: headersPayload,
+			queryParams: queryParametersPayload,
+			responseType,
+			timeout,
+			body: bodyJson,
+		}).pipe(map((item) => this.createFlowValue(item, ajaxEl.id)));
 	}
 
 	private createEmptyCreationOperator(el: Element) {
