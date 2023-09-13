@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
 	AjaxElementProperties,
+	ElementProps,
 	ElementType,
 	FromElementProperties,
 	IntervalElementProperties,
@@ -23,7 +24,7 @@ import {
 export interface ElementPropertiesFormProps {
 	id: string;
 	type: ElementType;
-	properties: unknown;
+	properties: ElementProps;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
@@ -85,7 +86,7 @@ export const ElementPropertiesForm = ({
 	properties,
 	onPropertyValueChange,
 }: ElementPropertiesFormProps) => {
-	return (
+	return Object.keys(properties).length > 0 ? (
 		<Box
 			sx={{
 				overflow: 'auto',
@@ -109,6 +110,6 @@ export const ElementPropertiesForm = ({
 				</AccordionDetails>
 			</Accordion>
 		</Box>
-	);
+	) : null;
 };
 
