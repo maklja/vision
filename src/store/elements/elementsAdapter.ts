@@ -1,9 +1,10 @@
 import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
-import { Element, ElementProps } from '../../model';
+import { Element, ElementProps, Point } from '../../model';
 import { RootState } from '../rootState';
 import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
 import { StageState, updateStateChange } from '../stage';
+import { calculateShapeSizeBoundingBox, findElementSize, scaleShapeSize } from '../../theme';
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
@@ -81,6 +82,17 @@ export const updateElementStateChange = (
 	});
 };
 
+enum SnapLineOrientation {
+	Vertical = 0,
+	Horizontal = 1,
+}
+
+interface SnapLine {
+	points: [Point, Point];
+	distance: number;
+	orientation: SnapLineOrientation;
+}
+
 export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveElementPayload) => {
 	const el = selectElementById(slice.elements, payload.id);
 	if (!el) {
@@ -115,6 +127,141 @@ export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveEl
 			});
 		}
 	});
+
+	const elements = selectAllElements(slice.elements).filter(
+		(currentElement) => currentElement.id !== el.id,
+	);
+
+	const shapeSize = scaleShapeSize(findElementSize(slice.elementSizes.sizes, el.type), el.scale);
+	const elBoundingBox = calculateShapeSizeBoundingBox({ x: el.x, y: el.y }, shapeSize);
+	const elementsBoundingBox = elements.map((el) => {
+		const shapeSize = scaleShapeSize(
+			findElementSize(slice.elementSizes.sizes, el.type),
+			el.scale,
+		);
+		return calculateShapeSizeBoundingBox({ x: el.x, y: el.y }, shapeSize);
+	});
+	const distances = elementsBoundingBox.map((boundingBox) => {
+		const snapLines: SnapLine[] = [];
+
+		const { topLeft, topRight, bottomLeft, center } = boundingBox;
+		const xMinHorizontal = Math.min(topLeft.x, elBoundingBox.topLeft.x);
+		const xMaxHorizontal = Math.max(topRight.x, elBoundingBox.topRight.x);
+		const topToTop: SnapLine = {
+			points: [
+				{
+					x: xMinHorizontal,
+					y: topLeft.y,
+				},
+				{
+					x: xMaxHorizontal,
+					y: topLeft.y,
+				},
+			],
+			distance: Math.abs(topLeft.y - elBoundingBox.topLeft.y),
+			orientation: SnapLineOrientation.Horizontal,
+		};
+		const topToMiddle: SnapLine = {
+			points: [
+				{
+					x: xMinHorizontal,
+					y: center.y,
+				},
+				{
+					x: xMaxHorizontal,
+					y: center.y,
+				},
+			],
+			distance: Math.abs(center.y - elBoundingBox.topLeft.y),
+			orientation: SnapLineOrientation.Horizontal,
+		};
+		const topToBottom: SnapLine = {
+			points: [
+				{
+					x: xMinHorizontal,
+					y: bottomLeft.y,
+				},
+				{
+					x: xMaxHorizontal,
+					y: bottomLeft.y,
+				},
+			],
+			distance: Math.abs(bottomLeft.y - elBoundingBox.topLeft.y),
+			orientation: SnapLineOrientation.Horizontal,
+		};
+
+		const bottomToTop: SnapLine = {
+			points: [
+				{
+					x: xMinHorizontal,
+					y: topLeft.y,
+				},
+				{
+					x: xMaxHorizontal,
+					y: topLeft.y,
+				},
+			],
+			distance: Math.abs(topLeft.y - elBoundingBox.bottomLeft.y),
+			orientation: SnapLineOrientation.Horizontal,
+		};
+		const bottomToMiddle: SnapLine = {
+			points: [
+				{
+					x: xMinHorizontal,
+					y: center.y,
+				},
+				{
+					x: xMaxHorizontal,
+					y: center.y,
+				},
+			],
+			distance: Math.abs(center.y - elBoundingBox.bottomLeft.y),
+			orientation: SnapLineOrientation.Horizontal,
+		};
+		const bottomToBottom: SnapLine = {
+			points: [
+				{
+					x: xMinHorizontal,
+					y: bottomLeft.y,
+				},
+				{
+					x: xMaxHorizontal,
+					y: bottomLeft.y,
+				},
+			],
+			distance: Math.abs(bottomLeft.y - elBoundingBox.bottomLeft.y),
+			orientation: SnapLineOrientation.Horizontal,
+		};
+
+		const yMinVertical = Math.min(topLeft.y, elBoundingBox.topLeft.y);
+		const yMaxVertical = Math.max(bottomLeft.y, elBoundingBox.bottomLeft.y);
+		const leftToLeft: SnapLine = {
+			points: [
+				{
+					x: topLeft.x,
+					y: yMinVertical,
+				},
+				{
+					x: topLeft.x,
+					y: yMaxVertical,
+				},
+			],
+			distance: Math.abs(topLeft.x - elBoundingBox.topLeft.x),
+			orientation: SnapLineOrientation.Vertical,
+		};
+
+		const leftToLeft = Math.abs(topLeft.x - elBoundingBox.topLeft.x);
+		const leftToMiddle = Math.abs(center.x - elBoundingBox.topLeft.x);
+		const leftToRight = Math.abs(topRight.x - elBoundingBox.topLeft.x);
+
+		const rightToLeft = Math.abs(topLeft.x - elBoundingBox.topRight.x);
+		const rightToMiddle = Math.abs(center.x - elBoundingBox.topRight.x);
+		const rightToRight = Math.abs(topRight.x - elBoundingBox.topRight.x);
+
+		return [topToTop, topToMiddle, topToBottom, bottomToTop, bottomToMiddle, bottomToBottom];
+	});
+
+	console.log(distances);
 };
 
 export const removeElementsStateChange = (
