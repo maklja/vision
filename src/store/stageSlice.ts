@@ -6,14 +6,7 @@ import {
 	ElementSizesContext,
 	createElementSizesContext,
 } from '../theme';
-import {
-	pinConnectLineReducer,
-	unpinConnectLineReducer,
-	ElementError,
-	errorsAdapter,
-	createElementErrorReducer,
-	clearErrorsReducer,
-} from './reducer';
+import { pinConnectLineReducer, unpinConnectLineReducer } from './reducer';
 import { RootState } from './rootState';
 import {
 	createElementsAdapterInitialState,
@@ -39,10 +32,9 @@ import {
 import { createSimulationInitialState, Simulation, simulationReducers } from './simulation';
 import { StageState, stageReducers } from './stage';
 import { ElementTooltip, tooltipReducers } from './tooltip';
+import { createErrorsAdapterInitialState, ElementError, errorReducers } from './errors';
 
 export * from './hooks/theme';
-
-export { errorsAdapter, selectElementErrorById } from './reducer';
 
 export interface StageSlice {
 	elements: EntityState<Element>;
@@ -79,7 +71,7 @@ export const createStageInitialState = (elements: Element[] = []): StageSlice =>
 	simulation: createSimulationInitialState(),
 	themes: createThemeContext(),
 	elementSizes: createElementSizesContext(),
-	errors: errorsAdapter.getInitialState(),
+	errors: createErrorsAdapterInitialState(),
 	tooltip: null,
 });
 
@@ -96,6 +88,7 @@ export const stageSlice = createSlice({
 		...simulationReducers,
 		...stageReducers,
 		...tooltipReducers,
+		...errorReducers,
 		highlightConnectPoints: (
 			slice: Draft<StageSlice>,
 			action: HighlightConnectPointsAction,
@@ -104,8 +97,6 @@ export const stageSlice = createSlice({
 		},
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
-		createElementError: createElementErrorReducer,
-		clearErrors: clearErrorsReducer,
 	},
 });
 
