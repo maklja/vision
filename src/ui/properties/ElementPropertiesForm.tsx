@@ -86,7 +86,15 @@ export const ElementPropertiesForm = ({
 	onPropertyValueChange,
 }: ElementPropertiesFormProps) => {
 	return (
-		<Box component="form" noValidate autoComplete="off">
+		<Box
+			sx={{
+				overflow: 'auto',
+				maxHeight: '100%',
+			}}
+			component="form"
+			noValidate
+			autoComplete="off"
+		>
 			<Accordion disableGutters defaultExpanded={true}>
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}>
 					<Typography>Element properties</Typography>

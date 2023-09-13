@@ -5,15 +5,11 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
 import FormHelperText from '@mui/material/FormHelperText';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 import { AjaxElementProperties, HttpMethod } from '../../../model';
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
+import { KeyValueList } from '../../pair';
 
 const responseTypes = [
 	{
@@ -74,6 +70,12 @@ export const AjaxElementPropertiesForm = ({
 		);
 
 	const handleBodyChanged = (body: string) => onPropertyValueChange?.(id, 'body', body);
+
+	const handleHeadersChanged = (headers: [string, string][]) =>
+		onPropertyValueChange?.(id, 'headers', headers);
+
+	const handleQueryParamsChanged = (queryParams: [string, string][]) =>
+		onPropertyValueChange?.(id, 'queryParams', queryParams);
 
 	return (
 		<Stack gap={formStyle.componentGap}>
@@ -155,59 +157,18 @@ export const AjaxElementPropertiesForm = ({
 				<FormHelperText>Can be set to change the response type.</FormHelperText>
 			</FormControl>
 
-			<Stack gap={0.5}>
-				<InputLabel shrink>Headers</InputLabel>
+			<KeyValueList
+				label="Headers"
+				data={properties.headers ?? []}
+				onChange={handleHeadersChanged}
+			/>
 
-				<Stack gap={1.2}>
-					<Stack direction="row" gap={0.5}>
-						<TextField
-							label="Key"
-							type="text"
-							size="small"
-							InputLabelProps={{
-								shrink: true,
-							}}
-						/>
-
-						<TextField
-							label="Value"
-							type="text"
-							size="small"
-							InputLabelProps={{
-								shrink: true,
-							}}
-						/>
-
-						<IconButton color="primary">
-							<RemoveCircleIcon />
-						</IconButton>
-					</Stack>
-
-					<Stack direction="row" gap={0.5}>
-						<TextField
-							label="Key"
-							type="text"
-							size="small"
-							InputLabelProps={{
-								shrink: true,
-							}}
-						/>
-
-						<TextField
-							label="Value"
-							type="text"
-							size="small"
-							InputLabelProps={{
-								shrink: true,
-							}}
-						/>
-
-						<IconButton color="primary">
-							<RemoveCircleIcon />
-						</IconButton>
-					</Stack>
-				</Stack>
-			</Stack>
+			<KeyValueList
+				label="Query parameters"
+				data={properties.queryParams ?? []}
+				onChange={handleQueryParamsChanged}
+			/>
 		</Stack>
 	);
 };
+

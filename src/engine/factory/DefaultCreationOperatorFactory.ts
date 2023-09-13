@@ -171,11 +171,41 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			throw new InvalidElementPropertyValueError(ajaxEl.id, 'body');
 		}
 
+		const headersPayload = headers?.reduce(
+			(headers, [key, value]) => ({
+				...headers,
+				[key]: value,
+			}),
+			{},
+		);
+
+		const queryParamsMap =
+			queryParams?.reduce((queryParams: Map<string, string | string[]>, [key, value]) => {
+				const queryParam = queryParams.get(key);
+
+				if (queryParam === undefined) {
+					return queryParams.set(key, value);
+				}
+
+				if (Array.isArray(queryParam)) {
+					return queryParams.set(key, [...queryParam, value]);
+				}
+
+				return queryParams.set(key, [queryParam, value]);
+			}, new Map<string, string | string[]>()) ?? new Map<string, string | string[]>();
+		const queryParametersPayload = [...queryParamsMap.entries()].reduce(
+			(queryParams, [key, value]) => ({
+				...queryParams,
+				[key]: value,
+			}),
+			{},
+		);
+
 		return ajax({
 			url,
 			method,
-			headers,
-			queryParams,
+			headers: headersPayload,
+			queryParams: queryParametersPayload,
 			responseType,
 			timeout,
 			body: bodyJson,

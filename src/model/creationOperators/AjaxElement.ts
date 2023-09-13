@@ -16,10 +16,10 @@ export interface AjaxElementProperties {
 	url: string;
 	method: HttpMethod;
 	body?: string;
-	headers?: Readonly<Record<string, string>>;
+	headers?: readonly [string, string][];
 	timeout?: number;
 	responseType?: XMLHttpRequestResponseType;
-	queryParams?: Record<string, string | number | boolean | string[] | number[] | boolean[]>;
+	queryParams?: readonly [string, string][];
 }
 
 export interface AjaxElement extends Element<AjaxElementProperties> {
