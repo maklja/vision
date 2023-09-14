@@ -1,7 +1,7 @@
 import { DrawerEvent, DrawerEvents } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
 import { StageState } from '../../store/stage';
-import { changeState, moveElement } from '../../store/stageSlice';
+import { changeState, clearSnapLines, createSnapLines, moveElement } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 
@@ -16,6 +16,7 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 		changeCursorStyle('pointer', originalEvent.currentTarget.getStage());
 		originalEvent.cancelBubble = true;
 		dispatch(changeState(StageState.Select));
+		dispatch(clearSnapLines());
 	},
 	onDragMove: (e: DrawerEvent) => {
 		const { id, originalEvent } = e;
@@ -33,6 +34,7 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 				y: position.y,
 			}),
 		);
+		dispatch(createSnapLines({ referenceElementId: id }));
 	},
 });
 

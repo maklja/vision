@@ -1,5 +1,5 @@
 import { createSlice, Draft, EntityState } from '@reduxjs/toolkit';
-import { ConnectLine, ConnectPoint, Element } from '../model';
+import { ConnectLine, ConnectPoint, Element, SnapLine } from '../model';
 import {
 	createThemeContext,
 	ThemesContext,
@@ -33,6 +33,7 @@ import { createSimulationInitialState, Simulation, simulationReducers } from './
 import { StageState, stageReducers } from './stage';
 import { ElementTooltip, tooltipReducers } from './tooltip';
 import { createErrorsAdapterInitialState, ElementError, errorReducers } from './errors';
+import { createSnapLinesInitialState, snapLineReducers } from './snapLines';
 
 export * from './hooks/theme';
 
@@ -51,6 +52,7 @@ export interface StageSlice {
 	elementSizes: ElementSizesContext;
 	errors: EntityState<ElementError>;
 	tooltip: ElementTooltip | null;
+	snapLines: SnapLine[];
 }
 
 export interface HighlightConnectPointsAction {
@@ -73,6 +75,7 @@ export const createStageInitialState = (elements: Element[] = []): StageSlice =>
 	elementSizes: createElementSizesContext(),
 	errors: createErrorsAdapterInitialState(),
 	tooltip: null,
+	snapLines: createSnapLinesInitialState(),
 });
 
 export const stageSlice = createSlice({
@@ -89,6 +92,7 @@ export const stageSlice = createSlice({
 		...stageReducers,
 		...tooltipReducers,
 		...errorReducers,
+		...snapLineReducers,
 		highlightConnectPoints: (
 			slice: Draft<StageSlice>,
 			action: HighlightConnectPointsAction,
@@ -135,6 +139,8 @@ export const {
 	clearSelected,
 	updateElementProperty,
 	removeElementConnectLines,
+	createSnapLines,
+	clearSnapLines,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;

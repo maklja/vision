@@ -31,7 +31,7 @@ const defaultSizeConfig: SizeConfig = {
 	drawerSizes: {
 		radius: 50,
 		width: 125,
-		height: 95,
+		height: 100,
 	},
 	fontSizes: {
 		primary: 15,

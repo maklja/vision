@@ -4,7 +4,7 @@ import { Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
 import { AnimationsLayer } from '../layers/animations';
 import { ConnectLinesLayer } from '../layers/connectLines';
-import { DragNDropItem, DragNDropLayer } from '../layers/creation';
+import { DraftLayer, DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DrawersLayer } from '../layers/drawers';
 import { TooltipsLayer } from '../layers/tooltips';
 import { useAppDispatch } from '../store/rootState';
@@ -92,6 +92,7 @@ export const SimulatorStage = () => {
 				ref={stageRef}
 			>
 				<ConnectLinesLayer />
+				<DraftLayer />
 				<DrawersLayer />
 				<AnimationsLayer />
 				<TooltipsLayer />
