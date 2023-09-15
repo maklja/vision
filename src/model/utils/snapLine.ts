@@ -9,6 +9,7 @@ export enum SnapLineOrientation {
 export interface SnapLine {
 	points: [Point, Point];
 	distance: number;
+	length: number;
 	orientation: SnapLineOrientation;
 }
 
@@ -63,6 +64,7 @@ const createHorizontalSnapLine = (
 		},
 	],
 	distance,
+	length: Math.abs(x1 - x2),
 	orientation: SnapLineOrientation.Horizontal,
 });
 
@@ -78,6 +80,7 @@ const createVerticalSnapLine = (y1: number, y2: number, x: number, distance: num
 		},
 	],
 	distance,
+	length: Math.abs(y1 - y2),
 	orientation: SnapLineOrientation.Vertical,
 });
 
@@ -190,4 +193,3 @@ export const createSnapLines = (bb1: BoundingBox, bb2: BoundingBox): SnapLine[] 
 	...createHorizontalSnapLines(bb1, bb2),
 	...createVerticalSnapLines(bb1, bb2),
 ];
-

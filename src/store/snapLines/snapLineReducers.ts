@@ -45,14 +45,57 @@ export const snapLineReducers = {
 		});
 
 		// TODO better and remove hard coded values
-		const snapLines = elementsBoundingBox
-			.filter((bb) =>
-				snapLinesDistances(bb, elBoundingBox).some(
-					(snapLineDistance) => Math.abs(snapLineDistance) < 6,
-				),
-			)
+		const snapLinesMap: Map<string, SnapLine> = elementsBoundingBox
 			.flatMap((bb) => createSnapLines(bb, elBoundingBox))
-			.filter((snapLine) => Math.abs(snapLine.distance) < 6);
+			.filter((snapLine) => Math.abs(snapLine.distance) < 4)
+			.reduce((snapLinesMap, snapLine) => {
+				const isHorizontal = snapLine.orientation === SnapLineOrientation.Horizontal;
+				const [p0, p1] = snapLine.points;
+				const coordinateValue = isHorizontal ? p0.y : p0.x;
+				const snapLineId = `${snapLine.orientation}_${coordinateValue}`;
+				const existingSnapLine = snapLinesMap.get(snapLineId);
+				if (!existingSnapLine) {
+					return snapLinesMap.set(snapLineId, snapLine);
+				}
+
+				const [p2, p3] = existingSnapLine.points;
+				if (isHorizontal) {
+					const x0 = Math.min(p0.x, p1.x, p2.x, p3.x);
+					const x1 = Math.max(p0.x, p1.x, p2.x, p3.x);
+
+					return snapLinesMap.set(snapLineId, {
+						...existingSnapLine,
+						points: [
+							{
+								x: x0,
+								y: p0.y,
+							},
+							{
+								x: x1,
+								y: p0.y,
+							},
+						],
+					});
+				}
+
+				const y0 = Math.min(p0.y, p1.y, p2.y, p3.y);
+				const y1 = Math.max(p0.y, p1.y, p2.y, p3.y);
+
+				return snapLinesMap.set(snapLineId, {
+					...existingSnapLine,
+					points: [
+						{
+							x: p0.x,
+							y: y0,
+						},
+						{
+							x: p0.x,
+							y: y1,
+						},
+					],
+				});
+			}, new Map<string, SnapLine>());
+		const snapLines = [...snapLinesMap.values()];
 		slice.snapLines = snapLines;
 
 		if (snapLines.length === 0) {
@@ -77,4 +120,3 @@ export const snapLineReducers = {
 };
 
 export const selectSnapLines = (state: RootState) => state.stage.snapLines;
-
