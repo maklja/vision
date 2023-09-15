@@ -4,8 +4,8 @@ import { SvgIcon } from './SvgIcon';
 export const JoinCreationOperatorIcon = (props: SvgIconProps) => {
 	return (
 		<SvgIcon {...props}>
-			<g strokeWidth={1.25} transform="translate(1.5 1.5) scale(1.3 1.3) rotate(90, 8, 8)">
-				<path d="M8.5.134a1 1 0 0 0-1 0l-6 3.577a1 1 0 0 0-.5.866v6.846a1 1 0 0 0 .5.866l6 3.577a1 1 0 0 0 1 0l6-3.577a1 1 0 0 0 .5-.866V4.577a1 1 0 0 0-.5-.866L8.5.134z" />
+			<g strokeWidth={1.25} transform="translate(1.5 1.5) scale(1.3 1.3) rotate(115, 8, 8)">
+				<path d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353L4.54.146z" />
 			</g>
 		</SvgIcon>
 	);
