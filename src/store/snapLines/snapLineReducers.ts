@@ -104,7 +104,7 @@ const createSnapLinesByElement = (
 	const horizontalSnapLines = snapLines
 		.filter((snapLine) => snapLine.orientation === SnapLineOrientation.Horizontal)
 		.sort(snapLinesDistance)
-		.slice(0, 2)
+		.slice(0, 3)
 		.reduce((snapLines: SnapLine[], snapLine) => {
 			const hasDuplicateSnapLine = snapLines.some(
 				(curSnapLine) => snapLinesDistance(curSnapLine, snapLine) <= SNAP_DISTANCE,
@@ -115,7 +115,7 @@ const createSnapLinesByElement = (
 	const verticalSnapLines = snapLines
 		.filter((snapLine) => snapLine.orientation === SnapLineOrientation.Vertical)
 		.sort((snapLine1, snapLine2) => Math.abs(snapLine1.distance) - Math.abs(snapLine2.distance))
-		.slice(0, 2)
+		.slice(0, 3)
 		.reduce((snapLines: SnapLine[], snapLine) => {
 			const hasDuplicateSnapLine = snapLines.some(
 				(curSnapLine) => snapLinesDistance(curSnapLine, snapLine) <= SNAP_DISTANCE,

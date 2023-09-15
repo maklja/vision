@@ -57,7 +57,12 @@ export const createHorizontalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): S
 		bottomLeft: bb1BottomLeft,
 		topRight: bb1TopRight,
 	} = bb1;
-	const { topLeft: bb2TopLeft, bottomLeft: bb2BottomLeft, topRight: bb2TopRight } = bb2;
+	const {
+		topLeft: bb2TopLeft,
+		center: bb2Center,
+		bottomLeft: bb2BottomLeft,
+		topRight: bb2TopRight,
+	} = bb2;
 
 	const xMinHorizontal = Math.min(bb1TopLeft.x, bb2TopLeft.x);
 	const xMaxHorizontal = Math.max(bb1TopRight.x, bb2TopRight.x);
@@ -68,7 +73,7 @@ export const createHorizontalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): S
 		bb1TopLeft.y,
 		bb1TopLeft.y - bb2TopLeft.y,
 	);
-	const topToMiddle = createHorizontalSnapLine(
+	const topToCenter = createHorizontalSnapLine(
 		xMinHorizontal,
 		xMaxHorizontal,
 		bb1Center.y,
@@ -81,13 +86,32 @@ export const createHorizontalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): S
 		bb1BottomLeft.y - bb2TopLeft.y,
 	);
 
+	const centerToTop = createHorizontalSnapLine(
+		xMinHorizontal,
+		xMaxHorizontal,
+		bb1TopLeft.y,
+		bb1TopLeft.y - bb2Center.y,
+	);
+	const centerToCenter = createHorizontalSnapLine(
+		xMinHorizontal,
+		xMaxHorizontal,
+		bb1Center.y,
+		bb1Center.y - bb2Center.y,
+	);
+	const centerToBottom = createHorizontalSnapLine(
+		xMinHorizontal,
+		xMaxHorizontal,
+		bb1BottomLeft.y,
+		bb1BottomLeft.y - bb2Center.y,
+	);
+
 	const bottomToTop = createHorizontalSnapLine(
 		xMinHorizontal,
 		xMaxHorizontal,
 		bb1TopLeft.y,
 		bb1TopLeft.y - bb2BottomLeft.y,
 	);
-	const bottomToMiddle = createHorizontalSnapLine(
+	const bottomToCenter = createHorizontalSnapLine(
 		xMinHorizontal,
 		xMaxHorizontal,
 		bb1Center.y,
@@ -100,7 +124,17 @@ export const createHorizontalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): S
 		bb1BottomLeft.y - bb2BottomLeft.y,
 	);
 
-	return [topToTop, topToMiddle, topToBottom, bottomToTop, bottomToMiddle, bottomToBottom];
+	return [
+		topToTop,
+		topToCenter,
+		topToBottom,
+		bottomToTop,
+		bottomToCenter,
+		bottomToBottom,
+		centerToTop,
+		centerToCenter,
+		centerToBottom,
+	];
 };
 
 export const createVerticalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): SnapLine[] => {
@@ -110,7 +144,12 @@ export const createVerticalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): Sna
 		bottomLeft: bb1BottomLeft,
 		topRight: bb1TopRight,
 	} = bb1;
-	const { topLeft: bb2TopLeft, bottomLeft: bb2BottomLeft, topRight: bb2TopRight } = bb2;
+	const {
+		topLeft: bb2TopLeft,
+		center: bb2Center,
+		bottomLeft: bb2BottomLeft,
+		topRight: bb2TopRight,
+	} = bb2;
 
 	const yMinVertical = Math.min(bb1TopLeft.y, bb2TopLeft.y);
 	const yMaxVertical = Math.max(bb1BottomLeft.y, bb2BottomLeft.y);
@@ -121,7 +160,7 @@ export const createVerticalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): Sna
 		bb1TopLeft.x,
 		bb1TopLeft.x - bb2TopLeft.x,
 	);
-	const leftToMiddle: SnapLine = createVerticalSnapLine(
+	const leftToCenter: SnapLine = createVerticalSnapLine(
 		yMinVertical,
 		yMaxVertical,
 		bb1Center.x,
@@ -133,13 +172,33 @@ export const createVerticalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): Sna
 		bb1TopRight.x,
 		bb1TopRight.x - bb2TopLeft.x,
 	);
+
+	const centerToLeft: SnapLine = createVerticalSnapLine(
+		yMinVertical,
+		yMaxVertical,
+		bb1TopLeft.x,
+		bb1TopLeft.x - bb2Center.x,
+	);
+	const centerToCenter: SnapLine = createVerticalSnapLine(
+		yMinVertical,
+		yMaxVertical,
+		bb1Center.x,
+		bb1Center.x - bb2Center.x,
+	);
+	const centerToRight: SnapLine = createVerticalSnapLine(
+		yMinVertical,
+		yMaxVertical,
+		bb1TopRight.x,
+		bb1TopRight.x - bb2Center.x,
+	);
+
 	const rightToLeft: SnapLine = createVerticalSnapLine(
 		yMinVertical,
 		yMaxVertical,
 		bb1TopLeft.x,
 		bb1TopLeft.x - bb2TopRight.x,
 	);
-	const rightToMiddle: SnapLine = createVerticalSnapLine(
+	const rightToCenter: SnapLine = createVerticalSnapLine(
 		yMinVertical,
 		yMaxVertical,
 		bb1Center.x,
@@ -152,7 +211,17 @@ export const createVerticalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): Sna
 		bb1TopRight.x - bb2TopRight.x,
 	);
 
-	return [leftToLeft, leftToMiddle, leftToRight, rightToLeft, rightToMiddle, rightToRight];
+	return [
+		leftToLeft,
+		leftToCenter,
+		leftToRight,
+		rightToLeft,
+		rightToCenter,
+		rightToRight,
+		centerToLeft,
+		centerToCenter,
+		centerToRight,
+	];
 };
 
 export const createSnapLines = (bb1: BoundingBox, bb2: BoundingBox): SnapLine[] => [

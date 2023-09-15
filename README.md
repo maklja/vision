@@ -1,5 +1,4 @@
 -   refactor store
--   align elements
 -   90 lines
 -   grid move
 -   laso and multi selection

@@ -1,6 +1,6 @@
 import { Line, Group } from 'react-konva';
 import { Point } from '../../model';
-import { Theme, useLineDrawerTheme } from '../../theme';
+import { Theme, useSnapLineDrawerTheme } from '../../theme';
 
 export interface SnapLineDrawerProps {
 	points: Point[];
@@ -9,16 +9,15 @@ export interface SnapLineDrawerProps {
 }
 
 export const SnapLineDrawer = ({ points, theme, visible = true }: SnapLineDrawerProps) => {
-	const lineTheme = useLineDrawerTheme({}, theme);
+	const snapLineTheme = useSnapLineDrawerTheme(theme);
 
 	return (
 		<Group visible={visible}>
 			<Line
-				{...lineTheme.line}
+				{...snapLineTheme.line}
 				perfectDrawEnabled={false}
 				listening={false}
 				points={points.flatMap((p) => [p.x, p.y])}
-				dash={[8, 3]} // TODO theme
 			/>
 		</Group>
 	);

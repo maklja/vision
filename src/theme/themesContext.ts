@@ -14,6 +14,7 @@ import { simulationTheme, SimulationTheme } from './simulationTheme';
 import { ConnectPointPosition, ElementType } from '../model';
 import { iifConnectPointsTheme } from './iifDrawerTheme';
 import { TooltipTheme, tooltipTheme } from './tooltipTheme';
+import { SnapLineTheme, snapLineDrawerTheme } from './snapLineDrawerTheme';
 
 export interface Theme {
 	readonly colors: ColorTheme;
@@ -22,6 +23,7 @@ export interface Theme {
 	readonly connectPoints: ConnectPointsTheme;
 	readonly simulation: SimulationTheme;
 	readonly tooltip: TooltipTheme;
+	readonly snapLine: SnapLineTheme;
 }
 
 export interface DrawerThemeOverride {
@@ -42,6 +44,7 @@ export const createThemeContext = (): ThemesContext => {
 		connectPoints: connectPointsTheme(defaultColorTheme),
 		simulation: simulationTheme(defaultColorTheme),
 		tooltip: tooltipTheme(defaultColorTheme),
+		snapLine: snapLineDrawerTheme(defaultColorTheme),
 	};
 	return {
 		[ElementType.IIf]: {
@@ -155,6 +158,12 @@ export const useLineDrawerTheme = (state: DrawerCommonThemeState, theme: Theme) 
 		line: theme.connectLine.line,
 		arrow: theme.connectLine.arrow,
 		dot: theme.connectLine.dot,
+	};
+};
+
+export const useSnapLineDrawerTheme = (theme: Theme) => {
+	return {
+		line: theme.snapLine.line,
 	};
 };
 
