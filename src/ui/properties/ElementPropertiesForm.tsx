@@ -9,6 +9,7 @@ import {
 	ElementProps,
 	ElementType,
 	FromElementProperties,
+	GenerateElementProperties,
 	IntervalElementProperties,
 	RangeElementProperties,
 	ThrowErrorElementProperties,
@@ -16,6 +17,7 @@ import {
 import {
 	AjaxElementPropertiesForm,
 	FromElementPropertiesForm,
+	GenerateElementPropertiesForm,
 	IntervalElementPropertiesForm,
 	RangeElementPropertiesForm,
 	ThrowErrorElementPropertiesForm,
@@ -72,6 +74,14 @@ const createElementPropertiesForm = ({
 				<AjaxElementPropertiesForm
 					id={id}
 					properties={properties as AjaxElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Generate:
+			return (
+				<GenerateElementPropertiesForm
+					id={id}
+					properties={properties as GenerateElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);

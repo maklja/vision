@@ -1,9 +1,10 @@
 import { Layer } from 'react-konva';
 import { useAppSelector } from '../../store/rootState';
-import { selectElementErrorById, useBoundingBox, useThemeContext } from '../../store/stageSlice';
+import { useBoundingBox, useThemeContext } from '../../store/stageSlice';
 import { TooltipDrawer } from '../../operatorDrawers';
 import { selectStageElementById } from '../../store/elements';
 import { selectTooltip } from '../../store/tooltip';
+import { selectElementErrorById } from '../../store/errors';
 
 export const TooltipsLayer = () => {
 	const theme = useThemeContext();

@@ -1,19 +1,12 @@
 import { createSlice, Draft, EntityState } from '@reduxjs/toolkit';
-import { ConnectLine, ConnectPoint, Element } from '../model';
+import { ConnectLine, ConnectPoint, Element, SnapLine } from '../model';
 import {
 	createThemeContext,
 	ThemesContext,
 	ElementSizesContext,
 	createElementSizesContext,
 } from '../theme';
-import {
-	pinConnectLineReducer,
-	unpinConnectLineReducer,
-	ElementError,
-	errorsAdapter,
-	createElementErrorReducer,
-	clearErrorsReducer,
-} from './reducer';
+import { pinConnectLineReducer, unpinConnectLineReducer } from './reducer';
 import { RootState } from './rootState';
 import {
 	createElementsAdapterInitialState,
@@ -39,10 +32,10 @@ import {
 import { createSimulationInitialState, Simulation, simulationReducers } from './simulation';
 import { StageState, stageReducers } from './stage';
 import { ElementTooltip, tooltipReducers } from './tooltip';
+import { createErrorsAdapterInitialState, ElementError, errorReducers } from './errors';
+import { createSnapLinesInitialState, snapLineReducers } from './snapLines';
 
 export * from './hooks/theme';
-
-export { errorsAdapter, selectElementErrorById } from './reducer';
 
 export interface StageSlice {
 	elements: EntityState<Element>;
@@ -59,6 +52,7 @@ export interface StageSlice {
 	elementSizes: ElementSizesContext;
 	errors: EntityState<ElementError>;
 	tooltip: ElementTooltip | null;
+	snapLines: SnapLine[];
 }
 
 export interface HighlightConnectPointsAction {
@@ -79,8 +73,9 @@ export const createStageInitialState = (elements: Element[] = []): StageSlice =>
 	simulation: createSimulationInitialState(),
 	themes: createThemeContext(),
 	elementSizes: createElementSizesContext(),
-	errors: errorsAdapter.getInitialState(),
+	errors: createErrorsAdapterInitialState(),
 	tooltip: null,
+	snapLines: createSnapLinesInitialState(),
 });
 
 export const stageSlice = createSlice({
@@ -96,6 +91,8 @@ export const stageSlice = createSlice({
 		...simulationReducers,
 		...stageReducers,
 		...tooltipReducers,
+		...errorReducers,
+		...snapLineReducers,
 		highlightConnectPoints: (
 			slice: Draft<StageSlice>,
 			action: HighlightConnectPointsAction,
@@ -104,8 +101,6 @@ export const stageSlice = createSlice({
 		},
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
-		createElementError: createElementErrorReducer,
-		clearErrors: clearErrorsReducer,
 	},
 });
 
@@ -144,6 +139,10 @@ export const {
 	clearSelected,
 	updateElementProperty,
 	removeElementConnectLines,
+	createSnapLines,
+	clearSnapLines,
+	updateDraftElementPosition,
+	createDraftElementSnapLines,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;

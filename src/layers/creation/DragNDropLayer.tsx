@@ -1,12 +1,18 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Konva from 'konva';
 import { Layer } from 'react-konva';
 import { XYCoord, useDragLayer } from 'react-dnd';
-import { Element } from '../../model';
-import { useThemeContext } from '../../store/stageSlice';
+import { Element, ElementType } from '../../model';
+import {
+	createDraftElementSnapLines,
+	updateDraftElementPosition,
+	useThemeContext,
+} from '../../store/stageSlice';
 import { DragNDropType } from '../../dragNDrop';
 import { createOperatorDrawer } from '../../operatorDrawers';
 import { ShapeSize, calculateShapeSizeBoundingBox } from '../../theme';
+import { useAppDispatch, useAppSelector } from '../../store/rootState';
+import { selectStageDraftElement } from '../../store/elements';
 
 export interface DragNDropItem {
 	element: Element;
@@ -21,7 +27,17 @@ interface DragCollectedProps {
 }
 
 export const DragNDropLayer = () => {
+	const appDispatch = useAppDispatch();
 	const theme = useThemeContext();
+	const draftElement = useAppSelector(selectStageDraftElement) ?? {
+		id: '',
+		scale: 1,
+		type: ElementType.Empty,
+		visible: false,
+		x: 0,
+		y: 0,
+		properties: {},
+	};
 	const layerRef = useRef<Konva.Layer | null>(null);
 
 	const { itemType, isDragging, item, clientOffset } = useDragLayer<DragCollectedProps>(
@@ -32,29 +48,43 @@ export const DragNDropLayer = () => {
 			isDragging: monitor.isDragging(),
 		}),
 	);
-	if (!item || !isDragging || itemType !== DragNDropType.CreateElement) {
-		return null;
-	}
 
-	const position = layerRef.current?.getStage().getPosition() ?? { x: 0, y: 0 };
-	const scale = layerRef.current?.getStage().scale() ?? { x: 1, y: 1 };
+	useEffect(() => {
+		const isAllowedToDrag = isDragging && itemType === DragNDropType.CreateElement;
+		if (!isAllowedToDrag || !layerRef.current) {
+			return;
+		}
 
-	const { element, shapeSize } = item;
-	const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
-	const xPosition = ((clientOffset?.x ?? 0) - position.x) / scale.x - bb.width / 2;
-	const yPosition = ((clientOffset?.y ?? 0) - position.y) / scale.y - bb.height / 2;
+		const stage = layerRef.current.getStage();
+		const position = stage.getPosition();
+		const scale = stage.scale() ?? { x: 1, y: 1 };
 
-	const drawer = createOperatorDrawer(element.type, {
-		id: element.id,
-		x: xPosition,
-		y: yPosition,
-		scale: element.scale,
-		visible: element.visible,
-		properties: element.properties,
+		const { shapeSize } = item;
+		const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
+		const x = ((clientOffset?.x ?? 0) - position.x) / scale.x - bb.width / 2;
+		const y = ((clientOffset?.y ?? 0) - position.y) / scale.y - bb.height / 2;
+
+		appDispatch(
+			updateDraftElementPosition({
+				x,
+				y,
+			}),
+		);
+		appDispatch(createDraftElementSnapLines());
+	}, [clientOffset, item, isDragging, itemType]);
+
+	const drawer = createOperatorDrawer(draftElement.type, {
+		id: draftElement.id,
+		x: draftElement.x,
+		y: draftElement.y,
+		scale: draftElement.scale,
+		visible: draftElement.visible,
+		properties: draftElement.properties,
 		select: true,
 		draggable: false,
 		theme,
 	});
+
 	return <Layer ref={layerRef}>{drawer}</Layer>;
 };
 

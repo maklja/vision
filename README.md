@@ -1,5 +1,4 @@
 -   refactor store
--   align elements
 -   90 lines
 -   grid move
 -   laso and multi selection
@@ -21,4 +20,5 @@
 -   move engine to workers
 -   offline support
 -   google drive integration
+-   pre code executions
 

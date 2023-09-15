@@ -4,11 +4,16 @@ import { Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
 import { AnimationsLayer } from '../layers/animations';
 import { ConnectLinesLayer } from '../layers/connectLines';
-import { DragNDropItem, DragNDropLayer } from '../layers/creation';
+import { DraftLayer, DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DrawersLayer } from '../layers/drawers';
 import { TooltipsLayer } from '../layers/tooltips';
 import { useAppDispatch } from '../store/rootState';
-import { addDraftElement, clearDraftElement, useThemeContext } from '../store/stageSlice';
+import {
+	addDraftElement,
+	clearDraftElement,
+	clearSnapLines,
+	useThemeContext,
+} from '../store/stageSlice';
 import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
 import { calculateShapeSizeBoundingBox } from '../theme';
@@ -41,6 +46,7 @@ export const SimulatorStage = () => {
 			drop({ element, shapeSize }, monitor) {
 				if (!monitor.isOver()) {
 					appDispatch(clearDraftElement());
+					appDispatch(clearSnapLines());
 					return;
 				}
 
@@ -63,6 +69,7 @@ export const SimulatorStage = () => {
 						y: yPosition,
 					}),
 				);
+				appDispatch(clearSnapLines());
 			},
 		}),
 		[],
@@ -92,6 +99,7 @@ export const SimulatorStage = () => {
 				ref={stageRef}
 			>
 				<ConnectLinesLayer />
+				<DraftLayer />
 				<DrawersLayer />
 				<AnimationsLayer />
 				<TooltipsLayer />

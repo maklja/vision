@@ -118,13 +118,12 @@ export const HexagonOperatorDrawer = ({
 		>
 			<RegularPolygon
 				{...drawerStyle.element.primary}
-				sides={6}
+				sides={8}
 				ref={(ref) => setMainShapeRef(ref)}
 				id={id}
 				radius={radius}
 				x={radius}
 				y={radius}
-				rotation={90}
 			/>
 			<Text
 				{...drawerStyle.text}

@@ -239,13 +239,14 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	private createGenerateCreationOperator(el: Element) {
 		const generateEl = el as GenerateElement;
-		const { initialState, iterate, resultSelector, condition } = generateEl.properties.options;
+		const { initialState, iterate, resultSelector, condition } = generateEl.properties;
+		const initialStateFn = new Function(`return ${initialState}`);
 		const conditionFn = condition ? new Function(`return ${condition}`) : undefined;
 		const iterateFn = new Function(`return ${iterate}`);
 		const resultSelectorFn = new Function(`return ${resultSelector}`);
 
 		return generate({
-			initialState,
+			initialState: initialStateFn(),
 			condition: conditionFn?.(),
 			iterate: iterateFn(),
 			resultSelector: resultSelectorFn(),
