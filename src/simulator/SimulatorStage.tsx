@@ -8,7 +8,12 @@ import { DraftLayer, DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DrawersLayer } from '../layers/drawers';
 import { TooltipsLayer } from '../layers/tooltips';
 import { useAppDispatch } from '../store/rootState';
-import { addDraftElement, clearDraftElement, useThemeContext } from '../store/stageSlice';
+import {
+	addDraftElement,
+	clearDraftElement,
+	clearSnapLines,
+	useThemeContext,
+} from '../store/stageSlice';
 import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
 import { calculateShapeSizeBoundingBox } from '../theme';
@@ -41,6 +46,7 @@ export const SimulatorStage = () => {
 			drop({ element, shapeSize }, monitor) {
 				if (!monitor.isOver()) {
 					appDispatch(clearDraftElement());
+					appDispatch(clearSnapLines());
 					return;
 				}
 
@@ -63,6 +69,7 @@ export const SimulatorStage = () => {
 						y: yPosition,
 					}),
 				);
+				appDispatch(clearSnapLines());
 			},
 		}),
 		[],

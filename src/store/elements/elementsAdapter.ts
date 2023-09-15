@@ -58,6 +58,14 @@ export interface UpdateElementPropertyAction {
 	payload: UpdateElementPropertyPayload;
 }
 
+export interface UpdateDraftElementPositionAction {
+	type: string;
+	payload: {
+		x: number;
+		y: number;
+	};
+}
+
 const elementsAdapter = createEntityAdapter<Element>({
 	selectId: (el) => el.id,
 });
@@ -174,6 +182,20 @@ export const elementsAdapterReducers = {
 	clearDraftElement: (slice: Draft<StageSlice>) => {
 		updateStateChange(slice, StageState.Select);
 		slice.draftElement = null;
+	},
+	updateDraftElementPosition: (
+		slice: Draft<StageSlice>,
+		action: UpdateDraftElementPositionAction,
+	) => {
+		if (!slice.draftElement) {
+			return;
+		}
+
+		slice.draftElement = {
+			...slice.draftElement,
+			x: action.payload.x,
+			y: action.payload.y,
+		};
 	},
 };
 

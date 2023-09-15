@@ -13,40 +13,6 @@ export interface SnapLine {
 	orientation: SnapLineOrientation;
 }
 
-export const horizontalSnapLinesDistances = (bb1: BoundingBox, bb2: BoundingBox): number[] => {
-	const { topLeft: bb1TopLeft, center: bb1Center, bottomLeft: bb1BottomLeft } = bb1;
-	const { topLeft: bb2TopLeft, bottomLeft: bb2BottomLeft } = bb2;
-	const horizontalLinePoints = [
-		[bb1TopLeft.y, bb2TopLeft.y],
-		[bb1Center.y, bb2TopLeft.y],
-		[bb1BottomLeft.y, bb2TopLeft.y],
-		[bb1TopLeft.y, bb2BottomLeft.y],
-		[bb1Center.y, bb2BottomLeft.y],
-		[bb1BottomLeft.y, bb2BottomLeft.y],
-	];
-
-	return horizontalLinePoints.map(([p0, p1]) => Math.abs(p0 - p1));
-};
-
-export const verticalSnapLinesDistances = (bb1: BoundingBox, bb2: BoundingBox): number[] => {
-	const { topLeft: bb1TopLeft, center: bb1Center, topRight: bb1TopRight } = bb1;
-	const { topLeft: bb2TopLeft, topRight: bb2TopRight } = bb2;
-	const verticalLinePoints = [
-		[bb1TopLeft.x, bb2TopLeft.x],
-		[bb1Center.x, bb2TopLeft.x],
-		[bb1TopRight.x, bb2TopLeft.x],
-		[bb1TopLeft.x, bb2TopRight.x],
-		[bb1Center.x, bb2TopRight.x],
-		[bb1TopRight.x, bb2TopRight.x],
-	];
-
-	return verticalLinePoints.map(([p0, p1]) => Math.abs(p0 - p1));
-};
-
-export const snapLinesDistances = (bb1: BoundingBox, bb2: BoundingBox): number[] => {
-	return [...horizontalSnapLinesDistances(bb1, bb2), ...verticalSnapLinesDistances(bb1, bb2)];
-};
-
 const createHorizontalSnapLine = (
 	x1: number,
 	x2: number,
@@ -193,3 +159,25 @@ export const createSnapLines = (bb1: BoundingBox, bb2: BoundingBox): SnapLine[] 
 	...createHorizontalSnapLines(bb1, bb2),
 	...createVerticalSnapLines(bb1, bb2),
 ];
+
+export const boundingBoxTouch = (bb1: BoundingBox, bb2: BoundingBox): boolean => {
+	const { topLeft: bb1TopLeft, bottomRight: bb1BottomRight } = bb1;
+	const { topLeft: bb2TopLeft, bottomRight: bb2BottomRight } = bb2;
+
+	const horizontalTouchExist =
+		bb1BottomRight.y >= bb2TopLeft.y && bb1TopLeft.y <= bb2BottomRight.y;
+	const verticalTouchExist = bb1TopLeft.x <= bb2.topRight.x && bb1BottomRight.x >= bb2TopLeft.x;
+
+	return verticalTouchExist || horizontalTouchExist;
+};
+
+export const snapLinesDistance = (snapLine1: SnapLine, snapLine2: SnapLine) => {
+	if (snapLine1.orientation !== snapLine2.orientation) {
+		return Infinity;
+	}
+
+	return snapLine1.orientation === SnapLineOrientation.Horizontal
+		? Math.abs(snapLine1.points[0].y - snapLine2.points[0].y)
+		: Math.abs(snapLine1.points[0].x - snapLine2.points[0].x);
+};
+

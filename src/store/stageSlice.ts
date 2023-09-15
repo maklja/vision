@@ -141,6 +141,8 @@ export const {
 	removeElementConnectLines,
 	createSnapLines,
 	clearSnapLines,
+	updateDraftElementPosition,
+	createDraftElementSnapLines,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
