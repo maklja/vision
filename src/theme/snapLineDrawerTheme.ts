@@ -19,7 +19,7 @@ const dash = [8, 3];
 export const snapLineDrawerTheme = (themeColors: ColorTheme): SnapLineTheme => {
 	const defaultSnapLine: SnapLineElementStyle = {
 		stroke: themeColors.secondaryColor,
-		strokeWidth: 0.5,
+		strokeWidth: 1,
 		dash,
 	};
 
@@ -27,4 +27,3 @@ export const snapLineDrawerTheme = (themeColors: ColorTheme): SnapLineTheme => {
 		line: defaultSnapLine,
 	};
 };
-

@@ -99,13 +99,12 @@ export const SimulatorStage = () => {
 				ref={stageRef}
 			>
 				<ConnectLinesLayer />
-				<DraftLayer />
 				<DrawersLayer />
 				<AnimationsLayer />
+				<DraftLayer />
 				<TooltipsLayer />
 				<DragNDropLayer />
 			</Stage>
 		</div>
 	);
 };
-
