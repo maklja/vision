@@ -18,6 +18,7 @@ import {
 	ConnectPointPosition,
 	ConnectPointType,
 	DeferElement,
+	DueDateType,
 	Element,
 	ElementGroup,
 	ElementType,
@@ -273,7 +274,11 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	private createTimerCreationOperator(el: Element) {
 		const timerEl = el as TimerElement;
-		return timer(timerEl.properties.startDue, timerEl.properties.intervalDuration).pipe(
+		const startDue =
+			timerEl.properties.dueDateType === DueDateType.Date
+				? new Date(timerEl.properties.startDue)
+				: timerEl.properties.startDue;
+		return timer(startDue, timerEl.properties.intervalDuration).pipe(
 			map((item) => this.createFlowValue(item, el.id)),
 		);
 	}
@@ -282,3 +287,4 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		return new FlowValue(value, elementId, FlowValueType.Next);
 	}
 }
+
