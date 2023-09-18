@@ -10,6 +10,7 @@ import {
 	of,
 	range,
 	throwError,
+	timer,
 } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import {
@@ -28,6 +29,7 @@ import {
 	OfElement,
 	RangeElement,
 	ThrowErrorElement,
+	TimerElement,
 } from '../../model';
 import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
@@ -57,6 +59,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			[ElementType.Generate, this.createGenerateCreationOperator.bind(this)],
 			[ElementType.Range, this.createRangeCreationOperator.bind(this)],
 			[ElementType.ThrowError, this.createThrowErrorCreationOperator.bind(this)],
+			[ElementType.Timer, this.createTimerCreationOperator.bind(this)],
 		]);
 	}
 
@@ -268,8 +271,14 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		return range(start, count).pipe(map((item) => this.createFlowValue(item, rangeEl.id)));
 	}
 
+	private createTimerCreationOperator(el: Element) {
+		const timerEl = el as TimerElement;
+		return timer(timerEl.properties.startDue, timerEl.properties.intervalDuration).pipe(
+			map((item) => this.createFlowValue(item, el.id)),
+		);
+	}
+
 	private createFlowValue(value: unknown, elementId: string): FlowValue {
 		return new FlowValue(value, elementId, FlowValueType.Next);
 	}
 }
-

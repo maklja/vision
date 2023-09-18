@@ -9,6 +9,7 @@ import {
 	OfOperatorDrawer,
 	RangeOperatorDrawer,
 	ThrowErrorOperatorDrawer,
+	TimerOperatorDrawer,
 } from './creationOperators';
 import { CatchErrorOperatorDrawer } from './errorHandlingOperators';
 import { Element, ElementType, ResultElement } from '../model';
@@ -67,6 +68,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <RangeOperatorDrawer {...props} />;
 		case ElementType.ThrowError:
 			return <ThrowErrorOperatorDrawer {...props} />;
+		case ElementType.Timer:
+			return <TimerOperatorDrawer {...props} />;
 		default:
 			return null;
 	}
@@ -136,4 +139,3 @@ export const OperatorDrawer = ({
 			});
 	}
 };
-

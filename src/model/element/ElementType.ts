@@ -18,6 +18,7 @@ export enum ElementType {
 	Generate = 'generate',
 	Range = 'range',
 	ThrowError = 'throwError',
+	Timer = 'timer',
 }
 
 export const joinCreationOperators: ReadonlySet<ElementType> = new Set([ElementType.Merge]);
@@ -33,6 +34,7 @@ export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Generate,
 	ElementType.Range,
 	ElementType.ThrowError,
+	ElementType.Timer,
 ]);
 
 export const transformationOperators: ReadonlySet<ElementType> = new Set([
@@ -84,4 +86,3 @@ export const isConnectPointType = (type: ElementType) => connectPointOperators.h
 
 export const isEntryOperatorType = (type: ElementType) =>
 	isCreationOperatorType(type) || isJoinCreationOperatorType(type);
-
