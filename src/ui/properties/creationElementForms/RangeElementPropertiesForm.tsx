@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField';
 import { formStyle } from '../commonStyles';
 import { RangeElementProperties } from '../../../model';
 
-export interface RangeElementPropertiesForm {
+export interface RangeElementPropertiesFormProps {
 	id: string;
 	properties: RangeElementProperties;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
@@ -14,7 +14,7 @@ export const RangeElementPropertiesForm = ({
 	id,
 	properties,
 	onPropertyValueChange,
-}: RangeElementPropertiesForm) => {
+}: RangeElementPropertiesFormProps) => {
 	const handleStartChanged: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
 		const newStartValue = Number(e.target.value);
 		onPropertyValueChange?.(

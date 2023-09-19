@@ -10,17 +10,21 @@ import {
 	ElementType,
 	FromElementProperties,
 	GenerateElementProperties,
+	IifElementProperties,
 	IntervalElementProperties,
 	RangeElementProperties,
 	ThrowErrorElementProperties,
+	TimerElementProperties,
 } from '../../model';
 import {
 	AjaxElementPropertiesForm,
 	FromElementPropertiesForm,
 	GenerateElementPropertiesForm,
+	IifElementPropertiesForm,
 	IntervalElementPropertiesForm,
 	RangeElementPropertiesForm,
 	ThrowErrorElementPropertiesForm,
+	TimerElementPropertiesForm,
 } from './creationElementForms';
 
 export interface ElementPropertiesFormProps {
@@ -82,6 +86,22 @@ const createElementPropertiesForm = ({
 				<GenerateElementPropertiesForm
 					id={id}
 					properties={properties as GenerateElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Timer:
+			return (
+				<TimerElementPropertiesForm
+					id={id}
+					properties={properties as TimerElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.IIf:
+			return (
+				<IifElementPropertiesForm
+					id={id}
+					properties={properties as IifElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);

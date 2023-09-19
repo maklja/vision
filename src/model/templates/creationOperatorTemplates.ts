@@ -7,6 +7,7 @@ import {
 	ofElementPropsTemplate,
 	rangeElementPropsTemplate,
 	throwErrorElementPropsTemplate,
+	timerElementPropsTemplate,
 } from '../creationOperators';
 import { ElementProps, ElementType } from '../element';
 
@@ -28,8 +29,9 @@ export const mapToCreationOperatorPropsTemplates = (elType: ElementType): Elemen
 			return rangeElementPropsTemplate;
 		case ElementType.ThrowError:
 			return throwErrorElementPropsTemplate;
+		case ElementType.Timer:
+			return timerElementPropsTemplate;
 		default:
 			return {};
 	}
 };
-

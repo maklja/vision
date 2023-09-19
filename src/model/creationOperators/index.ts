@@ -8,3 +8,4 @@ export * from './DeferElement';
 export * from './GenerateElement';
 export * from './RangeElement';
 export * from './ThrowErrorElement';
+export * from './TimerElement';

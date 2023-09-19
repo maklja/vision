@@ -3,7 +3,7 @@ import { ThrowErrorElementProperties } from '../../../model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
-export interface ThrowErrorElementPropertiesForm {
+export interface ThrowErrorElementPropertiesFormProps {
 	id: string;
 	properties: ThrowErrorElementProperties;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
@@ -13,7 +13,7 @@ export const ThrowErrorElementPropertiesForm = ({
 	id,
 	properties,
 	onPropertyValueChange,
-}: ThrowErrorElementPropertiesForm) => {
+}: ThrowErrorElementPropertiesFormProps) => {
 	const handleErrorOrErrorFactoryChanged = (input: string) =>
 		onPropertyValueChange?.(id, 'errorOrErrorFactory', input);
 

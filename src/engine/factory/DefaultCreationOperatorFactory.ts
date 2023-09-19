@@ -10,6 +10,7 @@ import {
 	of,
 	range,
 	throwError,
+	timer,
 } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import {
@@ -17,6 +18,7 @@ import {
 	ConnectPointPosition,
 	ConnectPointType,
 	DeferElement,
+	DueDateType,
 	Element,
 	ElementGroup,
 	ElementType,
@@ -28,6 +30,7 @@ import {
 	OfElement,
 	RangeElement,
 	ThrowErrorElement,
+	TimerElement,
 } from '../../model';
 import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
@@ -57,6 +60,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			[ElementType.Generate, this.createGenerateCreationOperator.bind(this)],
 			[ElementType.Range, this.createRangeCreationOperator.bind(this)],
 			[ElementType.ThrowError, this.createThrowErrorCreationOperator.bind(this)],
+			[ElementType.Timer, this.createTimerCreationOperator.bind(this)],
 		]);
 	}
 
@@ -266,6 +270,17 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		const rangeEl = el as RangeElement;
 		const { start, count } = rangeEl.properties;
 		return range(start, count).pipe(map((item) => this.createFlowValue(item, rangeEl.id)));
+	}
+
+	private createTimerCreationOperator(el: Element) {
+		const timerEl = el as TimerElement;
+		const startDue =
+			timerEl.properties.dueDateType === DueDateType.Date
+				? new Date(timerEl.properties.startDue)
+				: timerEl.properties.startDue;
+		return timer(startDue, timerEl.properties.intervalDuration).pipe(
+			map((item) => this.createFlowValue(item, el.id)),
+		);
 	}
 
 	private createFlowValue(value: unknown, elementId: string): FlowValue {

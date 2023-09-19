@@ -12,6 +12,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import { ElementType, Point, mapElementTypeToGroup } from '../../model';
 import { useShapeSize } from '../../store/stageSlice';
 import { ElementShape } from '../../theme';
+import { formStyle } from './commonStyles';
 
 export interface ElementExplorerProps {
 	id: string;
@@ -50,11 +51,11 @@ export const ElementExplorer = ({
 					<Typography>Element explorer</Typography>
 				</AccordionSummary>
 				<AccordionDetails>
-					<Stack gap={1.5}>
+					<Stack gap={formStyle.componentGap}>
 						<FormLabel>
 							<Typography>Details</Typography>
 						</FormLabel>
-						<FormGroup sx={{ gap: 1.5, flexWrap: 'nowrap' }}>
+						<FormGroup sx={{ gap: formStyle.componentGap, flexWrap: 'nowrap' }}>
 							<TextField
 								id="element-id"
 								label="Id"
@@ -98,7 +99,7 @@ export const ElementExplorer = ({
 						<FormLabel>
 							<Typography>Position</Typography>
 						</FormLabel>
-						<FormGroup row sx={{ gap: 1.5, flexWrap: 'nowrap' }}>
+						<FormGroup row sx={{ gap: formStyle.componentGap, flexWrap: 'nowrap' }}>
 							<TextField
 								id="x-position"
 								label="X"
@@ -124,7 +125,7 @@ export const ElementExplorer = ({
 						</FormGroup>
 
 						<FormLabel>Size</FormLabel>
-						<FormGroup row sx={{ gap: 1.5, flexWrap: 'nowrap' }}>
+						<FormGroup row sx={{ gap: formStyle.componentGap, flexWrap: 'nowrap' }}>
 							{shapeSize.type === ElementShape.Circle ? (
 								<TextField
 									id="element-radius"

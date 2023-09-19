@@ -9,20 +9,41 @@ import {
 import { AppDispatch } from '../../store/rootState';
 import { linkConnectLineDraw, pinConnectLine, unpinConnectLine } from '../../store/stageSlice';
 
+const CANCEL_MOUSE_BUTTON_KEY = 2;
+
 export const connectPointDrawConnectLineStateHandlers = (
 	dispatch: AppDispatch,
 ): ConnectPointsDrawerEvents => ({
 	onMouseUp: (cEvent: ConnectPointsDrawerEvent) => {
 		const { id, element, connectPoint } = cEvent;
+		const { originalEvent, animation } = connectPoint;
+
+		if (
+			originalEvent.evt.button !== CANCEL_MOUSE_BUTTON_KEY &&
+			originalEvent.evt.buttons !== CANCEL_MOUSE_BUTTON_KEY
+		) {
+			dispatch(
+				linkConnectLineDraw({
+					targetId: id,
+					targetPoint: element.center,
+					targetConnectPointType: connectPoint.type,
+					targetConnectPointPosition: connectPoint.position,
+				}),
+			);
+			return dispatch(removeAllDrawerAnimation({ drawerId: connectPoint.id }));
+		}
+
+		dispatch(unpinConnectLine());
+		if (!animation) {
+			return;
+		}
+
 		dispatch(
-			linkConnectLineDraw({
-				targetId: id,
-				targetPoint: element.center,
-				targetConnectPointType: connectPoint.type,
-				targetConnectPointPosition: connectPoint.position,
+			disposeDrawerAnimation({
+				drawerId: id,
+				animationId: animation.id,
 			}),
 		);
-		dispatch(removeAllDrawerAnimation({ drawerId: connectPoint.id }));
 	},
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent) => {
 		const { connectPoint, id } = cEvent;
