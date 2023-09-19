@@ -1,17 +1,14 @@
-import { ObservableInput } from 'rxjs';
 import { Element, ElementType } from '../element';
 
-export interface IifElementProperties<T> {
+export interface IifElementProperties {
 	conditionExpression: string;
-	trueResult?: ObservableInput<T>;
-	falseResult?: ObservableInput<T>;
 }
 
-export interface IifElement<T = unknown> extends Element<IifElementProperties<T>> {
+export interface IifElement extends Element<IifElementProperties> {
 	type: ElementType.IIf;
 }
 
-export const iifElementPropsTemplate: IifElementProperties<unknown> = {
+export const iifElementPropsTemplate: IifElementProperties = {
 	conditionExpression: '() => true',
 };
 

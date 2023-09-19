@@ -1,4 +1,3 @@
--   refactor store
 -   90 lines
 -   grid move
 -   laso and multi selection

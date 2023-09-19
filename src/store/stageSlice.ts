@@ -6,7 +6,6 @@ import {
 	ElementSizesContext,
 	createElementSizesContext,
 } from '../theme';
-import { pinConnectLineReducer, unpinConnectLineReducer } from './reducer';
 import {
 	createElementsAdapterInitialState,
 	elementsAdapterReducers,
@@ -93,8 +92,6 @@ export const stageSlice = createSlice({
 		...errorReducers,
 		...snapLineReducers,
 		...highlightedConnectPointsAdapterReducers,
-		pinConnectLine: pinConnectLineReducer,
-		unpinConnectLine: unpinConnectLineReducer,
 	},
 });
 

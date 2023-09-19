@@ -1,11 +1,19 @@
 import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
-import { ConnectPoint } from '../../model';
+import { ConnectPoint, Point } from '../../model';
 import { StageSlice } from '../stageSlice';
 import { RootState } from '../rootState';
 
 export interface HighlightConnectPointsAction {
 	type: string;
 	payload: ConnectPoint[];
+}
+
+export interface PinConnectLineAction {
+	type: string;
+	payload: {
+		elementId: string;
+		position: Point;
+	};
 }
 
 export interface ElementConnectPoints {
@@ -47,6 +55,27 @@ export const highlightedConnectPointsAdapterReducers = {
 		);
 	},
 	clearHighlightedConnectPoints: clearHighlightedConnectPointsStateChange,
+	pinConnectLine: (slice: Draft<StageSlice>, action: PinConnectLineAction) => {
+		if (!slice.draftConnectLine) {
+			return;
+		}
+
+		const lastPoint = slice.draftConnectLine.points.at(-1);
+
+		if (!lastPoint) {
+			return;
+		}
+		lastPoint.x = action.payload.position.x;
+		lastPoint.y = action.payload.position.y;
+		slice.draftConnectLine.locked = true;
+	},
+	unpinConnectLine: (slice: Draft<StageSlice>) => {
+		if (!slice.draftConnectLine) {
+			return;
+		}
+
+		slice.draftConnectLine.locked = false;
+	},
 };
 
 const globalHighlightConnectPointsSelector =
