@@ -1,5 +1,5 @@
-import { createSlice, Draft, EntityState } from '@reduxjs/toolkit';
-import { ConnectLine, ConnectPoint, Element, SnapLine } from '../model';
+import { createSlice, EntityState } from '@reduxjs/toolkit';
+import { ConnectLine, Element, SnapLine } from '../model';
 import {
 	createThemeContext,
 	ThemesContext,
@@ -7,7 +7,6 @@ import {
 	createElementSizesContext,
 } from '../theme';
 import { pinConnectLineReducer, unpinConnectLineReducer } from './reducer';
-import { RootState } from './rootState';
 import {
 	createElementsAdapterInitialState,
 	elementsAdapterReducers,
@@ -34,6 +33,11 @@ import { StageState, stageReducers } from './stage';
 import { ElementTooltip, tooltipReducers } from './tooltip';
 import { createErrorsAdapterInitialState, ElementError, errorReducers } from './errors';
 import { createSnapLinesInitialState, snapLineReducers } from './snapLines';
+import {
+	createHighlightedConnectPointsAdapterInitialState,
+	ElementConnectPoints,
+	highlightedConnectPointsAdapterReducers,
+} from './connectPoints';
 
 export * from './hooks/theme';
 
@@ -45,7 +49,7 @@ export interface StageSlice {
 	selectedConnectLines: EntityState<SelectedConnectLine>;
 	draftConnectLine: DraftConnectLine | null;
 	highlighted: EntityState<HighlightElement>;
-	highlightedConnectPoints: ConnectPoint[];
+	highlightedConnectPoints: EntityState<ElementConnectPoints>;
 	state: StageState;
 	simulation: Simulation;
 	themes: ThemesContext;
@@ -55,11 +59,6 @@ export interface StageSlice {
 	snapLines: SnapLine[];
 }
 
-export interface HighlightConnectPointsAction {
-	type: string;
-	payload: ConnectPoint[];
-}
-
 export const createStageInitialState = (elements: Element[] = []): StageSlice => ({
 	elements: createElementsAdapterInitialState(elements),
 	selectedElements: createSelectedElementsAdapterInitialState(),
@@ -67,7 +66,7 @@ export const createStageInitialState = (elements: Element[] = []): StageSlice =>
 	connectLines: createConnectLinesAdapterInitialState(),
 	selectedConnectLines: createSelectedConnectLinesAdapterInitialState(),
 	draftConnectLine: null,
-	highlightedConnectPoints: [],
+	highlightedConnectPoints: createHighlightedConnectPointsAdapterInitialState(),
 	highlighted: createHighlightedAdapterInitialState(),
 	state: StageState.Select,
 	simulation: createSimulationInitialState(),
@@ -93,12 +92,7 @@ export const stageSlice = createSlice({
 		...tooltipReducers,
 		...errorReducers,
 		...snapLineReducers,
-		highlightConnectPoints: (
-			slice: Draft<StageSlice>,
-			action: HighlightConnectPointsAction,
-		) => {
-			slice.highlightedConnectPoints = action.payload;
-		},
+		...highlightedConnectPointsAdapterReducers,
 		pinConnectLine: pinConnectLineReducer,
 		unpinConnectLine: unpinConnectLineReducer,
 	},
@@ -146,8 +140,4 @@ export const {
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
-
-export const selectHighlightedConnectPointsByElementId =
-	(elementId: string) => (state: RootState) =>
-		state.stage.highlightedConnectPoints.filter((cp) => cp.elementId === elementId);
 

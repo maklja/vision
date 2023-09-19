@@ -19,6 +19,7 @@ import {
 	selectElementsStateChange,
 } from '../elements';
 import { StageState } from '../stage';
+import { clearHighlightedConnectPointsStateChange } from '../connectPoints';
 
 export interface DraftConnectLine {
 	id: string;
@@ -286,9 +287,9 @@ export const connectLinesAdapterReducers = {
 		}
 
 		slice.state = StageState.Select;
-		slice.highlightedConnectPoints = [];
 		slice.draftConnectLine = null;
 
+		clearHighlightedConnectPointsStateChange(slice);
 		selectElementsStateChange(slice, [
 			{
 				id: draftConnectLine.source.id,
@@ -306,9 +307,9 @@ export const connectLinesAdapterReducers = {
 		}
 
 		slice.state = StageState.Select;
-		slice.highlightedConnectPoints = [];
 		slice.draftConnectLine = null;
 
+		clearHighlightedConnectPointsStateChange(slice);
 		selectElementsStateChange(slice, [
 			{
 				id: draftConnectLine.source.id,
