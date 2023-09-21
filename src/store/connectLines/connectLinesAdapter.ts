@@ -42,7 +42,10 @@ export interface StartConnectLineDrawAction {
 
 export interface MoveConnectLineDrawAction {
 	type: string;
-	payload: Point;
+	payload: {
+		position: Point;
+		normalizePosition: boolean;
+	};
 }
 
 export interface AddPointConnectLineDrawAction {
@@ -266,8 +269,20 @@ export const connectLinesAdapterReducers = {
 		if (draftConnectLine.locked) {
 			return;
 		}
+		const { position, normalizePosition } = action.payload;
 
-		draftConnectLine.points.splice(-1, 1, action.payload);
+		if (!normalizePosition) {
+			draftConnectLine.points.splice(-1, 1, position);
+			return;
+		}
+
+		const lastPoint = draftConnectLine.points[draftConnectLine.points.length - 2];
+		const newPosition =
+			Math.abs(lastPoint.x - position.x) < Math.abs(lastPoint.y - position.y)
+				? { x: lastPoint.x, y: position.y }
+				: { x: position.x, y: lastPoint.y };
+
+		draftConnectLine.points.splice(-1, 1, newPosition);
 	},
 	addNextPointConnectLineDraw: (
 		slice: Draft<StageSlice>,

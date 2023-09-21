@@ -10,7 +10,6 @@ import {
 export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageEvents => ({
 	onMouseMove: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-
 		const stage = e.target.getStage();
 		if (!stage) {
 			return;
@@ -19,8 +18,11 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 		const { x, y } = stage.getRelativePointerPosition();
 		dispatch(
 			moveConnectLineDraw({
-				x,
-				y,
+				position: {
+					x,
+					y,
+				},
+				normalizePosition: e.evt.shiftKey,
 			}),
 		);
 	},
