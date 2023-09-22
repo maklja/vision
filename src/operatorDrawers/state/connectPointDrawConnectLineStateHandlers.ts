@@ -50,10 +50,7 @@ export const connectPointDrawConnectLineStateHandlers = (
 		dispatch(
 			pinConnectLine({
 				elementId: id,
-				position: {
-					x: connectPoint.x,
-					y: connectPoint.y,
-				},
+				boundingBox: connectPoint.boundingBox,
 			}),
 		);
 

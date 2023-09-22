@@ -4,7 +4,12 @@ import { useState } from 'react';
 import { Circle, Group } from 'react-konva';
 import { DrawerAnimationTemplate, useAnimation } from '../../animation';
 import { ConnectPointPosition, ConnectPointType } from '../../model';
-import { CircleShapeSize, Theme, useConnectPointTheme } from '../../theme';
+import {
+	CircleShapeSize,
+	Theme,
+	calculateShapeSizeBoundingBox,
+	useConnectPointTheme,
+} from '../../theme';
 import {
 	ConnectPointDrawerEvent,
 	ConnectPointIconDrawerProps,
@@ -49,6 +54,7 @@ export const CircleConnectPointDrawer = ({
 }: CircleConnectPointDrawerProps) => {
 	const connectPointElementTheme = useConnectPointTheme({ position, highlight }, theme);
 	const { radius } = size;
+	const boundingBox = calculateShapeSizeBoundingBox({ x, y }, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 
 	useAnimation(mainShapeRef, {
@@ -64,22 +70,22 @@ export const CircleConnectPointDrawer = ({
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseOver?.({ id, type, position, x, y, animation, originalEvent: e });
+		onMouseOver?.({ id, type, position, boundingBox, animation, originalEvent: e });
 	};
 
 	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseOut?.({ id, type, position, x, y, animation, originalEvent: e });
+		onMouseOut?.({ id, type, position, boundingBox, animation, originalEvent: e });
 	};
 
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseDown?.({ id, type, position, x, y, animation, originalEvent: e });
+		onMouseDown?.({ id, type, position, boundingBox, animation, originalEvent: e });
 	};
 
 	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
-		onMouseUp?.({ id, type, position, x, y, animation, originalEvent: e });
+		onMouseUp?.({ id, type, position, boundingBox, animation, originalEvent: e });
 	};
 
 	return (

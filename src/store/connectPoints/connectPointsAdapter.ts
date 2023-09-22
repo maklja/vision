@@ -1,5 +1,5 @@
 import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
-import { ConnectPoint, Point } from '../../model';
+import { IBoundingBox, ConnectPoint } from '../../model';
 import { StageSlice } from '../stageSlice';
 import { RootState } from '../rootState';
 
@@ -12,7 +12,7 @@ export interface PinConnectLineAction {
 	type: string;
 	payload: {
 		elementId: string;
-		position: Point;
+		boundingBox: IBoundingBox;
 	};
 }
 
@@ -65,8 +65,15 @@ export const highlightedConnectPointsAdapterReducers = {
 		if (!lastPoint) {
 			return;
 		}
-		lastPoint.x = action.payload.position.x;
-		lastPoint.y = action.payload.position.y;
+
+		const { boundingBox } = action.payload;
+		console.log(boundingBox.isPointOverlap(lastPoint.x, lastPoint.y));
+		if (!boundingBox.isPointOverlap(lastPoint.x, lastPoint.y)) {
+			return;
+		}
+
+		lastPoint.x = boundingBox.x;
+		lastPoint.y = boundingBox.y;
 		slice.draftConnectLine.locked = true;
 	},
 	unpinConnectLine: (slice: Draft<StageSlice>) => {
@@ -86,4 +93,3 @@ const globalHighlightConnectPointsSelector =
 export const selectHighlightedConnectPointsByElementId =
 	(elementId: string) => (state: RootState) =>
 		globalHighlightConnectPointsSelector.selectById(state, elementId)?.connectPoints ?? [];
-

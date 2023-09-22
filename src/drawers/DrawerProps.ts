@@ -59,8 +59,7 @@ export interface ConnectPointDrawerEvent {
 	id: string;
 	type: ConnectPointType;
 	position: ConnectPointPosition;
-	x: number;
-	y: number;
+	boundingBox: BoundingBox;
 	originalEvent: Konva.KonvaEventObject<MouseEvent>;
 	animation?: DrawerAnimationTemplate | null;
 }
@@ -109,4 +108,3 @@ export interface LineDrawerEvents {
 	onDotDragEnd?: (lineDotEvent: LineDotEvent) => void;
 	onDotDragMove?: (lineDotEvent: LineDotEvent) => void;
 }
-
