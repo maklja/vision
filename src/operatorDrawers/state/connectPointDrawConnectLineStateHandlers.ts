@@ -14,10 +14,14 @@ const CANCEL_MOUSE_BUTTON_KEY = 2;
 export const connectPointDrawConnectLineStateHandlers = (
 	dispatch: AppDispatch,
 ): ConnectPointsDrawerEvents => ({
+	onMouseDown: (cEvent: ConnectPointsDrawerEvent) => {
+		cEvent.connectPoint.originalEvent.cancelBubble = true;
+	},
 	onMouseUp: (cEvent: ConnectPointsDrawerEvent) => {
 		const { id, element, connectPoint } = cEvent;
 		const { originalEvent, animation } = connectPoint;
 
+		originalEvent.cancelBubble = true;
 		if (
 			originalEvent.evt.button !== CANCEL_MOUSE_BUTTON_KEY &&
 			originalEvent.evt.buttons !== CANCEL_MOUSE_BUTTON_KEY
@@ -50,7 +54,6 @@ export const connectPointDrawConnectLineStateHandlers = (
 		dispatch(
 			pinConnectLine({
 				elementId: id,
-				normalizePosition: connectPoint.originalEvent.evt.shiftKey,
 				boundingBox: {
 					x: connectPoint.boundingBox.x,
 					y: connectPoint.boundingBox.y,
@@ -65,7 +68,6 @@ export const connectPointDrawConnectLineStateHandlers = (
 		dispatch(
 			pinConnectLine({
 				elementId: id,
-				normalizePosition: connectPoint.originalEvent.evt.shiftKey,
 				boundingBox: {
 					x: connectPoint.boundingBox.x,
 					y: connectPoint.boundingBox.y,
@@ -107,4 +109,3 @@ export const connectPointDrawConnectLineStateHandlers = (
 		);
 	},
 });
-

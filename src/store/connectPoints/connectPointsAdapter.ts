@@ -13,7 +13,6 @@ export interface PinConnectLineAction {
 	payload: {
 		elementId: string;
 		boundingBox: IBoundingBox;
-		normalizePosition: boolean;
 	};
 }
 
@@ -67,22 +66,16 @@ export const highlightedConnectPointsAdapterReducers = {
 			return;
 		}
 
-		const { boundingBox, normalizePosition } = action.payload;
+		const { boundingBox } = action.payload;
 		const hasOverlap = pointOverlapBoundingBox(lastPoint, boundingBox);
 
-		if (hasOverlap) {
-			lastPoint.x = boundingBox.x + boundingBox.width / 2;
-			lastPoint.y = boundingBox.y + boundingBox.height / 2;
-			slice.draftConnectLine.locked = true;
+		if (!hasOverlap) {
 			return;
 		}
 
-		if (normalizePosition) {
-			return;
-		}
-
-		lastPoint.x = boundingBox.x;
-		lastPoint.y = boundingBox.y;
+		lastPoint.x = boundingBox.x + boundingBox.width / 2;
+		lastPoint.y = boundingBox.y + boundingBox.height / 2;
+		slice.draftConnectLine.locked = true;
 	},
 	unpinConnectLine: (slice: Draft<StageSlice>) => {
 		if (!slice.draftConnectLine) {
@@ -101,4 +94,3 @@ const globalHighlightConnectPointsSelector =
 export const selectHighlightedConnectPointsByElementId =
 	(elementId: string) => (state: RootState) =>
 		globalHighlightConnectPointsSelector.selectById(state, elementId)?.connectPoints ?? [];
-

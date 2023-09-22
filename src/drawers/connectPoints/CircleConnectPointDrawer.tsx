@@ -70,30 +70,20 @@ export const CircleConnectPointDrawer = ({
 		drawerId: id,
 	});
 
-	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
+	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({ id, type, position, boundingBox, animation, originalEvent: e });
-	};
 
-	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
+	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOut?.({ id, type, position, boundingBox, animation, originalEvent: e });
-	};
 
-	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
+	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseDown?.({ id, type, position, boundingBox, animation, originalEvent: e });
-	};
 
-	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
+	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseUp?.({ id, type, position, boundingBox, animation, originalEvent: e });
-	};
 
-	const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
+	const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseMove?.({ id, type, position, boundingBox, animation, originalEvent: e });
-	};
 
 	return (
 		<Group x={x} y={y} visible={Boolean(mainShapeRef)}>
@@ -113,4 +103,3 @@ export const CircleConnectPointDrawer = ({
 		</Group>
 	);
 };
-

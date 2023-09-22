@@ -9,8 +9,8 @@ export const snapConnectPointAnimation = {
 		mainShape: {
 			duration: 0.1,
 			fill: theme.colors.tertiaryColor,
-			scaleX: 1.4,
-			scaleY: 1.4,
+			scaleX: 0.9,
+			scaleY: 0.9,
 		},
 	}),
 };

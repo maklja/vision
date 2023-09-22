@@ -42,4 +42,3 @@ export class BoundingBox implements IBoundingBox {
 
 export const pointOverlapBoundingBox = (p: Point, bb: IBoundingBox) =>
 	bb.x <= p.x && p.x <= bb.x + bb.width && bb.y <= p.y && p.y <= bb.y + bb.height;
-
