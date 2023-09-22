@@ -21,5 +21,14 @@ export const InputCircleIconDrawer = ({
 	);
 	const radius = fromSize(size.radius, 0.2);
 
-	return <Circle {...connectPointElementTheme.icon} listening={false} radius={radius} />;
+	return (
+		<Circle
+			{...connectPointElementTheme.icon}
+			listening={false}
+			x={size.radius}
+			y={size.radius}
+			radius={radius}
+		/>
+	);
 };
+

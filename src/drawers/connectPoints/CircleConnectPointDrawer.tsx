@@ -30,6 +30,7 @@ export interface CircleConnectPointDrawerProps extends DrawerAnimationEvents {
 	onMouseUp?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOver?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOut?: (event: ConnectPointDrawerEvent) => void;
+	onMouseMove?: (event: ConnectPointDrawerEvent) => void;
 	children?: (iconProps: ConnectPointIconDrawerProps) => ReactNode | null;
 }
 
@@ -48,6 +49,7 @@ export const CircleConnectPointDrawer = ({
 	onMouseUp,
 	onMouseOver,
 	onMouseOut,
+	onMouseMove,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -88,18 +90,27 @@ export const CircleConnectPointDrawer = ({
 		onMouseUp?.({ id, type, position, boundingBox, animation, originalEvent: e });
 	};
 
+	const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+		e.cancelBubble = true;
+		onMouseMove?.({ id, type, position, boundingBox, animation, originalEvent: e });
+	};
+
 	return (
 		<Group x={x} y={y} visible={Boolean(mainShapeRef)}>
 			<Circle
 				{...connectPointElementTheme.element}
+				x={radius}
+				y={radius}
 				radius={radius}
 				ref={(node) => setMainShapeRef(node)}
 				onMouseDown={handleMouseDown}
 				onMouseUp={handleMouseUp}
 				onMouseOver={handleMouseOver}
 				onMouseOut={handleMouseOut}
+				onMouseMove={handleMouseMove}
 			/>
 			{children?.({ type, theme, highlight, connectPointPosition: position })}
 		</Group>
 	);
 };
+

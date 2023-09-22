@@ -45,12 +45,33 @@ export const connectPointDrawConnectLineStateHandlers = (
 			}),
 		);
 	},
+	onMouseMove: (cEvent: ConnectPointsDrawerEvent) => {
+		const { connectPoint, id } = cEvent;
+		dispatch(
+			pinConnectLine({
+				elementId: id,
+				normalizePosition: connectPoint.originalEvent.evt.shiftKey,
+				boundingBox: {
+					x: connectPoint.boundingBox.x,
+					y: connectPoint.boundingBox.y,
+					width: connectPoint.boundingBox.width,
+					height: connectPoint.boundingBox.height,
+				},
+			}),
+		);
+	},
 	onMouseOver: (cEvent: ConnectPointsDrawerEvent) => {
 		const { connectPoint, id } = cEvent;
 		dispatch(
 			pinConnectLine({
 				elementId: id,
-				boundingBox: connectPoint.boundingBox,
+				normalizePosition: connectPoint.originalEvent.evt.shiftKey,
+				boundingBox: {
+					x: connectPoint.boundingBox.x,
+					y: connectPoint.boundingBox.y,
+					width: connectPoint.boundingBox.width,
+					height: connectPoint.boundingBox.height,
+				},
 			}),
 		);
 
@@ -86,3 +107,4 @@ export const connectPointDrawConnectLineStateHandlers = (
 		);
 	},
 });
+

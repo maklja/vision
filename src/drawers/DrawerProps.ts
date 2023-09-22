@@ -85,6 +85,7 @@ export interface ConnectPointsDrawerEvents extends DrawerAnimationEvents {
 	onMouseUp?: (cEvent: ConnectPointsDrawerEvent) => void;
 	onMouseOver?: (cEvent: ConnectPointsDrawerEvent) => void;
 	onMouseOut?: (cEvent: ConnectPointsDrawerEvent) => void;
+	onMouseMove?: (cEvent: ConnectPointsDrawerEvent) => void;
 }
 
 export interface LineEvent {
@@ -108,3 +109,4 @@ export interface LineDrawerEvents {
 	onDotDragEnd?: (lineDotEvent: LineDotEvent) => void;
 	onDotDragMove?: (lineDotEvent: LineDotEvent) => void;
 }
+

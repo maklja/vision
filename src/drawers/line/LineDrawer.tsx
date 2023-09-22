@@ -71,6 +71,8 @@ export const LineDrawer = ({
 		return [...topPoints, ...bottomPoints];
 	}, [points]);
 
+	const arrowPoints = useMemo(() => points.slice(points.length - 3, points.length - 1), [points]);
+
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
 			id,
@@ -158,7 +160,9 @@ export const LineDrawer = ({
 				listening={false}
 				points={points.flatMap((p) => [p.x, p.y])}
 			/>
-			{drawAnArrow ? <LineArrow {...lineTheme.arrow} points={points} size={size} /> : null}
+			{drawAnArrow ? (
+				<LineArrow {...lineTheme.arrow} points={arrowPoints} size={size} />
+			) : null}
 
 			{select
 				? points.slice(2, -2).map((p, i) => {

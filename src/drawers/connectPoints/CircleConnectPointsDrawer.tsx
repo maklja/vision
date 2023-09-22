@@ -39,6 +39,7 @@ export const CircleConnectPointsDrawer = ({
 	onMouseUp,
 	onMouseOver,
 	onMouseOut,
+	onMouseMove,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -90,6 +91,14 @@ export const CircleConnectPointsDrawer = ({
 		});
 	};
 
+	const handleOnMouseMove = (cEvent: ConnectPointDrawerEvent) => {
+		onMouseMove?.({
+			id,
+			connectPoint: cEvent,
+			element: new BoundingBox(x, y, width, height),
+		});
+	};
+
 	return (
 		<Group>
 			{connectPointsOptions?.top.visible && (
@@ -104,21 +113,22 @@ export const CircleConnectPointsDrawer = ({
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Top)}
 					type={connectPointsOptions?.top.type}
 					position={ConnectPointPosition.Top}
-					x={topX}
-					y={topY}
+					x={topX - connectPointsOptions.top.shapeSize.radius}
+					y={topY - connectPointsOptions.top.shapeSize.radius}
 					theme={theme}
-					size={connectPointsOptions?.top.shapeSize}
+					size={connectPointsOptions.top.shapeSize}
 					onMouseDown={handleOnMouseDown}
 					onMouseUp={handleOnMouseUp}
 					onMouseOver={handleOnMouseOver}
 					onMouseOut={handleOnMouseOut}
+					onMouseMove={handleOnMouseMove}
 					onAnimationBegin={onAnimationBegin}
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Top)}
-					animation={connectPointsOptions?.top.animation}
+					animation={connectPointsOptions.top.animation}
 				>
-					{connectPointsOptions?.top.icon}
+					{connectPointsOptions.top.icon}
 				</CircleConnectPointDrawer>
 			)}
 
@@ -135,21 +145,22 @@ export const CircleConnectPointsDrawer = ({
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Right)}
 					type={connectPointsOptions.right.type}
 					position={ConnectPointPosition.Right}
-					x={rightX}
-					y={rightY}
+					x={rightX - connectPointsOptions.right.shapeSize.radius}
+					y={rightY - connectPointsOptions.right.shapeSize.radius}
 					theme={theme}
-					size={connectPointsOptions?.right.shapeSize}
+					size={connectPointsOptions.right.shapeSize}
 					onMouseDown={handleOnMouseDown}
 					onMouseUp={handleOnMouseUp}
 					onMouseOver={handleOnMouseOver}
 					onMouseOut={handleOnMouseOut}
+					onMouseMove={handleOnMouseMove}
 					onAnimationBegin={onAnimationBegin}
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Right)}
-					animation={connectPointsOptions?.right.animation}
+					animation={connectPointsOptions.right.animation}
 				>
-					{connectPointsOptions?.right.icon}
+					{connectPointsOptions.right.icon}
 				</CircleConnectPointDrawer>
 			)}
 
@@ -166,21 +177,22 @@ export const CircleConnectPointsDrawer = ({
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Bottom)}
 					type={connectPointsOptions.bottom.type}
 					position={ConnectPointPosition.Bottom}
-					x={bottomX}
-					y={bottomY}
+					x={bottomX - connectPointsOptions.bottom.shapeSize.radius}
+					y={bottomY - connectPointsOptions.bottom.shapeSize.radius}
 					theme={theme}
-					size={connectPointsOptions?.bottom.shapeSize}
+					size={connectPointsOptions.bottom.shapeSize}
 					onMouseDown={handleOnMouseDown}
 					onMouseUp={handleOnMouseUp}
 					onMouseOver={handleOnMouseOver}
 					onMouseOut={handleOnMouseOut}
+					onMouseMove={handleOnMouseMove}
 					onAnimationBegin={onAnimationBegin}
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Bottom)}
-					animation={connectPointsOptions?.bottom.animation}
+					animation={connectPointsOptions.bottom.animation}
 				>
-					{connectPointsOptions?.bottom.icon}
+					{connectPointsOptions.bottom.icon}
 				</CircleConnectPointDrawer>
 			)}
 
@@ -197,23 +209,25 @@ export const CircleConnectPointsDrawer = ({
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Left)}
 					type={connectPointsOptions.left.type}
 					position={ConnectPointPosition.Left}
-					x={leftX}
-					y={leftY}
+					x={leftX - connectPointsOptions.left.shapeSize.radius}
+					y={leftY - connectPointsOptions.left.shapeSize.radius}
 					theme={theme}
-					size={connectPointsOptions?.left.shapeSize}
+					size={connectPointsOptions.left.shapeSize}
 					onMouseDown={handleOnMouseDown}
 					onMouseUp={handleOnMouseUp}
 					onMouseOver={handleOnMouseOver}
 					onMouseOut={handleOnMouseOut}
+					onMouseMove={handleOnMouseMove}
 					onAnimationBegin={onAnimationBegin}
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
 					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Left)}
-					animation={connectPointsOptions?.left.animation}
+					animation={connectPointsOptions.left.animation}
 				>
-					{connectPointsOptions?.left.icon}
+					{connectPointsOptions.left.icon}
 				</CircleConnectPointDrawer>
 			)}
 		</Group>
 	);
 };
+

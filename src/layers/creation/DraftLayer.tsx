@@ -6,9 +6,11 @@ import { selectStageDraftConnectLine } from '../../store/connectLines';
 import { selectSnapLines } from '../../store/snapLines';
 import { selectStageElementById } from '../../store/elements';
 import { useMemo } from 'react';
+import { useLineSize } from '../../theme';
 
 export const DraftLayer = () => {
 	const theme = useThemeContext();
+	const lineSize = useLineSize();
 	const draftConnectLine = useAppSelector(selectStageDraftConnectLine);
 	const snapLines = useAppSelector(selectSnapLines);
 	const sourceElement = useAppSelector(
@@ -48,7 +50,13 @@ export const DraftLayer = () => {
 	return (
 		<Layer>
 			{draftConnectLine ? (
-				<DraftLineDrawer key={draftConnectLine.id} points={draftPoints} theme={theme} />
+				<DraftLineDrawer
+					key={draftConnectLine.id}
+					points={draftPoints}
+					theme={theme}
+					size={lineSize}
+					arrowVisible={draftConnectLine.locked}
+				/>
 			) : null}
 
 			{snapLines.map((snapLine, i) => (
@@ -57,3 +65,4 @@ export const DraftLayer = () => {
 		</Layer>
 	);
 };
+
