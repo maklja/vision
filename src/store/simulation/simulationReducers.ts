@@ -1,13 +1,13 @@
 import { v1 } from 'uuid';
 import { AnimationKey, MoveAnimation } from '../../animation';
 import { FlowValueType } from '../../engine';
-import { DrawerAnimation } from '../drawerAnimationsSlice';
 import { Draft } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
 import { selectAllConnectLines } from '../connectLines';
 import { ConnectLine, Point } from '../../model';
 import { RootState } from '../rootState';
 import { clearErrorsStateChange, createElementErrorStateChange } from '../errors';
+import { DrawerAnimation } from '../drawerAnimations';
 
 export interface SimulationAnimation<D = unknown> extends DrawerAnimation<D> {
 	readonly drawerId: string;
@@ -230,4 +230,3 @@ export const selectSimulation = (state: RootState) => state.stage.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.stage.simulation.animationsQueue.at(0) ?? null;
-

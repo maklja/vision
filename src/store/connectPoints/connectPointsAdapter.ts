@@ -2,6 +2,11 @@ import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
 import { IBoundingBox, ConnectPoint, pointOverlapBoundingBox } from '../../model';
 import { StageSlice } from '../stageSlice';
 import { RootState } from '../rootState';
+import { AnimationKey } from '../../animation';
+import {
+	disposeDrawerAnimationStateChange,
+	refreshDrawerAnimationStateChange,
+} from '../drawerAnimations';
 
 export interface HighlightConnectPointsAction {
 	type: string;
@@ -12,7 +17,16 @@ export interface PinConnectLineAction {
 	type: string;
 	payload: {
 		elementId: string;
-		boundingBox: IBoundingBox;
+		connectPointId: string;
+		connectPointBoundingBox: IBoundingBox;
+	};
+}
+
+export interface UnpinConnectLineAction {
+	type: string;
+	payload: {
+		drawerId: string;
+		animationId: string | null;
 	};
 }
 
@@ -66,23 +80,37 @@ export const highlightedConnectPointsAdapterReducers = {
 			return;
 		}
 
-		const { boundingBox } = action.payload;
-		const hasOverlap = pointOverlapBoundingBox(lastPoint, boundingBox);
+		const { connectPointBoundingBox } = action.payload;
+		const hasOverlap = pointOverlapBoundingBox(lastPoint, connectPointBoundingBox);
 
 		if (!hasOverlap) {
 			return;
 		}
 
-		lastPoint.x = boundingBox.x + boundingBox.width / 2;
-		lastPoint.y = boundingBox.y + boundingBox.height / 2;
+		lastPoint.x = connectPointBoundingBox.x + connectPointBoundingBox.width / 2;
+		lastPoint.y = connectPointBoundingBox.y + connectPointBoundingBox.height / 2;
 		slice.draftConnectLine.locked = true;
+
+		refreshDrawerAnimationStateChange(slice, {
+			drawerId: action.payload.connectPointId,
+			key: AnimationKey.SnapConnectPoint,
+		});
 	},
-	unpinConnectLine: (slice: Draft<StageSlice>) => {
+	unpinConnectLine: (slice: Draft<StageSlice>, action: UnpinConnectLineAction) => {
 		if (!slice.draftConnectLine) {
 			return;
 		}
 
 		slice.draftConnectLine.locked = false;
+
+		if (!action.payload.animationId) {
+			return;
+		}
+
+		disposeDrawerAnimationStateChange(slice, {
+			drawerId: action.payload.drawerId,
+			animationId: action.payload.animationId,
+		});
 	},
 };
 

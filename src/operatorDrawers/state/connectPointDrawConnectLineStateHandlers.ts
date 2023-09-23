@@ -1,13 +1,11 @@
-import { AnimationKey } from '../../animation';
 import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../drawers';
-import {
-	refreshDrawerAnimation,
-	removeDrawerAnimation,
-	disposeDrawerAnimation,
-	removeAllDrawerAnimation,
-} from '../../store/drawerAnimationsSlice';
 import { AppDispatch } from '../../store/rootState';
-import { linkConnectLineDraw, pinConnectLine, unpinConnectLine } from '../../store/stageSlice';
+import {
+	linkConnectLineDraw,
+	pinConnectLine,
+	removeDrawerAnimation,
+	unpinConnectLine,
+} from '../../store/stageSlice';
 
 const CANCEL_MOUSE_BUTTON_KEY = 2;
 
@@ -26,26 +24,21 @@ export const connectPointDrawConnectLineStateHandlers = (
 			originalEvent.evt.button !== CANCEL_MOUSE_BUTTON_KEY &&
 			originalEvent.evt.buttons !== CANCEL_MOUSE_BUTTON_KEY
 		) {
-			dispatch(
+			return dispatch(
 				linkConnectLineDraw({
+					connectPointId: connectPoint.id,
 					targetId: id,
 					targetPoint: element.center,
 					targetConnectPointType: connectPoint.type,
 					targetConnectPointPosition: connectPoint.position,
 				}),
 			);
-			return dispatch(removeAllDrawerAnimation({ drawerId: connectPoint.id }));
-		}
-
-		dispatch(unpinConnectLine());
-		if (!animation) {
-			return;
 		}
 
 		dispatch(
-			disposeDrawerAnimation({
+			unpinConnectLine({
 				drawerId: id,
-				animationId: animation.id,
+				animationId: animation?.id ?? null,
 			}),
 		);
 	},
@@ -54,7 +47,8 @@ export const connectPointDrawConnectLineStateHandlers = (
 		dispatch(
 			pinConnectLine({
 				elementId: id,
-				boundingBox: {
+				connectPointId: connectPoint.id,
+				connectPointBoundingBox: {
 					x: connectPoint.boundingBox.x,
 					y: connectPoint.boundingBox.y,
 					width: connectPoint.boundingBox.width,
@@ -68,7 +62,8 @@ export const connectPointDrawConnectLineStateHandlers = (
 		dispatch(
 			pinConnectLine({
 				elementId: id,
-				boundingBox: {
+				connectPointId: connectPoint.id,
+				connectPointBoundingBox: {
 					x: connectPoint.boundingBox.x,
 					y: connectPoint.boundingBox.y,
 					width: connectPoint.boundingBox.width,
@@ -76,27 +71,13 @@ export const connectPointDrawConnectLineStateHandlers = (
 				},
 			}),
 		);
-
-		dispatch(
-			refreshDrawerAnimation({
-				drawerId: connectPoint.id,
-				key: AnimationKey.SnapConnectPoint,
-			}),
-		);
 	},
 	onMouseOut: (cEvent: ConnectPointsDrawerEvent) => {
-		dispatch(unpinConnectLine());
-
 		const { connectPoint } = cEvent;
-		const { animation } = connectPoint;
-		if (!animation) {
-			return;
-		}
-
 		dispatch(
-			disposeDrawerAnimation({
+			unpinConnectLine({
 				drawerId: connectPoint.id,
-				animationId: animation.id,
+				animationId: connectPoint.animation?.id ?? null,
 			}),
 		);
 	},

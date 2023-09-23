@@ -20,6 +20,7 @@ import {
 } from '../elements';
 import { StageState } from '../stage';
 import { clearHighlightedConnectPointsStateChange } from '../connectPoints';
+import { removeAllDrawerAnimationStateChange } from '../drawerAnimations';
 
 export interface DraftConnectLine {
 	id: string;
@@ -54,6 +55,7 @@ export interface AddPointConnectLineDrawAction {
 }
 
 export interface LinkConnectLineDrawPayload {
+	connectPointId: string;
 	targetId: string;
 	targetPoint: Point;
 	targetConnectPointType: ConnectPointType;
@@ -349,6 +351,7 @@ export const connectLinesAdapterReducers = {
 				connectPosition: payload.targetConnectPointPosition,
 			},
 		});
+		removeAllDrawerAnimationStateChange(slice, { drawerId: payload.connectPointId });
 	},
 	moveConnectLinePointsByDelta: (
 		slice: Draft<StageSlice>,
@@ -420,4 +423,3 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
-

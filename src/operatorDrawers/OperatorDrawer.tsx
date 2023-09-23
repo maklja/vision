@@ -19,7 +19,6 @@ import { ResultDrawer } from './resultOperators';
 import { MergeOperatorDrawer } from './joinCreationOperators';
 import { useThemeContext } from '../store/stageSlice';
 import { useAppSelector } from '../store/rootState';
-import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimationsSlice';
 import { useElementDrawerHandlers } from './state';
 import { ElementDrawerProps } from './ElementDrawerProps';
 import { animationRegistry } from '../animation';
@@ -31,6 +30,7 @@ import {
 import { isSelectedElement } from '../store/elements';
 import { isHighlighted } from '../store/highlight';
 import { selectElementErrorById } from '../store/errors';
+import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
 
 export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {
 	switch (elType) {

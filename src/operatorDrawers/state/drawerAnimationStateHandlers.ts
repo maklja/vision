@@ -1,6 +1,6 @@
 import { DrawerEvents } from '../../drawers';
-import { disposeDrawerAnimation, removeDrawerAnimation } from '../../store/drawerAnimationsSlice';
 import { AppDispatch } from '../../store/rootState';
+import { disposeDrawerAnimation, removeDrawerAnimation } from '../../store/stageSlice';
 
 export const drawerAnimationStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({
 	onAnimationComplete: (aEvent) => {

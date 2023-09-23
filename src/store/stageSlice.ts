@@ -37,6 +37,11 @@ import {
 	ElementConnectPoints,
 	highlightedConnectPointsAdapterReducers,
 } from './connectPoints';
+import {
+	createDrawerAnimationsInitialState,
+	DrawerAnimations,
+	drawerAnimationsAdapterReducers,
+} from './drawerAnimations';
 
 export * from './hooks/theme';
 
@@ -56,6 +61,7 @@ export interface StageSlice {
 	errors: EntityState<ElementError>;
 	tooltip: ElementTooltip | null;
 	snapLines: SnapLine[];
+	animations: EntityState<DrawerAnimations>;
 }
 
 export const createStageInitialState = (elements: Element[] = []): StageSlice => ({
@@ -74,6 +80,7 @@ export const createStageInitialState = (elements: Element[] = []): StageSlice =>
 	errors: createErrorsAdapterInitialState(),
 	tooltip: null,
 	snapLines: createSnapLinesInitialState(),
+	animations: createDrawerAnimationsInitialState(),
 });
 
 export const stageSlice = createSlice({
@@ -92,6 +99,7 @@ export const stageSlice = createSlice({
 		...errorReducers,
 		...snapLineReducers,
 		...highlightedConnectPointsAdapterReducers,
+		...drawerAnimationsAdapterReducers,
 	},
 });
 
@@ -134,7 +142,12 @@ export const {
 	clearSnapLines,
 	updateDraftElementPosition,
 	createDraftElementSnapLines,
+	addDrawerAnimation,
+	clearHighlightedConnectPoints,
+	disposeDrawerAnimation,
+	refreshDrawerAnimation,
+	removeAllDrawerAnimation,
+	removeDrawerAnimation,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
-
