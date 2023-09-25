@@ -118,21 +118,21 @@ export const LineDrawer = ({
 			index: pointIndex,
 		});
 
-	const handleDotDragStart = (pointIndex: number, e: Konva.KonvaEventObject<MouseEvent>) =>
+	const handleDotDragStart = (pointIndex: number, e: Konva.KonvaEventObject<DragEvent>) =>
 		onDotDragStart?.({
 			id,
 			originalEvent: e,
 			index: pointIndex,
 		});
 
-	const handleDotDragEnd = (pointIndex: number, e: Konva.KonvaEventObject<MouseEvent>) =>
+	const handleDotDragEnd = (pointIndex: number, e: Konva.KonvaEventObject<DragEvent>) =>
 		onDotDragEnd?.({
 			id,
 			originalEvent: e,
 			index: pointIndex,
 		});
 
-	const handleDotDragMove = (pointIndex: number, e: Konva.KonvaEventObject<MouseEvent>) =>
+	const handleDotDragMove = (pointIndex: number, e: Konva.KonvaEventObject<DragEvent>) =>
 		onDotDragMove?.({
 			id,
 			originalEvent: e,
