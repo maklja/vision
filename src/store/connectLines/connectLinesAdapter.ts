@@ -8,6 +8,7 @@ import {
 	Element,
 	ElementDescriptor,
 	Point,
+	distanceBetweenPoints,
 	findElementDescriptor,
 } from '../../model';
 import { RootState } from '../rootState';
@@ -103,6 +104,7 @@ export interface MoveConnectLinePointAction {
 		index: number;
 		x: number;
 		y: number;
+		normalizePosition: boolean;
 	};
 }
 
@@ -366,17 +368,42 @@ export const connectLinesAdapterReducers = {
 			return;
 		}
 
+		const mousePosition = { x: payload.x, y: payload.y };
+		if (!payload.normalizePosition) {
+			slice.connectLines = connectLinesAdapter.updateOne(slice.connectLines, {
+				id: cl.id,
+				changes: {
+					points: cl.points.map((p, i) => (i !== payload.index ? p : mousePosition)),
+				},
+			});
+			return;
+		}
+
+		const prevPoint = cl.points[payload.index - 1];
+		const nextPoint = cl.points[payload.index + 1];
+
+		// random to force canvas redraw
+		const rnd = Math.random() * 0.1;
+
+		const newPoint1 = {
+			x: prevPoint.x + rnd,
+			y: nextPoint.y + rnd,
+		};
+		const newPoint2 = {
+			x: nextPoint.x + rnd,
+			y: prevPoint.y + rnd,
+		};
+
+		const normalizedPoint =
+			distanceBetweenPoints(mousePosition, newPoint1) <
+			distanceBetweenPoints(mousePosition, newPoint2)
+				? newPoint1
+				: newPoint2;
+
 		slice.connectLines = connectLinesAdapter.updateOne(slice.connectLines, {
 			id: cl.id,
 			changes: {
-				points: cl.points.map((p, i) =>
-					i !== payload.index
-						? p
-						: {
-								x: payload.x,
-								y: payload.y,
-						  },
-				),
+				points: cl.points.map((p, i) => (i !== payload.index ? p : normalizedPoint)),
 			},
 		});
 	},

@@ -37,8 +37,8 @@ export const connectLineDragStateHandlers = (dispatch: AppDispatch): LineDrawerE
 				index,
 				x: position.x,
 				y: position.y,
+				normalizePosition: originalEvent.evt.shiftKey,
 			}),
 		);
 	},
 });
-

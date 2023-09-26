@@ -15,6 +15,7 @@ export interface LineDrawerProps extends LineDrawerEvents {
 	highlight?: boolean;
 	select?: boolean;
 	arrowVisible?: boolean;
+	draggable?: boolean;
 }
 
 export const LineDrawer = ({
@@ -26,6 +27,7 @@ export const LineDrawer = ({
 	select = false,
 	highlight = false,
 	arrowVisible = true,
+	draggable = true,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
@@ -169,8 +171,9 @@ export const LineDrawer = ({
 						const indexOffset = i + 2;
 						return (
 							<Circle
-								draggable={true}
 								{...lineTheme.dot}
+								radius={size.dotSize}
+								draggable={draggable}
 								onMouseDown={(e) => handleDotMouseDown(indexOffset, e)}
 								onMouseOver={(e) => handleDotMouseOver(indexOffset, e)}
 								onMouseOut={(e) => handleDotMouseOut(indexOffset, e)}
@@ -180,7 +183,6 @@ export const LineDrawer = ({
 								key={i}
 								x={p.x}
 								y={p.y}
-								radius={size.dotSize}
 							/>
 						);
 				  })
@@ -188,4 +190,3 @@ export const LineDrawer = ({
 		</Group>
 	);
 };
-
