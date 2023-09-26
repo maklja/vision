@@ -6,7 +6,6 @@ import {
 	clearSelected,
 	hideTooltip,
 	highlight,
-	moveElement,
 	selectElements,
 	showTooltip,
 } from '../../store/stageSlice';
@@ -50,26 +49,6 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 			e.originalEvent.cancelBubble = true;
 		}
 		dispatch(changeState(StageState.Dragging));
-	},
-	onDragEnd: (e: DrawerEvent) => {
-		if (e.originalEvent) {
-			e.originalEvent.cancelBubble = true;
-		}
-		dispatch(changeState(StageState.Select));
-	},
-	onDragMove: (e: DrawerEvent) => {
-		const { id, originalEvent } = e;
-		if (originalEvent) {
-			originalEvent.cancelBubble = true;
-			const position = originalEvent.currentTarget.getPosition();
-			dispatch(
-				moveElement({
-					id,
-					x: position.x,
-					y: position.y,
-				}),
-			);
-		}
 	},
 });
 
