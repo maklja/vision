@@ -12,8 +12,8 @@ export interface LineArrowProps {
 export const LineArrow = ({ points, size, fill }: LineArrowProps) => {
 	const { arrowSize, arrowAngle } = size;
 	const path = useMemo(() => {
-		const sourcePoint = points[points.length - 3];
-		const targetPoint = points[points.length - 2];
+		const sourcePoint = points[points.length - 2];
+		const targetPoint = points[points.length - 1];
 
 		const t =
 			Math.sqrt(
@@ -39,6 +39,6 @@ export const LineArrow = ({ points, size, fill }: LineArrowProps) => {
 		return `M${targetPoint.x} ${targetPoint.y} L${rX1} ${rY1} L${rX2} ${rY2} Z`;
 	}, [points]);
 
-	return <Path data={path} fill={fill} />;
+	return <Path listening={false} data={path} fill={fill} />;
 };
 

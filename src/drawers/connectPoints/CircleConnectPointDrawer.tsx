@@ -4,7 +4,12 @@ import { useState } from 'react';
 import { Circle, Group } from 'react-konva';
 import { DrawerAnimationTemplate, useAnimation } from '../../animation';
 import { ConnectPointPosition, ConnectPointType } from '../../model';
-import { CircleShapeSize, Theme, useConnectPointTheme } from '../../theme';
+import {
+	CircleShapeSize,
+	Theme,
+	calculateShapeSizeBoundingBox,
+	useConnectPointTheme,
+} from '../../theme';
 import {
 	ConnectPointDrawerEvent,
 	ConnectPointIconDrawerProps,
@@ -25,6 +30,7 @@ export interface CircleConnectPointDrawerProps extends DrawerAnimationEvents {
 	onMouseUp?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOver?: (event: ConnectPointDrawerEvent) => void;
 	onMouseOut?: (event: ConnectPointDrawerEvent) => void;
+	onMouseMove?: (event: ConnectPointDrawerEvent) => void;
 	children?: (iconProps: ConnectPointIconDrawerProps) => ReactNode | null;
 }
 
@@ -43,12 +49,14 @@ export const CircleConnectPointDrawer = ({
 	onMouseUp,
 	onMouseOver,
 	onMouseOut,
+	onMouseMove,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
 }: CircleConnectPointDrawerProps) => {
 	const connectPointElementTheme = useConnectPointTheme({ position, highlight }, theme);
 	const { radius } = size;
+	const boundingBox = calculateShapeSizeBoundingBox({ x, y }, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 
 	useAnimation(mainShapeRef, {
@@ -62,36 +70,34 @@ export const CircleConnectPointDrawer = ({
 		drawerId: id,
 	});
 
-	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		onMouseOver?.({ id, type, position, x, y, animation, originalEvent: e });
-	};
+	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseOver?.({ id, type, position, boundingBox, animation, originalEvent: e });
 
-	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		onMouseOut?.({ id, type, position, x, y, animation, originalEvent: e });
-	};
+	const handleMouseOut = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseOut?.({ id, type, position, boundingBox, animation, originalEvent: e });
 
-	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		onMouseDown?.({ id, type, position, x, y, animation, originalEvent: e });
-	};
+	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseDown?.({ id, type, position, boundingBox, animation, originalEvent: e });
 
-	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
-		e.cancelBubble = true;
-		onMouseUp?.({ id, type, position, x, y, animation, originalEvent: e });
-	};
+	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseUp?.({ id, type, position, boundingBox, animation, originalEvent: e });
+
+	const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseMove?.({ id, type, position, boundingBox, animation, originalEvent: e });
 
 	return (
 		<Group x={x} y={y} visible={Boolean(mainShapeRef)}>
 			<Circle
 				{...connectPointElementTheme.element}
+				x={radius}
+				y={radius}
 				radius={radius}
 				ref={(node) => setMainShapeRef(node)}
 				onMouseDown={handleMouseDown}
 				onMouseUp={handleMouseUp}
 				onMouseOver={handleMouseOver}
 				onMouseOut={handleMouseOut}
+				onMouseMove={handleMouseMove}
 			/>
 			{children?.({ type, theme, highlight, connectPointPosition: position })}
 		</Group>

@@ -15,6 +15,7 @@ export interface LineDrawerProps extends LineDrawerEvents {
 	highlight?: boolean;
 	select?: boolean;
 	arrowVisible?: boolean;
+	draggable?: boolean;
 }
 
 export const LineDrawer = ({
@@ -26,6 +27,7 @@ export const LineDrawer = ({
 	select = false,
 	highlight = false,
 	arrowVisible = true,
+	draggable = true,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
@@ -70,6 +72,8 @@ export const LineDrawer = ({
 			.flatMap(([, , p2, p3]) => [p2.x, p2.y, p3.x, p3.y]);
 		return [...topPoints, ...bottomPoints];
 	}, [points]);
+
+	const arrowPoints = useMemo(() => points.slice(points.length - 3, points.length - 1), [points]);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -116,21 +120,21 @@ export const LineDrawer = ({
 			index: pointIndex,
 		});
 
-	const handleDotDragStart = (pointIndex: number, e: Konva.KonvaEventObject<MouseEvent>) =>
+	const handleDotDragStart = (pointIndex: number, e: Konva.KonvaEventObject<DragEvent>) =>
 		onDotDragStart?.({
 			id,
 			originalEvent: e,
 			index: pointIndex,
 		});
 
-	const handleDotDragEnd = (pointIndex: number, e: Konva.KonvaEventObject<MouseEvent>) =>
+	const handleDotDragEnd = (pointIndex: number, e: Konva.KonvaEventObject<DragEvent>) =>
 		onDotDragEnd?.({
 			id,
 			originalEvent: e,
 			index: pointIndex,
 		});
 
-	const handleDotDragMove = (pointIndex: number, e: Konva.KonvaEventObject<MouseEvent>) =>
+	const handleDotDragMove = (pointIndex: number, e: Konva.KonvaEventObject<DragEvent>) =>
 		onDotDragMove?.({
 			id,
 			originalEvent: e,
@@ -158,15 +162,18 @@ export const LineDrawer = ({
 				listening={false}
 				points={points.flatMap((p) => [p.x, p.y])}
 			/>
-			{drawAnArrow ? <LineArrow {...lineTheme.arrow} points={points} size={size} /> : null}
+			{drawAnArrow ? (
+				<LineArrow {...lineTheme.arrow} points={arrowPoints} size={size} />
+			) : null}
 
 			{select
 				? points.slice(2, -2).map((p, i) => {
 						const indexOffset = i + 2;
 						return (
 							<Circle
-								draggable={true}
 								{...lineTheme.dot}
+								radius={size.dotSize}
+								draggable={draggable}
 								onMouseDown={(e) => handleDotMouseDown(indexOffset, e)}
 								onMouseOver={(e) => handleDotMouseOver(indexOffset, e)}
 								onMouseOut={(e) => handleDotMouseOut(indexOffset, e)}
@@ -176,7 +183,6 @@ export const LineDrawer = ({
 								key={i}
 								x={p.x}
 								y={p.y}
-								radius={size.dotSize}
 							/>
 						);
 				  })
@@ -184,4 +190,3 @@ export const LineDrawer = ({
 		</Group>
 	);
 };
-

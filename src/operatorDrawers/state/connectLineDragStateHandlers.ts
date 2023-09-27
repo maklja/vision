@@ -12,7 +12,7 @@ export const connectLineDragStateHandlers = (dispatch: AppDispatch): LineDrawerE
 		}
 		originalEvent.cancelBubble = true;
 	},
-	onDotDragEnd: (e: LineDotEvent) => {
+	onDotDragEnd: (e: LineDotEvent<DragEvent>) => {
 		const { originalEvent } = e;
 		if (!originalEvent) {
 			return;
@@ -22,7 +22,7 @@ export const connectLineDragStateHandlers = (dispatch: AppDispatch): LineDrawerE
 		originalEvent.cancelBubble = true;
 		dispatch(changeState(StageState.Select));
 	},
-	onDotDragMove: (e: LineDotEvent) => {
+	onDotDragMove: (e: LineDotEvent<DragEvent>) => {
 		const { id, originalEvent, index } = e;
 		if (!originalEvent) {
 			return;
@@ -37,8 +37,8 @@ export const connectLineDragStateHandlers = (dispatch: AppDispatch): LineDrawerE
 				index,
 				x: position.x,
 				y: position.y,
+				normalizePosition: originalEvent.evt.shiftKey,
 			}),
 		);
 	},
 });
-

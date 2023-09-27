@@ -1,11 +1,9 @@
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { combineReducers, configureStore, PreloadedState } from '@reduxjs/toolkit';
 import stageReducer from './stageSlice';
-import drawerAnimationsSlice from './drawerAnimationsSlice';
 
 const rootReducer = combineReducers({
 	stage: stageReducer,
-	drawerAnimations: drawerAnimationsSlice,
 });
 
 export const setupStore = (preloadedState?: PreloadedState<RootState>) => {

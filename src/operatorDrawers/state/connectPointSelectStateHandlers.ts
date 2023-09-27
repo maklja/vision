@@ -9,6 +9,8 @@ export const connectPointSelectStateHandlers = (
 		const { connectPoint, element, id } = cEvent;
 		connectPoint.originalEvent.cancelBubble = true;
 
+		const { boundingBox } = connectPoint;
+		const { center } = boundingBox;
 		dispatch(
 			startConnectLineDraw({
 				sourceId: id,
@@ -16,8 +18,8 @@ export const connectPointSelectStateHandlers = (
 				position: connectPoint.position,
 				points: [
 					{ ...element.center },
-					{ x: connectPoint.x, y: connectPoint.y },
-					{ x: connectPoint.x, y: connectPoint.y },
+					{ x: center.x, y: center.y },
+					{ x: center.x, y: center.y },
 				],
 			}),
 		);

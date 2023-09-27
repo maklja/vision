@@ -1,4 +1,13 @@
-export class BoundingBox {
+import { Point } from '../common';
+
+export interface IBoundingBox {
+	readonly x: number;
+	readonly y: number;
+	readonly width: number;
+	readonly height: number;
+}
+
+export class BoundingBox implements IBoundingBox {
 	constructor(
 		public readonly x = 0,
 		public readonly y = 0,
@@ -31,3 +40,5 @@ export class BoundingBox {
 	}
 }
 
+export const pointOverlapBoundingBox = (p: Point, bb: IBoundingBox) =>
+	bb.x <= p.x && p.x <= bb.x + bb.width && bb.y <= p.y && p.y <= bb.y + bb.height;

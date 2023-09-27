@@ -1,4 +1,4 @@
--   90 lines
+-   connect points snap lines
 -   grid move
 -   laso and multi selection
 -   save/load
@@ -20,4 +20,3 @@
 -   offline support
 -   google drive integration
 -   pre code executions
-

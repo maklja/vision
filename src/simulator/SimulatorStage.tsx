@@ -31,6 +31,7 @@ export interface StageEvents {
 	onDragEnd?: (event: Konva.KonvaEventObject<DragEvent>) => void;
 	onDragMove?: (event: Konva.KonvaEventObject<DragEvent>) => void;
 	onWheel?: (event: Konva.KonvaEventObject<WheelEvent>) => void;
+	onKeyDown?: (event: KeyboardEvent, stage: Konva.Stage | null) => void;
 	onKeyUp?: (event: KeyboardEvent, stage: Konva.Stage | null) => void;
 }
 
@@ -108,3 +109,4 @@ export const SimulatorStage = () => {
 		</div>
 	);
 };
+

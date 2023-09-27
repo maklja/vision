@@ -8,6 +8,7 @@ import {
 	Element,
 	ElementDescriptor,
 	Point,
+	distanceBetweenPoints,
 	findElementDescriptor,
 } from '../../model';
 import { RootState } from '../rootState';
@@ -20,6 +21,7 @@ import {
 } from '../elements';
 import { StageState } from '../stage';
 import { clearHighlightedConnectPointsStateChange } from '../connectPoints';
+import { removeAllDrawerAnimationStateChange } from '../drawerAnimations';
 
 export interface DraftConnectLine {
 	id: string;
@@ -42,7 +44,10 @@ export interface StartConnectLineDrawAction {
 
 export interface MoveConnectLineDrawAction {
 	type: string;
-	payload: Point;
+	payload: {
+		position: Point;
+		normalizePosition: boolean;
+	};
 }
 
 export interface AddPointConnectLineDrawAction {
@@ -51,6 +56,7 @@ export interface AddPointConnectLineDrawAction {
 }
 
 export interface LinkConnectLineDrawPayload {
+	connectPointId: string;
 	targetId: string;
 	targetPoint: Point;
 	targetConnectPointType: ConnectPointType;
@@ -98,6 +104,7 @@ export interface MoveConnectLinePointAction {
 		index: number;
 		x: number;
 		y: number;
+		normalizePosition: boolean;
 	};
 }
 
@@ -266,8 +273,20 @@ export const connectLinesAdapterReducers = {
 		if (draftConnectLine.locked) {
 			return;
 		}
+		const { position, normalizePosition } = action.payload;
 
-		draftConnectLine.points.splice(-1, 1, action.payload);
+		if (!normalizePosition) {
+			draftConnectLine.points.splice(-1, 1, position);
+			return;
+		}
+
+		const lastPoint = draftConnectLine.points[draftConnectLine.points.length - 2];
+		const newPosition =
+			Math.abs(lastPoint.x - position.x) < Math.abs(lastPoint.y - position.y)
+				? { x: lastPoint.x, y: position.y }
+				: { x: position.x, y: lastPoint.y };
+
+		draftConnectLine.points.splice(-1, 1, newPosition);
 	},
 	addNextPointConnectLineDraw: (
 		slice: Draft<StageSlice>,
@@ -334,6 +353,7 @@ export const connectLinesAdapterReducers = {
 				connectPosition: payload.targetConnectPointPosition,
 			},
 		});
+		removeAllDrawerAnimationStateChange(slice, { drawerId: payload.connectPointId });
 	},
 	moveConnectLinePointsByDelta: (
 		slice: Draft<StageSlice>,
@@ -348,17 +368,42 @@ export const connectLinesAdapterReducers = {
 			return;
 		}
 
+		const mousePosition = { x: payload.x, y: payload.y };
+		if (!payload.normalizePosition) {
+			slice.connectLines = connectLinesAdapter.updateOne(slice.connectLines, {
+				id: cl.id,
+				changes: {
+					points: cl.points.map((p, i) => (i !== payload.index ? p : mousePosition)),
+				},
+			});
+			return;
+		}
+
+		const prevPoint = cl.points[payload.index - 1];
+		const nextPoint = cl.points[payload.index + 1];
+
+		// random to force canvas redraw
+		const rnd = Math.random() * 0.1;
+
+		const newPoint1 = {
+			x: prevPoint.x + rnd,
+			y: nextPoint.y + rnd,
+		};
+		const newPoint2 = {
+			x: nextPoint.x + rnd,
+			y: prevPoint.y + rnd,
+		};
+
+		const normalizedPoint =
+			distanceBetweenPoints(mousePosition, newPoint1) <
+			distanceBetweenPoints(mousePosition, newPoint2)
+				? newPoint1
+				: newPoint2;
+
 		slice.connectLines = connectLinesAdapter.updateOne(slice.connectLines, {
 			id: cl.id,
 			changes: {
-				points: cl.points.map((p, i) =>
-					i !== payload.index
-						? p
-						: {
-								x: payload.x,
-								y: payload.y,
-						  },
-				),
+				points: cl.points.map((p, i) => (i !== payload.index ? p : normalizedPoint)),
 			},
 		});
 	},
@@ -405,4 +450,3 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
-

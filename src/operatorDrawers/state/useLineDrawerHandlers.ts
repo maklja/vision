@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/rootState';
 import { connectLineSelectStateHandlers } from './connectLineSelectStateHandlers';
 import { connectLineDragStateHandlers } from './connectLineDragStateHandlers';
-import { selectSimulation } from '../../store/simulation';
+import { SimulationState, selectSimulation } from '../../store/simulation';
 import { StageState, selectStageState } from '../../store/stage';
 
 export const useLineDrawerHandlers = () => {
@@ -11,6 +11,10 @@ export const useLineDrawerHandlers = () => {
 	const appDispatch = useAppDispatch();
 
 	return useMemo(() => {
+		if (simulation.state === SimulationState.Running) {
+			return {};
+		}
+
 		if (stageState === StageState.Select) {
 			return connectLineSelectStateHandlers(appDispatch);
 		}
@@ -22,4 +26,3 @@ export const useLineDrawerHandlers = () => {
 		return {};
 	}, [stageState, simulation.state]);
 };
-

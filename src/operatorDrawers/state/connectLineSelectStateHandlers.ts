@@ -44,4 +44,3 @@ export const connectLineSelectStateHandlers = (dispatch: AppDispatch): LineDrawe
 		dispatch(changeState(StageState.Dragging));
 	},
 });
-

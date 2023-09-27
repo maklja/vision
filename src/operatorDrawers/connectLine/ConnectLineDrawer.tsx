@@ -9,9 +9,10 @@ import { useLineDrawerHandlers } from '../state';
 
 export interface ConnectLineDrawerProps {
 	connectLine: ConnectLine;
+	draggable: boolean;
 }
 
-export const ConnectLineDrawer = ({ connectLine }: ConnectLineDrawerProps) => {
+export const ConnectLineDrawer = ({ connectLine, draggable }: ConnectLineDrawerProps) => {
 	const theme = useThemeContext();
 	const lineSize = useLineSize();
 	const connectLineHandlers = useLineDrawerHandlers();
@@ -27,7 +28,7 @@ export const ConnectLineDrawer = ({ connectLine }: ConnectLineDrawerProps) => {
 			theme={theme}
 			select={select}
 			highlight={highlight}
+			draggable={draggable}
 		/>
 	);
 };
-

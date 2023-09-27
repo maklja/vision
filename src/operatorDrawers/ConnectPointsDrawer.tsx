@@ -24,10 +24,10 @@ import {
 	Theme,
 	calculateShapeSizeBoundingBox,
 } from '../theme';
-import { DrawerAnimation, selectDrawerAnimationByDrawerId } from '../store/drawerAnimationsSlice';
 import { DrawerAnimationTemplate, animationRegistry } from '../animation';
 import { selectElementSelection } from '../store/elements';
 import { selectHighlightedConnectPointsByElementId } from '../store/connectPoints';
+import { DrawerAnimation, selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
 
 export const createDefaultElementProps = <T extends ShapeSize>(
 	elType: ElementType,
