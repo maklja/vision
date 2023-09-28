@@ -46,7 +46,6 @@ export const OperatorButton = ({ elementType, padding = 4, scale = 0.65 }: Opera
 					id: v1(),
 					x: xPosition,
 					y: yPosition,
-					scale: 1,
 					visible: true,
 					type: elementType,
 					properties: mapToOperatorPropsTemplate(elementType),

@@ -5,6 +5,7 @@ import { XYCoord, useDragLayer } from 'react-dnd';
 import { Element, ElementType } from '../../model';
 import {
 	createDraftElementSnapLines,
+	selectElementSizeOptions,
 	updateDraftElementPosition,
 	useThemeContext,
 } from '../../store/stageSlice';
@@ -29,9 +30,9 @@ interface DragCollectedProps {
 export const DragNDropLayer = () => {
 	const appDispatch = useAppDispatch();
 	const theme = useThemeContext();
+	const elementSizeOptions = useAppSelector(selectElementSizeOptions);
 	const draftElement = useAppSelector(selectStageDraftElement) ?? {
 		id: '',
-		scale: 1,
 		type: ElementType.Empty,
 		visible: false,
 		x: 0,
@@ -77,9 +78,9 @@ export const DragNDropLayer = () => {
 		id: draftElement.id,
 		x: draftElement.x,
 		y: draftElement.y,
-		scale: draftElement.scale,
 		visible: draftElement.visible,
 		properties: draftElement.properties,
+		scale: elementSizeOptions.scale,
 		select: true,
 		draggable: false,
 		theme,

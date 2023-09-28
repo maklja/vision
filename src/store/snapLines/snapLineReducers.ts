@@ -37,13 +37,14 @@ const createSnapLinesByElement = (
 	stageElements: Element[],
 	elementSizes: ElementSizesContext,
 ) => {
-	const shapeSize = scaleShapeSize(findElementSize(elementSizes.sizes, el.type), el.scale);
+	const { sizes, options } = elementSizes;
+	const shapeSize = scaleShapeSize(findElementSize(sizes, el.type), options.scale);
 	const elBoundingBox = calculateShapeSizeBoundingBox({ x: el.x, y: el.y }, shapeSize);
 
 	const elements = stageElements.filter((currentElement) => currentElement.id !== el.id);
 
 	const elementsBoundingBox = elements.map((el) => {
-		const shapeSize = scaleShapeSize(findElementSize(elementSizes.sizes, el.type), el.scale);
+		const shapeSize = scaleShapeSize(findElementSize(sizes, el.type), options.scale);
 		return calculateShapeSizeBoundingBox({ x: el.x, y: el.y }, shapeSize);
 	});
 

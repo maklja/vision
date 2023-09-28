@@ -11,7 +11,6 @@ export interface Element<P extends ElementProps = object> {
 	type: ElementType;
 	x: number;
 	y: number;
-	scale: number;
 	visible: boolean;
 	properties: P;
 }

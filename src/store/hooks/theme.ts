@@ -21,6 +21,8 @@ import {
 
 const selectThemes = (state: RootState) => state.stage.themes;
 
+export const selectElementSizeOptions = (state: RootState) => state.stage.elementSizes.options;
+
 const selectElementType = (_state: RootState, elType?: ElementType) => elType;
 
 const makeSelectThemeContext = () =>

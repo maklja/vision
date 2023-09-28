@@ -7,3 +7,13 @@ export interface ConnectPoint {
 	elementId: string;
 }
 
+export interface ConnectPointX {
+	type: ConnectPointType;
+	position: ConnectPointPosition;
+	elementId: string;
+	x: number;
+	y: number;
+	scale: number;
+	visible: boolean;
+}
+
