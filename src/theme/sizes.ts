@@ -156,43 +156,41 @@ const defaultElementSizes: ElementSizesContext = {
 
 export const createElementSizesContext = () => defaultElementSizes;
 
-export const findElementSize = (sizes: ElementSizes, elType: ElementType) => {
+export const findElementSize = (elSizesContext: ElementSizesContext, elType: ElementType) => {
 	const elGroup = mapElementTypeToGroup(elType);
-	const elSize = sizes[elGroup];
+	const elSize = elSizesContext.sizes[elGroup];
 
 	if (!elSize) {
 		throw new Error(`Unsupported element size for type ${elType}`);
 	}
 
-	return elSize;
+	return scaleShapeSize(elSize, elSizesContext.options.scale);
 };
 
 export const findCircleShapeSize = (
 	elSizesContext: ElementSizesContext,
 	elType: ElementType,
 ): CircleShapeSize => {
-	const { sizes, options } = elSizesContext;
-	const shapeSize = findElementSize(sizes, elType);
+	const shapeSize = findElementSize(elSizesContext, elType);
 
 	if (shapeSize.type !== ElementShape.Circle) {
 		throw new Error(`Expected element shape circle but received ${shapeSize.type}`);
 	}
 
-	return scaleCircleShape(shapeSize, options.scale);
+	return shapeSize;
 };
 
 export const findRectangleShapeSize = (
 	elSizesContext: ElementSizesContext,
 	elType: ElementType,
 ): RectangleShapeSize => {
-	const { sizes, options } = elSizesContext;
-	const shapeSize = findElementSize(sizes, elType);
+	const shapeSize = findElementSize(elSizesContext, elType);
 
 	if (shapeSize.type !== ElementShape.Rectangle) {
 		throw new Error(`Expected element shape rectangle but received ${shapeSize.type}`);
 	}
 
-	return scaleRectangleShape(shapeSize, options.scale);
+	return shapeSize;
 };
 
 export const useCircleSizeScale = (circleShapeSize: CircleShapeSize, scale: number) =>

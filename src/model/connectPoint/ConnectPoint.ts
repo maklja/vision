@@ -13,7 +13,6 @@ export interface ConnectPointX {
 	elementId: string;
 	x: number;
 	y: number;
-	scale: number;
 	visible: boolean;
 }
 

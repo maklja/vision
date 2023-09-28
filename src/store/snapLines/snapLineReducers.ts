@@ -10,12 +10,7 @@ import {
 } from '../../model';
 import { RootState } from '../rootState';
 import { moveElementStateChange, selectAllElements, selectElementById } from '../elements';
-import {
-	ElementSizesContext,
-	calculateShapeSizeBoundingBox,
-	findElementSize,
-	scaleShapeSize,
-} from '../../theme';
+import { ElementSizesContext, calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
 
 const SNAP_DISTANCE = 4;
 
@@ -37,14 +32,13 @@ const createSnapLinesByElement = (
 	stageElements: Element[],
 	elementSizes: ElementSizesContext,
 ) => {
-	const { sizes, options } = elementSizes;
-	const shapeSize = scaleShapeSize(findElementSize(sizes, el.type), options.scale);
+	const shapeSize = findElementSize(elementSizes, el.type);
 	const elBoundingBox = calculateShapeSizeBoundingBox({ x: el.x, y: el.y }, shapeSize);
 
 	const elements = stageElements.filter((currentElement) => currentElement.id !== el.id);
 
 	const elementsBoundingBox = elements.map((el) => {
-		const shapeSize = scaleShapeSize(findElementSize(sizes, el.type), options.scale);
+		const shapeSize = findElementSize(elementSizes, el.type);
 		return calculateShapeSizeBoundingBox({ x: el.x, y: el.y }, shapeSize);
 	});
 

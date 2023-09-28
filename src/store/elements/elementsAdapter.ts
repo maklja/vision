@@ -1,9 +1,23 @@
 import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
-import { Element, ElementProps } from '../../model';
+import {
+	ConnectPointPosition,
+	ConnectPointType,
+	ConnectPointX,
+	Element,
+	ElementProps,
+	ElementType,
+	calcConnectPointVisibility,
+} from '../../model';
 import { RootState } from '../rootState';
 import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
 import { StageState, updateStateChange } from '../stage';
+import {
+	calculateShapeSizeBoundingBox,
+	createElementSizesContext,
+	findCircleShapeSize,
+	findElementSize,
+} from '../../theme';
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
@@ -66,12 +80,88 @@ export interface UpdateDraftElementPositionAction {
 	};
 }
 
+export interface ElementEntity {
+	element: Element;
+	selected: boolean;
+	connectPoints: {
+		[key in ConnectPointPosition]: ConnectPointX;
+	};
+}
+
 const elementsAdapter = createEntityAdapter<Element>({
 	selectId: (el) => el.id,
 });
 
-export const createElementsAdapterInitialState = (elements: Element[] = []) =>
-	elementsAdapter.addMany(elementsAdapter.getInitialState(), elements);
+export const createElementsAdapterInitialState = (elements: Element[] = []) => {
+	const elementEntities: ElementEntity[] = elements.map((element) => {
+		const elShape = findElementSize(createElementSizesContext(), element.type);
+		const connectPointShape = findCircleShapeSize(
+			createElementSizesContext(),
+			ElementType.ConnectPoint,
+		);
+		const bb = calculateShapeSizeBoundingBox({ x: element.x, y: element.y }, elShape);
+		const { inputVisible, eventsVisible, outputVisible } = calcConnectPointVisibility(
+			element.type,
+			element.properties,
+		);
+
+		const offset = 26;
+		const centerX = bb.center.x;
+		const centerY = bb.center.y;
+
+		const topX = centerX;
+		const topY = bb.y - offset;
+
+		const rightX = bb.x + bb.width + offset;
+		const rightY = centerY;
+
+		const bottomX = centerX;
+		const bottomY = bb.y + bb.height + offset;
+
+		const leftX = bb.x - offset;
+		const leftY = centerY;
+
+		return {
+			element,
+			selected: false,
+			connectPoints: {
+				[ConnectPointPosition.Left]: {
+					type: ConnectPointType.Input,
+					visible: inputVisible,
+					elementId: element.id,
+					position: ConnectPointPosition.Left,
+					x: leftX - connectPointShape.radius,
+					y: leftY - connectPointShape.radius,
+				},
+				[ConnectPointPosition.Right]: {
+					type: ConnectPointType.Output,
+					visible: outputVisible,
+					elementId: element.id,
+					position: ConnectPointPosition.Right,
+					x: rightX - connectPointShape.radius,
+					y: rightY - connectPointShape.radius,
+				},
+				[ConnectPointPosition.Top]: {
+					type: ConnectPointType.Event,
+					visible: eventsVisible,
+					elementId: element.id,
+					position: ConnectPointPosition.Top,
+					x: topX - connectPointShape.radius,
+					y: topY - connectPointShape.radius,
+				},
+				[ConnectPointPosition.Bottom]: {
+					type: ConnectPointType.Event,
+					visible: eventsVisible,
+					elementId: element.id,
+					position: ConnectPointPosition.Bottom,
+					x: bottomX - connectPointShape.radius,
+					y: bottomY - connectPointShape.radius,
+				},
+			},
+		};
+	});
+	return elementsAdapter.addMany(elementsAdapter.getInitialState(), elements);
+};
 
 export const {
 	selectAll: selectAllElements,
