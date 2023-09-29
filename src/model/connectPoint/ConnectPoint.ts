@@ -16,3 +16,7 @@ export interface ConnectPointX {
 	visible: boolean;
 }
 
+export type ConnectPoints = {
+	[key in ConnectPointPosition]?: ConnectPointX;
+};
+

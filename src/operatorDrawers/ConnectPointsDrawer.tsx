@@ -8,7 +8,7 @@ import {
 } from '../model';
 import { useConnectPointHandlers } from './state';
 import { useAppSelector } from '../store/rootState';
-import { useThemeContext } from '../store/stageSlice';
+import { useCircleShapeSize, useThemeContext } from '../store/stageSlice';
 import {
 	CircleConnectPointsDrawer,
 	ConnectPointsOptions,
@@ -26,7 +26,10 @@ import {
 } from '../theme';
 import { DrawerAnimationTemplate, animationRegistry } from '../animation';
 import { selectElementSelection } from '../store/elements';
-import { selectHighlightedConnectPointsByElementId } from '../store/connectPoints';
+import {
+	selectElementConnectPointsById,
+	selectHighlightedConnectPointsByElementId,
+} from '../store/connectPoints';
 import { DrawerAnimation, selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
 
 export const createDefaultElementProps = <T extends ShapeSize>(
@@ -186,9 +189,9 @@ export interface ConnectPointsDrawerProps {
 	id: string;
 	x: number;
 	y: number;
+	scale: number;
 	type: ElementType;
 	shape: ShapeSize;
-	connectPointsOptions: ConnectPointsOptions<CircleShapeSize>;
 	offset?: number;
 	visible?: boolean;
 }
@@ -197,18 +200,22 @@ export const ConnectPointsDrawer = ({
 	id,
 	x,
 	y,
+	scale,
 	type,
 	shape,
-	connectPointsOptions,
 	offset = 0,
 	visible = false,
 }: ConnectPointsDrawerProps) => {
 	const theme = useThemeContext(type);
 	const connectPointsHandlers = useConnectPointHandlers();
+	const connectPoints = useAppSelector(selectElementConnectPointsById(id));
 	const highlightedConnectPoints = useAppSelector(
 		selectHighlightedConnectPointsByElementId(id),
 	).map((cp) => cp.position);
 	const elSelection = useAppSelector(selectElementSelection(id));
+	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
+	const connectPointsOptions = createDefaultElementProps(elementType, properties, circleCPSize);
+
 	const mergedCPOptions = createConnectPointsOptions(
 		id,
 		theme,
@@ -226,6 +233,7 @@ export const ConnectPointsDrawer = ({
 			{...connectPointsHandlers}
 			id={id}
 			theme={theme}
+			connectPoints={connectPoints}
 			connectPointsOptions={mergedCPOptions}
 			highlightedConnectPoints={highlightedConnectPoints}
 			x={bb.x}

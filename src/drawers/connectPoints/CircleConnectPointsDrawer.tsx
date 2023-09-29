@@ -1,5 +1,5 @@
 import { Group, Line } from 'react-konva';
-import { ConnectPointPosition, BoundingBox } from '../../model';
+import { ConnectPointPosition, BoundingBox, ConnectPoints } from '../../model';
 import { CircleShapeSize, Theme } from '../../theme';
 import {
 	ConnectPointDrawerEvent,
@@ -11,6 +11,7 @@ import { CircleConnectPointDrawer } from './CircleConnectPointDrawer';
 export interface CircleConnectPointsDrawerProps extends ConnectPointsDrawerEvents {
 	id: string;
 	theme: Theme;
+	connectPoints: ConnectPoints;
 	x?: number;
 	y?: number;
 	width?: number;
@@ -33,6 +34,7 @@ export const CircleConnectPointsDrawer = ({
 	height = 0,
 	offset = 0,
 	theme,
+	connectPoints,
 	connectPointsOptions,
 	highlightedConnectPoints,
 	onMouseDown,
@@ -101,20 +103,20 @@ export const CircleConnectPointsDrawer = ({
 
 	return (
 		<Group>
-			{connectPointsOptions?.top.visible && (
+			{connectPoints.top?.visible && (
 				<Line
 					{...theme.connectLine.line}
-					points={[topX, topY, centerX, centerY]}
+					points={[connectPoints.top.x, connectPoints.top.y, centerX, centerY]}
 					perfectDrawEnabled={false}
 				/>
 			)}
-			{connectPointsOptions?.top.visible && (
+			{connectPointsOptions && connectPoints.top?.visible && (
 				<CircleConnectPointDrawer
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Top)}
-					type={connectPointsOptions?.top.type}
+					type={connectPoints.top.type}
 					position={ConnectPointPosition.Top}
-					x={topX - connectPointsOptions.top.shapeSize.radius}
-					y={topY - connectPointsOptions.top.shapeSize.radius}
+					x={connectPoints.top.x}
+					y={connectPoints.top.y}
 					theme={theme}
 					size={connectPointsOptions.top.shapeSize}
 					onMouseDown={handleOnMouseDown}

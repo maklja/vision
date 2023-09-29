@@ -6,3 +6,4 @@ export interface ElementDrawerProps extends DrawerCommonProps, DrawerEvents {
 	visibleConnectPoints?: boolean;
 	properties: ElementProps;
 }
+

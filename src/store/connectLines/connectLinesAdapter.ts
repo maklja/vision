@@ -148,8 +148,7 @@ export const removeConnectLinesStateChange = (
 export const { selectAll: selectAllConnectLines, selectById: selectConnectLineById } =
 	connectLinesAdapter.getSelectors();
 
-export const createConnectLinesAdapterInitialState = (connectLines: ConnectLine[] = []) =>
-	connectLinesAdapter.addMany(connectLinesAdapter.getInitialState(), connectLines);
+export const createConnectLinesAdapterInitialState = () => connectLinesAdapter.getInitialState();
 
 export const startConnectLineDrawStateChange = (
 	slice: Draft<StageSlice>,
@@ -450,3 +449,4 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
+

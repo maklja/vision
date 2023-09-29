@@ -1,7 +1,7 @@
 import { Group } from 'react-konva';
 import { ElementType } from '../../model';
 import { useCircleShapeSize } from '../../store/hooks/theme';
-import { ConnectPointsDrawer, createDefaultElementProps } from '../ConnectPointsDrawer';
+import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { CircleOperatorDrawer } from '../../drawers';
 
@@ -25,7 +25,6 @@ export const CreationOperatorDrawer = ({
 	visibleConnectPoints,
 	elementType,
 	title,
-	properties,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -37,8 +36,6 @@ export const CreationOperatorDrawer = ({
 	onMouseOver,
 }: CreationOperatorDrawer) => {
 	const circleShapeSize = useCircleShapeSize(elementType, scale);
-	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
-	const connectPointsOptions = createDefaultElementProps(elementType, properties, circleCPSize);
 
 	return (
 		<Group>
@@ -46,10 +43,10 @@ export const CreationOperatorDrawer = ({
 				id={id}
 				x={x}
 				y={y}
+				scale={scale}
 				type={elementType}
 				shape={circleShapeSize}
 				offset={26}
-				connectPointsOptions={connectPointsOptions}
 				visible={visibleConnectPoints}
 			/>
 			<CircleOperatorDrawer

@@ -33,8 +33,11 @@ import { ElementTooltip, tooltipReducers } from './tooltip';
 import { createErrorsAdapterInitialState, ElementError, errorReducers } from './errors';
 import { createSnapLinesInitialState, snapLineReducers } from './snapLines';
 import {
+	connectPointsAdapterReducers,
+	createConnectPointsAdapterInitialState,
 	createHighlightedConnectPointsAdapterInitialState,
 	ElementConnectPoints,
+	ElementConnectPointsX,
 	highlightedConnectPointsAdapterReducers,
 } from './connectPoints';
 import {
@@ -52,6 +55,7 @@ export interface StageSlice {
 	connectLines: EntityState<ConnectLine>;
 	selectedConnectLines: EntityState<SelectedConnectLine>;
 	draftConnectLine: DraftConnectLine | null;
+	connectPoints: EntityState<ElementConnectPointsX>;
 	highlighted: EntityState<HighlightElement>;
 	highlightedConnectPoints: EntityState<ElementConnectPoints>;
 	state: StageState;
@@ -64,13 +68,14 @@ export interface StageSlice {
 	animations: EntityState<DrawerAnimations>;
 }
 
-export const createStageInitialState = (elements: Element[] = []): StageSlice => ({
-	elements: createElementsAdapterInitialState(elements),
+export const createStageInitialState = (): StageSlice => ({
+	elements: createElementsAdapterInitialState(),
 	selectedElements: createSelectedElementsAdapterInitialState(),
 	draftElement: null,
 	connectLines: createConnectLinesAdapterInitialState(),
 	selectedConnectLines: createSelectedConnectLinesAdapterInitialState(),
 	draftConnectLine: null,
+	connectPoints: createConnectPointsAdapterInitialState(),
 	highlightedConnectPoints: createHighlightedConnectPointsAdapterInitialState(),
 	highlighted: createHighlightedAdapterInitialState(),
 	state: StageState.Select,
@@ -100,6 +105,7 @@ export const stageSlice = createSlice({
 		...snapLineReducers,
 		...highlightedConnectPointsAdapterReducers,
 		...drawerAnimationsAdapterReducers,
+		...connectPointsAdapterReducers,
 	},
 });
 
@@ -148,6 +154,9 @@ export const {
 	refreshDrawerAnimation,
 	removeAllDrawerAnimation,
 	removeDrawerAnimation,
+	createElementConnectPoints,
+	loadElements,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
+
