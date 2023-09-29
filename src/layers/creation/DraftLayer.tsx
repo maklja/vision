@@ -1,7 +1,7 @@
 import { Layer } from 'react-konva';
 import { DraftLineDrawer, SnapLineDrawer } from '../../drawers';
 import { useAppSelector } from '../../store/rootState';
-import { selectElementSizeOptions, useBoundingBox, useThemeContext } from '../../store/stageSlice';
+import { useBoundingBox, useThemeContext } from '../../store/stageSlice';
 import { selectStageDraftConnectLine } from '../../store/connectLines';
 import { selectSnapLines } from '../../store/snapLines';
 import { selectStageElementById } from '../../store/elements';
@@ -13,15 +13,13 @@ export const DraftLayer = () => {
 	const lineSize = useLineSize();
 	const draftConnectLine = useAppSelector(selectStageDraftConnectLine);
 	const snapLines = useAppSelector(selectSnapLines);
-	const elementSizeOptions = useAppSelector(selectElementSizeOptions);
 	const sourceElement = useAppSelector(
 		selectStageElementById(draftConnectLine?.source.id ?? null),
 	);
-	const elBoundingBox = useBoundingBox(
-		sourceElement?.type ?? null,
-		{ x: sourceElement?.x ?? 0, y: sourceElement?.y ?? 0 },
-		elementSizeOptions.scale,
-	);
+	const elBoundingBox = useBoundingBox(sourceElement?.type ?? null, {
+		x: sourceElement?.x ?? 0,
+		y: sourceElement?.y ?? 0,
+	});
 
 	const draftPoints = useMemo(() => {
 		if (!draftConnectLine) {

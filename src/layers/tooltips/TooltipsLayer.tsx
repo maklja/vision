@@ -11,11 +11,7 @@ export const TooltipsLayer = () => {
 	const tooltip = useAppSelector(selectTooltip);
 	const element = useAppSelector(selectStageElementById(tooltip?.elementId ?? null));
 	const elementSizeOptions = useAppSelector(selectElementSizeOptions);
-	const bb = useBoundingBox(
-		element?.type ?? null,
-		{ x: element?.x ?? 0, y: element?.y ?? 0 },
-		elementSizeOptions.scale,
-	);
+	const bb = useBoundingBox(element?.type ?? null, { x: element?.x ?? 0, y: element?.y ?? 0 });
 	const error = useAppSelector(selectElementErrorById(element?.id ?? null));
 	const text = error?.errorMessage ?? tooltip?.text;
 	return (
