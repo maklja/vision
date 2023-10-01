@@ -1,7 +1,7 @@
 import { Group } from 'react-konva';
 import { ElementType } from '../../model';
-import { useCircleShapeSize, useRectangleShapeSize } from '../../store/stageSlice';
-import { ConnectPointsDrawer, createDefaultElementProps } from '../ConnectPointsDrawer';
+import { useRectangleShapeSize } from '../../store/stageSlice';
+import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { RollerOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 
@@ -18,7 +18,6 @@ export const MapOperatorDrawer = ({
 	select,
 	visible,
 	visibleConnectPoints,
-	properties,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -31,8 +30,6 @@ export const MapOperatorDrawer = ({
 }: ElementDrawerProps) => {
 	const elType = ElementType.Map;
 	const rectangleShapeSize = useRectangleShapeSize(elType, scale);
-	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
-	const connectPointsOptions = createDefaultElementProps(elType, properties, circleCPSize);
 
 	return (
 		<Group>
@@ -42,8 +39,8 @@ export const MapOperatorDrawer = ({
 				y={y}
 				type={elType}
 				shape={rectangleShapeSize}
+				scale={scale}
 				offset={26}
-				connectPointsOptions={connectPointsOptions}
 				visible={visibleConnectPoints}
 			/>
 			<RollerOperatorDrawer
@@ -72,4 +69,3 @@ export const MapOperatorDrawer = ({
 		</Group>
 	);
 };
-

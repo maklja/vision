@@ -1,16 +1,15 @@
 import {
 	ConnectPointPosition,
-	ConnectPointType,
 	ConnectPointTypeVisibility,
-	ElementProps,
+	ConnectPoints,
 	ElementType,
-	calcConnectPointVisibility,
 } from '../model';
 import { useConnectPointHandlers } from './state';
 import { useAppSelector } from '../store/rootState';
 import { useCircleShapeSize, useThemeContext } from '../store/stageSlice';
 import {
 	CircleConnectPointsDrawer,
+	ConnectPointIconDrawerProps,
 	ConnectPointsOptions,
 	EventCircleIconDrawer,
 	InputCircleIconDrawer,
@@ -31,96 +30,108 @@ import {
 	selectHighlightedConnectPointsByElementId,
 } from '../store/connectPoints';
 import { DrawerAnimation, selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
+import { ReactNode } from 'react';
+
+export type ConnectPointsDrawerIconsProps = {
+	[key in ConnectPointPosition]?: (props: ConnectPointIconDrawerProps) => ReactNode;
+};
+
+interface IconDrawerProps extends ConnectPointIconDrawerProps {
+	shapeSize: ShapeSize;
+}
+
+const DefaultInputIcon = ({
+	theme,
+	connectPointPosition,
+	highlight,
+	shapeSize,
+}: IconDrawerProps) => {
+	switch (shapeSize.type) {
+		case ElementShape.Circle:
+			return (
+				<InputCircleIconDrawer
+					connectPointPosition={connectPointPosition}
+					theme={theme}
+					highlight={highlight}
+					size={shapeSize}
+				/>
+			);
+		default:
+			return null;
+	}
+};
+
+const DefaultOutputIcon = ({
+	theme,
+	connectPointPosition,
+	highlight,
+	shapeSize,
+}: IconDrawerProps) => {
+	switch (shapeSize.type) {
+		case ElementShape.Circle:
+			return (
+				<OutputCircleIconDrawer
+					connectPointPosition={connectPointPosition}
+					theme={theme}
+					highlight={highlight}
+					size={shapeSize}
+				/>
+			);
+		default:
+			return null;
+	}
+};
+
+const DefaultEventIcon = ({
+	theme,
+	connectPointPosition,
+	highlight,
+	shapeSize,
+}: IconDrawerProps) => {
+	switch (shapeSize.type) {
+		case ElementShape.Circle:
+			return (
+				<EventCircleIconDrawer
+					connectPointPosition={connectPointPosition}
+					theme={theme}
+					highlight={highlight}
+					size={shapeSize}
+				/>
+			);
+		default:
+			return null;
+	}
+};
 
 export const createDefaultElementProps = <T extends ShapeSize>(
-	elType: ElementType,
-	elProperties: ElementProps,
+	connectPoints: ConnectPoints,
 	shapeSize: T,
+	icons: ConnectPointsDrawerIconsProps,
 ): ConnectPointsOptions<T> => {
-	const { inputVisible, eventsVisible, outputVisible } = calcConnectPointVisibility(
-		elType,
-		elProperties,
-	);
 	return {
-		left: {
-			type: ConnectPointType.Input,
-			visible: inputVisible,
+		left: connectPoints.left && {
+			...connectPoints.left,
 			shapeSize,
-			icon: ({ connectPointPosition, theme, highlight }) => {
-				switch (shapeSize.type) {
-					case ElementShape.Circle:
-						return (
-							<InputCircleIconDrawer
-								connectPointPosition={connectPointPosition}
-								theme={theme}
-								highlight={highlight}
-								size={shapeSize}
-							/>
-						);
-					default:
-						return null;
-				}
-			},
+			icon: (props) =>
+				icons.left?.(props) ?? <DefaultInputIcon {...props} shapeSize={shapeSize} />,
 		},
-		right: {
-			type: ConnectPointType.Output,
-			visible: outputVisible,
+		right: connectPoints.right && {
+			...connectPoints.right,
 			shapeSize,
-			icon: ({ connectPointPosition, theme, highlight }) => {
-				switch (shapeSize.type) {
-					case ElementShape.Circle:
-						return (
-							<OutputCircleIconDrawer
-								connectPointPosition={connectPointPosition}
-								theme={theme}
-								highlight={highlight}
-								size={shapeSize}
-							/>
-						);
-					default:
-						return null;
-				}
-			},
+			icon: (props) =>
+				icons.right?.(props) ?? <DefaultOutputIcon {...props} shapeSize={shapeSize} />,
 		},
-		top: {
-			type: ConnectPointType.Event,
-			visible: eventsVisible,
+		top: connectPoints.top && {
+			...connectPoints.top,
 			shapeSize,
-			icon: ({ connectPointPosition, theme, highlight }) => {
-				switch (shapeSize.type) {
-					case ElementShape.Circle:
-						return (
-							<EventCircleIconDrawer
-								connectPointPosition={connectPointPosition}
-								theme={theme}
-								highlight={highlight}
-								size={shapeSize}
-							/>
-						);
-					default:
-						return null;
-				}
-			},
+			icon: (props) =>
+				icons.top?.(props) ?? <DefaultEventIcon {...props} shapeSize={shapeSize} />,
 		},
-		bottom: {
-			type: ConnectPointType.Event,
-			visible: eventsVisible,
+		bottom: connectPoints.bottom && {
+			...connectPoints.bottom,
 			shapeSize,
-			icon: ({ connectPointPosition, theme, highlight }) => {
-				switch (shapeSize.type) {
-					case ElementShape.Circle:
-						return (
-							<EventCircleIconDrawer
-								connectPointPosition={connectPointPosition}
-								theme={theme}
-								highlight={highlight}
-								size={shapeSize}
-							/>
-						);
-					default:
-						return null;
-				}
-			},
+			icon: (props) =>
+				icons.bottom?.(props) ?? <DefaultEventIcon {...props} shapeSize={shapeSize} />,
 		},
 	};
 };
@@ -162,22 +173,22 @@ const createConnectPointsOptions = (
 
 	return {
 		...defaultCPOptions,
-		left: {
+		left: defaultCPOptions.left && {
 			...defaultCPOptions.left,
 			visible: defaultCPOptions.left.visible && (cpVisibility.input ?? true),
 			animation: createAnimationConfig(leftAnimation, theme),
 		},
-		right: {
+		right: defaultCPOptions.right && {
 			...defaultCPOptions.right,
 			visible: defaultCPOptions.right.visible && (cpVisibility.output ?? true),
 			animation: createAnimationConfig(rightAnimation, theme),
 		},
-		top: {
+		top: defaultCPOptions.top && {
 			...defaultCPOptions.top,
 			visible: defaultCPOptions.top.visible && (cpVisibility.event ?? true),
 			animation: createAnimationConfig(topAnimation, theme),
 		},
-		bottom: {
+		bottom: defaultCPOptions.bottom && {
 			...defaultCPOptions.bottom,
 			visible: defaultCPOptions.bottom.visible && (cpVisibility.event ?? true),
 			animation: createAnimationConfig(bottomAnimation, theme),
@@ -194,6 +205,7 @@ export interface ConnectPointsDrawerProps {
 	shape: ShapeSize;
 	offset?: number;
 	visible?: boolean;
+	icons?: ConnectPointsDrawerIconsProps;
 }
 
 export const ConnectPointsDrawer = ({
@@ -205,6 +217,7 @@ export const ConnectPointsDrawer = ({
 	shape,
 	offset = 0,
 	visible = false,
+	icons = {},
 }: ConnectPointsDrawerProps) => {
 	const theme = useThemeContext(type);
 	const connectPointsHandlers = useConnectPointHandlers();
@@ -214,7 +227,7 @@ export const ConnectPointsDrawer = ({
 	).map((cp) => cp.position);
 	const elSelection = useAppSelector(selectElementSelection(id));
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
-	const connectPointsOptions = createDefaultElementProps(elementType, properties, circleCPSize);
+	const connectPointsOptions = createDefaultElementProps(connectPoints, circleCPSize, icons);
 
 	const mergedCPOptions = createConnectPointsOptions(
 		id,
@@ -233,7 +246,6 @@ export const ConnectPointsDrawer = ({
 			{...connectPointsHandlers}
 			id={id}
 			theme={theme}
-			connectPoints={connectPoints}
 			connectPointsOptions={mergedCPOptions}
 			highlightedConnectPoints={highlightedConnectPoints}
 			x={bb.x}
@@ -244,4 +256,3 @@ export const ConnectPointsDrawer = ({
 		/>
 	);
 };
-

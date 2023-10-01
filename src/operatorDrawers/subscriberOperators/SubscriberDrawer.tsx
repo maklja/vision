@@ -2,7 +2,7 @@ import { Group } from 'react-konva';
 import { DotCircleOperatorDrawer } from '../../drawers';
 import { ElementType } from '../../model';
 import { useCircleShapeSize } from '../../store/stageSlice';
-import { ConnectPointsDrawer, createDefaultElementProps } from '../ConnectPointsDrawer';
+import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 
 export const SubscriberDrawer = ({
@@ -18,7 +18,6 @@ export const SubscriberDrawer = ({
 	select,
 	visible,
 	visibleConnectPoints,
-	properties,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -31,8 +30,6 @@ export const SubscriberDrawer = ({
 }: ElementDrawerProps) => {
 	const elType = ElementType.Subscriber;
 	const circleShapeSize = useCircleShapeSize(elType, scale);
-	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
-	const connectPointsOptions = createDefaultElementProps(elType, properties, circleCPSize);
 
 	return (
 		<Group>
@@ -40,10 +37,10 @@ export const SubscriberDrawer = ({
 				id={id}
 				x={x}
 				y={y}
+				scale={scale}
 				type={elType}
 				shape={circleShapeSize}
 				offset={42}
-				connectPointsOptions={connectPointsOptions}
 				visible={visibleConnectPoints}
 			/>
 			<DotCircleOperatorDrawer
@@ -71,4 +68,3 @@ export const SubscriberDrawer = ({
 		</Group>
 	);
 };
-

@@ -51,20 +51,19 @@ const createConnectPoints = (
 		element.properties,
 	);
 
-	const offset = 26;
 	const centerX = bb.center.x;
 	const centerY = bb.center.y;
 
 	const topX = centerX;
-	const topY = bb.y - offset;
+	const topY = bb.y;
 
-	const rightX = bb.x + bb.width + offset;
+	const rightX = bb.x + bb.width;
 	const rightY = centerY;
 
 	const bottomX = centerX;
-	const bottomY = bb.y + bb.height + offset;
+	const bottomY = bb.y + bb.height;
 
-	const leftX = bb.x - offset;
+	const leftX = bb.x;
 	const leftY = centerY;
 
 	return [
@@ -157,4 +156,3 @@ const selectElementConnectPoints = createSelector(selectConnectPointsById, (conn
 );
 export const selectElementConnectPointsById = (id: string) => (state: RootState) =>
 	selectElementConnectPoints(state, id);
-

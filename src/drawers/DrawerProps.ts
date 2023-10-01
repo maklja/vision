@@ -65,7 +65,7 @@ export interface ConnectPointDrawerEvent {
 }
 
 export type ConnectPointsOptions<T extends ShapeSize> = {
-	[key in ConnectPointPosition]: ConnectPointX & {
+	[key in ConnectPointPosition]?: ConnectPointX & {
 		shapeSize: T;
 		animation?: DrawerAnimationTemplate | null;
 		icon?: (props: ConnectPointIconDrawerProps) => ReactNode;
@@ -107,4 +107,3 @@ export interface LineDrawerEvents {
 	onDotDragEnd?: (lineDotEvent: LineDotEvent<DragEvent>) => void;
 	onDotDragMove?: (lineDotEvent: LineDotEvent<DragEvent>) => void;
 }
-
