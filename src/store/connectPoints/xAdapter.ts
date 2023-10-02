@@ -261,7 +261,7 @@ export const updateManyConnectPointsStateChange = (
 	slice.connectPoints = connectPointsAdapter.updateMany(slice.connectPoints, adapterUpdates);
 };
 
-export const clearConnectPointsSelectionStateChange = (slice: Draft<StageSlice>) => {
+export const clearSelectionConnectPointsStateChange = (slice: Draft<StageSlice>) => {
 	const connectPoints = selectAllConnectPoints(slice.connectPoints);
 
 	slice.connectPoints = connectPointsAdapter.updateMany(

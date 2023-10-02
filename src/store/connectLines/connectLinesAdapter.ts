@@ -21,7 +21,7 @@ import {
 } from '../elements';
 import { StageState } from '../stage';
 import {
-	clearConnectPointsSelectionStateChange,
+	clearSelectionConnectPointsStateChange,
 	clearHighlightedConnectPointsStateChange,
 	setSelectionConnectPointsStateChange,
 	updateManyConnectPointsStateChange,
@@ -231,6 +231,7 @@ export const startConnectLineDrawStateChange = (
 			[],
 		);
 
+	clearSelectionConnectPointsStateChange(slice);
 	updateManyConnectPointsStateChange(slice, { connectPointUpdates });
 	selectElementsStateChange(
 		slice,
@@ -318,7 +319,7 @@ export const connectLinesAdapterReducers = {
 		slice.draftConnectLine = null;
 
 		clearHighlightedConnectPointsStateChange(slice);
-		clearConnectPointsSelectionStateChange(slice);
+		clearSelectionConnectPointsStateChange(slice);
 		selectElementsStateChange(slice, [
 			{
 				id: draftConnectLine.source.id,
@@ -337,7 +338,7 @@ export const connectLinesAdapterReducers = {
 		slice.draftConnectLine = null;
 
 		clearHighlightedConnectPointsStateChange(slice);
-		clearConnectPointsSelectionStateChange(slice);
+		clearSelectionConnectPointsStateChange(slice);
 		selectElementsStateChange(slice, [
 			{
 				id: draftConnectLine.source.id,
