@@ -3,6 +3,7 @@ import { AppDispatch } from '../../store/rootState';
 import { StageEvents } from '../SimulatorStage';
 import {
 	addNextPointConnectLineDraw,
+	createConnectPointSnapLines,
 	deleteConnectLineDraw,
 	moveConnectLineDraw,
 } from '../../store/stageSlice';
@@ -25,6 +26,7 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 				normalizePosition: e.evt.shiftKey,
 			}),
 		);
+		dispatch(createConnectPointSnapLines({}))
 	},
 	onMouseDown: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;

@@ -137,7 +137,7 @@ export const {
 	clearSelected,
 	updateElementProperty,
 	removeElementConnectLines,
-	createSnapLines,
+	createElementSnapLines,
 	clearSnapLines,
 	updateDraftElementPosition,
 	createDraftElementSnapLines,
@@ -153,6 +153,7 @@ export const {
 	setSelectionConnectPoints,
 	updateManyConnectPoints,
 	clearHighlighConnectPoints,
+	createConnectPointSnapLines,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
