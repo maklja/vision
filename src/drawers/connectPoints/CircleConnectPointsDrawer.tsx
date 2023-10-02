@@ -18,7 +18,6 @@ export interface CircleConnectPointsDrawerProps extends ConnectPointsDrawerEvent
 	height?: number;
 	offset?: number;
 	connectPointsOptions: ConnectPointsOptions<CircleShapeSize>;
-	highlightedConnectPoints?: ConnectPointPosition[];
 }
 
 export const createConnectPointDrawerId = (
@@ -35,7 +34,6 @@ export const CircleConnectPointsDrawer = ({
 	offset = 0,
 	theme,
 	connectPointsOptions,
-	highlightedConnectPoints,
 	onMouseDown,
 	onMouseUp,
 	onMouseOver,
@@ -122,7 +120,7 @@ export const CircleConnectPointsDrawer = ({
 					onAnimationBegin={onAnimationBegin}
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
-					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Top)}
+					highlight={connectPointsOptions.top.highlight}
 					animation={connectPointsOptions.top.animation}
 				>
 					{connectPointsOptions.top.icon}
@@ -159,7 +157,7 @@ export const CircleConnectPointsDrawer = ({
 					onAnimationBegin={onAnimationBegin}
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
-					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Right)}
+					highlight={connectPointsOptions.right.highlight}
 					animation={connectPointsOptions.right.animation}
 				>
 					{connectPointsOptions.right.icon}
@@ -196,7 +194,7 @@ export const CircleConnectPointsDrawer = ({
 					onAnimationBegin={onAnimationBegin}
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
-					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Bottom)}
+					highlight={connectPointsOptions.bottom.highlight}
 					animation={connectPointsOptions.bottom.animation}
 				>
 					{connectPointsOptions.bottom.icon}
@@ -233,7 +231,7 @@ export const CircleConnectPointsDrawer = ({
 					onAnimationBegin={onAnimationBegin}
 					onAnimationComplete={onAnimationComplete}
 					onAnimationDestroy={onAnimationDestroy}
-					highlight={highlightedConnectPoints?.includes(ConnectPointPosition.Left)}
+					highlight={connectPointsOptions.left.highlight}
 					animation={connectPointsOptions.left.animation}
 				>
 					{connectPointsOptions.left.icon}
@@ -242,3 +240,4 @@ export const CircleConnectPointsDrawer = ({
 		</Group>
 	);
 };
+

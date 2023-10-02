@@ -19,10 +19,7 @@ import {
 	calculateShapeSizeBoundingBox,
 } from '../theme';
 import { DrawerAnimationTemplate, animationRegistry } from '../animation';
-import {
-	selectElementConnectPointsById,
-	selectHighlightedConnectPointsByElementId,
-} from '../store/connectPoints';
+import { selectElementConnectPointsById } from '../store/connectPoints';
 import { DrawerAnimation, selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
 import { ReactNode } from 'react';
 
@@ -207,9 +204,6 @@ export const ConnectPointsDrawer = ({
 	const theme = useThemeContext(type);
 	const connectPointsHandlers = useConnectPointHandlers();
 	const connectPoints = useAppSelector(selectElementConnectPointsById(id));
-	const highlightedConnectPoints = useAppSelector(
-		selectHighlightedConnectPointsByElementId(id),
-	).map((cp) => cp.position);
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
 	const connectPointsOptions = createDefaultElementProps(connectPoints, circleCPSize, icons);
 	const mergedCPOptions = createConnectPointsOptions(id, theme, connectPointsOptions);
@@ -225,7 +219,6 @@ export const ConnectPointsDrawer = ({
 			id={id}
 			theme={theme}
 			connectPointsOptions={mergedCPOptions}
-			highlightedConnectPoints={highlightedConnectPoints}
 			x={bb.x}
 			y={bb.y}
 			width={bb.width}

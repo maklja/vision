@@ -35,10 +35,7 @@ import { createSnapLinesInitialState, snapLineReducers } from './snapLines';
 import {
 	connectPointsAdapterReducers,
 	createConnectPointsAdapterInitialState,
-	createHighlightedConnectPointsAdapterInitialState,
 	ElementConnectPoints,
-	ElementConnectPointsX,
-	highlightedConnectPointsAdapterReducers,
 } from './connectPoints';
 import {
 	createDrawerAnimationsInitialState,
@@ -55,9 +52,8 @@ export interface StageSlice {
 	connectLines: EntityState<ConnectLine>;
 	selectedConnectLines: EntityState<SelectedConnectLine>;
 	draftConnectLine: DraftConnectLine | null;
-	connectPoints: EntityState<ElementConnectPointsX>;
+	connectPoints: EntityState<ElementConnectPoints>;
 	highlighted: EntityState<HighlightElement>;
-	highlightedConnectPoints: EntityState<ElementConnectPoints>;
 	state: StageState;
 	simulation: Simulation;
 	themes: ThemesContext;
@@ -76,7 +72,6 @@ export const createStageInitialState = (): StageSlice => ({
 	selectedConnectLines: createSelectedConnectLinesAdapterInitialState(),
 	draftConnectLine: null,
 	connectPoints: createConnectPointsAdapterInitialState(),
-	highlightedConnectPoints: createHighlightedConnectPointsAdapterInitialState(),
 	highlighted: createHighlightedAdapterInitialState(),
 	state: StageState.Select,
 	simulation: createSimulationInitialState(),
@@ -103,7 +98,6 @@ export const stageSlice = createSlice({
 		...tooltipReducers,
 		...errorReducers,
 		...snapLineReducers,
-		...highlightedConnectPointsAdapterReducers,
 		...drawerAnimationsAdapterReducers,
 		...connectPointsAdapterReducers,
 	},
@@ -124,7 +118,6 @@ export const {
 	movePointConnectLine,
 	pinConnectLine,
 	unpinConnectLine,
-	highlightConnectPoints,
 	createDraftElement,
 	addDraftElement,
 	clearDraftElement,
@@ -149,7 +142,6 @@ export const {
 	updateDraftElementPosition,
 	createDraftElementSnapLines,
 	addDrawerAnimation,
-	clearHighlightedConnectPoints,
 	disposeDrawerAnimation,
 	refreshDrawerAnimation,
 	removeAllDrawerAnimation,
@@ -160,6 +152,7 @@ export const {
 	removeConnectPointsByIds,
 	setSelectionConnectPoints,
 	updateManyConnectPoints,
+	clearHighlighConnectPoints,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
