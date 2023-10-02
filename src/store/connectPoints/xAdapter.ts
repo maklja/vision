@@ -27,6 +27,17 @@ export interface CreateElementConnectPointsAction {
 	payload: CreateElementConnectPointsPayload;
 }
 
+export interface MoveConnectPointsByDeltaPayload {
+	id: string;
+	dx: number;
+	dy: number;
+}
+
+export interface MoveConnectPointsByDeltaAction {
+	type: string;
+	payload: MoveConnectPointsByDeltaPayload;
+}
+
 export interface ElementConnectPointsX {
 	id: string;
 	connectPoints: ConnectPointX[];
@@ -35,6 +46,12 @@ export interface ElementConnectPointsX {
 const connectPointsAdapter = createEntityAdapter<ElementConnectPointsX>({
 	selectId: (cp) => cp.id,
 });
+
+export const {
+	selectAll: selectAllConnectPoints,
+	selectById: selectConnectPointById,
+	selectEntities: selectConnectPointEntities,
+} = connectPointsAdapter.getSelectors();
 
 export const createConnectPointsAdapterInitialState = () => connectPointsAdapter.getInitialState();
 
@@ -124,6 +141,27 @@ export const createElementsConnectPointsStateChange = (
 	slice.connectPoints = connectPointsAdapter.addMany(slice.connectPoints, connectPoints);
 };
 
+export const moveConnectPointsByDeltaStateChange = (
+	slice: Draft<StageSlice>,
+	payload: MoveConnectPointsByDeltaPayload,
+) => {
+	const elementConnectPoints = selectConnectPointById(slice.connectPoints, payload.id);
+	if (!elementConnectPoints) {
+		return;
+	}
+
+	slice.connectPoints = connectPointsAdapter.updateOne(slice.connectPoints, {
+		id: payload.id,
+		changes: {
+			connectPoints: elementConnectPoints.connectPoints.map((cp) => ({
+				...cp,
+				x: cp.x + payload.dx,
+				y: cp.y + payload.dy,
+			})),
+		},
+	});
+};
+
 export const connectPointsAdapterReducers = {
 	createElementConnectPoints: (
 		slice: Draft<StageSlice>,
@@ -136,6 +174,8 @@ export const connectPointsAdapterReducers = {
 
 		createElementConnectPointsStateChange(slice, element);
 	},
+	moveConnectPointsByDelta: (slice: Draft<StageSlice>, action: MoveConnectPointsByDeltaAction) =>
+		moveConnectPointsByDeltaStateChange(slice, action.payload),
 };
 
 const globalConnectPointsSelector = connectPointsAdapter.getSelectors<RootState>(

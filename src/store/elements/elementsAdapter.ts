@@ -4,7 +4,11 @@ import { Element, ElementProps } from '../../model';
 import { RootState } from '../rootState';
 import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
 import { StageState, updateStateChange } from '../stage';
-import { createElementsConnectPointsStateChange } from '../connectPoints';
+import {
+	createElementConnectPointsStateChange,
+	createElementsConnectPointsStateChange,
+	moveConnectPointsByDeltaStateChange,
+} from '../connectPoints';
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
@@ -130,6 +134,11 @@ export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveEl
 			});
 		}
 	});
+	moveConnectPointsByDeltaStateChange(slice, {
+		id: el.id,
+		dx,
+		dy,
+	});
 };
 
 export const removeElementsStateChange = (
@@ -184,6 +193,7 @@ export const elementsAdapterReducers = {
 		}
 
 		slice.elements = elementsAdapter.addOne(slice.elements, action.payload);
+		createElementConnectPointsStateChange(slice, action.payload);
 		slice.draftElement = null;
 	},
 	clearDraftElement: (slice: Draft<StageSlice>) => {
@@ -220,4 +230,3 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
-
