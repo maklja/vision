@@ -1,9 +1,4 @@
-import {
-	ConnectPointPosition,
-	ConnectPointTypeVisibility,
-	ConnectPoints,
-	ElementType,
-} from '../model';
+import { ConnectPointPosition, ConnectPoints, ElementType } from '../model';
 import { useConnectPointHandlers } from './state';
 import { useAppSelector } from '../store/rootState';
 import { useCircleShapeSize, useThemeContext } from '../store/stageSlice';
@@ -24,7 +19,6 @@ import {
 	calculateShapeSizeBoundingBox,
 } from '../theme';
 import { DrawerAnimationTemplate, animationRegistry } from '../animation';
-import { selectElementSelection } from '../store/elements';
 import {
 	selectElementConnectPointsById,
 	selectHighlightedConnectPointsByElementId,
@@ -155,11 +149,6 @@ const createConnectPointsOptions = (
 	id: string,
 	theme: Theme,
 	defaultCPOptions: ConnectPointsOptions<CircleShapeSize>,
-	cpVisibility: ConnectPointTypeVisibility = {
-		input: false,
-		event: false,
-		output: false,
-	},
 ): ConnectPointsOptions<CircleShapeSize> => {
 	const leftAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Left);
 	const rightAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Right);
@@ -175,22 +164,18 @@ const createConnectPointsOptions = (
 		...defaultCPOptions,
 		left: defaultCPOptions.left && {
 			...defaultCPOptions.left,
-			visible: defaultCPOptions.left.visible && (cpVisibility.input ?? true),
 			animation: createAnimationConfig(leftAnimation, theme),
 		},
 		right: defaultCPOptions.right && {
 			...defaultCPOptions.right,
-			visible: defaultCPOptions.right.visible && (cpVisibility.output ?? true),
 			animation: createAnimationConfig(rightAnimation, theme),
 		},
 		top: defaultCPOptions.top && {
 			...defaultCPOptions.top,
-			visible: defaultCPOptions.top.visible && (cpVisibility.event ?? true),
 			animation: createAnimationConfig(topAnimation, theme),
 		},
 		bottom: defaultCPOptions.bottom && {
 			...defaultCPOptions.bottom,
-			visible: defaultCPOptions.bottom.visible && (cpVisibility.event ?? true),
 			animation: createAnimationConfig(bottomAnimation, theme),
 		},
 	};
@@ -225,16 +210,9 @@ export const ConnectPointsDrawer = ({
 	const highlightedConnectPoints = useAppSelector(
 		selectHighlightedConnectPointsByElementId(id),
 	).map((cp) => cp.position);
-	const elSelection = useAppSelector(selectElementSelection(id));
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
 	const connectPointsOptions = createDefaultElementProps(connectPoints, circleCPSize, icons);
-
-	const mergedCPOptions = createConnectPointsOptions(
-		id,
-		theme,
-		connectPointsOptions,
-		elSelection?.visibleConnectPoints,
-	);
+	const mergedCPOptions = createConnectPointsOptions(id, theme, connectPointsOptions);
 	const bb = calculateShapeSizeBoundingBox({ x, y }, shape);
 
 	if (!visible) {
@@ -256,3 +234,4 @@ export const ConnectPointsDrawer = ({
 		/>
 	);
 };
+

@@ -7,6 +7,7 @@ import {
 	hideTooltip,
 	highlight,
 	selectElements,
+	setSelectionConnectPoints,
 	showTooltip,
 } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
@@ -20,7 +21,8 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 		}
 
 		dispatch(clearSelected());
-		dispatch(selectElements([{ id: e.id, visibleConnectPoints: { input: false } }]));
+		dispatch(selectElements([{ id: e.id }]));
+		dispatch(setSelectionConnectPoints({ elementIds: [e.id] }));
 	},
 	onMouseOver: (e: DrawerEvent) => {
 		const { id, originalEvent } = e;

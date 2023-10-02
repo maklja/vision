@@ -75,7 +75,6 @@ export const highlightedConnectPointsAdapterReducers = {
 		}
 
 		const lastPoint = slice.draftConnectLine.points.at(-1);
-
 		if (!lastPoint) {
 			return;
 		}

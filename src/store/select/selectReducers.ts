@@ -11,11 +11,15 @@ import {
 	selectAllSelectedConnectLines,
 	selectConnectLinesStateChange,
 } from '../connectLines';
-import { removeConnectPointsByIdsStateChange } from '../connectPoints';
+import {
+	clearConnectPointsSelectionStateChange,
+	removeConnectPointsByIdsStateChange,
+} from '../connectPoints';
 
 export const clearSelectedStateChange = (slice: Draft<StageSlice>) => {
 	selectElementsStateChange(slice, []);
 	selectConnectLinesStateChange(slice, []);
+	clearConnectPointsSelectionStateChange(slice);
 };
 
 export const removeSelectedStateChange = (slice: Draft<StageSlice>) => {

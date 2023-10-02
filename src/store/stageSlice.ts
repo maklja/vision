@@ -158,6 +158,8 @@ export const {
 	loadElements,
 	moveConnectPointsByDelta,
 	removeConnectPointsByIds,
+	setSelectionConnectPoints,
+	updateManyConnectPoints,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;

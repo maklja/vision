@@ -20,7 +20,12 @@ import {
 	selectElementsStateChange,
 } from '../elements';
 import { StageState } from '../stage';
-import { clearHighlightedConnectPointsStateChange } from '../connectPoints';
+import {
+	clearConnectPointsSelectionStateChange,
+	clearHighlightedConnectPointsStateChange,
+	setSelectionConnectPointsStateChange,
+	updateManyConnectPointsStateChange,
+} from '../connectPoints';
 import { removeAllDrawerAnimationStateChange } from '../drawerAnimations';
 
 export interface DraftConnectLine {
@@ -188,7 +193,7 @@ export const startConnectLineDrawStateChange = (
 	}, new Map<string, number>());
 
 	// leave only element that are allowed to connect and didn't excited cardinality
-	const selectedEls = selectAllElements(slice.elements)
+	const connectPointUpdates = selectAllElements(slice.elements)
 		.filter((curEl) => {
 			if (curEl.id === el.id) {
 				return false;
@@ -216,7 +221,7 @@ export const startConnectLineDrawStateChange = (
 				...selectedElements,
 				{
 					id: curEl.id,
-					visibleConnectPoints: {
+					visibility: {
 						input: true,
 						output: false,
 						event: false,
@@ -225,7 +230,12 @@ export const startConnectLineDrawStateChange = (
 			],
 			[],
 		);
-	selectElementsStateChange(slice, selectedEls);
+
+	updateManyConnectPointsStateChange(slice, { connectPointUpdates });
+	selectElementsStateChange(
+		slice,
+		connectPointUpdates.map((cpUpdate) => ({ id: cpUpdate.id })),
+	);
 };
 
 export const moveConnectLinePointsByDeltaStateChange = (
@@ -308,14 +318,13 @@ export const connectLinesAdapterReducers = {
 		slice.draftConnectLine = null;
 
 		clearHighlightedConnectPointsStateChange(slice);
+		clearConnectPointsSelectionStateChange(slice);
 		selectElementsStateChange(slice, [
 			{
 				id: draftConnectLine.source.id,
-				visibleConnectPoints: {
-					input: false,
-				},
 			},
 		]);
+		setSelectionConnectPointsStateChange(slice, [draftConnectLine.source.id]);
 	},
 	linkConnectLineDraw: (slice: Draft<StageSlice>, action: LinkConnectLineDrawAction) => {
 		const { payload } = action;
@@ -328,14 +337,14 @@ export const connectLinesAdapterReducers = {
 		slice.draftConnectLine = null;
 
 		clearHighlightedConnectPointsStateChange(slice);
+		clearConnectPointsSelectionStateChange(slice);
 		selectElementsStateChange(slice, [
 			{
 				id: draftConnectLine.source.id,
-				visibleConnectPoints: {
-					input: false,
-				},
 			},
 		]);
+		setSelectionConnectPointsStateChange(slice, [draftConnectLine.source.id]);
+
 		const el = selectElementById(slice.elements, payload.targetId);
 		if (!el) {
 			return;

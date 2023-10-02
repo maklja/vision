@@ -1,12 +1,10 @@
 import { Draft, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
-import { ConnectPointTypeVisibility } from '../../model';
 import { StageSlice } from '../stageSlice';
 import { RootState } from '../rootState';
 import { selectAllElements } from './elementsAdapter';
 
 export interface SelectedElement {
 	id: string;
-	visibleConnectPoints: ConnectPointTypeVisibility;
 }
 
 export interface SelectElementsAction {

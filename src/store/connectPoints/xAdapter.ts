@@ -47,6 +47,29 @@ export interface RemoveConnectPointsAction {
 	payload: RemoveConnectPointsPayload;
 }
 
+export type ConnectPointTypeVisibility = {
+	[key in ConnectPointType]?: boolean;
+};
+
+export interface SetSelectionConnectPointsAction {
+	type: string;
+	payload: {
+		elementIds: string[];
+	};
+}
+
+export interface UpdateManyConnectPointsPayload {
+	connectPointUpdates: {
+		id: string;
+		visibility?: ConnectPointTypeVisibility;
+	}[];
+}
+
+export interface UpdateManyConnectPointsAction {
+	type: string;
+	payload: UpdateManyConnectPointsPayload;
+}
+
 export interface ElementConnectPointsX {
 	id: string;
 	connectPoints: ConnectPointX[];
@@ -72,10 +95,6 @@ const createConnectPoints = (
 	const connectPointShape = findCircleShapeSize(elSizesContext, ElementType.ConnectPoint);
 
 	const bb = calculateShapeSizeBoundingBox({ x: element.x, y: element.y }, elShape);
-	const { inputVisible, eventsVisible, outputVisible } = calcConnectPointVisibility(
-		element.type,
-		element.properties,
-	);
 
 	const centerX = bb.center.x;
 	const centerY = bb.center.y;
@@ -95,7 +114,7 @@ const createConnectPoints = (
 	return [
 		{
 			type: ConnectPointType.Input,
-			visible: inputVisible,
+			visible: false,
 			elementId: element.id,
 			position: ConnectPointPosition.Left,
 			x: leftX - connectPointShape.radius,
@@ -103,7 +122,7 @@ const createConnectPoints = (
 		},
 		{
 			type: ConnectPointType.Output,
-			visible: outputVisible,
+			visible: false,
 			elementId: element.id,
 			position: ConnectPointPosition.Right,
 			x: rightX - connectPointShape.radius,
@@ -111,7 +130,7 @@ const createConnectPoints = (
 		},
 		{
 			type: ConnectPointType.Event,
-			visible: eventsVisible,
+			visible: false,
 			elementId: element.id,
 			position: ConnectPointPosition.Top,
 			x: topX - connectPointShape.radius,
@@ -119,7 +138,7 @@ const createConnectPoints = (
 		},
 		{
 			type: ConnectPointType.Event,
-			visible: eventsVisible,
+			visible: false,
 			elementId: element.id,
 			position: ConnectPointPosition.Bottom,
 			x: bottomX - connectPointShape.radius,
@@ -178,6 +197,87 @@ export const removeConnectPointsByIdsStateChange = (
 	slice.connectPoints = connectPointsAdapter.removeMany(slice.connectPoints, payload.elementIds);
 };
 
+export const setSelectionConnectPointsStateChange = (
+	slice: Draft<StageSlice>,
+	elementIds: string[],
+) => {
+	const connectPointsSelected = elementIds.map((elementId) => {
+		const el = selectElementById(slice.elements, elementId);
+		if (!el) {
+			throw new Error(`Element with id ${elementId} was not found`);
+		}
+
+		const elementConnectPoints = selectConnectPointById(slice.connectPoints, elementId);
+		if (!elementConnectPoints) {
+			throw new Error(`Failed to find connect points for element ${elementId}`);
+		}
+
+		const { eventsVisible, outputVisible } = calcConnectPointVisibility(el.type, el.properties);
+		return {
+			id: elementId,
+			changes: {
+				connectPoints: elementConnectPoints.connectPoints.map((cp) => {
+					switch (cp.type) {
+						case ConnectPointType.Event:
+							return { ...cp, visible: eventsVisible };
+						case ConnectPointType.Output:
+							return { ...cp, visible: outputVisible };
+						default:
+							return cp;
+					}
+				}),
+			},
+		};
+	});
+
+	slice.connectPoints = connectPointsAdapter.updateMany(
+		slice.connectPoints,
+		connectPointsSelected,
+	);
+};
+
+export const updateManyConnectPointsStateChange = (
+	slice: Draft<StageSlice>,
+	payload: UpdateManyConnectPointsPayload,
+) => {
+	const { connectPointUpdates } = payload;
+	const adapterUpdates = connectPointUpdates.map((updatePayload) => {
+		const elementConnectPoints = selectConnectPointById(slice.connectPoints, updatePayload.id);
+		if (!elementConnectPoints) {
+			throw new Error(`Failed to find connect points for element ${updatePayload.id}`);
+		}
+
+		return {
+			id: elementConnectPoints.id,
+			changes: {
+				connectPoints: elementConnectPoints.connectPoints.map((cp) => ({
+					...cp,
+					visible: updatePayload.visibility?.[cp.type] ?? false,
+				})),
+			},
+		};
+	});
+
+	slice.connectPoints = connectPointsAdapter.updateMany(slice.connectPoints, adapterUpdates);
+};
+
+export const clearConnectPointsSelectionStateChange = (slice: Draft<StageSlice>) => {
+	const connectPoints = selectAllConnectPoints(slice.connectPoints);
+
+	slice.connectPoints = connectPointsAdapter.updateMany(
+		slice.connectPoints,
+		connectPoints.map((elementConnectPoint) => ({
+			id: elementConnectPoint.id,
+			changes: {
+				connectPoints: elementConnectPoint.connectPoints.map((cp) => ({
+					...cp,
+					visible: false,
+				})),
+			},
+		})),
+	);
+};
+
 export const connectPointsAdapterReducers = {
 	createElementConnectPoints: (
 		slice: Draft<StageSlice>,
@@ -194,6 +294,12 @@ export const connectPointsAdapterReducers = {
 		moveConnectPointsByDeltaStateChange(slice, action.payload),
 	removeConnectPointsByIds: (slice: Draft<StageSlice>, action: RemoveConnectPointsAction) =>
 		removeConnectPointsByIdsStateChange(slice, action.payload),
+	setSelectionConnectPoints: (
+		slice: Draft<StageSlice>,
+		action: SetSelectionConnectPointsAction,
+	) => setSelectionConnectPointsStateChange(slice, action.payload.elementIds),
+	updateManyConnectPoints: (slice: Draft<StageSlice>, action: UpdateManyConnectPointsAction) =>
+		updateManyConnectPointsStateChange(slice, action.payload),
 };
 
 const globalConnectPointsSelector = connectPointsAdapter.getSelectors<RootState>(
