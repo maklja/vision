@@ -38,6 +38,15 @@ export interface MoveConnectPointsByDeltaAction {
 	payload: MoveConnectPointsByDeltaPayload;
 }
 
+export interface RemoveConnectPointsPayload {
+	elementIds: string[];
+}
+
+export interface RemoveConnectPointsAction {
+	type: string;
+	payload: RemoveConnectPointsPayload;
+}
+
 export interface ElementConnectPointsX {
 	id: string;
 	connectPoints: ConnectPointX[];
@@ -162,6 +171,13 @@ export const moveConnectPointsByDeltaStateChange = (
 	});
 };
 
+export const removeConnectPointsByIdsStateChange = (
+	slice: Draft<StageSlice>,
+	payload: RemoveConnectPointsPayload,
+) => {
+	slice.connectPoints = connectPointsAdapter.removeMany(slice.connectPoints, payload.elementIds);
+};
+
 export const connectPointsAdapterReducers = {
 	createElementConnectPoints: (
 		slice: Draft<StageSlice>,
@@ -176,6 +192,8 @@ export const connectPointsAdapterReducers = {
 	},
 	moveConnectPointsByDelta: (slice: Draft<StageSlice>, action: MoveConnectPointsByDeltaAction) =>
 		moveConnectPointsByDeltaStateChange(slice, action.payload),
+	removeConnectPointsByIds: (slice: Draft<StageSlice>, action: RemoveConnectPointsAction) =>
+		removeConnectPointsByIdsStateChange(slice, action.payload),
 };
 
 const globalConnectPointsSelector = connectPointsAdapter.getSelectors<RootState>(
@@ -196,3 +214,4 @@ const selectElementConnectPoints = createSelector(selectConnectPointsById, (conn
 );
 export const selectElementConnectPointsById = (id: string) => (state: RootState) =>
 	selectElementConnectPoints(state, id);
+

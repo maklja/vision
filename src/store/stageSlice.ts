@@ -156,6 +156,8 @@ export const {
 	removeDrawerAnimation,
 	createElementConnectPoints,
 	loadElements,
+	moveConnectPointsByDelta,
+	removeConnectPointsByIds,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
