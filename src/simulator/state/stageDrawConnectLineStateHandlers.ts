@@ -3,6 +3,7 @@ import { AppDispatch } from '../../store/rootState';
 import { StageEvents } from '../SimulatorStage';
 import {
 	addNextPointConnectLineDraw,
+	clearSnapLines,
 	createConnectPointSnapLines,
 	deleteConnectLineDraw,
 	moveConnectLineDraw,
@@ -49,5 +50,7 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 		e.evt.preventDefault();
 
 		dispatch(deleteConnectLineDraw());
+		dispatch(clearSnapLines());
 	},
 });
+

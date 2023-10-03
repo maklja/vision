@@ -16,7 +16,6 @@ export interface CircleConnectPointsDrawerProps extends ConnectPointsDrawerEvent
 	y?: number;
 	width?: number;
 	height?: number;
-	offset?: number;
 	connectPointsOptions: ConnectPointsOptions<CircleShapeSize>;
 }
 
@@ -31,7 +30,6 @@ export const CircleConnectPointsDrawer = ({
 	y = 0,
 	width = 0,
 	height = 0,
-	offset = 0,
 	theme,
 	connectPointsOptions,
 	onMouseDown,
@@ -96,7 +94,7 @@ export const CircleConnectPointsDrawer = ({
 					{...theme.connectLine.line}
 					points={[
 						connectPointsOptions.top.x + connectPointHalfWidth,
-						connectPointsOptions.top.y + connectPointHalfHeight - offset,
+						connectPointsOptions.top.y + connectPointHalfHeight,
 						centerX,
 						centerY,
 					]}
@@ -109,7 +107,7 @@ export const CircleConnectPointsDrawer = ({
 					type={connectPointsOptions.top.type}
 					position={ConnectPointPosition.Top}
 					x={connectPointsOptions.top.x}
-					y={connectPointsOptions.top.y - offset}
+					y={connectPointsOptions.top.y}
 					theme={theme}
 					size={connectPointsOptions.top.shapeSize}
 					onMouseDown={handleOnMouseDown}
@@ -131,7 +129,7 @@ export const CircleConnectPointsDrawer = ({
 				<Line
 					{...theme.connectLine.line}
 					points={[
-						connectPointsOptions.right.x + connectPointHalfWidth + offset,
+						connectPointsOptions.right.x + connectPointHalfWidth,
 						connectPointsOptions.right.y + connectPointHalfHeight,
 						centerX,
 						centerY,
@@ -145,7 +143,7 @@ export const CircleConnectPointsDrawer = ({
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Right)}
 					type={connectPointsOptions.right.type}
 					position={ConnectPointPosition.Right}
-					x={connectPointsOptions.right.x + offset}
+					x={connectPointsOptions.right.x}
 					y={connectPointsOptions.right.y}
 					theme={theme}
 					size={connectPointsOptions.right.shapeSize}
@@ -169,7 +167,7 @@ export const CircleConnectPointsDrawer = ({
 					{...theme.connectLine.line}
 					points={[
 						connectPointsOptions.bottom.x + connectPointHalfWidth,
-						connectPointsOptions.bottom.y + connectPointHalfHeight + offset,
+						connectPointsOptions.bottom.y + connectPointHalfHeight,
 						centerX,
 						centerY,
 					]}
@@ -183,7 +181,7 @@ export const CircleConnectPointsDrawer = ({
 					type={connectPointsOptions.bottom.type}
 					position={ConnectPointPosition.Bottom}
 					x={connectPointsOptions.bottom.x}
-					y={connectPointsOptions.bottom.y + offset}
+					y={connectPointsOptions.bottom.y}
 					theme={theme}
 					size={connectPointsOptions.bottom.shapeSize}
 					onMouseDown={handleOnMouseDown}
@@ -205,7 +203,7 @@ export const CircleConnectPointsDrawer = ({
 				<Line
 					{...theme.connectLine.line}
 					points={[
-						connectPointsOptions.left.x + connectPointHalfWidth - offset,
+						connectPointsOptions.left.x + connectPointHalfWidth,
 						connectPointsOptions.left.y + connectPointHalfHeight,
 						centerX,
 						centerY,
@@ -219,7 +217,7 @@ export const CircleConnectPointsDrawer = ({
 					id={createConnectPointDrawerId(id, ConnectPointPosition.Left)}
 					type={connectPointsOptions.left.type}
 					position={ConnectPointPosition.Left}
-					x={connectPointsOptions.left.x - offset}
+					x={connectPointsOptions.left.x}
 					y={connectPointsOptions.left.y}
 					theme={theme}
 					size={connectPointsOptions.left.shapeSize}

@@ -46,7 +46,6 @@ export const CreationOperatorDrawer = ({
 				scale={scale}
 				type={elementType}
 				shape={circleShapeSize}
-				offset={26}
 				visible={visibleConnectPoints}
 			/>
 			<CircleOperatorDrawer

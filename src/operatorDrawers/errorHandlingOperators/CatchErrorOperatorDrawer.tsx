@@ -40,7 +40,6 @@ export const CatchErrorOperatorDrawer = ({
 				scale={scale}
 				type={elType}
 				shape={rectangleShapeSize}
-				offset={26}
 				visible={visibleConnectPoints}
 			/>
 			<RectangleOperatorDrawer

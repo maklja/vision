@@ -236,7 +236,7 @@ export const createPointSnapLines = (p1: Point, p2: Point) => {
 	const horizontalSnapLine = createHorizontalSnapLine(
 		xMinHorizontal,
 		xMaxHorizontal,
-		p1.y,
+		p2.y,
 		p1.y - p2.y,
 	);
 
@@ -246,7 +246,7 @@ export const createPointSnapLines = (p1: Point, p2: Point) => {
 	const verticalSnapLine: SnapLine = createVerticalSnapLine(
 		yMinVertical,
 		yMaxVertical,
-		p1.x,
+		p2.x,
 		p1.x - p2.x,
 	);
 
@@ -273,3 +273,4 @@ export const snapLinesDistance = (snapLine1: SnapLine, snapLine2: SnapLine) => {
 		? Math.abs(snapLine1.points[0].y - snapLine2.points[0].y)
 		: Math.abs(snapLine1.points[0].x - snapLine2.points[0].x);
 };
+

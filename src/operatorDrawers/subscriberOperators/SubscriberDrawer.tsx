@@ -40,7 +40,6 @@ export const SubscriberDrawer = ({
 				scale={scale}
 				type={elType}
 				shape={circleShapeSize}
-				offset={42}
 				visible={visibleConnectPoints}
 			/>
 			<DotCircleOperatorDrawer

@@ -1,6 +1,7 @@
 import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
 import {
+	clearSnapLines,
 	linkConnectLineDraw,
 	pinConnectLine,
 	removeDrawerAnimation,
@@ -24,6 +25,7 @@ export const connectPointDrawConnectLineStateHandlers = (
 			originalEvent.evt.button !== CANCEL_MOUSE_BUTTON_KEY &&
 			originalEvent.evt.buttons !== CANCEL_MOUSE_BUTTON_KEY
 		) {
+			dispatch(clearSnapLines());
 			return dispatch(
 				linkConnectLineDraw({
 					connectPointId: connectPoint.id,
@@ -90,3 +92,4 @@ export const connectPointDrawConnectLineStateHandlers = (
 		);
 	},
 });
+

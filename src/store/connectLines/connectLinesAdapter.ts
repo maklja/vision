@@ -47,12 +47,14 @@ export interface StartConnectLineDrawAction {
 	payload: StartConnectLineDrawPayload;
 }
 
+export interface MoveConnectLineDrawPayload {
+	position: Point;
+	normalizePosition: boolean;
+}
+
 export interface MoveConnectLineDrawAction {
 	type: string;
-	payload: {
-		position: Point;
-		normalizePosition: boolean;
-	};
+	payload: MoveConnectLineDrawPayload;
 }
 
 export interface AddPointConnectLineDrawAction {
@@ -272,33 +274,39 @@ export const moveConnectLinePointsByDeltaStateChange = (
 	});
 };
 
+export const moveConnectLineDrawStateChange = (
+	slice: Draft<StageSlice>,
+	payload: MoveConnectLineDrawPayload,
+) => {
+	if (slice.state !== StageState.DrawConnectLine || !slice.draftConnectLine) {
+		return;
+	}
+
+	const { draftConnectLine } = slice;
+	if (draftConnectLine.locked) {
+		return;
+	}
+	const { position, normalizePosition } = payload;
+
+	if (!normalizePosition) {
+		draftConnectLine.points.splice(-1, 1, position);
+		return;
+	}
+
+	const lastPoint = draftConnectLine.points[draftConnectLine.points.length - 2];
+	const newPosition =
+		Math.abs(lastPoint.x - position.x) < Math.abs(lastPoint.y - position.y)
+			? { x: lastPoint.x, y: position.y }
+			: { x: position.x, y: lastPoint.y };
+
+	draftConnectLine.points.splice(-1, 1, newPosition);
+};
+
 export const connectLinesAdapterReducers = {
 	startConnectLineDraw: (slice: Draft<StageSlice>, action: StartConnectLineDrawAction) =>
 		startConnectLineDrawStateChange(slice, action.payload),
-	moveConnectLineDraw: (slice: Draft<StageSlice>, action: MoveConnectLineDrawAction) => {
-		if (slice.state !== StageState.DrawConnectLine || !slice.draftConnectLine) {
-			return;
-		}
-
-		const { draftConnectLine } = slice;
-		if (draftConnectLine.locked) {
-			return;
-		}
-		const { position, normalizePosition } = action.payload;
-
-		if (!normalizePosition) {
-			draftConnectLine.points.splice(-1, 1, position);
-			return;
-		}
-
-		const lastPoint = draftConnectLine.points[draftConnectLine.points.length - 2];
-		const newPosition =
-			Math.abs(lastPoint.x - position.x) < Math.abs(lastPoint.y - position.y)
-				? { x: lastPoint.x, y: position.y }
-				: { x: position.x, y: lastPoint.y };
-
-		draftConnectLine.points.splice(-1, 1, newPosition);
-	},
+	moveConnectLineDraw: (slice: Draft<StageSlice>, action: MoveConnectLineDrawAction) =>
+		moveConnectLineDrawStateChange(slice, action.payload),
 	addNextPointConnectLineDraw: (
 		slice: Draft<StageSlice>,
 		action: AddPointConnectLineDrawAction,

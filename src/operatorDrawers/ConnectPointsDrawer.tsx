@@ -185,7 +185,6 @@ export interface ConnectPointsDrawerProps {
 	scale: number;
 	type: ElementType;
 	shape: ShapeSize;
-	offset?: number;
 	visible?: boolean;
 	icons?: ConnectPointsDrawerIconsProps;
 }
@@ -197,7 +196,6 @@ export const ConnectPointsDrawer = ({
 	scale,
 	type,
 	shape,
-	offset = 0,
 	visible = false,
 	icons = {},
 }: ConnectPointsDrawerProps) => {
@@ -223,7 +221,6 @@ export const ConnectPointsDrawer = ({
 			y={bb.y}
 			width={bb.width}
 			height={bb.height}
-			offset={offset}
 		/>
 	);
 };

@@ -41,7 +41,6 @@ export const IifOperatorDrawer = ({
 				scale={scale}
 				type={elType}
 				shape={circleShapeSize}
-				offset={26}
 				visible={visibleConnectPoints}
 				icons={{
 					top: ({ connectPointPosition, theme, highlight }) => (
@@ -88,3 +87,4 @@ export const IifOperatorDrawer = ({
 		</Group>
 	);
 };
+

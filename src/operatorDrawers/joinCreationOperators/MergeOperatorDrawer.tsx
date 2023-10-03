@@ -40,7 +40,6 @@ export const MergeOperatorDrawer = ({
 				scale={scale}
 				type={elType}
 				shape={circleShapeSize}
-				offset={26}
 				visible={visibleConnectPoints}
 			/>
 			<HexagonOperatorDrawer
@@ -69,3 +68,4 @@ export const MergeOperatorDrawer = ({
 		</Group>
 	);
 };
+

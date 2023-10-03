@@ -134,15 +134,15 @@ const createConnectPoints = (
 	const centerY = bb.center.y;
 
 	const topX = centerX;
-	const topY = bb.y;
+	const topY = bb.y - elShape.margin;
 
-	const rightX = bb.x + bb.width;
+	const rightX = bb.x + bb.width + elShape.margin;
 	const rightY = centerY;
 
 	const bottomX = centerX;
-	const bottomY = bb.y + bb.height;
+	const bottomY = bb.y + bb.height + elShape.margin;
 
-	const leftX = bb.x;
+	const leftX = bb.x - elShape.margin;
 	const leftY = centerY;
 
 	return [

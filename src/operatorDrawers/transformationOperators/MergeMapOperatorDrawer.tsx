@@ -40,7 +40,6 @@ export const MergeMapOperatorDrawer = ({
 				scale={scale}
 				type={elType}
 				shape={rectangleShapeSize}
-				offset={26}
 				visible={visibleConnectPoints}
 			/>
 			<RollerOperatorDrawer
@@ -69,3 +68,4 @@ export const MergeMapOperatorDrawer = ({
 		</Group>
 	);
 };
+

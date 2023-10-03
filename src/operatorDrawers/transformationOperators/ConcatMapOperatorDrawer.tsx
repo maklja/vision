@@ -39,7 +39,6 @@ export const ConcatMapOperatorDrawer = ({
 				y={y}
 				type={elType}
 				shape={rectangleShapeSize}
-				offset={26}
 				scale={1}
 				visible={visibleConnectPoints}
 			/>
@@ -69,3 +68,4 @@ export const ConcatMapOperatorDrawer = ({
 		</Group>
 	);
 };
+

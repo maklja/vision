@@ -40,7 +40,6 @@ export const MapOperatorDrawer = ({
 				type={elType}
 				shape={rectangleShapeSize}
 				scale={scale}
-				offset={26}
 				visible={visibleConnectPoints}
 			/>
 			<RollerOperatorDrawer
