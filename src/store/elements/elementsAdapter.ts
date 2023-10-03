@@ -4,6 +4,11 @@ import { Element, ElementProps } from '../../model';
 import { RootState } from '../rootState';
 import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
 import { StageState, updateStateChange } from '../stage';
+import {
+	createElementConnectPointsStateChange,
+	createElementsConnectPointsStateChange,
+	moveConnectPointsByDeltaStateChange,
+} from '../connectPoints';
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
@@ -66,12 +71,18 @@ export interface UpdateDraftElementPositionAction {
 	};
 }
 
+export interface LoadElementsAction {
+	type: string;
+	payload: {
+		elements: Element[];
+	};
+}
+
 const elementsAdapter = createEntityAdapter<Element>({
 	selectId: (el) => el.id,
 });
 
-export const createElementsAdapterInitialState = (elements: Element[] = []) =>
-	elementsAdapter.addMany(elementsAdapter.getInitialState(), elements);
+export const createElementsAdapterInitialState = () => elementsAdapter.getInitialState();
 
 export const {
 	selectAll: selectAllElements,
@@ -122,6 +133,11 @@ export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveEl
 				dy,
 			});
 		}
+	});
+	moveConnectPointsByDeltaStateChange(slice, {
+		id: el.id,
+		dx,
+		dy,
 	});
 };
 
@@ -177,6 +193,7 @@ export const elementsAdapterReducers = {
 		}
 
 		slice.elements = elementsAdapter.addOne(slice.elements, action.payload);
+		createElementConnectPointsStateChange(slice, action.payload);
 		slice.draftElement = null;
 	},
 	clearDraftElement: (slice: Draft<StageSlice>) => {
@@ -197,6 +214,10 @@ export const elementsAdapterReducers = {
 			y: action.payload.y,
 		};
 	},
+	loadElements: (slice: Draft<StageSlice>, action: LoadElementsAction) => {
+		slice.elements = elementsAdapter.addMany(slice.elements, action.payload.elements);
+		createElementsConnectPointsStateChange(slice, action.payload.elements);
+	},
 };
 
 const globalElementsSelector = elementsAdapter.getSelectors<RootState>(
@@ -209,4 +230,3 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
-

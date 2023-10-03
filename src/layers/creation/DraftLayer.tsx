@@ -16,11 +16,10 @@ export const DraftLayer = () => {
 	const sourceElement = useAppSelector(
 		selectStageElementById(draftConnectLine?.source.id ?? null),
 	);
-	const elBoundingBox = useBoundingBox(
-		sourceElement?.type ?? null,
-		{ x: sourceElement?.x ?? 0, y: sourceElement?.y ?? 0 },
-		sourceElement?.scale,
-	);
+	const elBoundingBox = useBoundingBox(sourceElement?.type ?? null, {
+		x: sourceElement?.x ?? 0,
+		y: sourceElement?.y ?? 0,
+	});
 
 	const draftPoints = useMemo(() => {
 		if (!draftConnectLine) {

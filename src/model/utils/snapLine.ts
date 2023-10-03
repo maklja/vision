@@ -224,10 +224,34 @@ export const createVerticalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): Sna
 	];
 };
 
-export const createSnapLines = (bb1: BoundingBox, bb2: BoundingBox): SnapLine[] => [
+export const createBoundingBoxSnapLines = (bb1: BoundingBox, bb2: BoundingBox): SnapLine[] => [
 	...createHorizontalSnapLines(bb1, bb2),
 	...createVerticalSnapLines(bb1, bb2),
 ];
+
+export const createPointSnapLines = (p1: Point, p2: Point) => {
+	const xMinHorizontal = Math.min(p1.x, p2.x);
+	const xMaxHorizontal = Math.max(p1.x, p2.x);
+
+	const horizontalSnapLine = createHorizontalSnapLine(
+		xMinHorizontal,
+		xMaxHorizontal,
+		p2.y,
+		p1.y - p2.y,
+	);
+
+	const yMinVertical = Math.min(p1.y, p2.y);
+	const yMaxVertical = Math.max(p1.y, p2.y);
+
+	const verticalSnapLine: SnapLine = createVerticalSnapLine(
+		yMinVertical,
+		yMaxVertical,
+		p2.x,
+		p1.x - p2.x,
+	);
+
+	return [horizontalSnapLine, verticalSnapLine];
+};
 
 export const boundingBoxTouch = (bb1: BoundingBox, bb2: BoundingBox): boolean => {
 	const { topLeft: bb1TopLeft, bottomRight: bb1BottomRight } = bb1;

@@ -20,7 +20,12 @@ import {
 	selectElementsStateChange,
 } from '../elements';
 import { StageState } from '../stage';
-import { clearHighlightedConnectPointsStateChange } from '../connectPoints';
+import {
+	clearHighlightConnectPointsStateChange,
+	clearSelectionConnectPointsStateChange,
+	setSelectionConnectPointsStateChange,
+	updateManyConnectPointsStateChange,
+} from '../connectPoints';
 import { removeAllDrawerAnimationStateChange } from '../drawerAnimations';
 
 export interface DraftConnectLine {
@@ -42,12 +47,14 @@ export interface StartConnectLineDrawAction {
 	payload: StartConnectLineDrawPayload;
 }
 
+export interface MoveConnectLineDrawPayload {
+	position: Point;
+	normalizePosition: boolean;
+}
+
 export interface MoveConnectLineDrawAction {
 	type: string;
-	payload: {
-		position: Point;
-		normalizePosition: boolean;
-	};
+	payload: MoveConnectLineDrawPayload;
 }
 
 export interface AddPointConnectLineDrawAction {
@@ -108,6 +115,13 @@ export interface MoveConnectLinePointAction {
 	};
 }
 
+export interface SelectConnectLinesAction {
+	type: string;
+	payload: {
+		connectLineIds: string[];
+	};
+}
+
 const getConnectPointDescriptor = (
 	el: Element,
 	cpType: ConnectPointType,
@@ -130,7 +144,11 @@ const getConnectPointDescriptor = (
 	};
 };
 
-const connectLinesAdapter = createEntityAdapter<ConnectLine>({
+export interface ConnectLineEntity extends ConnectLine {
+	select: boolean;
+}
+
+const connectLinesAdapter = createEntityAdapter<ConnectLineEntity>({
 	selectId: (el) => el.id,
 });
 
@@ -148,8 +166,7 @@ export const removeConnectLinesStateChange = (
 export const { selectAll: selectAllConnectLines, selectById: selectConnectLineById } =
 	connectLinesAdapter.getSelectors();
 
-export const createConnectLinesAdapterInitialState = (connectLines: ConnectLine[] = []) =>
-	connectLinesAdapter.addMany(connectLinesAdapter.getInitialState(), connectLines);
+export const createConnectLinesAdapterInitialState = () => connectLinesAdapter.getInitialState();
 
 export const startConnectLineDrawStateChange = (
 	slice: Draft<StageSlice>,
@@ -167,6 +184,8 @@ export const startConnectLineDrawStateChange = (
 		points,
 		locked: false,
 	};
+
+	clearSelectionConnectPointsStateChange(slice);
 
 	// first find an element
 	const el = selectElementById(slice.elements, sourceId);
@@ -189,7 +208,7 @@ export const startConnectLineDrawStateChange = (
 	}, new Map<string, number>());
 
 	// leave only element that are allowed to connect and didn't excited cardinality
-	const selectedEls = selectAllElements(slice.elements)
+	const connectPointUpdates = selectAllElements(slice.elements)
 		.filter((curEl) => {
 			if (curEl.id === el.id) {
 				return false;
@@ -217,7 +236,7 @@ export const startConnectLineDrawStateChange = (
 				...selectedElements,
 				{
 					id: curEl.id,
-					visibleConnectPoints: {
+					visibility: {
 						input: true,
 						output: false,
 						event: false,
@@ -226,7 +245,12 @@ export const startConnectLineDrawStateChange = (
 			],
 			[],
 		);
-	selectElementsStateChange(slice, selectedEls);
+
+	updateManyConnectPointsStateChange(slice, { connectPointUpdates });
+	selectElementsStateChange(
+		slice,
+		connectPointUpdates.map((cpUpdate) => ({ id: cpUpdate.id })),
+	);
 };
 
 export const moveConnectLinePointsByDeltaStateChange = (
@@ -261,33 +285,59 @@ export const moveConnectLinePointsByDeltaStateChange = (
 	});
 };
 
+export const moveConnectLineDrawStateChange = (
+	slice: Draft<StageSlice>,
+	payload: MoveConnectLineDrawPayload,
+) => {
+	if (slice.state !== StageState.DrawConnectLine || !slice.draftConnectLine) {
+		return;
+	}
+
+	const { draftConnectLine } = slice;
+	if (draftConnectLine.locked) {
+		return;
+	}
+	const { position, normalizePosition } = payload;
+
+	if (!normalizePosition) {
+		draftConnectLine.points.splice(-1, 1, position);
+		return;
+	}
+
+	const lastPoint = draftConnectLine.points[draftConnectLine.points.length - 2];
+	const newPosition =
+		Math.abs(lastPoint.x - position.x) < Math.abs(lastPoint.y - position.y)
+			? { x: lastPoint.x, y: position.y }
+			: { x: position.x, y: lastPoint.y };
+
+	draftConnectLine.points.splice(-1, 1, newPosition);
+};
+
+export const selectConnectLinesStateChange = (
+	slice: Draft<StageSlice>,
+	connectLineIds: string[],
+) => {
+	const connectLines = selectAllConnectLines(slice.connectLines);
+	if (connectLines.every((cl) => !cl.select) && connectLineIds.length === 0) {
+		return;
+	}
+
+	slice.connectLines = connectLinesAdapter.updateMany(
+		slice.connectLines,
+		connectLines.map((cl) => ({
+			id: cl.id,
+			changes: {
+				select: connectLineIds.includes(cl.id),
+			},
+		})),
+	);
+};
+
 export const connectLinesAdapterReducers = {
 	startConnectLineDraw: (slice: Draft<StageSlice>, action: StartConnectLineDrawAction) =>
 		startConnectLineDrawStateChange(slice, action.payload),
-	moveConnectLineDraw: (slice: Draft<StageSlice>, action: MoveConnectLineDrawAction) => {
-		if (slice.state !== StageState.DrawConnectLine || !slice.draftConnectLine) {
-			return;
-		}
-
-		const { draftConnectLine } = slice;
-		if (draftConnectLine.locked) {
-			return;
-		}
-		const { position, normalizePosition } = action.payload;
-
-		if (!normalizePosition) {
-			draftConnectLine.points.splice(-1, 1, position);
-			return;
-		}
-
-		const lastPoint = draftConnectLine.points[draftConnectLine.points.length - 2];
-		const newPosition =
-			Math.abs(lastPoint.x - position.x) < Math.abs(lastPoint.y - position.y)
-				? { x: lastPoint.x, y: position.y }
-				: { x: position.x, y: lastPoint.y };
-
-		draftConnectLine.points.splice(-1, 1, newPosition);
-	},
+	moveConnectLineDraw: (slice: Draft<StageSlice>, action: MoveConnectLineDrawAction) =>
+		moveConnectLineDrawStateChange(slice, action.payload),
 	addNextPointConnectLineDraw: (
 		slice: Draft<StageSlice>,
 		action: AddPointConnectLineDrawAction,
@@ -308,15 +358,14 @@ export const connectLinesAdapterReducers = {
 		slice.state = StageState.Select;
 		slice.draftConnectLine = null;
 
-		clearHighlightedConnectPointsStateChange(slice);
+		clearHighlightConnectPointsStateChange(slice);
+		clearSelectionConnectPointsStateChange(slice);
 		selectElementsStateChange(slice, [
 			{
 				id: draftConnectLine.source.id,
-				visibleConnectPoints: {
-					input: false,
-				},
 			},
 		]);
+		setSelectionConnectPointsStateChange(slice, [draftConnectLine.source.id]);
 	},
 	linkConnectLineDraw: (slice: Draft<StageSlice>, action: LinkConnectLineDrawAction) => {
 		const { payload } = action;
@@ -328,15 +377,15 @@ export const connectLinesAdapterReducers = {
 		slice.state = StageState.Select;
 		slice.draftConnectLine = null;
 
-		clearHighlightedConnectPointsStateChange(slice);
+		clearHighlightConnectPointsStateChange(slice);
+		clearSelectionConnectPointsStateChange(slice);
 		selectElementsStateChange(slice, [
 			{
 				id: draftConnectLine.source.id,
-				visibleConnectPoints: {
-					input: false,
-				},
 			},
 		]);
+		setSelectionConnectPointsStateChange(slice, [draftConnectLine.source.id]);
+
 		const el = selectElementById(slice.elements, payload.targetId);
 		if (!el) {
 			return;
@@ -345,6 +394,7 @@ export const connectLinesAdapterReducers = {
 		slice.connectLines = connectLinesAdapter.addOne(slice.connectLines, {
 			id: v1(),
 			locked: false,
+			select: false,
 			points: [...draftConnectLine.points, action.payload.targetPoint],
 			source: draftConnectLine.source,
 			target: {
@@ -437,6 +487,8 @@ export const connectLinesAdapterReducers = {
 			eventConnectLineIds,
 		);
 	},
+	selectConnectLines: (slice: Draft<StageSlice>, action: SelectConnectLinesAction) =>
+		selectConnectLinesStateChange(slice, action.payload.connectLineIds),
 };
 
 const globalConnectLinesSelector = connectLinesAdapter.getSelectors<RootState>(
@@ -450,3 +502,4 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
+

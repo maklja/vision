@@ -19,18 +19,10 @@ export interface ElementExplorerProps {
 	type: ElementType;
 	x: number;
 	y: number;
-	scale: number;
 	onPositionChange?: (id: string, position: Point) => void;
 }
 
-export const ElementExplorer = ({
-	id,
-	scale,
-	type,
-	x,
-	y,
-	onPositionChange,
-}: ElementExplorerProps) => {
+export const ElementExplorer = ({ id, type, x, y, onPositionChange }: ElementExplorerProps) => {
 	const operatorGroup = mapElementTypeToGroup(type);
 	const shapeSize = useShapeSize(type);
 
@@ -172,19 +164,6 @@ export const ElementExplorer = ({
 									/>
 								</Fragment>
 							) : null}
-
-							<TextField
-								id="scale"
-								label="Scale"
-								value={`${scale * 100}%`}
-								size="small"
-								InputProps={{
-									readOnly: true,
-								}}
-								InputLabelProps={{
-									shrink: true,
-								}}
-							/>
 						</FormGroup>
 					</Stack>
 				</AccordionDetails>

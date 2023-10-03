@@ -48,6 +48,7 @@ export interface CircleShapeSize {
 	readonly type: ElementShape.Circle;
 	readonly radius: number;
 	readonly fontSizes: FontSizes;
+	readonly margin: number;
 }
 
 export interface RectangleShapeSize {
@@ -55,6 +56,7 @@ export interface RectangleShapeSize {
 	readonly width: number;
 	readonly height: number;
 	readonly fontSizes: FontSizes;
+	readonly margin: number;
 }
 
 export type ShapeSize = CircleShapeSize | RectangleShapeSize;
@@ -82,10 +84,11 @@ export const scaleCircleShape = (
 		return circleShapeSize;
 	}
 
-	const { fontSizes, radius } = circleShapeSize;
+	const { fontSizes, radius, margin } = circleShapeSize;
 	return {
 		type: ElementShape.Circle,
 		radius: fromSize(radius, scale),
+		margin: fromSize(margin, scale),
 		fontSizes: {
 			primary: fromSize(fontSizes.primary, scale),
 			secondary: fromSize(fontSizes.secondary, scale),
@@ -101,11 +104,12 @@ export const scaleRectangleShape = (
 		return rectangleShapeSize;
 	}
 
-	const { fontSizes, width, height } = rectangleShapeSize;
+	const { fontSizes, width, height, margin } = rectangleShapeSize;
 	return {
 		type: ElementShape.Rectangle,
 		width: fromSize(width, scale),
 		height: fromSize(height, scale),
+		margin: fromSize(margin, scale),
 		fontSizes: {
 			primary: fromSize(fontSizes.primary, scale),
 			secondary: fromSize(fontSizes.secondary, scale),
@@ -129,6 +133,7 @@ export const defaultCircleShape: CircleShapeSize = {
 	type: ElementShape.Circle,
 	radius: defaultSizeConfig.drawerSizes.radius,
 	fontSizes: defaultSizeConfig.fontSizes,
+	margin: 26,
 };
 
 export const defaultRectangleShape: RectangleShapeSize = {
@@ -136,13 +141,19 @@ export const defaultRectangleShape: RectangleShapeSize = {
 	width: defaultSizeConfig.drawerSizes.width,
 	height: defaultSizeConfig.drawerSizes.height,
 	fontSizes: defaultSizeConfig.fontSizes,
+	margin: 26,
+};
+
+const subscriberCircleShape: CircleShapeSize = {
+	...scaleCircleShape(defaultCircleShape, 0.4),
+	margin: 32,
 };
 
 const defaultElementSizes: ElementSizesContext = {
 	sizes: {
 		[ElementGroup.Creation]: defaultCircleShape,
 		[ElementGroup.JoinCreation]: defaultCircleShape,
-		[ElementGroup.Subscriber]: scaleCircleShape(defaultCircleShape, 0.4),
+		[ElementGroup.Subscriber]: subscriberCircleShape,
 		[ElementGroup.ErrorHandling]: defaultRectangleShape,
 		[ElementGroup.Filtering]: defaultRectangleShape,
 		[ElementGroup.Transformation]: defaultRectangleShape,
@@ -156,43 +167,41 @@ const defaultElementSizes: ElementSizesContext = {
 
 export const createElementSizesContext = () => defaultElementSizes;
 
-export const findElementSize = (sizes: ElementSizes, elType: ElementType) => {
+export const findElementSize = (elSizesContext: ElementSizesContext, elType: ElementType) => {
 	const elGroup = mapElementTypeToGroup(elType);
-	const elSize = sizes[elGroup];
+	const elSize = elSizesContext.sizes[elGroup];
 
 	if (!elSize) {
 		throw new Error(`Unsupported element size for type ${elType}`);
 	}
 
-	return elSize;
+	return scaleShapeSize(elSize, elSizesContext.options.scale);
 };
 
 export const findCircleShapeSize = (
 	elSizesContext: ElementSizesContext,
 	elType: ElementType,
 ): CircleShapeSize => {
-	const { sizes, options } = elSizesContext;
-	const shapeSize = findElementSize(sizes, elType);
+	const shapeSize = findElementSize(elSizesContext, elType);
 
 	if (shapeSize.type !== ElementShape.Circle) {
 		throw new Error(`Expected element shape circle but received ${shapeSize.type}`);
 	}
 
-	return scaleCircleShape(shapeSize, options.scale);
+	return shapeSize;
 };
 
 export const findRectangleShapeSize = (
 	elSizesContext: ElementSizesContext,
 	elType: ElementType,
 ): RectangleShapeSize => {
-	const { sizes, options } = elSizesContext;
-	const shapeSize = findElementSize(sizes, elType);
+	const shapeSize = findElementSize(elSizesContext, elType);
 
 	if (shapeSize.type !== ElementShape.Rectangle) {
 		throw new Error(`Expected element shape rectangle but received ${shapeSize.type}`);
 	}
 
-	return scaleRectangleShape(shapeSize, options.scale);
+	return shapeSize;
 };
 
 export const useCircleSizeScale = (circleShapeSize: CircleShapeSize, scale: number) =>

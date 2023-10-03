@@ -11,7 +11,11 @@ export const connectLineSelectStateHandlers = (dispatch: AppDispatch): LineDrawe
 		}
 
 		dispatch(clearSelected());
-		dispatch(selectConnectLines([{ id: e.id }]));
+		dispatch(
+			selectConnectLines({
+				connectLineIds: [e.id],
+			}),
+		);
 	},
 	onMouseOver: (e: LineEvent) => {
 		const { id, originalEvent } = e;
@@ -44,3 +48,4 @@ export const connectLineSelectStateHandlers = (dispatch: AppDispatch): LineDrawe
 		dispatch(changeState(StageState.Dragging));
 	},
 });
+

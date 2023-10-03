@@ -17,7 +17,7 @@ import { SubscriberDrawer } from './subscriberOperators';
 import { FilterOperatorDrawer } from './filteringOperators';
 import { ResultDrawer } from './resultOperators';
 import { MergeOperatorDrawer } from './joinCreationOperators';
-import { useThemeContext } from '../store/stageSlice';
+import { selectElementSizeOptions, useThemeContext } from '../store/stageSlice';
 import { useAppSelector } from '../store/rootState';
 import { useElementDrawerHandlers } from './state';
 import { ElementDrawerProps } from './ElementDrawerProps';
@@ -92,6 +92,7 @@ export const OperatorDrawer = ({
 	const select = useAppSelector(isSelectedElement(element.id));
 	const highlight = useAppSelector(isHighlighted(element.id));
 	const error = useAppSelector(selectElementErrorById(element.id));
+	const elementSizeOptions = useAppSelector(selectElementSizeOptions);
 
 	const animationConfig = animation
 		? {
@@ -109,7 +110,7 @@ export const OperatorDrawer = ({
 					id={element.id}
 					x={element.x}
 					y={element.y}
-					scale={element.scale}
+					scale={elementSizeOptions.scale}
 					visible={element.visible}
 					properties={element.properties}
 					animation={animationConfig}
@@ -126,7 +127,7 @@ export const OperatorDrawer = ({
 				id: element.id,
 				x: element.x,
 				y: element.y,
-				scale: element.scale,
+				scale: elementSizeOptions.scale,
 				visible: element.visible,
 				properties: element.properties,
 				animation: animationConfig,
@@ -139,3 +140,4 @@ export const OperatorDrawer = ({
 			});
 	}
 };
+

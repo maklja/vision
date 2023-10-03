@@ -2,7 +2,7 @@ import Konva from 'konva';
 import { Key, ReactNode } from 'react';
 import { DrawerAnimationTemplate, AnimationEffectEvent } from '../animation';
 import { CircleShapeSize, RectangleShapeSize, ShapeSize, Theme } from '../theme';
-import { BoundingBox, ConnectPointPosition, ConnectPointType } from '../model';
+import { BoundingBox, ConnectPointPosition, ConnectPointType, ConnectPoint } from '../model';
 
 export interface DrawerEvent {
 	id: string;
@@ -65,9 +65,7 @@ export interface ConnectPointDrawerEvent {
 }
 
 export type ConnectPointsOptions<T extends ShapeSize> = {
-	[key in ConnectPointPosition]: {
-		type: ConnectPointType;
-		visible: boolean;
+	[key in ConnectPointPosition]?: ConnectPoint & {
 		shapeSize: T;
 		animation?: DrawerAnimationTemplate | null;
 		icon?: (props: ConnectPointIconDrawerProps) => ReactNode;

@@ -1,6 +1,10 @@
 import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
-import { highlightConnectPoints, startConnectLineDraw } from '../../store/stageSlice';
+import {
+	clearHighlighConnectPoints,
+	startConnectLineDraw,
+	updateManyConnectPoints,
+} from '../../store/stageSlice';
 
 export const connectPointSelectStateHandlers = (
 	dispatch: AppDispatch,
@@ -29,18 +33,21 @@ export const connectPointSelectStateHandlers = (
 		connectPoint.originalEvent.cancelBubble = true;
 
 		dispatch(
-			highlightConnectPoints([
-				{
-					elementId: id,
-					position: connectPoint.position,
-					type: connectPoint.type,
-				},
-			]),
+			updateManyConnectPoints({
+				connectPointUpdates: [
+					{
+						id,
+						highlight: {
+							[connectPoint.position]: true,
+						},
+					},
+				],
+			}),
 		);
 	},
 	onMouseOut: (cEvent: ConnectPointsDrawerEvent) => {
 		cEvent.connectPoint.originalEvent.cancelBubble = true;
-		dispatch(highlightConnectPoints([]));
+		dispatch(clearHighlighConnectPoints());
 	},
 });
 

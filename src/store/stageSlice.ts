@@ -1,5 +1,5 @@
 import { createSlice, EntityState } from '@reduxjs/toolkit';
-import { ConnectLine, Element, SnapLine } from '../model';
+import { Element, SnapLine } from '../model';
 import {
 	createThemeContext,
 	ThemesContext,
@@ -14,12 +14,10 @@ import {
 	selectElementsAdapterReducers,
 } from './elements';
 import {
+	ConnectLineEntity,
 	connectLinesAdapterReducers,
 	createConnectLinesAdapterInitialState,
-	createSelectedConnectLinesAdapterInitialState,
 	DraftConnectLine,
-	selectConnectLinesAdapterReducers,
-	SelectedConnectLine,
 } from './connectLines';
 import { selectReducers } from './select';
 import {
@@ -33,9 +31,9 @@ import { ElementTooltip, tooltipReducers } from './tooltip';
 import { createErrorsAdapterInitialState, ElementError, errorReducers } from './errors';
 import { createSnapLinesInitialState, snapLineReducers } from './snapLines';
 import {
-	createHighlightedConnectPointsAdapterInitialState,
+	connectPointsAdapterReducers,
+	createConnectPointsAdapterInitialState,
 	ElementConnectPoints,
-	highlightedConnectPointsAdapterReducers,
 } from './connectPoints';
 import {
 	createDrawerAnimationsInitialState,
@@ -49,11 +47,10 @@ export interface StageSlice {
 	elements: EntityState<Element>;
 	selectedElements: EntityState<SelectedElement>;
 	draftElement: Element | null;
-	connectLines: EntityState<ConnectLine>;
-	selectedConnectLines: EntityState<SelectedConnectLine>;
+	connectLines: EntityState<ConnectLineEntity>;
 	draftConnectLine: DraftConnectLine | null;
+	connectPoints: EntityState<ElementConnectPoints>;
 	highlighted: EntityState<HighlightElement>;
-	highlightedConnectPoints: EntityState<ElementConnectPoints>;
 	state: StageState;
 	simulation: Simulation;
 	themes: ThemesContext;
@@ -64,14 +61,13 @@ export interface StageSlice {
 	animations: EntityState<DrawerAnimations>;
 }
 
-export const createStageInitialState = (elements: Element[] = []): StageSlice => ({
-	elements: createElementsAdapterInitialState(elements),
+export const createStageInitialState = (): StageSlice => ({
+	elements: createElementsAdapterInitialState(),
 	selectedElements: createSelectedElementsAdapterInitialState(),
 	draftElement: null,
 	connectLines: createConnectLinesAdapterInitialState(),
-	selectedConnectLines: createSelectedConnectLinesAdapterInitialState(),
 	draftConnectLine: null,
-	highlightedConnectPoints: createHighlightedConnectPointsAdapterInitialState(),
+	connectPoints: createConnectPointsAdapterInitialState(),
 	highlighted: createHighlightedAdapterInitialState(),
 	state: StageState.Select,
 	simulation: createSimulationInitialState(),
@@ -90,7 +86,6 @@ export const stageSlice = createSlice({
 		...elementsAdapterReducers,
 		...selectElementsAdapterReducers,
 		...connectLinesAdapterReducers,
-		...selectConnectLinesAdapterReducers,
 		...selectReducers,
 		...selectHighlighAdapterReducers,
 		...simulationReducers,
@@ -98,8 +93,8 @@ export const stageSlice = createSlice({
 		...tooltipReducers,
 		...errorReducers,
 		...snapLineReducers,
-		...highlightedConnectPointsAdapterReducers,
 		...drawerAnimationsAdapterReducers,
+		...connectPointsAdapterReducers,
 	},
 });
 
@@ -118,7 +113,6 @@ export const {
 	movePointConnectLine,
 	pinConnectLine,
 	unpinConnectLine,
-	highlightConnectPoints,
 	createDraftElement,
 	addDraftElement,
 	clearDraftElement,
@@ -138,16 +132,24 @@ export const {
 	clearSelected,
 	updateElementProperty,
 	removeElementConnectLines,
-	createSnapLines,
+	createElementSnapLines,
 	clearSnapLines,
 	updateDraftElementPosition,
 	createDraftElementSnapLines,
 	addDrawerAnimation,
-	clearHighlightedConnectPoints,
 	disposeDrawerAnimation,
 	refreshDrawerAnimation,
 	removeAllDrawerAnimation,
 	removeDrawerAnimation,
+	createElementConnectPoints,
+	loadElements,
+	moveConnectPointsByDelta,
+	removeConnectPointsByIds,
+	setSelectionConnectPoints,
+	updateManyConnectPoints,
+	clearHighlighConnectPoints,
+	createConnectPointSnapLines,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;
+

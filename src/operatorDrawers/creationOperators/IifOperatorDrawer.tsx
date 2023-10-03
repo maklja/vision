@@ -1,7 +1,7 @@
 import { Group } from 'react-konva';
 import { ElementType } from '../../model';
 import { useCircleShapeSize } from '../../store/stageSlice';
-import { ConnectPointsDrawer, createDefaultElementProps } from '../ConnectPointsDrawer';
+import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { CheckCircleIconDrawer, CircleOperatorDrawer, CloseCircleIconDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 
@@ -18,7 +18,6 @@ export const IifOperatorDrawer = ({
 	select,
 	visible,
 	visibleConnectPoints,
-	properties,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -32,7 +31,6 @@ export const IifOperatorDrawer = ({
 	const elType = ElementType.IIf;
 	const circleShapeSize = useCircleShapeSize(elType, scale);
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
-	const connectPointsOptions = createDefaultElementProps(elType, properties, circleCPSize);
 
 	return (
 		<Group>
@@ -40,34 +38,27 @@ export const IifOperatorDrawer = ({
 				id={id}
 				x={x}
 				y={y}
+				scale={scale}
 				type={elType}
 				shape={circleShapeSize}
-				offset={26}
 				visible={visibleConnectPoints}
-				connectPointsOptions={{
-					...connectPointsOptions,
-					top: {
-						...connectPointsOptions.top,
-						icon: ({ connectPointPosition, theme, highlight }) => (
-							<CheckCircleIconDrawer
-								connectPointPosition={connectPointPosition}
-								theme={theme}
-								highlight={highlight}
-								size={circleCPSize}
-							/>
-						),
-					},
-					bottom: {
-						...connectPointsOptions.bottom,
-						icon: ({ connectPointPosition, theme, highlight }) => (
-							<CloseCircleIconDrawer
-								connectPointPosition={connectPointPosition}
-								theme={theme}
-								highlight={highlight}
-								size={circleCPSize}
-							/>
-						),
-					},
+				icons={{
+					top: ({ connectPointPosition, theme, highlight }) => (
+						<CheckCircleIconDrawer
+							connectPointPosition={connectPointPosition}
+							theme={theme}
+							highlight={highlight}
+							size={circleCPSize}
+						/>
+					),
+					bottom: ({ connectPointPosition, theme, highlight }) => (
+						<CloseCircleIconDrawer
+							connectPointPosition={connectPointPosition}
+							theme={theme}
+							highlight={highlight}
+							size={circleCPSize}
+						/>
+					),
 				}}
 			/>
 			<CircleOperatorDrawer

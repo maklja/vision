@@ -30,7 +30,6 @@ export const OperatorPropertiesPanel = ({
 			>
 				<ElementExplorer
 					id={element.id}
-					scale={element.scale}
 					type={element.type}
 					x={element.x}
 					y={element.y}

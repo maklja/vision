@@ -15,11 +15,12 @@ import {
 	findElementSize,
 	scaleCircleShape,
 	scaleRectangleShape,
-	scaleShapeSize,
 	calculateShapeSizeBoundingBox,
 } from '../../theme';
 
 const selectThemes = (state: RootState) => state.stage.themes;
+
+export const selectElementSizeOptions = (state: RootState) => state.stage.elementSizes.options;
 
 const selectElementType = (_state: RootState, elType?: ElementType) => elType;
 
@@ -37,10 +38,8 @@ export const useThemeContext = (type?: ElementType): Theme => {
 	return useSelector((state: RootState) => selectThemeContext(state, type));
 };
 
-export const useShapeSize = (type: ElementType, scale = 1): ShapeSize =>
-	useSelector((state: RootState) =>
-		scaleShapeSize(findElementSize(state.stage.elementSizes.sizes, type), scale),
-	);
+export const useShapeSize = (type: ElementType): ShapeSize =>
+	useSelector((state: RootState) => findElementSize(state.stage.elementSizes, type));
 
 export const useCircleShapeSize = (type: ElementType, scale = 1): CircleShapeSize =>
 	useSelector((state: RootState) =>
@@ -52,20 +51,13 @@ export const useRectangleShapeSize = (type: ElementType, scale = 1): RectangleSh
 		scaleRectangleShape(findRectangleShapeSize(state.stage.elementSizes, type), scale),
 	);
 
-export const useBoundingBox = (
-	type: ElementType | null,
-	position: Point,
-	scale = 1,
-): BoundingBox => {
+export const useBoundingBox = (type: ElementType | null, position: Point): BoundingBox => {
 	return useSelector((state: RootState) => {
 		if (!type) {
 			return BoundingBox.empty(position.x, position.y);
 		}
 
-		const shapeSize = scaleShapeSize(
-			findElementSize(state.stage.elementSizes.sizes, type),
-			scale,
-		);
+		const shapeSize = findElementSize(state.stage.elementSizes, type);
 		return calculateShapeSizeBoundingBox(position, shapeSize);
 	});
 };

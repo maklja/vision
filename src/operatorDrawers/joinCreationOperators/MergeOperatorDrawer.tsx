@@ -1,7 +1,7 @@
 import { Group } from 'react-konva';
 import { ElementType } from '../../model';
 import { useCircleShapeSize } from '../../store/stageSlice';
-import { ConnectPointsDrawer, createDefaultElementProps } from '../ConnectPointsDrawer';
+import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { HexagonOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 
@@ -18,7 +18,6 @@ export const MergeOperatorDrawer = ({
 	select,
 	visible,
 	visibleConnectPoints,
-	properties,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -31,8 +30,6 @@ export const MergeOperatorDrawer = ({
 }: ElementDrawerProps) => {
 	const elType = ElementType.Merge;
 	const circleShapeSize = useCircleShapeSize(elType, scale);
-	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
-	const connectPointsOptions = createDefaultElementProps(elType, properties, circleCPSize);
 
 	return (
 		<Group>
@@ -40,10 +37,9 @@ export const MergeOperatorDrawer = ({
 				id={id}
 				x={x}
 				y={y}
+				scale={scale}
 				type={elType}
 				shape={circleShapeSize}
-				offset={26}
-				connectPointsOptions={connectPointsOptions}
 				visible={visibleConnectPoints}
 			/>
 			<HexagonOperatorDrawer

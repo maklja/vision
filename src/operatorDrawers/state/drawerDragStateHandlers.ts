@@ -1,7 +1,12 @@
 import { DrawerEvent, DrawerEvents } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
 import { StageState } from '../../store/stage';
-import { changeState, clearSnapLines, createSnapLines, moveElement } from '../../store/stageSlice';
+import {
+	changeState,
+	clearSnapLines,
+	createElementSnapLines,
+	moveElement,
+} from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 
@@ -34,7 +39,7 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 				y: position.y,
 			}),
 		);
-		dispatch(createSnapLines({ referenceElementId: id }));
+		dispatch(createElementSnapLines({ referenceElementId: id }));
 	},
 });
 
