@@ -1,16 +1,9 @@
 export enum ElementType {
+	// creation operators
 	Of = 'of',
 	From = 'from',
 	IIf = 'iif',
 	Interval = 'interval',
-	Filter = 'filter',
-	Subscriber = 'subscriber',
-	CatchError = 'catchError',
-	Result = 'result',
-	ConnectPoint = 'connectPoint',
-	Map = 'map',
-	ConcatMap = 'concatMap',
-	MergeMap = 'mergeMap',
 	Ajax = 'ajax',
 	Empty = 'empty',
 	Defer = 'defer',
@@ -21,6 +14,15 @@ export enum ElementType {
 	// join creation operators
 	CombineLatest = 'combineLatest',
 	Merge = 'merge',
+	// other
+	Filter = 'filter',
+	Subscriber = 'subscriber',
+	CatchError = 'catchError',
+	Result = 'result',
+	ConnectPoint = 'connectPoint',
+	Map = 'map',
+	ConcatMap = 'concatMap',
+	MergeMap = 'mergeMap',
 }
 
 export const joinCreationOperators: ReadonlySet<ElementType> = new Set([
