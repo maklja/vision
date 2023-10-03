@@ -8,7 +8,6 @@ import {
 import {
 	removeConnectLinesStateChange,
 	selectAllConnectLines,
-	selectAllSelectedConnectLines,
 	selectConnectLinesStateChange,
 } from '../connectLines';
 import {
@@ -31,9 +30,9 @@ export const removeSelectedStateChange = (slice: Draft<StageSlice>) => {
 		.filter((cl) => selectedElements[cl.source.id] || selectedElements[cl.target.id])
 		.map((cl) => cl.id);
 
-	const selectConnectLineIds = selectAllSelectedConnectLines(slice.selectedConnectLines).map(
-		(cl) => cl.id,
-	);
+	const selectConnectLineIds = selectAllConnectLines(slice.connectLines)
+		.filter((cl) => cl.select)
+		.map((cl) => cl.id);
 
 	removeConnectLinesStateChange(slice, {
 		connectLineIds: [...connectLineIds, ...selectConnectLineIds],

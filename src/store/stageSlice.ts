@@ -1,5 +1,5 @@
 import { createSlice, EntityState } from '@reduxjs/toolkit';
-import { ConnectLine, Element, SnapLine } from '../model';
+import { Element, SnapLine } from '../model';
 import {
 	createThemeContext,
 	ThemesContext,
@@ -14,12 +14,10 @@ import {
 	selectElementsAdapterReducers,
 } from './elements';
 import {
+	ConnectLineEntity,
 	connectLinesAdapterReducers,
 	createConnectLinesAdapterInitialState,
-	createSelectedConnectLinesAdapterInitialState,
 	DraftConnectLine,
-	selectConnectLinesAdapterReducers,
-	SelectedConnectLine,
 } from './connectLines';
 import { selectReducers } from './select';
 import {
@@ -49,8 +47,7 @@ export interface StageSlice {
 	elements: EntityState<Element>;
 	selectedElements: EntityState<SelectedElement>;
 	draftElement: Element | null;
-	connectLines: EntityState<ConnectLine>;
-	selectedConnectLines: EntityState<SelectedConnectLine>;
+	connectLines: EntityState<ConnectLineEntity>;
 	draftConnectLine: DraftConnectLine | null;
 	connectPoints: EntityState<ElementConnectPoints>;
 	highlighted: EntityState<HighlightElement>;
@@ -69,7 +66,6 @@ export const createStageInitialState = (): StageSlice => ({
 	selectedElements: createSelectedElementsAdapterInitialState(),
 	draftElement: null,
 	connectLines: createConnectLinesAdapterInitialState(),
-	selectedConnectLines: createSelectedConnectLinesAdapterInitialState(),
 	draftConnectLine: null,
 	connectPoints: createConnectPointsAdapterInitialState(),
 	highlighted: createHighlightedAdapterInitialState(),
@@ -90,7 +86,6 @@ export const stageSlice = createSlice({
 		...elementsAdapterReducers,
 		...selectElementsAdapterReducers,
 		...connectLinesAdapterReducers,
-		...selectConnectLinesAdapterReducers,
 		...selectReducers,
 		...selectHighlighAdapterReducers,
 		...simulationReducers,

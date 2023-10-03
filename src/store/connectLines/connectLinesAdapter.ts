@@ -115,6 +115,13 @@ export interface MoveConnectLinePointAction {
 	};
 }
 
+export interface SelectConnectLinesAction {
+	type: string;
+	payload: {
+		connectLineIds: string[];
+	};
+}
+
 const getConnectPointDescriptor = (
 	el: Element,
 	cpType: ConnectPointType,
@@ -137,7 +144,11 @@ const getConnectPointDescriptor = (
 	};
 };
 
-const connectLinesAdapter = createEntityAdapter<ConnectLine>({
+export interface ConnectLineEntity extends ConnectLine {
+	select: boolean;
+}
+
+const connectLinesAdapter = createEntityAdapter<ConnectLineEntity>({
 	selectId: (el) => el.id,
 });
 
@@ -302,6 +313,26 @@ export const moveConnectLineDrawStateChange = (
 	draftConnectLine.points.splice(-1, 1, newPosition);
 };
 
+export const selectConnectLinesStateChange = (
+	slice: Draft<StageSlice>,
+	connectLineIds: string[],
+) => {
+	const connectLines = selectAllConnectLines(slice.connectLines);
+	if (connectLines.every((cl) => !cl.select) && connectLineIds.length === 0) {
+		return;
+	}
+
+	slice.connectLines = connectLinesAdapter.updateMany(
+		slice.connectLines,
+		connectLines.map((cl) => ({
+			id: cl.id,
+			changes: {
+				select: connectLineIds.includes(cl.id),
+			},
+		})),
+	);
+};
+
 export const connectLinesAdapterReducers = {
 	startConnectLineDraw: (slice: Draft<StageSlice>, action: StartConnectLineDrawAction) =>
 		startConnectLineDrawStateChange(slice, action.payload),
@@ -363,6 +394,7 @@ export const connectLinesAdapterReducers = {
 		slice.connectLines = connectLinesAdapter.addOne(slice.connectLines, {
 			id: v1(),
 			locked: false,
+			select: false,
 			points: [...draftConnectLine.points, action.payload.targetPoint],
 			source: draftConnectLine.source,
 			target: {
@@ -455,6 +487,8 @@ export const connectLinesAdapterReducers = {
 			eventConnectLineIds,
 		);
 	},
+	selectConnectLines: (slice: Draft<StageSlice>, action: SelectConnectLinesAction) =>
+		selectConnectLinesStateChange(slice, action.payload.connectLineIds),
 };
 
 const globalConnectLinesSelector = connectLinesAdapter.getSelectors<RootState>(
