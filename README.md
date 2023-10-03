@@ -1,4 +1,3 @@
--   connect points snap lines
 -   grid move
 -   laso and multi selection
 -   save/load
