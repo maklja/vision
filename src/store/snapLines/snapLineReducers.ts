@@ -111,7 +111,7 @@ const createSnapLinesByElement = (
 		.slice(0, 3)
 		.reduce((snapLines: SnapLine[], snapLine) => {
 			const hasDuplicateSnapLine = snapLines.some(
-				(curSnapLine) => snapLinesDistance(curSnapLine, snapLine) <= SNAP_DISTANCE,
+				(curSnapLine) => snapLinesDistance(curSnapLine, snapLine) <= 2 * SNAP_DISTANCE,
 			);
 
 			return hasDuplicateSnapLine ? snapLines : [...snapLines, snapLine];
@@ -122,7 +122,7 @@ const createSnapLinesByElement = (
 		.slice(0, 3)
 		.reduce((snapLines: SnapLine[], snapLine) => {
 			const hasDuplicateSnapLine = snapLines.some(
-				(curSnapLine) => snapLinesDistance(curSnapLine, snapLine) <= SNAP_DISTANCE,
+				(curSnapLine) => snapLinesDistance(curSnapLine, snapLine) <= 2 * SNAP_DISTANCE,
 			);
 
 			return hasDuplicateSnapLine ? snapLines : [...snapLines, snapLine];
