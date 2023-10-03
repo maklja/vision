@@ -1,5 +1,4 @@
 export enum ElementType {
-	Merge = 'merge',
 	Of = 'of',
 	From = 'from',
 	IIf = 'iif',
@@ -19,9 +18,15 @@ export enum ElementType {
 	Range = 'range',
 	ThrowError = 'throwError',
 	Timer = 'timer',
+	// join creation operators
+	CombineLatest = 'combineLatest',
+	Merge = 'merge',
 }
 
-export const joinCreationOperators: ReadonlySet<ElementType> = new Set([ElementType.Merge]);
+export const joinCreationOperators: ReadonlySet<ElementType> = new Set([
+	ElementType.Merge,
+	ElementType.CombineLatest,
+]);
 
 export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Of,
@@ -86,3 +91,4 @@ export const isConnectPointType = (type: ElementType) => connectPointOperators.h
 
 export const isEntryOperatorType = (type: ElementType) =>
 	isCreationOperatorType(type) || isJoinCreationOperatorType(type);
+

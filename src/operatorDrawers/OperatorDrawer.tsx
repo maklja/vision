@@ -16,7 +16,7 @@ import { Element, ElementType, ResultElement } from '../model';
 import { SubscriberDrawer } from './subscriberOperators';
 import { FilterOperatorDrawer } from './filteringOperators';
 import { ResultDrawer } from './resultOperators';
-import { MergeOperatorDrawer } from './joinCreationOperators';
+import { CombineLatestOperatorDrawer, MergeOperatorDrawer } from './joinCreationOperators';
 import { selectElementSizeOptions, useThemeContext } from '../store/stageSlice';
 import { useAppSelector } from '../store/rootState';
 import { useElementDrawerHandlers } from './state';
@@ -46,8 +46,6 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <FromOperatorDrawer {...props} />;
 		case ElementType.IIf:
 			return <IifOperatorDrawer {...props} />;
-		case ElementType.Merge:
-			return <MergeOperatorDrawer {...props} />;
 		case ElementType.Subscriber:
 			return <SubscriberDrawer {...props} />;
 		case ElementType.Map:
@@ -70,6 +68,11 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <ThrowErrorOperatorDrawer {...props} />;
 		case ElementType.Timer:
 			return <TimerOperatorDrawer {...props} />;
+		// join creation operators
+		case ElementType.Merge:
+			return <MergeOperatorDrawer {...props} />;
+		case ElementType.CombineLatest:
+			return <CombineLatestOperatorDrawer {...props} />;
 		default:
 			return null;
 	}
