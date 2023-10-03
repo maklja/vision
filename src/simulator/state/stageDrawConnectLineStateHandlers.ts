@@ -26,7 +26,7 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 				normalizePosition: e.evt.shiftKey,
 			}),
 		);
-		dispatch(createConnectPointSnapLines({}))
+		dispatch(createConnectPointSnapLines());
 	},
 	onMouseDown: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
@@ -51,4 +51,3 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 		dispatch(deleteConnectLineDraw());
 	},
 });
-

@@ -2,9 +2,9 @@ import { Draft } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
 import {
 	ConnectPoint,
-	ConnectPointPosition,
 	Element,
 	ElementType,
+	Point,
 	SnapLine,
 	SnapLineOrientation,
 	boundingBoxTouch,
@@ -23,14 +23,6 @@ export interface CreateElementSnapLinesAction {
 	type: string;
 	payload: {
 		referenceElementId: string;
-	};
-}
-
-export interface CreateConnectPointSnapLinesAction {
-	type: string;
-	payload: {
-		elementId: string;
-		connectPointPosition: ConnectPointPosition;
 	};
 }
 
@@ -139,23 +131,17 @@ const createSnapLinesByElement = (
 };
 
 const createSnapLinesByConnectPoint = (
-	cp: ConnectPoint,
+	p: Point,
 	connectPoints: ConnectPoint[],
 	elementSizes: ElementSizesContext,
 ) => {
 	const shapeSize = findElementSize(elementSizes, ElementType.ConnectPoint);
-	const cpCenter = calculateShapeSizeBoundingBox({ x: cp.x, y: cp.y }, shapeSize).center;
-
-	const otherConnectPoints = connectPoints.filter(
-		(curConnectPoint) => curConnectPoint.elementId !== cp.elementId,
-	);
-
-	const connectPointsCenter = otherConnectPoints.map(
-		(cp) => calculateShapeSizeBoundingBox({ x: cp.x, y: cp.y }, shapeSize).center,
-	);
+	const connectPointsCenter = connectPoints
+		.filter((cp) => cp.visible)
+		.map((cp) => calculateShapeSizeBoundingBox({ x: cp.x, y: cp.y }, shapeSize).center);
 
 	const snapLinesMap: Map<string, SnapLine> = connectPointsCenter
-		.flatMap((curCpCenter) => createPointSnapLines(cpCenter, curCpCenter))
+		.flatMap((curCpCenter) => createPointSnapLines(p, curCpCenter))
 		.filter((snapLine) => Math.abs(snapLine.distance) < SNAP_DISTANCE)
 		.reduce((snapLinesMap, snapLine) => {
 			const isHorizontal = snapLine.orientation === SnapLineOrientation.Horizontal;
@@ -208,17 +194,17 @@ const createSnapLinesByConnectPoint = (
 		}, new Map<string, SnapLine>());
 
 	const snapLines = [...snapLinesMap.values()];
-	const [horizontalSnapLine] = snapLines
+	const horizontalSnapLines = snapLines
 		.filter((snapLine) => snapLine.orientation === SnapLineOrientation.Horizontal)
-		.sort(snapLinesDistance);
-	const [verticalSnapLine] = snapLines
+		.sort(snapLinesDistance)
+		.slice(0, 1);
+	const verticalSnapLines = snapLines
 		.filter((snapLine) => snapLine.orientation === SnapLineOrientation.Vertical)
-		.sort(
-			(snapLine1, snapLine2) => Math.abs(snapLine1.distance) - Math.abs(snapLine2.distance),
-		);
+		.sort((snapLine1, snapLine2) => Math.abs(snapLine1.distance) - Math.abs(snapLine2.distance))
+		.slice(0, 1);
 	return {
-		horizontalSnapLine,
-		verticalSnapLine,
+		horizontalSnapLines,
+		verticalSnapLines,
 	};
 };
 
@@ -279,40 +265,43 @@ export const snapLineReducers = {
 			y,
 		};
 	},
-	createConnectPointSnapLines: (
-		slice: Draft<StageSlice>,
-		{ payload }: CreateConnectPointSnapLinesAction,
-	) => {
-		const el = selectConnectPointById(slice.connectPoints, payload.elementId);
+	createConnectPointSnapLines: (slice: Draft<StageSlice>) => {
+		if (!slice.draftConnectLine) {
+			return;
+		}
+
+		const { source, points } = slice.draftConnectLine;
+		const el = selectConnectPointById(slice.connectPoints, source.id);
 		if (!el) {
 			return;
 		}
 
-		const cp = el.connectPoints.find((cp) => cp.position === payload.connectPointPosition);
+		const cp = el.connectPoints.find((cp) => cp.position === source.connectPosition);
 		if (!cp) {
 			return;
 		}
 
-		const connectPoints = selectAllConnectPoints(slice.connectPoints).flatMap(
-			(elConnectPoint) => elConnectPoint.connectPoints,
-		);
-		const { horizontalSnapLine, verticalSnapLine } = createSnapLinesByConnectPoint(
-			cp,
+		const connectPoints = selectAllConnectPoints(slice.connectPoints)
+			.flatMap((elConnectPoint) => elConnectPoint.connectPoints)
+			.filter((curElementCp) => curElementCp.elementId !== cp.elementId);
+		const { horizontalSnapLines, verticalSnapLines } = createSnapLinesByConnectPoint(
+			points[points.length - 1],
 			connectPoints,
 			slice.elementSizes,
 		);
 
-		slice.snapLines = [horizontalSnapLine, verticalSnapLine];
+		slice.snapLines = [...horizontalSnapLines, ...verticalSnapLines];
 
+		const [horizontalSnapLine] = horizontalSnapLines;
+		const [verticalSnapLine] = verticalSnapLines;
 		const x = verticalSnapLine ? cp.x + verticalSnapLine.distance : cp.x;
 		const y = horizontalSnapLine ? cp.y + horizontalSnapLine.distance : cp.y;
-		moveElementStateChange(slice, {
-			id: el.id,
-			x,
-			y,
-		});
+		// moveElementStateChange(slice, {
+		// 	id: el.id,
+		// 	x,
+		// 	y,
+		// });
 	},
 };
 
 export const selectSnapLines = (state: RootState) => state.stage.snapLines;
-
