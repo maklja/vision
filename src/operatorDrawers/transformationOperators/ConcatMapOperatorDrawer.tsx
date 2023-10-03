@@ -39,7 +39,7 @@ export const ConcatMapOperatorDrawer = ({
 				y={y}
 				type={elType}
 				shape={rectangleShapeSize}
-				scale={1}
+				scale={scale}
 				visible={visibleConnectPoints}
 			/>
 			<RollerOperatorDrawer
