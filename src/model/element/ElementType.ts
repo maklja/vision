@@ -14,6 +14,7 @@ export enum ElementType {
 	// join creation operators
 	CombineLatest = 'combineLatest',
 	Merge = 'merge',
+	Concat = 'concat',
 	// other
 	Filter = 'filter',
 	Subscriber = 'subscriber',
@@ -28,6 +29,7 @@ export enum ElementType {
 export const joinCreationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Merge,
 	ElementType.CombineLatest,
+	ElementType.Concat,
 ]);
 
 export const creationOperators: ReadonlySet<ElementType> = new Set([

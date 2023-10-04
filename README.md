@@ -1,3 +1,5 @@
+-   pre code executions
+-   background grid
 -   grid move
 -   laso and multi selection
 -   save/load
@@ -9,7 +11,6 @@
 -   DOM events
 -   form validation
 -   group elements move, delete, copy paste
--   background grid
 -   themes
 -   multi-tabs
 -   full size editor
@@ -18,6 +19,8 @@
 -   move engine to workers
 -   offline support
 -   google drive integration
--   pre code executions
 -   subscribe stage
+-   event observable position passed
+-   key bind array observable result
+-   combineLatest and merge concurent parameter
 

@@ -16,7 +16,11 @@ import { Element, ElementType, ResultElement } from '../model';
 import { SubscriberDrawer } from './subscriberOperators';
 import { FilterOperatorDrawer } from './filteringOperators';
 import { ResultDrawer } from './resultOperators';
-import { CombineLatestOperatorDrawer, MergeOperatorDrawer } from './joinCreationOperators';
+import {
+	CombineLatestOperatorDrawer,
+	ConcatOperatorDrawer,
+	MergeOperatorDrawer,
+} from './joinCreationOperators';
 import { selectElementSizeOptions, useThemeContext } from '../store/stageSlice';
 import { useAppSelector } from '../store/rootState';
 import { useElementDrawerHandlers } from './state';
@@ -73,6 +77,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <MergeOperatorDrawer {...props} />;
 		case ElementType.CombineLatest:
 			return <CombineLatestOperatorDrawer {...props} />;
+		case ElementType.Concat:
+			return <ConcatOperatorDrawer {...props} />;
 		default:
 			return null;
 	}
