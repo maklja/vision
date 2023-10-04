@@ -23,4 +23,5 @@
 -   event observable position passed
 -   key bind array observable result
 -   combineLatest and merge concurent parameter
+-   handle partition join creation operator
 

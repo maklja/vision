@@ -16,6 +16,7 @@ export enum ElementType {
 	Merge = 'merge',
 	Concat = 'concat',
 	ForkJoin = 'forkJoin',
+	Race = 'race',
 	// other
 	Filter = 'filter',
 	Subscriber = 'subscriber',
@@ -32,6 +33,7 @@ export const joinCreationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.CombineLatest,
 	ElementType.Concat,
 	ElementType.ForkJoin,
+	ElementType.Race,
 ]);
 
 export const creationOperators: ReadonlySet<ElementType> = new Set([
