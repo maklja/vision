@@ -1,4 +1,4 @@
-import { combineLatest, concat, defer, forkJoin, map, merge, Observable, race } from 'rxjs';
+import { combineLatest, concat, defer, forkJoin, map, merge, Observable, race, zip } from 'rxjs';
 import { Element, ElementGroup, ElementType } from '../../model';
 import { JoinCreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
@@ -22,6 +22,7 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 			[ElementType.Concat, this.createConcatOperator.bind(this)],
 			[ElementType.ForkJoin, this.createForkJoinOperator.bind(this)],
 			[ElementType.Race, this.createRaceOperator.bind(this)],
+			[ElementType.Zip, this.createZipOperator.bind(this)],
 		]);
 	}
 
@@ -60,16 +61,7 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 					return refObservable.observable;
 				}),
 			),
-		).pipe(
-			map(
-				(flowValues) =>
-					new FlowValue(
-						flowValues.map((flowValue) => flowValue.raw),
-						el.id,
-						FlowValueType.Next,
-					),
-			),
-		);
+		).pipe(this.mapFlowValuesArray(el.id));
 	}
 
 	private createConcatOperator(el: Element, options: OperatorOptions) {
@@ -91,16 +83,7 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 					return refObservable.observable;
 				}),
 			),
-		).pipe(
-			map(
-				(flowValues) =>
-					new FlowValue(
-						flowValues.map((flowValue) => flowValue.raw),
-						el.id,
-						FlowValueType.Next,
-					),
-			),
-		);
+		).pipe(this.mapFlowValuesArray(el.id));
 	}
 
 	private createRaceOperator(el: Element, options: OperatorOptions) {
@@ -111,6 +94,28 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 					return refObservable.observable;
 				}),
 			),
+		);
+	}
+
+	private createZipOperator(el: Element, options: OperatorOptions) {
+		return zip<FlowValue[]>(
+			options.referenceObservables.map((refObservable) =>
+				defer(() => {
+					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
+					return refObservable.observable;
+				}),
+			),
+		).pipe(this.mapFlowValuesArray(el.id));
+	}
+
+	private mapFlowValuesArray(elementId: string) {
+		return map(
+			(flowValues: FlowValue[]) =>
+				new FlowValue(
+					flowValues.map((flowValue) => flowValue.raw),
+					elementId,
+					FlowValueType.Next,
+				),
 		);
 	}
 }

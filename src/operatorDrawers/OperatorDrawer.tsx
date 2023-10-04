@@ -22,6 +22,7 @@ import {
 	ForkJoinOperatorDrawer,
 	MergeOperatorDrawer,
 	RaceOperatorDrawer,
+	ZipOperatorDrawer,
 } from './joinCreationOperators';
 import { selectElementSizeOptions, useThemeContext } from '../store/stageSlice';
 import { useAppSelector } from '../store/rootState';
@@ -74,6 +75,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <ForkJoinOperatorDrawer {...props} />;
 		case ElementType.Race:
 			return <RaceOperatorDrawer {...props} />;
+		case ElementType.Zip:
+			return <ZipOperatorDrawer {...props} />;
 		// other
 		case ElementType.Filter:
 			return <FilterOperatorDrawer {...props} />;
