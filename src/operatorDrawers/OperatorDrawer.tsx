@@ -19,6 +19,7 @@ import { ResultDrawer } from './resultOperators';
 import {
 	CombineLatestOperatorDrawer,
 	ConcatOperatorDrawer,
+	ForkJoinOperatorDrawer,
 	MergeOperatorDrawer,
 } from './joinCreationOperators';
 import { selectElementSizeOptions, useThemeContext } from '../store/stageSlice';
@@ -38,10 +39,7 @@ import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
 
 export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {
 	switch (elType) {
-		case ElementType.Filter:
-			return <FilterOperatorDrawer {...props} />;
-		case ElementType.CatchError:
-			return <CatchErrorOperatorDrawer {...props} />;
+		// creationOperators
 		case ElementType.Interval:
 			return <IntervalOperatorDrawer {...props} />;
 		case ElementType.Of:
@@ -50,14 +48,6 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <FromOperatorDrawer {...props} />;
 		case ElementType.IIf:
 			return <IifOperatorDrawer {...props} />;
-		case ElementType.Subscriber:
-			return <SubscriberDrawer {...props} />;
-		case ElementType.Map:
-			return <MapOperatorDrawer {...props} />;
-		case ElementType.ConcatMap:
-			return <ConcatMapOperatorDrawer {...props} />;
-		case ElementType.MergeMap:
-			return <MergeMapOperatorDrawer {...props} />;
 		case ElementType.Ajax:
 			return <AjaxOperatorDrawer {...props} />;
 		case ElementType.Empty:
@@ -79,6 +69,21 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <CombineLatestOperatorDrawer {...props} />;
 		case ElementType.Concat:
 			return <ConcatOperatorDrawer {...props} />;
+		case ElementType.ForkJoin:
+			return <ForkJoinOperatorDrawer {...props} />;
+		// other
+		case ElementType.Filter:
+			return <FilterOperatorDrawer {...props} />;
+		case ElementType.CatchError:
+			return <CatchErrorOperatorDrawer {...props} />;
+		case ElementType.Subscriber:
+			return <SubscriberDrawer {...props} />;
+		case ElementType.Map:
+			return <MapOperatorDrawer {...props} />;
+		case ElementType.ConcatMap:
+			return <ConcatMapOperatorDrawer {...props} />;
+		case ElementType.MergeMap:
+			return <MergeMapOperatorDrawer {...props} />;
 		default:
 			return null;
 	}

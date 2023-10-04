@@ -1,4 +1,4 @@
-import { combineLatest, concat, defer, map, merge, Observable } from 'rxjs';
+import { combineLatest, concat, defer, forkJoin, map, merge, Observable } from 'rxjs';
 import { Element, ElementGroup, ElementType } from '../../model';
 import { JoinCreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
@@ -20,6 +20,7 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 			[ElementType.Merge, this.createMergeOperator.bind(this)],
 			[ElementType.CombineLatest, this.createCombineLatestOperator.bind(this)],
 			[ElementType.Concat, this.createConcatOperator.bind(this)],
+			[ElementType.ForkJoin, this.createForkJoinOperator.bind(this)],
 		]);
 	}
 
@@ -77,6 +78,26 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
 					return refObservable.observable;
 				}),
+			),
+		);
+	}
+
+	private createForkJoinOperator(el: Element, options: OperatorOptions) {
+		return forkJoin<FlowValue[]>(
+			options.referenceObservables.map((refObservable) =>
+				defer(() => {
+					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
+					return refObservable.observable;
+				}),
+			),
+		).pipe(
+			map(
+				(flowValues) =>
+					new FlowValue(
+						flowValues.map((flowValue) => flowValue.raw),
+						el.id,
+						FlowValueType.Next,
+					),
 			),
 		);
 	}
