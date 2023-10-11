@@ -12,6 +12,7 @@ import {
 	GenerateElementProperties,
 	IifElementProperties,
 	IntervalElementProperties,
+	MergeElementProperties,
 	RangeElementProperties,
 	ThrowErrorElementProperties,
 	TimerElementProperties,
@@ -26,6 +27,7 @@ import {
 	ThrowErrorElementPropertiesForm,
 	TimerElementPropertiesForm,
 } from './creationElementForms';
+import { MergeElementPropertiesForm } from './joinCreationElementForms';
 
 export interface ElementPropertiesFormProps {
 	id: string;
@@ -102,6 +104,14 @@ const createElementPropertiesForm = ({
 				<IifElementPropertiesForm
 					id={id}
 					properties={properties as IifElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Merge:
+			return (
+				<MergeElementPropertiesForm
+					id={id}
+					properties={properties as MergeElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);

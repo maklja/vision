@@ -89,7 +89,7 @@ export const AjaxElementPropertiesForm = ({
 					shrink: true,
 				}}
 				onChange={handleUrlChanged}
-				helperText="The address of the resource to request via HTTP. "
+				helperText="The address of the resource to request via HTTP."
 			/>
 
 			<FormControl fullWidth size="small">

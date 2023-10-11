@@ -7,7 +7,6 @@ import {
 	Element,
 	IntervalElement,
 	CatchErrorElement,
-	MergeElement,
 	MapElement,
 } from './model';
 import { useEffect } from 'react';
@@ -130,24 +129,6 @@ const subscriber4: Element = {
 	properties: {},
 };
 
-const merge1: MergeElement = {
-	id: 'merge_1',
-	x: 380,
-	y: 800,
-	type: ElementType.Merge,
-	visible: true,
-	properties: {},
-};
-
-const merge2: MergeElement = {
-	id: 'merge_2',
-	x: 480,
-	y: 800,
-	type: ElementType.Merge,
-	visible: true,
-	properties: {},
-};
-
 const App = () => {
 	const appDispatch = useAppDispatch();
 
@@ -166,8 +147,6 @@ const App = () => {
 					i1,
 					ce1,
 					mapElement,
-					merge1,
-					merge2,
 				],
 			}),
 		);

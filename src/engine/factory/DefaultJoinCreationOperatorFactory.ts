@@ -1,5 +1,5 @@
 import { combineLatest, concat, defer, forkJoin, map, merge, Observable, race, zip } from 'rxjs';
-import { Element, ElementGroup, ElementType } from '../../model';
+import { Element, ElementGroup, ElementType, MergeElement } from '../../model';
 import { JoinCreationOperatorFactory, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
 import { UnsupportedElementTypeError } from '../errors';
@@ -43,12 +43,17 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 	}
 
 	private createMergeOperator(el: Element, options: OperatorOptions) {
+		const mergeEl = el as MergeElement;
 		return merge<FlowValue[]>(
-			...options.referenceObservables.map((refObservable) =>
-				defer(() => {
-					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
-					return refObservable.observable;
-				}),
+			...options.referenceObservables.map(
+				(refObservable) =>
+					defer(() => {
+						refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
+						return refObservable.observable;
+					}),
+				mergeEl.properties.limitConcurrent > 0
+					? mergeEl.properties.limitConcurrent
+					: undefined,
 			),
 		);
 	}
