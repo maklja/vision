@@ -33,6 +33,8 @@ export interface DraftConnectLine {
 	source: ConnectedElement;
 	points: Point[];
 	locked: boolean;
+	index: number;
+	name: string;
 }
 
 export interface StartConnectLineDrawPayload {
@@ -122,6 +124,16 @@ export interface SelectConnectLinesAction {
 	};
 }
 
+const generateUniqueName = (name: string, takenNames: string[]) => {
+	let uniqueName = name;
+	let i = 0;
+	while (takenNames.includes(name)) {
+		uniqueName = `${uniqueName}_${++i}`;
+	}
+
+	return uniqueName;
+};
+
 const getConnectPointDescriptor = (
 	el: Element,
 	cpType: ConnectPointType,
@@ -173,17 +185,6 @@ export const startConnectLineDrawStateChange = (
 	payload: StartConnectLineDrawPayload,
 ) => {
 	const { sourceId, points, type, position } = payload;
-	slice.state = StageState.DrawConnectLine;
-	slice.draftConnectLine = {
-		id: v1(),
-		source: {
-			id: sourceId,
-			connectPointType: type,
-			connectPosition: position,
-		},
-		points,
-		locked: false,
-	};
 
 	clearSelectionConnectPointsStateChange(slice);
 
@@ -195,6 +196,24 @@ export const startConnectLineDrawStateChange = (
 	}
 
 	const connectLines = selectAllConnectLines(slice.connectLines);
+	const clsNames = connectLines
+		.filter(({ source }) => source.id === sourceId && source.connectPointType === type)
+		.map((cl) => cl.name);
+
+	slice.state = StageState.DrawConnectLine;
+	slice.draftConnectLine = {
+		id: v1(),
+		name: generateUniqueName(`${type}_${position}`, clsNames),
+		index: clsNames.length + 1,
+		source: {
+			id: sourceId,
+			connectPointType: type,
+			connectPosition: position,
+		},
+		points,
+		locked: false,
+	};
+
 	const sourceCpDescriptor = getConnectPointDescriptor(el, type, connectLines);
 	// has element excited cardinality
 	if (sourceCpDescriptor.cardinalityExcited) {
@@ -393,6 +412,8 @@ export const connectLinesAdapterReducers = {
 
 		slice.connectLines = connectLinesAdapter.addOne(slice.connectLines, {
 			id: v1(),
+			index: draftConnectLine.index,
+			name: draftConnectLine.name,
 			locked: false,
 			select: false,
 			points: [...draftConnectLine.points, action.payload.targetPoint],

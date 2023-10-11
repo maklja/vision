@@ -13,5 +13,7 @@ export interface ConnectLine {
 	target: ConnectedElement;
 	points: Point[];
 	locked: boolean;
+	index: number;
+	name: string;
 }
 

@@ -1,6 +1,6 @@
 import { Observable, OperatorFunction } from 'rxjs';
 import { FlowValue } from '../context';
-import { ConnectedElement, Element } from '../../model';
+import { ConnectLine, ConnectedElement, Element } from '../../model';
 
 interface OperatorFactory {
 	isSupported(el: Element): boolean;
@@ -19,12 +19,13 @@ export interface PipeOperatorFactory extends OperatorFactory {
 }
 
 export interface ObservableOptions {
-	observable: Observable<FlowValue>;
-	invokeTrigger?: (value: FlowValue) => void;
-	connectPoint: ConnectedElement;
+	readonly observable: Observable<FlowValue>;
+	readonly invokeTrigger?: (value: FlowValue) => void;
+	readonly connectPoint: ConnectedElement;
+	readonly connectLine: ConnectLine;
 }
 
 export interface OperatorOptions {
-	referenceObservables: readonly ObservableOptions[];
+	readonly referenceObservables: readonly ObservableOptions[];
 }
 
