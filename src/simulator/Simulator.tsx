@@ -26,7 +26,7 @@ import {
 	createObservableSimulation,
 } from '../engine';
 import { selectElementsInSelection, selectStageElements } from '../store/elements';
-import { selectStageConnectLines } from '../store/connectLines';
+import { selectRelatedElementElements, selectStageConnectLines } from '../store/connectLines';
 import { SimulationState, selectSimulation } from '../store/simulation';
 import { OperatorPropertiesPanel } from '../ui/properties';
 
@@ -35,6 +35,9 @@ export const Simulator = () => {
 	const elements = useAppSelector(selectStageElements);
 	const connectLines = useAppSelector(selectStageConnectLines);
 	const selectedElements = useAppSelector(selectElementsInSelection);
+	const selectedElementConnectLines = useAppSelector(
+		selectRelatedElementElements(selectedElements[0]?.id),
+	);
 
 	const appDispatch = useAppDispatch();
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
@@ -202,6 +205,7 @@ export const Simulator = () => {
 				>
 					<OperatorPropertiesPanel
 						element={selectedElements[0]}
+						relatedElements={selectedElementConnectLines}
 						onPositionChange={handleElementPositionChange}
 						onPropertyValueChange={handleElementPropertyChange}
 					/>
@@ -210,4 +214,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-

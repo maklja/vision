@@ -6,7 +6,8 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
 	AjaxElementProperties,
-	ElementProps,
+	ConnectLine,
+	Element,
 	ElementType,
 	FromElementProperties,
 	GenerateElementProperties,
@@ -29,19 +30,20 @@ import {
 } from './creationElementForms';
 import { MergeElementPropertiesForm } from './joinCreationElementForms';
 
+export type RelatedElements = { connectLine: ConnectLine; element: Element }[];
+
 export interface ElementPropertiesFormProps {
-	id: string;
-	type: ElementType;
-	properties: ElementProps;
+	element: Element;
+	relatedElements: RelatedElements;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
 const createElementPropertiesForm = ({
-	id,
-	type,
-	properties,
+	element,
+	relatedElements,
 	onPropertyValueChange,
 }: ElementPropertiesFormProps) => {
+	const { id, type, properties } = element;
 	switch (type) {
 		case ElementType.Interval:
 			return (
@@ -112,6 +114,7 @@ const createElementPropertiesForm = ({
 				<MergeElementPropertiesForm
 					id={id}
 					properties={properties as MergeElementProperties}
+					relatedElements={relatedElements}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
@@ -121,12 +124,11 @@ const createElementPropertiesForm = ({
 };
 
 export const ElementPropertiesForm = ({
-	id,
-	type,
-	properties,
+	element,
+	relatedElements,
 	onPropertyValueChange,
 }: ElementPropertiesFormProps) => {
-	return Object.keys(properties).length > 0 ? (
+	return Object.keys(element.properties).length > 0 ? (
 		<Box
 			sx={{
 				overflow: 'auto',
@@ -142,9 +144,8 @@ export const ElementPropertiesForm = ({
 				</AccordionSummary>
 				<AccordionDetails>
 					{createElementPropertiesForm({
-						id,
-						type,
-						properties,
+						element,
+						relatedElements,
 						onPropertyValueChange,
 					})}
 				</AccordionDetails>
@@ -152,4 +153,3 @@ export const ElementPropertiesForm = ({
 		</Box>
 	) : null;
 };
-

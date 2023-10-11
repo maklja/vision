@@ -1,4 +1,4 @@
-import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
+import { Draft, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
 import {
 	ConnectLine,
@@ -127,7 +127,7 @@ export interface SelectConnectLinesAction {
 const generateUniqueName = (name: string, takenNames: string[]) => {
 	let uniqueName = name;
 	let i = 0;
-	while (takenNames.includes(name)) {
+	while (takenNames.includes(uniqueName)) {
 		uniqueName = `${uniqueName}_${++i}`;
 	}
 
@@ -524,3 +524,30 @@ export const selectStageConnectLines = (state: RootState) =>
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
 
+const selectElementConnectLinesById = (_state: RootState, elId?: string) => elId;
+
+const selectElementConnectLinesBySource = createSelector(
+	(state: RootState) => state.stage.elements,
+	(state: RootState) => state.stage.connectLines,
+	selectElementConnectLinesById,
+	(elements, connectLineEntities, elementId) => {
+		const sourceConnectLines = selectAllConnectLines(connectLineEntities).filter(
+			(cl) => cl.source.id === elementId,
+		);
+
+		return sourceConnectLines.map((connectLine) => {
+			const element = elements.entities[connectLine.target.id];
+			if (!element) {
+				throw new Error(`Element with id ${connectLine.target.id} not found`);
+			}
+
+			return {
+				element,
+				connectLine,
+			};
+		});
+	},
+);
+
+export const selectRelatedElementElements = (id: string) => (state: RootState) =>
+	selectElementConnectLinesBySource(state, id);
