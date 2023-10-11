@@ -2,8 +2,8 @@ import { ChangeEventHandler } from 'react';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { formStyle } from '../commonStyles';
-import { ConnectPointType, MergeElementProperties } from '../../../model';
-import { ObservableIndexedInputs, ObservableNamedInputs } from '../../observableInput';
+import { MergeElementProperties } from '../../../model';
+import { ObservableInputs } from '../../observableInput';
 import { RelatedElements } from '../ElementPropertiesForm';
 
 export interface MergeElementPropertiesFormProps {
@@ -45,18 +45,7 @@ export const MergeElementPropertiesForm = ({
 				helperText="Limit number of concurrently subscribed observable inputs."
 			/>
 
-			<ObservableNamedInputs
-				observableInputs={relatedElements
-					.filter(
-						({ connectLine }) =>
-							connectLine.source.connectPointType === ConnectPointType.Event,
-					)
-					.map((relatedElement) => ({
-						id: relatedElement.connectLine.id,
-						connectLineName: relatedElement.connectLine.name,
-						targetElementName: relatedElement.element.type,
-					}))}
-			/>
+			<ObservableInputs relatedElements={relatedElements} />
 		</Stack>
 	);
 };
