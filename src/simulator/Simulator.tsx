@@ -29,8 +29,10 @@ import { selectElementsInSelection, selectStageElements } from '../store/element
 import { selectRelatedElementElements, selectStageConnectLines } from '../store/connectLines';
 import { SimulationState, selectSimulation } from '../store/simulation';
 import { OperatorPropertiesPanel } from '../ui/properties';
+import { StageState, selectStageState } from '../store/stage';
 
 export const Simulator = () => {
+	const stageState = useAppSelector(selectStageState);
 	const simulation = useAppSelector(selectSimulation);
 	const elements = useAppSelector(selectStageElements);
 	const connectLines = useAppSelector(selectStageConnectLines);
@@ -192,7 +194,7 @@ export const Simulator = () => {
 				/>
 			</Box>
 
-			{selectedElements.length === 1 ? (
+			{stageState === StageState.Select && selectedElements.length === 1 ? (
 				<Box
 					sx={{
 						position: 'absolute',
@@ -214,3 +216,4 @@ export const Simulator = () => {
 		</Box>
 	);
 };
+
