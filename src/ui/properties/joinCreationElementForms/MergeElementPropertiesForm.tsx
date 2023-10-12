@@ -2,7 +2,7 @@ import { ChangeEventHandler } from 'react';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { formStyle } from '../commonStyles';
-import { MergeElementProperties } from '../../../model';
+import { CommonProps, MergeElementProperties, ObservableInputsType } from '../../../model';
 import { ObservableInputs } from '../../observableInput';
 import { RelatedElements } from '../ElementPropertiesForm';
 
@@ -30,6 +30,9 @@ export const MergeElementPropertiesForm = ({
 		);
 	};
 
+	const handleObservableInputsChanged = (observableInputs: ObservableInputsType) =>
+		onPropertyValueChange?.(id, CommonProps.ObservableInputsType, observableInputs);
+
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<TextField
@@ -45,7 +48,12 @@ export const MergeElementPropertiesForm = ({
 				helperText="Limit number of concurrently subscribed observable inputs."
 			/>
 
-			<ObservableInputs relatedElements={relatedElements} />
+			<ObservableInputs
+				observableInputsType={properties.observableInputsType}
+				relatedElements={relatedElements}
+				onObservableInputsTypeChange={handleObservableInputsChanged}
+			/>
 		</Stack>
 	);
 };
+

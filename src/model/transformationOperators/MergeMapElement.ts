@@ -1,7 +1,7 @@
 import { ObservableInput } from 'rxjs';
 import { ElementType, Element } from '../element';
 
-export interface MergeMapElementProperties<T> {
+export interface MergeMapElementProperties<T> extends Record<string, unknown> {
 	mapInput?: ObservableInput<T>;
 }
 
@@ -10,3 +10,4 @@ export interface MergeMapElement<T = unknown> extends Element<MergeMapElementPro
 }
 
 export const mergeMapElementPropsTemplate: MergeMapElementProperties<unknown> = {};
+

@@ -1,11 +1,25 @@
+import { ChangeEvent } from 'react';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/system/Stack';
 
 export interface ObservableIndexedInputsProps {
 	observableInputs: { id: string; index: number; name: string }[];
+	onConnectLineIndexChange?: (id: string, connectLineIndex: number) => void;
 }
 
-export const ObservableIndexedInputs = ({ observableInputs }: ObservableIndexedInputsProps) => {
+export const ObservableIndexedInputs = ({
+	observableInputs,
+	onConnectLineIndexChange,
+}: ObservableIndexedInputsProps) => {
+	const handleConnectLineIndexChanged = (
+		id: string,
+		currentIndex: number,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+	) => {
+		const newIndexValue = Number(e.target.value);
+		onConnectLineIndexChange?.(id, isNaN(newIndexValue) ? currentIndex : newIndexValue);
+	};
+
 	return (
 		<Stack gap={1.2}>
 			{observableInputs.map(({ id, index, name }) => (
@@ -20,6 +34,7 @@ export const ObservableIndexedInputs = ({ observableInputs }: ObservableIndexedI
 						}}
 						inputProps={{ style: { textAlign: 'center' } }}
 						value={index}
+						onChange={(e) => handleConnectLineIndexChanged(id, index, e)}
 					/>
 
 					<TextField
@@ -40,3 +55,4 @@ export const ObservableIndexedInputs = ({ observableInputs }: ObservableIndexedI
 		</Stack>
 	);
 };
+

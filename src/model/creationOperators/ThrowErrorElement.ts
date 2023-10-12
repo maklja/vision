@@ -1,6 +1,6 @@
 import { Element, ElementType } from '../element';
 
-export interface ThrowErrorElementProperties {
+export interface ThrowErrorElementProperties extends Record<string, unknown> {
 	errorOrErrorFactory: string;
 }
 

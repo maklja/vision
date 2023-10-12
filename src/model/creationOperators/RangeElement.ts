@@ -1,6 +1,6 @@
 import { Element, ElementType } from '../element';
 
-export interface RangeElementProperties {
+export interface RangeElementProperties extends Record<string, unknown> {
 	start: number;
 	count?: number;
 }
