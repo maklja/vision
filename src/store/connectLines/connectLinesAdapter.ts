@@ -124,6 +124,15 @@ export interface SelectConnectLinesAction {
 	};
 }
 
+export interface UpdateConnectLineAction {
+	type: string;
+	payload: {
+		id: string;
+		index?: number;
+		name?: string;
+	};
+}
+
 const generateUniqueName = (name: string, takenNames: string[]) => {
 	let uniqueName = name;
 	let i = 0;
@@ -510,6 +519,15 @@ export const connectLinesAdapterReducers = {
 	},
 	selectConnectLines: (slice: Draft<StageSlice>, action: SelectConnectLinesAction) =>
 		selectConnectLinesStateChange(slice, action.payload.connectLineIds),
+	updateConnectLine: (slice: Draft<StageSlice>, action: UpdateConnectLineAction) => {
+		slice.connectLines = connectLinesAdapter.updateOne(slice.connectLines, {
+			id: action.payload.id,
+			changes: {
+				index: action.payload.index,
+				name: action.payload.name,
+			},
+		});
+	},
 };
 
 const globalConnectLinesSelector = connectLinesAdapter.getSelectors<RootState>(
@@ -551,3 +569,4 @@ const selectElementConnectLinesBySource = createSelector(
 
 export const selectRelatedElementElements = (id: string) => (state: RootState) =>
 	selectElementConnectLinesBySource(state, id);
+

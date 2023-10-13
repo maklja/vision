@@ -8,6 +8,7 @@ export interface OperatorPropertiesPanelProps {
 	relatedElements: RelatedElements;
 	onPositionChange?: (id: string, position: Point) => void;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
+	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
 
 export const OperatorPropertiesPanel = ({
@@ -15,6 +16,7 @@ export const OperatorPropertiesPanel = ({
 	relatedElements,
 	onPositionChange,
 	onPropertyValueChange,
+	onConnectLineChange,
 }: OperatorPropertiesPanelProps) => {
 	return (
 		<Box
@@ -36,8 +38,10 @@ export const OperatorPropertiesPanel = ({
 					element={element}
 					relatedElements={relatedElements}
 					onPropertyValueChange={onPropertyValueChange}
+					onConnectLineChange={onConnectLineChange}
 				/>
 			</Paper>
 		</Box>
 	);
 };
+

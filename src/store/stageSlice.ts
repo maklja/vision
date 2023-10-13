@@ -149,6 +149,7 @@ export const {
 	updateManyConnectPoints,
 	clearHighlighConnectPoints,
 	createConnectPointSnapLines,
+	updateConnectLine,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;

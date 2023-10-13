@@ -12,6 +12,7 @@ import {
 	removeElementConnectLines,
 	resetSimulation,
 	startSimulation,
+	updateConnectLine,
 	updateElementProperty,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
@@ -152,6 +153,15 @@ export const Simulator = () => {
 		}
 	};
 
+	const handleConnectLineChanged = (id: string, changes: { index?: number; name?: string }) => {
+		appDispatch(
+			updateConnectLine({
+				id,
+				...changes,
+			}),
+		);
+	};
+
 	if (!simulation) {
 		return null;
 	}
@@ -210,6 +220,7 @@ export const Simulator = () => {
 						relatedElements={selectedElementConnectLines}
 						onPositionChange={handleElementPositionChange}
 						onPropertyValueChange={handleElementPropertyChange}
+						onConnectLineChange={handleConnectLineChanged}
 					/>
 				</Box>
 			) : null}

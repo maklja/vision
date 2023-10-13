@@ -43,7 +43,8 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 	}
 
 	private createMergeOperator(el: Element, options: OperatorOptions) {
-		const mergeEl = el as MergeElement;
+		const { properties } = el as MergeElement;
+
 		return merge<FlowValue[]>(
 			...options.referenceObservables.map(
 				(refObservable) =>
@@ -51,9 +52,7 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 						refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
 						return refObservable.observable;
 					}),
-				mergeEl.properties.limitConcurrent > 0
-					? mergeEl.properties.limitConcurrent
-					: undefined,
+				properties.limitConcurrent > 0 ? properties.limitConcurrent : undefined,
 			),
 		);
 	}

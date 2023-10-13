@@ -2,8 +2,8 @@ import { ChangeEventHandler } from 'react';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { formStyle } from '../commonStyles';
-import { CommonProps, MergeElementProperties, ObservableInputsType } from '../../../model';
-import { ObservableInputs } from '../../observableInput';
+import { MergeElementProperties } from '../../../model';
+import { ObservableInputsOrder } from '../../observableInput';
 import { RelatedElements } from '../ElementPropertiesForm';
 
 export interface MergeElementPropertiesFormProps {
@@ -11,6 +11,7 @@ export interface MergeElementPropertiesFormProps {
 	properties: MergeElementProperties;
 	relatedElements: RelatedElements;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
+	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
 
 export const MergeElementPropertiesForm = ({
@@ -18,6 +19,7 @@ export const MergeElementPropertiesForm = ({
 	properties,
 	relatedElements,
 	onPropertyValueChange,
+	onConnectLineChange,
 }: MergeElementPropertiesFormProps) => {
 	const handleLimitConcurrentChanged: ChangeEventHandler<
 		HTMLInputElement | HTMLTextAreaElement
@@ -29,9 +31,6 @@ export const MergeElementPropertiesForm = ({
 			isNaN(newLimitConcurrentValue) ? properties.limitConcurrent : newLimitConcurrentValue,
 		);
 	};
-
-	const handleObservableInputsChanged = (observableInputs: ObservableInputsType) =>
-		onPropertyValueChange?.(id, CommonProps.ObservableInputsType, observableInputs);
 
 	return (
 		<Stack gap={formStyle.componentGap}>
@@ -48,10 +47,9 @@ export const MergeElementPropertiesForm = ({
 				helperText="Limit number of concurrently subscribed observable inputs."
 			/>
 
-			<ObservableInputs
-				observableInputsType={properties.observableInputsType}
+			<ObservableInputsOrder
 				relatedElements={relatedElements}
-				onObservableInputsTypeChange={handleObservableInputsChanged}
+				onConnectLineIndexChange={(id, index) => onConnectLineChange?.(id, { index })}
 			/>
 		</Stack>
 	);

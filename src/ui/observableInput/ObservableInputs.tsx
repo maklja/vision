@@ -13,12 +13,16 @@ export interface ObservableInputsProps {
 	observableInputsType: ObservableInputsType;
 	relatedElements: RelatedElements;
 	onObservableInputsTypeChange?: (observableInputsType: ObservableInputsType) => void;
+	onConnectLineIndexChange?: (id: string, connectLineIndex: number) => void;
+	onConnectLineNameChange?: (id: string, connectLineName: string) => void;
 }
 
 export const ObservableInputs = ({
 	observableInputsType,
 	relatedElements,
 	onObservableInputsTypeChange,
+	onConnectLineIndexChange,
+	onConnectLineNameChange,
 }: ObservableInputsProps) => {
 	const handleObservableInputsTypeChange = (event: SelectChangeEvent<ObservableInputsType>) =>
 		onObservableInputsTypeChange?.(event.target.value as ObservableInputsType);
@@ -51,6 +55,7 @@ export const ObservableInputs = ({
 
 				{observableInputsType === ObservableInputsType.Object ? (
 					<ObservableNamedInputs
+						onConnectLineNameChange={onConnectLineNameChange}
 						observableInputs={relatedElements
 							.filter(
 								({ connectLine }) =>
@@ -66,6 +71,7 @@ export const ObservableInputs = ({
 
 				{observableInputsType === ObservableInputsType.Array ? (
 					<ObservableIndexedInputs
+						onConnectLineIndexChange={onConnectLineIndexChange}
 						observableInputs={relatedElements
 							.filter(
 								({ connectLine }) =>

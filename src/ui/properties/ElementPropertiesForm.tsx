@@ -36,12 +36,14 @@ export interface ElementPropertiesFormProps {
 	element: Element;
 	relatedElements: RelatedElements;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
+	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
 
 const createElementPropertiesForm = ({
 	element,
 	relatedElements,
 	onPropertyValueChange,
+	onConnectLineChange,
 }: ElementPropertiesFormProps) => {
 	const { id, type, properties } = element;
 	switch (type) {
@@ -116,6 +118,7 @@ const createElementPropertiesForm = ({
 					properties={properties as MergeElementProperties}
 					relatedElements={relatedElements}
 					onPropertyValueChange={onPropertyValueChange}
+					onConnectLineChange={onConnectLineChange}
 				/>
 			);
 		default:
@@ -127,6 +130,7 @@ export const ElementPropertiesForm = ({
 	element,
 	relatedElements,
 	onPropertyValueChange,
+	onConnectLineChange,
 }: ElementPropertiesFormProps) => {
 	return Object.keys(element.properties).length > 0 ? (
 		<Box
@@ -147,9 +151,11 @@ export const ElementPropertiesForm = ({
 						element,
 						relatedElements,
 						onPropertyValueChange,
+						onConnectLineChange,
 					})}
 				</AccordionDetails>
 			</Accordion>
 		</Box>
 	) : null;
 };
+
