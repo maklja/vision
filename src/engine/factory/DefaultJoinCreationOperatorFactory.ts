@@ -1,6 +1,25 @@
-import { combineLatest, concat, defer, forkJoin, map, merge, Observable, race, zip } from 'rxjs';
-import { Element, ElementGroup, ElementType, MergeElement } from '../../model';
-import { JoinCreationOperatorFactory, OperatorOptions } from './OperatorFactory';
+import {
+	combineLatest,
+	concat,
+	defer,
+	forkJoin,
+	map,
+	merge,
+	Observable,
+	ObservableInput,
+	race,
+	zip,
+} from 'rxjs';
+import {
+	CombineLatestElement,
+	Element,
+	ElementGroup,
+	ElementType,
+	ForkJoinElement,
+	MergeElement,
+	ObservableInputsType,
+} from '../../model';
+import { JoinCreationOperatorFactory, ObservableOptions, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
 import { UnsupportedElementTypeError } from '../errors';
 
@@ -58,14 +77,17 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 	}
 
 	private createCombineLatestOperator(el: Element, options: OperatorOptions) {
-		return combineLatest<FlowValue[]>(
-			options.referenceObservables.map((refObservable) =>
-				defer(() => {
-					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
-					return refObservable.observable;
-				}),
-			),
-		).pipe(this.mapFlowValuesArray(el.id));
+		const combineLatestEl = el as CombineLatestElement;
+
+		if (combineLatestEl.properties.observableInputsType === ObservableInputsType.Array) {
+			return combineLatest<FlowValue[]>(
+				this.createIndexedObservableInput(combineLatestEl.id, options.referenceObservables),
+			).pipe(this.mapFlowValuesArray(el.id));
+		}
+
+		return combineLatest<Record<string, ObservableInput<unknown>>>(
+			this.createNamedObservableInput(el.id, options.referenceObservables),
+		).pipe(map((value) => this.createFlowValue(value, combineLatestEl.id)));
 	}
 
 	private createConcatOperator(el: Element, options: OperatorOptions) {
@@ -80,14 +102,17 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 	}
 
 	private createForkJoinOperator(el: Element, options: OperatorOptions) {
-		return forkJoin<FlowValue[]>(
-			options.referenceObservables.map((refObservable) =>
-				defer(() => {
-					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
-					return refObservable.observable;
-				}),
-			),
-		).pipe(this.mapFlowValuesArray(el.id));
+		const forkJoinEl = el as ForkJoinElement;
+
+		if (forkJoinEl.properties.observableInputsType === ObservableInputsType.Array) {
+			return forkJoin<FlowValue[]>(
+				this.createIndexedObservableInput(forkJoinEl.id, options.referenceObservables),
+			).pipe(this.mapFlowValuesArray(el.id));
+		}
+
+		return forkJoin<Record<string, ObservableInput<unknown>>>(
+			this.createNamedObservableInput(el.id, options.referenceObservables),
+		).pipe(map((value) => this.createFlowValue(value, forkJoinEl.id)));
 	}
 
 	private createRaceOperator(el: Element, options: OperatorOptions) {
@@ -112,6 +137,34 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		).pipe(this.mapFlowValuesArray(el.id));
 	}
 
+	private createIndexedObservableInput(
+		id: string,
+		observableOptions: readonly ObservableOptions[],
+	) {
+		return observableOptions.map((refObservable) =>
+			defer(() => {
+				refObservable.invokeTrigger?.(FlowValue.createEmptyValue(id));
+				return refObservable.observable;
+			}),
+		);
+	}
+
+	private createNamedObservableInput(
+		id: string,
+		observableOptions: readonly ObservableOptions[],
+	): Record<string, ObservableInput<unknown>> {
+		return observableOptions.reduce(
+			(namedObservableInput, refObservable) => ({
+				...namedObservableInput,
+				[refObservable.connectLine.name]: defer(() => {
+					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(id));
+					return refObservable.observable;
+				}),
+			}),
+			{},
+		);
+	}
+
 	private mapFlowValuesArray(elementId: string) {
 		return map(
 			(flowValues: FlowValue[]) =>
@@ -121,6 +174,10 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 					FlowValueType.Next,
 				),
 		);
+	}
+
+	private createFlowValue(value: unknown, elementId: string): FlowValue {
+		return new FlowValue(value, elementId, FlowValueType.Next);
 	}
 }
 

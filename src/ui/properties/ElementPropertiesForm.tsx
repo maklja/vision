@@ -10,6 +10,7 @@ import {
 	ConnectLine,
 	Element,
 	ElementType,
+	ForkJoinElementProperties,
 	FromElementProperties,
 	GenerateElementProperties,
 	IifElementProperties,
@@ -31,6 +32,7 @@ import {
 } from './creationElementForms';
 import {
 	CombineLatestElementPropertiesForm,
+	ForkJoinElementPropertiesForm,
 	MergeElementPropertiesForm,
 } from './joinCreationElementForms';
 
@@ -120,6 +122,16 @@ const createElementPropertiesForm = ({
 				<CombineLatestElementPropertiesForm
 					id={id}
 					properties={properties as CombineLatestElementProperties}
+					relatedElements={relatedElements}
+					onPropertyValueChange={onPropertyValueChange}
+					onConnectLineChange={onConnectLineChange}
+				/>
+			);
+		case ElementType.ForkJoin:
+			return (
+				<ForkJoinElementPropertiesForm
+					id={id}
+					properties={properties as ForkJoinElementProperties}
 					relatedElements={relatedElements}
 					onPropertyValueChange={onPropertyValueChange}
 					onConnectLineChange={onConnectLineChange}

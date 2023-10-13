@@ -520,12 +520,22 @@ export const connectLinesAdapterReducers = {
 	selectConnectLines: (slice: Draft<StageSlice>, action: SelectConnectLinesAction) =>
 		selectConnectLinesStateChange(slice, action.payload.connectLineIds),
 	updateConnectLine: (slice: Draft<StageSlice>, action: UpdateConnectLineAction) => {
+		const changes = Object.entries({
+			index: action.payload.index,
+			name: action.payload.name,
+		})
+			.filter(([, value]) => value !== undefined)
+			.reduce(
+				(changeObj, [key, value]) => ({
+					...changeObj,
+					[key]: value,
+				}),
+				{},
+			);
+
 		slice.connectLines = connectLinesAdapter.updateOne(slice.connectLines, {
 			id: action.payload.id,
-			changes: {
-				index: action.payload.index,
-				name: action.payload.name,
-			},
+			changes,
 		});
 	},
 };
