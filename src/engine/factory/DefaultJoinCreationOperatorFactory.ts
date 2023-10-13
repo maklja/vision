@@ -82,11 +82,11 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		if (combineLatestEl.properties.observableInputsType === ObservableInputsType.Array) {
 			return combineLatest<FlowValue[]>(
 				this.createIndexedObservableInput(combineLatestEl.id, options.referenceObservables),
-			).pipe(this.mapFlowValuesArray(el.id));
+			).pipe(this.mapFlowValuesArray(combineLatestEl.id));
 		}
 
 		return combineLatest<Record<string, ObservableInput<unknown>>>(
-			this.createNamedObservableInput(el.id, options.referenceObservables),
+			this.createNamedObservableInput(combineLatestEl.id, options.referenceObservables),
 		).pipe(map((value) => this.createFlowValue(value, combineLatestEl.id)));
 	}
 
@@ -107,11 +107,11 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		if (forkJoinEl.properties.observableInputsType === ObservableInputsType.Array) {
 			return forkJoin<FlowValue[]>(
 				this.createIndexedObservableInput(forkJoinEl.id, options.referenceObservables),
-			).pipe(this.mapFlowValuesArray(el.id));
+			).pipe(this.mapFlowValuesArray(forkJoinEl.id));
 		}
 
 		return forkJoin<Record<string, ObservableInput<unknown>>>(
-			this.createNamedObservableInput(el.id, options.referenceObservables),
+			this.createNamedObservableInput(forkJoinEl.id, options.referenceObservables),
 		).pipe(map((value) => this.createFlowValue(value, forkJoinEl.id)));
 	}
 
