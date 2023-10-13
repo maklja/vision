@@ -1,6 +1,6 @@
 import { Element, ElementType } from '../element';
 
-export interface IntervalElementProperties {
+export interface IntervalElementProperties extends Record<string, unknown> {
 	period: number;
 }
 
@@ -11,3 +11,4 @@ export interface IntervalElement extends Element<IntervalElementProperties> {
 export const intervalElementPropsTemplate: IntervalElementProperties = {
 	period: 1_000,
 };
+

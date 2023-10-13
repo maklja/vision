@@ -12,6 +12,7 @@ import {
 	removeElementConnectLines,
 	resetSimulation,
 	startSimulation,
+	updateConnectLine,
 	updateElementProperty,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
@@ -26,15 +27,20 @@ import {
 	createObservableSimulation,
 } from '../engine';
 import { selectElementsInSelection, selectStageElements } from '../store/elements';
-import { selectStageConnectLines } from '../store/connectLines';
+import { selectRelatedElementElements, selectStageConnectLines } from '../store/connectLines';
 import { SimulationState, selectSimulation } from '../store/simulation';
 import { OperatorPropertiesPanel } from '../ui/properties';
+import { StageState, selectStageState } from '../store/stage';
 
 export const Simulator = () => {
+	const stageState = useAppSelector(selectStageState);
 	const simulation = useAppSelector(selectSimulation);
 	const elements = useAppSelector(selectStageElements);
 	const connectLines = useAppSelector(selectStageConnectLines);
 	const selectedElements = useAppSelector(selectElementsInSelection);
+	const selectedElementConnectLines = useAppSelector(
+		selectRelatedElementElements(selectedElements[0]?.id),
+	);
 
 	const appDispatch = useAppDispatch();
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
@@ -147,6 +153,15 @@ export const Simulator = () => {
 		}
 	};
 
+	const handleConnectLineChanged = (id: string, changes: { index?: number; name?: string }) => {
+		appDispatch(
+			updateConnectLine({
+				id,
+				...changes,
+			}),
+		);
+	};
+
 	if (!simulation) {
 		return null;
 	}
@@ -189,7 +204,7 @@ export const Simulator = () => {
 				/>
 			</Box>
 
-			{selectedElements.length === 1 ? (
+			{stageState === StageState.Select && selectedElements.length === 1 ? (
 				<Box
 					sx={{
 						position: 'absolute',
@@ -202,8 +217,10 @@ export const Simulator = () => {
 				>
 					<OperatorPropertiesPanel
 						element={selectedElements[0]}
+						relatedElements={selectedElementConnectLines}
 						onPositionChange={handleElementPositionChange}
 						onPropertyValueChange={handleElementPropertyChange}
+						onConnectLineChange={handleConnectLineChanged}
 					/>
 				</Box>
 			) : null}

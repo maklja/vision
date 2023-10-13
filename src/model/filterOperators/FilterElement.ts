@@ -1,6 +1,6 @@
 import { ElementType, Element } from '../element';
 
-export interface FilterElementProperties {
+export interface FilterElementProperties extends Record<string, unknown> {
 	expression: string;
 }
 

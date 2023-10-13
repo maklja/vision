@@ -5,7 +5,7 @@ export enum DueDateType {
 	Date = 1,
 }
 
-export interface TimerElementProperties {
+export interface TimerElementProperties extends Record<string, unknown> {
 	dueDateType: DueDateType;
 	startDue: number;
 	intervalDuration: number;

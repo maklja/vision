@@ -1,16 +1,16 @@
 import { Group } from 'react-konva';
 import { ElementType } from '../../model';
-import { useCircleShapeSize } from '../../store/hooks/theme';
+import { useCircleShapeSize } from '../../store/stageSlice';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
+import { HexagonOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
-import { CircleOperatorDrawer } from '../../drawers';
 
-export interface CreationOperatorDrawerProps extends ElementDrawerProps {
+export interface JoinCreationOperatorDrawerProps extends ElementDrawerProps {
 	elementType: ElementType;
 	title: string;
 }
 
-export const CreationOperatorDrawer = ({
+export const JoinCreationOperatorDrawer = ({
 	x,
 	y,
 	scale = 1,
@@ -34,7 +34,7 @@ export const CreationOperatorDrawer = ({
 	onMouseDown,
 	onMouseOut,
 	onMouseOver,
-}: CreationOperatorDrawerProps) => {
+}: JoinCreationOperatorDrawerProps) => {
 	const circleShapeSize = useCircleShapeSize(elementType, scale);
 
 	return (
@@ -48,7 +48,7 @@ export const CreationOperatorDrawer = ({
 				shape={circleShapeSize}
 				visible={visibleConnectPoints}
 			/>
-			<CircleOperatorDrawer
+			<HexagonOperatorDrawer
 				id={id}
 				title={title}
 				size={circleShapeSize}

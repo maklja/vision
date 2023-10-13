@@ -1,18 +1,22 @@
 import { Box, Paper } from '@mui/material';
 import { ElementExplorer } from './ElementExplorer';
 import { Element, Point } from '../../model';
-import { ElementPropertiesForm } from './ElementPropertiesForm';
+import { ElementPropertiesForm, RelatedElements } from './ElementPropertiesForm';
 
 export interface OperatorPropertiesPanelProps {
 	element: Element;
+	relatedElements: RelatedElements;
 	onPositionChange?: (id: string, position: Point) => void;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
+	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
 
 export const OperatorPropertiesPanel = ({
 	element,
+	relatedElements,
 	onPositionChange,
 	onPropertyValueChange,
+	onConnectLineChange,
 }: OperatorPropertiesPanelProps) => {
 	return (
 		<Box
@@ -28,19 +32,13 @@ export const OperatorPropertiesPanel = ({
 				}}
 				elevation={0}
 			>
-				<ElementExplorer
-					id={element.id}
-					type={element.type}
-					x={element.x}
-					y={element.y}
-					onPositionChange={onPositionChange}
-				/>
+				<ElementExplorer element={element} onPositionChange={onPositionChange} />
 
 				<ElementPropertiesForm
-					id={element.id}
-					type={element.type}
-					properties={element.properties}
+					element={element}
+					relatedElements={relatedElements}
 					onPropertyValueChange={onPropertyValueChange}
+					onConnectLineChange={onConnectLineChange}
 				/>
 			</Paper>
 		</Box>

@@ -1,6 +1,6 @@
 import { Element, ElementType, CommonProps } from '../element';
 
-export interface FromElementProperties {
+export interface FromElementProperties extends Record<string, unknown> {
 	[CommonProps.EnableObservableEvent]: boolean;
 	input: string;
 }

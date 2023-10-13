@@ -113,12 +113,15 @@ export class ObservableFactory {
 	}
 
 	private createEntryOperator(el: Element, refObservablesData: ReferenceObservableData[]) {
-		const referenceObservables = refObservablesData.map((refObservable) => ({
-			connectPoint: refObservable.connectLine.source,
-			observable: refObservable.observable,
-			invokeTrigger: (value: FlowValue) =>
-				this.flowManager.handleNextEvent(value, refObservable.connectLine),
-		}));
+		const referenceObservables = refObservablesData
+			.map((refObservable) => ({
+				connectPoint: refObservable.connectLine.source,
+				connectLine: refObservable.connectLine,
+				observable: refObservable.observable,
+				invokeTrigger: (value: FlowValue) =>
+					this.flowManager.handleNextEvent(value, refObservable.connectLine),
+			}))
+			.sort((o1, o2) => o1.connectLine.index - o2.connectLine.index);
 
 		if (isCreationOperatorType(el.type)) {
 			return this.creationOperatorFactory.create(el, {
@@ -137,12 +140,15 @@ export class ObservableFactory {
 
 	private createPipeOperator(el: Element, refObservablesData: ReferenceObservableData[]) {
 		return this.pipeOperatorFactory.create(el, {
-			referenceObservables: refObservablesData.map((refObservable) => ({
-				connectPoint: refObservable.connectLine.source,
-				observable: refObservable.observable,
-				invokeTrigger: (value: FlowValue) =>
-					this.flowManager.handleNextEvent(value, refObservable.connectLine),
-			})),
+			referenceObservables: refObservablesData
+				.map((refObservable) => ({
+					connectPoint: refObservable.connectLine.source,
+					connectLine: refObservable.connectLine,
+					observable: refObservable.observable,
+					invokeTrigger: (value: FlowValue) =>
+						this.flowManager.handleNextEvent(value, refObservable.connectLine),
+				}))
+				.sort((o1, o2) => o1.connectLine.index - o2.connectLine.index),
 		});
 	}
 
@@ -194,3 +200,4 @@ export class ObservableFactory {
 		});
 	}
 }
+

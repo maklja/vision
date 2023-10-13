@@ -1,6 +1,6 @@
 import { Element, ElementType } from '../element';
 
-export interface IifElementProperties {
+export interface IifElementProperties extends Record<string, unknown> {
 	conditionExpression: string;
 }
 

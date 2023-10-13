@@ -1,4 +1,4 @@
-import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
+import { Draft, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
 import {
 	ConnectLine,
@@ -33,6 +33,8 @@ export interface DraftConnectLine {
 	source: ConnectedElement;
 	points: Point[];
 	locked: boolean;
+	index: number;
+	name: string;
 }
 
 export interface StartConnectLineDrawPayload {
@@ -122,6 +124,25 @@ export interface SelectConnectLinesAction {
 	};
 }
 
+export interface UpdateConnectLineAction {
+	type: string;
+	payload: {
+		id: string;
+		index?: number;
+		name?: string;
+	};
+}
+
+const generateUniqueName = (name: string, takenNames: string[]) => {
+	let uniqueName = name;
+	let i = 0;
+	while (takenNames.includes(uniqueName)) {
+		uniqueName = `${uniqueName}_${++i}`;
+	}
+
+	return uniqueName;
+};
+
 const getConnectPointDescriptor = (
 	el: Element,
 	cpType: ConnectPointType,
@@ -173,17 +194,6 @@ export const startConnectLineDrawStateChange = (
 	payload: StartConnectLineDrawPayload,
 ) => {
 	const { sourceId, points, type, position } = payload;
-	slice.state = StageState.DrawConnectLine;
-	slice.draftConnectLine = {
-		id: v1(),
-		source: {
-			id: sourceId,
-			connectPointType: type,
-			connectPosition: position,
-		},
-		points,
-		locked: false,
-	};
 
 	clearSelectionConnectPointsStateChange(slice);
 
@@ -195,6 +205,24 @@ export const startConnectLineDrawStateChange = (
 	}
 
 	const connectLines = selectAllConnectLines(slice.connectLines);
+	const clsNames = connectLines
+		.filter(({ source }) => source.id === sourceId && source.connectPointType === type)
+		.map((cl) => cl.name);
+
+	slice.state = StageState.DrawConnectLine;
+	slice.draftConnectLine = {
+		id: v1(),
+		name: generateUniqueName(`${type}_${position}`, clsNames),
+		index: clsNames.length + 1,
+		source: {
+			id: sourceId,
+			connectPointType: type,
+			connectPosition: position,
+		},
+		points,
+		locked: false,
+	};
+
 	const sourceCpDescriptor = getConnectPointDescriptor(el, type, connectLines);
 	// has element excited cardinality
 	if (sourceCpDescriptor.cardinalityExcited) {
@@ -393,6 +421,8 @@ export const connectLinesAdapterReducers = {
 
 		slice.connectLines = connectLinesAdapter.addOne(slice.connectLines, {
 			id: v1(),
+			index: draftConnectLine.index,
+			name: draftConnectLine.name,
 			locked: false,
 			select: false,
 			points: [...draftConnectLine.points, action.payload.targetPoint],
@@ -489,6 +519,25 @@ export const connectLinesAdapterReducers = {
 	},
 	selectConnectLines: (slice: Draft<StageSlice>, action: SelectConnectLinesAction) =>
 		selectConnectLinesStateChange(slice, action.payload.connectLineIds),
+	updateConnectLine: (slice: Draft<StageSlice>, action: UpdateConnectLineAction) => {
+		const changes = Object.entries({
+			index: action.payload.index,
+			name: action.payload.name,
+		})
+			.filter(([, value]) => value !== undefined)
+			.reduce(
+				(changeObj, [key, value]) => ({
+					...changeObj,
+					[key]: value,
+				}),
+				{},
+			);
+
+		slice.connectLines = connectLinesAdapter.updateOne(slice.connectLines, {
+			id: action.payload.id,
+			changes,
+		});
+	},
 };
 
 const globalConnectLinesSelector = connectLinesAdapter.getSelectors<RootState>(
@@ -502,4 +551,32 @@ export const selectStageConnectLines = (state: RootState) =>
 
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
+
+const selectElementConnectLinesById = (_state: RootState, elId?: string) => elId;
+
+const selectElementConnectLinesBySource = createSelector(
+	(state: RootState) => state.stage.elements,
+	(state: RootState) => state.stage.connectLines,
+	selectElementConnectLinesById,
+	(elements, connectLineEntities, elementId) => {
+		const sourceConnectLines = selectAllConnectLines(connectLineEntities).filter(
+			(cl) => cl.source.id === elementId,
+		);
+
+		return sourceConnectLines.map((connectLine) => {
+			const element = elements.entities[connectLine.target.id];
+			if (!element) {
+				throw new Error(`Element with id ${connectLine.target.id} not found`);
+			}
+
+			return {
+				element,
+				connectLine,
+			};
+		});
+	},
+);
+
+export const selectRelatedElementElements = (id: string) => (state: RootState) =>
+	selectElementConnectLinesBySource(state, id);
 

@@ -9,20 +9,18 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import { ElementType, Point, mapElementTypeToGroup } from '../../model';
+import { Element, Point, mapElementTypeToGroup } from '../../model';
 import { useShapeSize } from '../../store/stageSlice';
 import { ElementShape } from '../../theme';
 import { formStyle } from './commonStyles';
 
 export interface ElementExplorerProps {
-	id: string;
-	type: ElementType;
-	x: number;
-	y: number;
+	element: Element;
 	onPositionChange?: (id: string, position: Point) => void;
 }
 
-export const ElementExplorer = ({ id, type, x, y, onPositionChange }: ElementExplorerProps) => {
+export const ElementExplorer = ({ element, onPositionChange }: ElementExplorerProps) => {
+	const { id, type, x, y } = element;
 	const operatorGroup = mapElementTypeToGroup(type);
 	const shapeSize = useShapeSize(type);
 
@@ -171,4 +169,3 @@ export const ElementExplorer = ({ id, type, x, y, onPositionChange }: ElementExp
 		</Box>
 	);
 };
-

@@ -12,7 +12,7 @@ export enum HttpMethod {
 	Patch = 'PATCH',
 }
 
-export interface AjaxElementProperties {
+export interface AjaxElementProperties extends Record<string, unknown> {
 	url: string;
 	method: HttpMethod;
 	body?: string;

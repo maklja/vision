@@ -1,9 +1,24 @@
 export enum ElementType {
-	Merge = 'merge',
+	// creation operators
 	Of = 'of',
 	From = 'from',
 	IIf = 'iif',
 	Interval = 'interval',
+	Ajax = 'ajax',
+	Empty = 'empty',
+	Defer = 'defer',
+	Generate = 'generate',
+	Range = 'range',
+	ThrowError = 'throwError',
+	Timer = 'timer',
+	// join creation operators
+	CombineLatest = 'combineLatest',
+	Merge = 'merge',
+	Concat = 'concat',
+	ForkJoin = 'forkJoin',
+	Race = 'race',
+	Zip = 'zip',
+	// other
 	Filter = 'filter',
 	Subscriber = 'subscriber',
 	CatchError = 'catchError',
@@ -12,16 +27,16 @@ export enum ElementType {
 	Map = 'map',
 	ConcatMap = 'concatMap',
 	MergeMap = 'mergeMap',
-	Ajax = 'ajax',
-	Empty = 'empty',
-	Defer = 'defer',
-	Generate = 'generate',
-	Range = 'range',
-	ThrowError = 'throwError',
-	Timer = 'timer',
 }
 
-export const joinCreationOperators: ReadonlySet<ElementType> = new Set([ElementType.Merge]);
+export const joinCreationOperators: ReadonlySet<ElementType> = new Set([
+	ElementType.Merge,
+	ElementType.CombineLatest,
+	ElementType.Concat,
+	ElementType.ForkJoin,
+	ElementType.Race,
+	ElementType.Zip,
+]);
 
 export const creationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Of,
@@ -86,3 +101,4 @@ export const isConnectPointType = (type: ElementType) => connectPointOperators.h
 
 export const isEntryOperatorType = (type: ElementType) =>
 	isCreationOperatorType(type) || isJoinCreationOperatorType(type);
+

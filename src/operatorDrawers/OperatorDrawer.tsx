@@ -16,7 +16,14 @@ import { Element, ElementType, ResultElement } from '../model';
 import { SubscriberDrawer } from './subscriberOperators';
 import { FilterOperatorDrawer } from './filteringOperators';
 import { ResultDrawer } from './resultOperators';
-import { MergeOperatorDrawer } from './joinCreationOperators';
+import {
+	CombineLatestOperatorDrawer,
+	ConcatOperatorDrawer,
+	ForkJoinOperatorDrawer,
+	MergeOperatorDrawer,
+	RaceOperatorDrawer,
+	ZipOperatorDrawer,
+} from './joinCreationOperators';
 import { selectElementSizeOptions, useThemeContext } from '../store/stageSlice';
 import { useAppSelector } from '../store/rootState';
 import { useElementDrawerHandlers } from './state';
@@ -34,10 +41,7 @@ import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
 
 export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {
 	switch (elType) {
-		case ElementType.Filter:
-			return <FilterOperatorDrawer {...props} />;
-		case ElementType.CatchError:
-			return <CatchErrorOperatorDrawer {...props} />;
+		// creationOperators
 		case ElementType.Interval:
 			return <IntervalOperatorDrawer {...props} />;
 		case ElementType.Of:
@@ -46,16 +50,6 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <FromOperatorDrawer {...props} />;
 		case ElementType.IIf:
 			return <IifOperatorDrawer {...props} />;
-		case ElementType.Merge:
-			return <MergeOperatorDrawer {...props} />;
-		case ElementType.Subscriber:
-			return <SubscriberDrawer {...props} />;
-		case ElementType.Map:
-			return <MapOperatorDrawer {...props} />;
-		case ElementType.ConcatMap:
-			return <ConcatMapOperatorDrawer {...props} />;
-		case ElementType.MergeMap:
-			return <MergeMapOperatorDrawer {...props} />;
 		case ElementType.Ajax:
 			return <AjaxOperatorDrawer {...props} />;
 		case ElementType.Empty:
@@ -70,6 +64,32 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <ThrowErrorOperatorDrawer {...props} />;
 		case ElementType.Timer:
 			return <TimerOperatorDrawer {...props} />;
+		// join creation operators
+		case ElementType.Merge:
+			return <MergeOperatorDrawer {...props} />;
+		case ElementType.CombineLatest:
+			return <CombineLatestOperatorDrawer {...props} />;
+		case ElementType.Concat:
+			return <ConcatOperatorDrawer {...props} />;
+		case ElementType.ForkJoin:
+			return <ForkJoinOperatorDrawer {...props} />;
+		case ElementType.Race:
+			return <RaceOperatorDrawer {...props} />;
+		case ElementType.Zip:
+			return <ZipOperatorDrawer {...props} />;
+		// other
+		case ElementType.Filter:
+			return <FilterOperatorDrawer {...props} />;
+		case ElementType.CatchError:
+			return <CatchErrorOperatorDrawer {...props} />;
+		case ElementType.Subscriber:
+			return <SubscriberDrawer {...props} />;
+		case ElementType.Map:
+			return <MapOperatorDrawer {...props} />;
+		case ElementType.ConcatMap:
+			return <ConcatMapOperatorDrawer {...props} />;
+		case ElementType.MergeMap:
+			return <MergeMapOperatorDrawer {...props} />;
 		default:
 			return null;
 	}

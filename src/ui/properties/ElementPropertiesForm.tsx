@@ -6,12 +6,16 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
 	AjaxElementProperties,
-	ElementProps,
+	CombineLatestElementProperties,
+	ConnectLine,
+	Element,
 	ElementType,
+	ForkJoinElementProperties,
 	FromElementProperties,
 	GenerateElementProperties,
 	IifElementProperties,
 	IntervalElementProperties,
+	MergeElementProperties,
 	RangeElementProperties,
 	ThrowErrorElementProperties,
 	TimerElementProperties,
@@ -26,20 +30,28 @@ import {
 	ThrowErrorElementPropertiesForm,
 	TimerElementPropertiesForm,
 } from './creationElementForms';
+import {
+	CombineLatestElementPropertiesForm,
+	ForkJoinElementPropertiesForm,
+	MergeElementPropertiesForm,
+} from './joinCreationElementForms';
+
+export type RelatedElements = { connectLine: ConnectLine; element: Element }[];
 
 export interface ElementPropertiesFormProps {
-	id: string;
-	type: ElementType;
-	properties: ElementProps;
+	element: Element;
+	relatedElements: RelatedElements;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
+	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
 
 const createElementPropertiesForm = ({
-	id,
-	type,
-	properties,
+	element,
+	relatedElements,
 	onPropertyValueChange,
+	onConnectLineChange,
 }: ElementPropertiesFormProps) => {
+	const { id, type, properties } = element;
 	switch (type) {
 		case ElementType.Interval:
 			return (
@@ -105,18 +117,48 @@ const createElementPropertiesForm = ({
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
+		case ElementType.CombineLatest:
+			return (
+				<CombineLatestElementPropertiesForm
+					id={id}
+					properties={properties as CombineLatestElementProperties}
+					relatedElements={relatedElements}
+					onPropertyValueChange={onPropertyValueChange}
+					onConnectLineChange={onConnectLineChange}
+				/>
+			);
+		case ElementType.ForkJoin:
+			return (
+				<ForkJoinElementPropertiesForm
+					id={id}
+					properties={properties as ForkJoinElementProperties}
+					relatedElements={relatedElements}
+					onPropertyValueChange={onPropertyValueChange}
+					onConnectLineChange={onConnectLineChange}
+				/>
+			);
+		case ElementType.Merge:
+			return (
+				<MergeElementPropertiesForm
+					id={id}
+					properties={properties as MergeElementProperties}
+					relatedElements={relatedElements}
+					onPropertyValueChange={onPropertyValueChange}
+					onConnectLineChange={onConnectLineChange}
+				/>
+			);
 		default:
 			return null;
 	}
 };
 
 export const ElementPropertiesForm = ({
-	id,
-	type,
-	properties,
+	element,
+	relatedElements,
 	onPropertyValueChange,
+	onConnectLineChange,
 }: ElementPropertiesFormProps) => {
-	return Object.keys(properties).length > 0 ? (
+	return Object.keys(element.properties).length > 0 ? (
 		<Box
 			sx={{
 				overflow: 'auto',
@@ -132,10 +174,10 @@ export const ElementPropertiesForm = ({
 				</AccordionSummary>
 				<AccordionDetails>
 					{createElementPropertiesForm({
-						id,
-						type,
-						properties,
+						element,
+						relatedElements,
 						onPropertyValueChange,
+						onConnectLineChange,
 					})}
 				</AccordionDetails>
 			</Accordion>

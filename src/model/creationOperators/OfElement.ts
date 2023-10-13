@@ -1,6 +1,6 @@
 import { Element, ElementType } from '../element';
 
-export interface OfElementProperties<T> {
+export interface OfElementProperties<T> extends Record<string, unknown> {
 	items: T[] | null;
 }
 

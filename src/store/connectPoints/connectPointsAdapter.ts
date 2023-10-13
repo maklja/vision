@@ -418,6 +418,7 @@ const selectElementConnectPoints = createSelector(selectConnectPointsById, (conn
 		{},
 	),
 );
+
 export const selectElementConnectPointsById = (id: string) => (state: RootState) =>
 	selectElementConnectPoints(state, id);
 
