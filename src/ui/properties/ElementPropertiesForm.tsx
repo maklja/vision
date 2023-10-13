@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
 	AjaxElementProperties,
+	CombineLatestElementProperties,
 	ConnectLine,
 	Element,
 	ElementType,
@@ -28,7 +29,10 @@ import {
 	ThrowErrorElementPropertiesForm,
 	TimerElementPropertiesForm,
 } from './creationElementForms';
-import { MergeElementPropertiesForm } from './joinCreationElementForms';
+import {
+	CombineLatestElementPropertiesForm,
+	MergeElementPropertiesForm,
+} from './joinCreationElementForms';
 
 export type RelatedElements = { connectLine: ConnectLine; element: Element }[];
 
@@ -109,6 +113,16 @@ const createElementPropertiesForm = ({
 					id={id}
 					properties={properties as IifElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.CombineLatest:
+			return (
+				<CombineLatestElementPropertiesForm
+					id={id}
+					properties={properties as CombineLatestElementProperties}
+					relatedElements={relatedElements}
+					onPropertyValueChange={onPropertyValueChange}
+					onConnectLineChange={onConnectLineChange}
 				/>
 			);
 		case ElementType.Merge:
