@@ -12,11 +12,13 @@ import {
 	addDraftElement,
 	clearDraftElement,
 	clearSnapLines,
+	updateCanvasState,
 	useThemeContext,
 } from '../store/stageSlice';
 import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
 import { calculateShapeSizeBoundingBox } from '../theme';
+import { GridLayer } from '../layers/grid';
 
 Konva.hitOnDragEnabled = true;
 
@@ -89,6 +91,23 @@ export const SimulatorStage = () => {
 		};
 	}, []);
 
+	useEffect(() => {
+		if (!stageRef.current) {
+			return;
+		}
+
+		appDispatch(
+			updateCanvasState({
+				x: stageRef.current.position().x,
+				y: stageRef.current.position().y,
+				width: stageRef.current.width(),
+				height: stageRef.current.height(),
+				scaleX: stageRef.current.scaleX(),
+				scaleY: stageRef.current.scaleY(),
+			}),
+		);
+	}, [stageRef.current]);
+
 	return (
 		<div ref={drop}>
 			<Stage
@@ -99,6 +118,7 @@ export const SimulatorStage = () => {
 				draggable={true}
 				ref={stageRef}
 			>
+				<GridLayer />
 				<ConnectLinesLayer />
 				<DrawersLayer />
 				<AnimationsLayer />
