@@ -1,13 +1,13 @@
+import { useMemo } from 'react';
 import { Layer, Line } from 'react-konva';
 import { useAppSelector } from '../../store/rootState';
 import { selectCanvasState } from '../../store/canvas';
-import { useMemo } from 'react';
 
 export interface GridLayerProps {
 	gridSize?: number;
 }
 
-export const GridLayer = ({ gridSize = 26 }: GridLayerProps) => {
+export const GridLayer = ({ gridSize = 25.5 }: GridLayerProps) => {
 	const { x, y, width, height, scaleX } = useAppSelector(selectCanvasState);
 
 	const { viewRect, gridLines } = useMemo(() => {
@@ -99,4 +99,3 @@ export const GridLayer = ({ gridSize = 26 }: GridLayerProps) => {
 		</Layer>
 	);
 };
-
