@@ -4,6 +4,20 @@ import { Circle, Group, Text } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme } from '../../theme';
 import { useAnimationGroups } from '../../animation';
+import { Point } from '../../model';
+
+const snapPositionToGrind = (position: Point, gridSize: number) => {
+	const newX1 = position.x + (gridSize - (position.x % gridSize));
+	const newX2 = position.x - (position.x % gridSize);
+
+	const newY1 = position.y + (gridSize - (position.y % gridSize));
+	const newY2 = position.y - (position.y % gridSize);
+
+	return {
+		x: Math.abs(newX1 - position.x) < Math.abs(newX2 - position.x) ? newX1 : newX2,
+		y: Math.abs(newY1 - position.y) < Math.abs(newY2 - position.y) ? newY1 : newY2,
+	};
+};
 
 export interface CircleOperatorDrawerProps extends CircleDrawerProps {
 	title: string;
@@ -108,8 +122,8 @@ export const CircleOperatorDrawer = ({
 			visible={visible && Boolean(mainTextRef && mainShapeRef)}
 			draggable={draggable}
 			dragBoundFunc={function (pos) {
-				console.log(pos, this.getAbsolutePosition(), x, y);
-				return { x: 20, y: 20 };
+				// console.log(pos, this.getAbsolutePosition(), x, y);
+				return snapPositionToGrind(pos, 25.5);
 			}}
 			x={x}
 			y={y}
@@ -144,4 +158,3 @@ export const CircleOperatorDrawer = ({
 		</Group>
 	);
 };
-
