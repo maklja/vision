@@ -1,6 +1,6 @@
 import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
-import { Element, ElementProps } from '../../model';
+import { Element, ElementProps, Point } from '../../model';
 import { RootState } from '../rootState';
 import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
 import { StageState, updateStateChange } from '../stage';
@@ -100,19 +100,36 @@ export const updateElementStateChange = (
 	});
 };
 
+const snapPositionToGrind = (position: Point, gridSize: number) => {
+	const newX1 = position.x + (gridSize - (position.x % gridSize));
+	const newX2 = position.x - (position.x % gridSize);
+
+	const newY1 = position.y + (gridSize - (position.y % gridSize));
+	const newY2 = position.y - (position.y % gridSize);
+
+	return {
+		x: Math.abs(newX1 - position.x) < Math.abs(newX2 - position.x) ? newX1 : newX2,
+		y: Math.abs(newY1 - position.y) < Math.abs(newY2 - position.y) ? newY1 : newY2,
+	};
+};
+
 export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveElementPayload) => {
 	const el = selectElementById(slice.elements, payload.id);
 	if (!el) {
 		return;
 	}
 
+	const position = snapPositionToGrind(payload, 25.5);
 	slice.elements = elementsAdapter.updateOne(slice.elements, {
 		id: payload.id,
-		changes: payload,
+		changes: {
+			x: position.x,
+			y: position.y,
+		},
 	});
 
-	const dx = payload.x - el.x;
-	const dy = payload.y - el.y;
+	const dx = position.x - el.x;
+	const dy = position.y - el.y;
 
 	const connectLines = selectAllConnectLines(slice.connectLines);
 	connectLines.forEach((cl) => {
@@ -134,6 +151,7 @@ export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveEl
 			});
 		}
 	});
+
 	moveConnectPointsByDeltaStateChange(slice, {
 		id: el.id,
 		dx,
@@ -230,3 +248,4 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
+

@@ -1,5 +1,4 @@
 -   pre code executions
--   background grid
 -   grid move
 -   laso and multi selection
 -   save/load

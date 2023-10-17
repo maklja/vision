@@ -107,6 +107,10 @@ export const CircleOperatorDrawer = ({
 		<Group
 			visible={visible && Boolean(mainTextRef && mainShapeRef)}
 			draggable={draggable}
+			dragBoundFunc={function (pos) {
+				console.log(pos, this.getAbsolutePosition(), x, y);
+				return { x: 20, y: 20 };
+			}}
 			x={x}
 			y={y}
 			onMouseOver={handleMouseOver}
@@ -123,6 +127,7 @@ export const CircleOperatorDrawer = ({
 				radius={radius}
 				x={radius}
 				y={radius}
+				draggable={false}
 			/>
 			<Text
 				{...drawerStyle.text}
@@ -134,6 +139,7 @@ export const CircleOperatorDrawer = ({
 				listening={false}
 				align="center"
 				verticalAlign="middle"
+				draggable={false}
 			/>
 		</Group>
 	);

@@ -39,7 +39,7 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 				y: position.y,
 			}),
 		);
-		dispatch(createElementSnapLines({ referenceElementId: id }));
+		// dispatch(createElementSnapLines({ referenceElementId: id }));
 	},
 });
 

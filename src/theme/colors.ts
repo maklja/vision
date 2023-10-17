@@ -1,6 +1,7 @@
 export interface ColorTheme {
 	readonly backgroundPrimaryColor: string;
 	readonly backgroundSecondaryColor: string;
+	readonly backgroundTertiaryColor: string;
 	readonly primaryColor: string;
 	readonly secondaryColor: string;
 	readonly tertiaryColor: string;
@@ -32,6 +33,7 @@ export interface ColorTheme {
 const seaColorTheme: ColorTheme = {
 	backgroundPrimaryColor: '#EEE',
 	backgroundSecondaryColor: '#616161',
+	backgroundTertiaryColor: 'rgba(0, 0, 0, 0.2)',
 	primaryColor: '#8BBCCC',
 	secondaryColor: '#4C6793',
 	tertiaryColor: '#5C2E7E',

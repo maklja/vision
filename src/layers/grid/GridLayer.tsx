@@ -2,15 +2,16 @@ import { useMemo } from 'react';
 import { Layer, Line } from 'react-konva';
 import { useAppSelector } from '../../store/rootState';
 import { selectCanvasState } from '../../store/canvas';
+import { useThemeContext } from '../../store/stageSlice';
+import { useGridTheme } from '../../theme';
 
-export interface GridLayerProps {
-	gridSize?: number;
-}
-
-export const GridLayer = ({ gridSize = 25.5 }: GridLayerProps) => {
+export const GridLayer = () => {
+	const theme = useThemeContext();
+	const gridTheme = useGridTheme(theme);
 	const { x, y, width, height, scaleX } = useAppSelector(selectCanvasState);
 
 	const { viewRect, gridLines } = useMemo(() => {
+		const gridSize = gridTheme.size;
 		const stageRect = {
 			x1: 0,
 			y1: 0,
@@ -62,8 +63,8 @@ export const GridLayer = ({ gridSize = 25.5 }: GridLayerProps) => {
 					x={fullRect.x1 + i * gridSize}
 					y={fullRect.y1}
 					points={[0, 0, 0, ySize]}
-					stroke="rgba(0, 0, 0, 0.2)"
-					strokeWidth={1}
+					stroke={gridTheme.stroke}
+					strokeWidth={gridTheme.strokeWidth}
 				/>,
 			);
 		}
@@ -75,8 +76,8 @@ export const GridLayer = ({ gridSize = 25.5 }: GridLayerProps) => {
 					x={fullRect.x1}
 					y={fullRect.y1 + i * gridSize}
 					points={[0, 0, xSize, 0]}
-					stroke="rgba(0, 0, 0, 0.2)"
-					strokeWidth={1}
+					stroke={gridTheme.stroke}
+					strokeWidth={gridTheme.strokeWidth}
 				/>,
 			);
 		}
@@ -85,7 +86,7 @@ export const GridLayer = ({ gridSize = 25.5 }: GridLayerProps) => {
 			viewRect,
 			gridLines,
 		};
-	}, [x, y, width, height, scaleX]);
+	}, [x, y, width, height, scaleX, gridTheme.size]);
 
 	return (
 		<Layer
@@ -99,3 +100,4 @@ export const GridLayer = ({ gridSize = 25.5 }: GridLayerProps) => {
 		</Layer>
 	);
 };
+
