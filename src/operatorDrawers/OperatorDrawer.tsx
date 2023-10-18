@@ -38,6 +38,7 @@ import { isSelectedElement } from '../store/elements';
 import { isHighlighted } from '../store/highlight';
 import { selectElementErrorById } from '../store/errors';
 import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
+import { StageState, selectStageState } from '../store/stage';
 
 export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {
 	switch (elType) {
@@ -113,6 +114,7 @@ export const OperatorDrawer = ({
 	const highlight = useAppSelector(isHighlighted(element.id));
 	const error = useAppSelector(selectElementErrorById(element.id));
 	const elementSizeOptions = useAppSelector(selectElementSizeOptions);
+	const stageState = useAppSelector(selectStageState);
 
 	const animationConfig = animation
 		? {
@@ -155,6 +157,7 @@ export const OperatorDrawer = ({
 				select,
 				highlight,
 				draggable,
+				draggableSnap: stageState === StageState.SnapDragging,
 				visibleConnectPoints,
 				hasError: Boolean(error),
 			});

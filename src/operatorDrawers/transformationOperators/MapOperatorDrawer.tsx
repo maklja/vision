@@ -13,6 +13,7 @@ export const MapOperatorDrawer = ({
 	theme,
 	animation,
 	draggable,
+	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -51,6 +52,7 @@ export const MapOperatorDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
+				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}
@@ -68,3 +70,4 @@ export const MapOperatorDrawer = ({
 		</Group>
 	);
 };
+

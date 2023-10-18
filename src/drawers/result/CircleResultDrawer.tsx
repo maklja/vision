@@ -1,10 +1,12 @@
+import { Vector2d } from 'konva/lib/types';
 import Konva from 'konva';
 import { useState } from 'react';
 import { Circle } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
 import { hashToColor, invertColor } from '../utils';
 import { useAnimation } from '../../animation';
-import { scaleCircleShape } from '../../theme';
+import { scaleCircleShape, useGridTheme } from '../../theme';
+import { snapPositionToGrind } from '../../model';
 
 export interface CircleResultDrawerProps extends CircleDrawerProps {
 	hash: string;
@@ -17,6 +19,7 @@ export const CircleResultDrawer = ({
 	x,
 	y,
 	draggable = false,
+	draggableSnap = false,
 	visible = true,
 	hash,
 	animation,
@@ -24,6 +27,7 @@ export const CircleResultDrawer = ({
 	onAnimationComplete,
 	onAnimationDestroy,
 }: CircleResultDrawerProps) => {
+	const gridTheme = useGridTheme(theme);
 	const { simulation } = theme;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 
@@ -38,6 +42,14 @@ export const CircleResultDrawer = ({
 		drawerId: id,
 	});
 
+	const handleDragBoundFunc = (pos: Vector2d) => {
+		if (!draggableSnap) {
+			return pos;
+		}
+
+		return snapPositionToGrind(pos, gridTheme.size);
+	};
+
 	const { radius } = scaleCircleShape(size, 0.3);
 	const resultColor = hashToColor(hash ?? simulation.fill);
 	const invertResultColor = invertColor(resultColor, false);
@@ -51,6 +63,8 @@ export const CircleResultDrawer = ({
 			x={x}
 			y={y}
 			draggable={draggable}
+			dragBoundFunc={handleDragBoundFunc}
 		/>
 	);
 };
+

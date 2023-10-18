@@ -5,6 +5,7 @@ import { CircleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme, useGridTheme } from '../../theme';
 import { useAnimationGroups } from '../../animation';
 import { snapPositionToGrind } from '../../model';
+import { Vector2d } from 'konva/lib/types';
 
 export interface CircleOperatorDrawerProps extends CircleDrawerProps {
 	title: string;
@@ -22,6 +23,7 @@ export const CircleOperatorDrawer = ({
 	theme,
 	animation,
 	draggable = false,
+	draggableSnap = false,
 	hasError = false,
 	onMouseOver,
 	onMouseOut,
@@ -33,14 +35,11 @@ export const CircleOperatorDrawer = ({
 	onAnimationBegin,
 	onAnimationComplete,
 }: CircleOperatorDrawerProps) => {
-	const drawerStyle = useElementDrawerTheme(
-		{
-			highlight,
-			select,
-			hasError,
-		},
-		theme,
-	);
+	const drawerStyle = useElementDrawerTheme(theme, {
+		highlight,
+		select,
+		hasError,
+	});
 	const gridTheme = useGridTheme(theme);
 	const { radius, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
@@ -105,11 +104,19 @@ export const CircleOperatorDrawer = ({
 			originalEvent: e,
 		});
 
+	const handleDragBoundFunc = (pos: Vector2d) => {
+		if (!draggableSnap) {
+			return pos;
+		}
+
+		return snapPositionToGrind(pos, gridTheme.size);
+	};
+
 	return (
 		<Group
 			visible={visible && Boolean(mainTextRef && mainShapeRef)}
 			draggable={draggable}
-			dragBoundFunc={(pos) => snapPositionToGrind(pos, gridTheme.size)}
+			dragBoundFunc={handleDragBoundFunc}
 			x={x}
 			y={y}
 			onMouseOver={handleMouseOver}
@@ -126,7 +133,6 @@ export const CircleOperatorDrawer = ({
 				radius={radius}
 				x={radius}
 				y={radius}
-				draggable={false}
 			/>
 			<Text
 				{...drawerStyle.text}
@@ -138,8 +144,8 @@ export const CircleOperatorDrawer = ({
 				listening={false}
 				align="center"
 				verticalAlign="middle"
-				draggable={false}
 			/>
 		</Group>
 	);
 };
+

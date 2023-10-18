@@ -54,7 +54,7 @@ export const CircleConnectPointDrawer = ({
 	onAnimationComplete,
 	onAnimationDestroy,
 }: CircleConnectPointDrawerProps) => {
-	const connectPointElementTheme = useConnectPointTheme({ position, highlight }, theme);
+	const connectPointElementTheme = useConnectPointTheme(theme, { position, highlight });
 	const { radius } = size;
 	const boundingBox = calculateShapeSizeBoundingBox({ x, y }, size);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
@@ -103,3 +103,4 @@ export const CircleConnectPointDrawer = ({
 		</Group>
 	);
 };
+

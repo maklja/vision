@@ -43,8 +43,11 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 
 		if (!snapToGrid) {
 			dispatch(createElementSnapLines({ referenceElementId: id }));
+			dispatch(changeState(StageState.Dragging));
 		} else {
 			dispatch(clearSnapLines());
+			dispatch(changeState(StageState.SnapDragging));
 		}
 	},
 });
+

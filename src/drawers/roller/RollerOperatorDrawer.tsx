@@ -1,10 +1,11 @@
+import { Vector2d } from 'konva/lib/types';
 import Konva from 'konva';
 import { useState } from 'react';
 import { Group, Rect, Text, Ellipse, Path } from 'react-konva';
 import { useAnimationGroups } from '../../animation';
 import { RectangleDrawerProps } from '../DrawerProps';
-import { useElementDrawerTheme } from '../../theme';
-import { Point } from '../../model';
+import { useElementDrawerTheme, useGridTheme } from '../../theme';
+import { Point, snapPositionToGrind } from '../../model';
 
 export interface RollerOperatorDrawerProps extends RectangleDrawerProps {
 	title: string;
@@ -22,6 +23,7 @@ export const RollerOperatorDrawer = ({
 	title,
 	animation,
 	draggable = false,
+	draggableSnap = false,
 	hasError = false,
 	onMouseOver,
 	onMouseOut,
@@ -33,14 +35,12 @@ export const RollerOperatorDrawer = ({
 	onAnimationComplete,
 	onAnimationDestroy,
 }: RollerOperatorDrawerProps) => {
-	const drawerStyle = useElementDrawerTheme(
-		{
-			highlight,
-			select,
-			hasError,
-		},
-		theme,
-	);
+	const drawerStyle = useElementDrawerTheme(theme, {
+		highlight,
+		select,
+		hasError,
+	});
+	const gridTheme = useGridTheme(theme);
 	const { width, height, fontSizes } = size;
 	const [leftEllipseShapeRef, setLeftEllipseShapeRef] = useState<Konva.Ellipse | null>(null);
 	const [rightEllipseShapeRef, setRightEllipseShapeRef] = useState<Konva.Ellipse | null>(null);
@@ -116,6 +116,14 @@ export const RollerOperatorDrawer = ({
 			originalEvent: e,
 		});
 
+	const handleDragBoundFunc = (pos: Vector2d) => {
+		if (!draggableSnap) {
+			return pos;
+		}
+
+		return snapPositionToGrind(pos, gridTheme.size);
+	};
+
 	const textX = (mainTextRef?.width() ?? 0) / -2 + width / 2;
 	const textY = (mainTextRef?.height() ?? 0) / -2 + height / 2;
 
@@ -154,6 +162,7 @@ export const RollerOperatorDrawer = ({
 			x={x}
 			y={y}
 			draggable={draggable}
+			dragBoundFunc={handleDragBoundFunc}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
 			onMouseDown={handleMouseDown}

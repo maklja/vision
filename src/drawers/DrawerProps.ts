@@ -30,7 +30,7 @@ export interface DrawerCommonProps {
 	theme: Theme;
 	x: number;
 	y: number;
-	draggableSnap: boolean;
+	draggableSnap?: boolean;
 	draggable?: boolean;
 	highlight?: boolean;
 	select?: boolean;

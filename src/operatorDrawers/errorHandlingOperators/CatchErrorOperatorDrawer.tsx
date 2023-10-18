@@ -13,6 +13,7 @@ export const CatchErrorOperatorDrawer = ({
 	theme,
 	animation,
 	draggable,
+	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -51,6 +52,7 @@ export const CatchErrorOperatorDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
+				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}

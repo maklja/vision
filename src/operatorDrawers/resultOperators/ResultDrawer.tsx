@@ -16,6 +16,7 @@ export const ResultDrawer = ({
 	theme,
 	animation,
 	draggable,
+	draggableSnap,
 	highlight,
 	select,
 	visible,
@@ -42,6 +43,7 @@ export const ResultDrawer = ({
 			y={y}
 			animation={animation}
 			draggable={draggable}
+			draggableSnap={draggableSnap}
 			highlight={highlight}
 			select={select}
 			visible={visible}

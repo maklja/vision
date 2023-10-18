@@ -18,6 +18,7 @@ export const JoinCreationOperatorDrawer = ({
 	theme,
 	animation,
 	draggable,
+	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -57,6 +58,7 @@ export const JoinCreationOperatorDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
+				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}

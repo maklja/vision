@@ -70,7 +70,7 @@ export interface ConnectPointThemeState extends DrawerThemeState {
 	position: ConnectPointPosition;
 }
 
-export const useConnectPointTheme = (state: ConnectPointThemeState, theme: Theme) => {
+export const useConnectPointTheme = (theme: Theme, state: ConnectPointThemeState) => {
 	const connectPointTheme = theme.connectPoints[state.position];
 	if (state.highlight) {
 		return {
@@ -85,7 +85,7 @@ export const useConnectPointTheme = (state: ConnectPointThemeState, theme: Theme
 	};
 };
 
-export const useElementDrawerTheme = (state: DrawerThemeState, theme: Theme) => {
+export const useElementDrawerTheme = (theme: Theme, state: DrawerThemeState) => {
 	const { drawer } = theme;
 
 	if (state.hasError && (state.select || state.highlight)) {
@@ -140,7 +140,7 @@ export const useTooltipTheme = (theme: Theme) => {
 	};
 };
 
-export const useLineDrawerTheme = (state: DrawerCommonThemeState, theme: Theme) => {
+export const useLineDrawerTheme = (theme: Theme, state: DrawerCommonThemeState = {}) => {
 	if (state.highlight) {
 		return {
 			line: theme.connectLine.highlightLine,
@@ -173,3 +173,4 @@ export const useSnapLineDrawerTheme = (theme: Theme) => {
 export const useGridTheme = (theme: Theme) => {
 	return theme.grid;
 };
+

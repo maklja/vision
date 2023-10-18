@@ -3,7 +3,9 @@ import { Circle, Group } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
 import { useState } from 'react';
 import { useAnimationGroups } from '../../animation';
-import { useCircleSizeScale, useElementDrawerTheme } from '../../theme';
+import { useCircleSizeScale, useElementDrawerTheme, useGridTheme } from '../../theme';
+import { Vector2d } from 'konva/lib/types';
+import { snapPositionToGrind } from '../../model';
 
 export const DotCircleOperatorDrawer = ({
 	x,
@@ -16,6 +18,7 @@ export const DotCircleOperatorDrawer = ({
 	animation,
 	visible,
 	draggable = false,
+	draggableSnap = false,
 	hasError = false,
 	onMouseDown,
 	onMouseOut,
@@ -27,14 +30,12 @@ export const DotCircleOperatorDrawer = ({
 	onAnimationComplete,
 	onAnimationDestroy,
 }: CircleDrawerProps) => {
-	const drawerStyle = useElementDrawerTheme(
-		{
-			highlight,
-			select,
-			hasError,
-		},
-		theme,
-	);
+	const drawerStyle = useElementDrawerTheme(theme, {
+		highlight,
+		select,
+		hasError,
+	});
+	const gridTheme = useGridTheme(theme);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [innerShapeRef, setInnerShapeRef] = useState<Konva.Circle | null>(null);
 	useAnimationGroups(animation, {
@@ -96,12 +97,21 @@ export const DotCircleOperatorDrawer = ({
 			originalEvent: e,
 		});
 
+	const handleDragBoundFunc = (pos: Vector2d) => {
+		if (!draggableSnap) {
+			return pos;
+		}
+
+		return snapPositionToGrind(pos, gridTheme.size);
+	};
+
 	return (
 		<Group
 			visible={visible && Boolean(mainShapeRef)}
 			x={x}
 			y={y}
 			draggable={draggable}
+			dragBoundFunc={handleDragBoundFunc}
 			onMouseDown={handleMouseDown}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
@@ -128,3 +138,4 @@ export const DotCircleOperatorDrawer = ({
 		</Group>
 	);
 };
+

@@ -17,10 +17,10 @@ export const CloseCircleIconDrawer = ({
 	size,
 	highlight,
 }: CloseCircleIconDrawerProps) => {
-	const connectPointElementTheme = useConnectPointTheme(
-		{ position: connectPointPosition, highlight },
-		theme,
-	);
+	const connectPointElementTheme = useConnectPointTheme(theme, {
+		position: connectPointPosition,
+		highlight,
+	});
 	const scaleFactor = (size.radius / 16) * ICON_SCALE_CORRECTION;
 
 	return (

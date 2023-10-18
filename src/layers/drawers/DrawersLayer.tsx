@@ -3,13 +3,13 @@ import { useAppSelector } from '../../store/rootState';
 import { OperatorDrawer } from '../../operatorDrawers';
 import { selectStageElements } from '../../store/elements';
 import { SimulationState, selectSimulation } from '../../store/simulation';
-import { StageState, selectStageState } from '../../store/stage';
+import { isStageStateDragging, selectStageState } from '../../store/stage';
 
 export const DrawersLayer = () => {
 	const simulation = useAppSelector(selectSimulation);
 	const elements = useAppSelector(selectStageElements);
 	const stageState = useAppSelector(selectStageState);
-	const dragging = stageState === StageState.Dragging;
+	const dragging = isStageStateDragging(stageState);
 
 	const isDraggable = simulation.state !== SimulationState.Running;
 	return (

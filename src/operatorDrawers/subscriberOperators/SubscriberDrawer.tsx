@@ -13,6 +13,7 @@ export const SubscriberDrawer = ({
 	theme,
 	animation,
 	draggable,
+	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -50,6 +51,7 @@ export const SubscriberDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
+				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}
@@ -67,3 +69,4 @@ export const SubscriberDrawer = ({
 		</Group>
 	);
 };
+
