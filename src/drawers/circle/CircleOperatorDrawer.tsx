@@ -2,22 +2,9 @@ import { useState } from 'react';
 import Konva from 'konva';
 import { Circle, Group, Text } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
-import { useElementDrawerTheme } from '../../theme';
+import { useElementDrawerTheme, useGridTheme } from '../../theme';
 import { useAnimationGroups } from '../../animation';
-import { Point } from '../../model';
-
-const snapPositionToGrind = (position: Point, gridSize: number) => {
-	const newX1 = position.x + (gridSize - (position.x % gridSize));
-	const newX2 = position.x - (position.x % gridSize);
-
-	const newY1 = position.y + (gridSize - (position.y % gridSize));
-	const newY2 = position.y - (position.y % gridSize);
-
-	return {
-		x: Math.abs(newX1 - position.x) < Math.abs(newX2 - position.x) ? newX1 : newX2,
-		y: Math.abs(newY1 - position.y) < Math.abs(newY2 - position.y) ? newY1 : newY2,
-	};
-};
+import { snapPositionToGrind } from '../../model';
 
 export interface CircleOperatorDrawerProps extends CircleDrawerProps {
 	title: string;
@@ -54,6 +41,7 @@ export const CircleOperatorDrawer = ({
 		},
 		theme,
 	);
+	const gridTheme = useGridTheme(theme);
 	const { radius, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
@@ -121,10 +109,7 @@ export const CircleOperatorDrawer = ({
 		<Group
 			visible={visible && Boolean(mainTextRef && mainShapeRef)}
 			draggable={draggable}
-			dragBoundFunc={function (pos) {
-				// console.log(pos, this.getAbsolutePosition(), x, y);
-				return snapPositionToGrind(pos, 25.5);
-			}}
+			dragBoundFunc={(pos) => snapPositionToGrind(pos, gridTheme.size)}
 			x={x}
 			y={y}
 			onMouseOver={handleMouseOver}
