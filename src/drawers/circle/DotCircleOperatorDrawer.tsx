@@ -1,11 +1,12 @@
 import Konva from 'konva';
+import { Vector2d } from 'konva/lib/types';
+import { Node } from 'konva/lib/Node';
 import { Circle, Group } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
 import { useState } from 'react';
 import { useAnimationGroups } from '../../animation';
 import { useCircleSizeScale, useElementDrawerTheme, useGridTheme } from '../../theme';
-import { Vector2d } from 'konva/lib/types';
-import { snapPositionToGrind } from '../../model';
+import { dragBoundFuncHandler } from '../utils';
 
 export const DotCircleOperatorDrawer = ({
 	x,
@@ -97,12 +98,12 @@ export const DotCircleOperatorDrawer = ({
 			originalEvent: e,
 		});
 
-	const handleDragBoundFunc = (pos: Vector2d) => {
+	const handleDragBoundFunc = function (this: Node, pos: Vector2d) {
 		if (!draggableSnap) {
 			return pos;
 		}
 
-		return snapPositionToGrind(pos, gridTheme.size);
+		return dragBoundFuncHandler(this, pos, gridTheme.size);
 	};
 
 	return (
@@ -138,4 +139,3 @@ export const DotCircleOperatorDrawer = ({
 		</Group>
 	);
 };
-

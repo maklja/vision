@@ -10,7 +10,6 @@ export const gridTheme = (themeColors: ColorTheme): GridTheme => {
 	return {
 		stroke: themeColors.backgroundTertiaryColor,
 		strokeWidth: 1,
-		size: 25.5,
+		size: 25,
 	};
 };
-

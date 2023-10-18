@@ -1,11 +1,12 @@
 import { Vector2d } from 'konva/lib/types';
+import { Node } from 'konva/lib/Node';
 import Konva from 'konva';
 import { useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import { useAnimationGroups } from '../../animation';
 import { RectangleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme, useGridTheme } from '../../theme';
-import { snapPositionToGrind } from '../../model';
+import { dragBoundFuncHandler } from '../utils';
 
 export interface RectangleOperatorDrawerProps extends RectangleDrawerProps {
 	title: string;
@@ -101,12 +102,12 @@ export const RectangleOperatorDrawer = ({
 			originalEvent: e,
 		});
 
-	const handleDragBoundFunc = (pos: Vector2d) => {
+	const handleDragBoundFunc = function (this: Node, pos: Vector2d) {
 		if (!draggableSnap) {
 			return pos;
 		}
 
-		return snapPositionToGrind(pos, gridTheme.size);
+		return dragBoundFuncHandler(this, pos, gridTheme.size);
 	};
 
 	const textX = (mainTextRef?.width() ?? 0) / -2 + width / 2;
@@ -147,4 +148,3 @@ export const RectangleOperatorDrawer = ({
 		</Group>
 	);
 };
-
