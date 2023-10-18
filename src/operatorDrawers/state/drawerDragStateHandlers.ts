@@ -31,7 +31,6 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 
 		changeCursorStyle('grabbing', originalEvent.currentTarget.getStage());
 		originalEvent.cancelBubble = true;
-		const snapToGrid = Boolean(e.originalEvent?.evt.shiftKey);
 		const position = originalEvent.currentTarget.getPosition();
 		dispatch(
 			moveElement({
@@ -41,13 +40,11 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 			}),
 		);
 
-		if (!snapToGrid) {
-			dispatch(createElementSnapLines({ referenceElementId: id }));
-			dispatch(changeState(StageState.Dragging));
-		} else {
-			dispatch(clearSnapLines());
-			dispatch(changeState(StageState.SnapDragging));
-		}
+		dispatch(createElementSnapLines({ referenceElementId: id }));
+		dispatch(
+			changeState(
+				e.originalEvent?.evt.shiftKey ? StageState.SnapDragging : StageState.Dragging,
+			),
+		);
 	},
 });
-
