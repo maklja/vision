@@ -1,5 +1,4 @@
 -   pre code executions
--   grid move
 -   laso and multi selection
 -   save/load
 -   copy/paste
@@ -22,4 +21,3 @@
 -   event observable position passed
 -   key bind array observable result
 -   handle partition join creation operator
-
