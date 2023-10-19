@@ -1,6 +1,6 @@
 import { ChangeEvent } from 'react';
 import TextField from '@mui/material/TextField';
-import Stack from '@mui/system/Stack';
+import Stack from '@mui/material/Stack';
 
 export interface ObservableNamedInputsProps {
 	observableInputs: { id: string; connectLineName: string; targetElementName: string }[];
@@ -18,34 +18,37 @@ export const ObservableNamedInputs = ({
 
 	return (
 		<Stack gap={1.2}>
-			{observableInputs.map(({ id, connectLineName, targetElementName }) => (
-				<Stack key={id} direction="row" gap={0.5}>
-					<TextField
-						label="Key"
-						type="string"
-						size="small"
-						InputLabelProps={{
-							shrink: true,
-						}}
-						value={connectLineName}
-						onChange={(e) => handleConnectLineKeyChange(id, e)}
-					/>
+			{observableInputs.length > 0 ? (
+				observableInputs.map(({ id, connectLineName, targetElementName }) => (
+					<Stack key={id} direction="row" gap={0.5}>
+						<TextField
+							label="Key"
+							type="string"
+							size="small"
+							InputLabelProps={{
+								shrink: true,
+							}}
+							value={connectLineName}
+							onChange={(e) => handleConnectLineKeyChange(id, e)}
+						/>
 
-					<TextField
-						label="Name"
-						type="text"
-						size="small"
-						InputLabelProps={{
-							shrink: true,
-						}}
-						InputProps={{
-							readOnly: true,
-						}}
-						value={targetElementName}
-					/>
-				</Stack>
-			))}
+						<TextField
+							label="Name"
+							type="text"
+							size="small"
+							InputLabelProps={{
+								shrink: true,
+							}}
+							InputProps={{
+								readOnly: true,
+							}}
+							value={targetElementName}
+						/>
+					</Stack>
+				))
+			) : (
+				<Stack alignItems="center">No observable inputs</Stack>
+			)}
 		</Stack>
 	);
 };
-

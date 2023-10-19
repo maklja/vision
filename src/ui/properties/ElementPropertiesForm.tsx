@@ -33,6 +33,7 @@ import {
 import {
 	CombineLatestElementPropertiesForm,
 	ForkJoinElementPropertiesForm,
+	JoinCreationElementForm,
 	MergeElementPropertiesForm,
 } from './joinCreationElementForms';
 
@@ -147,6 +148,16 @@ const createElementPropertiesForm = ({
 					onConnectLineChange={onConnectLineChange}
 				/>
 			);
+		case ElementType.Concat:
+		case ElementType.Zip:
+		case ElementType.Race:
+			return (
+				<JoinCreationElementForm
+					id={id}
+					relatedElements={relatedElements}
+					onConnectLineChange={onConnectLineChange}
+				/>
+			);
 		default:
 			return null;
 	}
@@ -158,7 +169,13 @@ export const ElementPropertiesForm = ({
 	onPropertyValueChange,
 	onConnectLineChange,
 }: ElementPropertiesFormProps) => {
-	return Object.keys(element.properties).length > 0 ? (
+	const elementForm = createElementPropertiesForm({
+		element,
+		relatedElements,
+		onPropertyValueChange,
+		onConnectLineChange,
+	});
+	return elementForm ? (
 		<Box
 			sx={{
 				overflow: 'auto',
@@ -172,16 +189,8 @@ export const ElementPropertiesForm = ({
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}>
 					<Typography>Element properties</Typography>
 				</AccordionSummary>
-				<AccordionDetails>
-					{createElementPropertiesForm({
-						element,
-						relatedElements,
-						onPropertyValueChange,
-						onConnectLineChange,
-					})}
-				</AccordionDetails>
+				<AccordionDetails>{elementForm}</AccordionDetails>
 			</Accordion>
 		</Box>
 	) : null;
 };
-
