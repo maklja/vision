@@ -1,9 +1,12 @@
+import { Vector2d } from 'konva/lib/types';
+import { Node } from 'konva/lib/Node';
 import Konva from 'konva';
 import { useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import { useAnimationGroups } from '../../animation';
 import { RectangleDrawerProps } from '../DrawerProps';
-import { useElementDrawerTheme } from '../../theme';
+import { useElementDrawerTheme, useGridTheme } from '../../theme';
+import { dragBoundFuncHandler } from '../utils';
 
 export interface RectangleOperatorDrawerProps extends RectangleDrawerProps {
 	title: string;
@@ -21,6 +24,7 @@ export const RectangleOperatorDrawer = ({
 	title,
 	animation,
 	draggable = false,
+	draggableSnap = false,
 	hasError = false,
 	onMouseOver,
 	onMouseOut,
@@ -32,14 +36,12 @@ export const RectangleOperatorDrawer = ({
 	onAnimationComplete,
 	onAnimationDestroy,
 }: RectangleOperatorDrawerProps) => {
-	const drawerStyle = useElementDrawerTheme(
-		{
-			highlight,
-			select,
-			hasError,
-		},
-		theme,
-	);
+	const drawerStyle = useElementDrawerTheme(theme, {
+		highlight,
+		select,
+		hasError,
+	});
+	const gridTheme = useGridTheme(theme);
 	const { width, height, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
@@ -100,6 +102,14 @@ export const RectangleOperatorDrawer = ({
 			originalEvent: e,
 		});
 
+	const handleDragBoundFunc = function (this: Node, pos: Vector2d) {
+		if (!draggableSnap) {
+			return pos;
+		}
+
+		return dragBoundFuncHandler(this, pos, gridTheme.size);
+	};
+
 	const textX = (mainTextRef?.width() ?? 0) / -2 + width / 2;
 	const textY = (mainTextRef?.height() ?? 0) / -2 + height / 2;
 
@@ -109,6 +119,7 @@ export const RectangleOperatorDrawer = ({
 			x={x}
 			y={y}
 			draggable={draggable}
+			dragBoundFunc={handleDragBoundFunc}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
 			onMouseDown={handleMouseDown}
@@ -137,4 +148,3 @@ export const RectangleOperatorDrawer = ({
 		</Group>
 	);
 };
-

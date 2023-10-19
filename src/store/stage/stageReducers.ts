@@ -6,8 +6,12 @@ export enum StageState {
 	Select = 'select',
 	DrawConnectLine = 'drawConnectLine',
 	Dragging = 'dragging',
+	SnapDragging = 'snapDragging',
 	DrawElement = 'drawElement',
 }
+
+const draggingStates = [StageState.Dragging, StageState.SnapDragging];
+export const isStageStateDragging = (state: StageState) => draggingStates.includes(state);
 
 export interface ChangeStateAction {
 	type: string;

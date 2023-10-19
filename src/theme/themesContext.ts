@@ -15,6 +15,7 @@ import { ConnectPointPosition, ElementType } from '../model';
 import { iifConnectPointsTheme } from './iifDrawerTheme';
 import { TooltipTheme, tooltipTheme } from './tooltipTheme';
 import { SnapLineTheme, snapLineDrawerTheme } from './snapLineDrawerTheme';
+import { GridTheme, gridTheme } from './gridTheme';
 
 export interface Theme {
 	readonly colors: ColorTheme;
@@ -24,6 +25,7 @@ export interface Theme {
 	readonly simulation: SimulationTheme;
 	readonly tooltip: TooltipTheme;
 	readonly snapLine: SnapLineTheme;
+	readonly grid: GridTheme;
 }
 
 export interface DrawerThemeOverride {
@@ -45,6 +47,7 @@ export const createThemeContext = (): ThemesContext => {
 		simulation: simulationTheme(defaultColorTheme),
 		tooltip: tooltipTheme(defaultColorTheme),
 		snapLine: snapLineDrawerTheme(defaultColorTheme),
+		grid: gridTheme(defaultColorTheme),
 	};
 	return {
 		[ElementType.IIf]: {
@@ -67,7 +70,7 @@ export interface ConnectPointThemeState extends DrawerThemeState {
 	position: ConnectPointPosition;
 }
 
-export const useConnectPointTheme = (state: ConnectPointThemeState, theme: Theme) => {
+export const useConnectPointTheme = (theme: Theme, state: ConnectPointThemeState) => {
 	const connectPointTheme = theme.connectPoints[state.position];
 	if (state.highlight) {
 		return {
@@ -82,7 +85,7 @@ export const useConnectPointTheme = (state: ConnectPointThemeState, theme: Theme
 	};
 };
 
-export const useElementDrawerTheme = (state: DrawerThemeState, theme: Theme) => {
+export const useElementDrawerTheme = (theme: Theme, state: DrawerThemeState) => {
 	const { drawer } = theme;
 
 	if (state.hasError && (state.select || state.highlight)) {
@@ -137,7 +140,7 @@ export const useTooltipTheme = (theme: Theme) => {
 	};
 };
 
-export const useLineDrawerTheme = (state: DrawerCommonThemeState, theme: Theme) => {
+export const useLineDrawerTheme = (theme: Theme, state: DrawerCommonThemeState = {}) => {
 	if (state.highlight) {
 		return {
 			line: theme.connectLine.highlightLine,
@@ -165,5 +168,9 @@ export const useSnapLineDrawerTheme = (theme: Theme) => {
 	return {
 		line: theme.snapLine.line,
 	};
+};
+
+export const useGridTheme = (theme: Theme) => {
+	return theme.grid;
 };
 

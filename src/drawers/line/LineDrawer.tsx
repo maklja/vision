@@ -39,7 +39,7 @@ export const LineDrawer = ({
 	onDotDragEnd,
 	onDotDragMove,
 }: LineDrawerProps) => {
-	const lineTheme = useLineDrawerTheme({ select, highlight }, theme);
+	const lineTheme = useLineDrawerTheme(theme, { select, highlight });
 	const drawAnArrow = arrowVisible && points.length > 3;
 
 	const boundingBoxPoints = useMemo(() => {
@@ -190,3 +190,4 @@ export const LineDrawer = ({
 		</Group>
 	);
 };
+

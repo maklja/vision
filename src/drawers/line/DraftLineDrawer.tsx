@@ -19,7 +19,7 @@ export const DraftLineDrawer = ({
 	visible = true,
 	arrowVisible = false,
 }: DraftLineDrawerProps) => {
-	const lineTheme = useLineDrawerTheme({}, theme);
+	const lineTheme = useLineDrawerTheme(theme);
 
 	const arrowPoints = useMemo(() => points.slice(-2), [points]);
 	const drawArrow = arrowVisible && arrowPoints.length > 1;

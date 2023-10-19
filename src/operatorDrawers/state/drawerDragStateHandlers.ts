@@ -39,7 +39,12 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 				y: position.y,
 			}),
 		);
+
 		dispatch(createElementSnapLines({ referenceElementId: id }));
+		dispatch(
+			changeState(
+				e.originalEvent?.evt.shiftKey ? StageState.SnapDragging : StageState.Dragging,
+			),
+		);
 	},
 });
-

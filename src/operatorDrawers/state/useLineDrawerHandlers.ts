@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../store/rootState';
 import { connectLineSelectStateHandlers } from './connectLineSelectStateHandlers';
 import { connectLineDragStateHandlers } from './connectLineDragStateHandlers';
 import { SimulationState, selectSimulation } from '../../store/simulation';
-import { StageState, selectStageState } from '../../store/stage';
+import { StageState, isStageStateDragging, selectStageState } from '../../store/stage';
 
 export const useLineDrawerHandlers = () => {
 	const simulation = useAppSelector(selectSimulation);
@@ -19,10 +19,11 @@ export const useLineDrawerHandlers = () => {
 			return connectLineSelectStateHandlers(appDispatch);
 		}
 
-		if (stageState === StageState.Dragging) {
+		if (isStageStateDragging(stageState)) {
 			return connectLineDragStateHandlers(appDispatch);
 		}
 
 		return {};
 	}, [stageState, simulation.state]);
 };
+

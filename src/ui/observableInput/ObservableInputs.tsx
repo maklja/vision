@@ -1,4 +1,4 @@
-import Stack from '@mui/system/Stack';
+import Stack from '@mui/material/Stack';
 import InputLabel from '@mui/material/InputLabel';
 import { RelatedElements } from '../properties/ElementPropertiesForm';
 import { ObservableNamedInputs } from './ObservableNamedInputs';
@@ -66,4 +66,3 @@ export const ObservableInputs = ({
 		</Stack>
 	);
 };
-

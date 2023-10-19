@@ -1,6 +1,4 @@
 -   pre code executions
--   background grid
--   grid move
 -   laso and multi selection
 -   save/load
 -   copy/paste
@@ -22,6 +20,4 @@
 -   subscribe stage
 -   event observable position passed
 -   key bind array observable result
--   combineLatest and merge concurent parameter
 -   handle partition join creation operator
-

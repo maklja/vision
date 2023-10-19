@@ -15,10 +15,10 @@ export const OutputCircleIconDrawer = ({
 	size,
 	highlight,
 }: OutputCircleIconDrawerProps) => {
-	const connectPointElementTheme = useConnectPointTheme(
-		{ position: connectPointPosition, highlight },
-		theme,
-	);
+	const connectPointElementTheme = useConnectPointTheme(theme, {
+		position: connectPointPosition,
+		highlight,
+	});
 
 	const radius = fromSize(size.radius, 0.5);
 	return (

@@ -108,11 +108,20 @@ export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveEl
 
 	slice.elements = elementsAdapter.updateOne(slice.elements, {
 		id: payload.id,
-		changes: payload,
+		changes: {
+			x: payload.x,
+			y: payload.y,
+		},
 	});
 
 	const dx = payload.x - el.x;
 	const dy = payload.y - el.y;
+
+	moveConnectPointsByDeltaStateChange(slice, {
+		id: el.id,
+		dx,
+		dy,
+	});
 
 	const connectLines = selectAllConnectLines(slice.connectLines);
 	connectLines.forEach((cl) => {
@@ -133,11 +142,6 @@ export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveEl
 				dy,
 			});
 		}
-	});
-	moveConnectPointsByDeltaStateChange(slice, {
-		id: el.id,
-		dx,
-		dy,
 	});
 };
 

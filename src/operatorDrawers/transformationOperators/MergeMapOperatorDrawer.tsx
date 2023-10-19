@@ -13,6 +13,7 @@ export const MergeMapOperatorDrawer = ({
 	theme,
 	animation,
 	draggable,
+	draggableSnap,
 	hasError,
 	highlight,
 	select,
@@ -51,6 +52,7 @@ export const MergeMapOperatorDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
+				draggableSnap={draggableSnap}
 				highlight={highlight}
 				select={select}
 				visible={visible}
