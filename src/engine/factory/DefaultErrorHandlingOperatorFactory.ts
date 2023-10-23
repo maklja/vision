@@ -17,13 +17,17 @@ export class DefaultErrorHandlingOperatorFactory implements PipeOperatorFactory 
 		]);
 	}
 
-	create(el: Element, options: OperatorOptions = { referenceObservables: [] }) {
+	create(
+		o: Observable<FlowValue>,
+		el: Element,
+		options: OperatorOptions = { referenceObservables: [] },
+	) {
 		const factory = this.supportedOperators.get(el.type);
 		if (!factory) {
 			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
 		}
 
-		return (o: Observable<FlowValue>) => factory(o, el, options);
+		return factory(o, el, options);
 	}
 
 	isSupported(el: Element): boolean {
@@ -58,4 +62,3 @@ export class DefaultErrorHandlingOperatorFactory implements PipeOperatorFactory 
 		);
 	}
 }
-
