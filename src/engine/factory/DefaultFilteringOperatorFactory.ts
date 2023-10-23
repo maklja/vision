@@ -1,4 +1,4 @@
-import { OperatorFunction, filter } from 'rxjs';
+import { Observable, filter } from 'rxjs';
 import {
 	OperatorOptions,
 	PipeOperatorFactory,
@@ -17,27 +17,24 @@ export class DefaultFilteringOperatorFactory implements PipeOperatorFactory {
 		]);
 	}
 
-	create(
-		el: Element,
-		options: OperatorOptions = { referenceObservables: [] },
-	): OperatorFunction<FlowValue, FlowValue> {
+	create(el: Element, options: OperatorOptions = { referenceObservables: [] }) {
 		const factory = this.supportedOperators.get(el.type);
 		if (!factory) {
 			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
 		}
 
-		return factory(el, options);
+		return (o: Observable<FlowValue>) => factory(o, el, options);
 	}
 
 	isSupported(el: Element): boolean {
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createFilterOperator(el: Element): OperatorFunction<FlowValue, FlowValue> {
+	private createFilterOperator(o: Observable<FlowValue>, el: Element) {
 		const filterEl = el as FilterElement;
 		const filterFn = new Function(`return ${filterEl.properties.expression}`);
 
-		return mapOutputToFlowValue(filter(filterFn()));
+		return o.pipe(mapOutputToFlowValue(filter(filterFn())));
 	}
 }
 

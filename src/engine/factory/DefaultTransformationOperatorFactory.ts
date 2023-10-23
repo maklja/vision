@@ -1,4 +1,4 @@
-import { ObservableInput, OperatorFunction, buffer, concatMap, map, mergeMap, tap } from 'rxjs';
+import { Observable, ObservableInput, buffer, concatMap, map, mergeMap } from 'rxjs';
 import {
 	OperatorOptions,
 	PipeOperatorFactory,
@@ -7,7 +7,7 @@ import {
 import { FlowValue } from '../context';
 import { Element, ElementType, MapElement } from '../../model';
 import { MissingReferenceObservableError } from '../errors';
-import { mapArrayOutputToFlowValue, mapOutputToFlowValue } from './utils';
+import { mapFlowValuesArray, mapOutputToFlowValue } from './utils';
 
 export class DefaultTransformationOperatorFactory implements PipeOperatorFactory {
 	private readonly supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory>;
@@ -21,26 +21,20 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		]);
 	}
 
-	create(
-		el: Element,
-		options: OperatorOptions = { referenceObservables: [] },
-	): OperatorFunction<FlowValue, FlowValue> {
+	create(el: Element, options: OperatorOptions = { referenceObservables: [] }) {
 		const factory = this.supportedOperators.get(el.type);
 		if (!factory) {
 			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
 		}
 
-		return factory(el, options);
+		return (o: Observable<FlowValue>) => factory(o, el, options);
 	}
 
 	isSupported(el: Element): boolean {
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createBufferOperator(
-		el: Element,
-		options: OperatorOptions,
-	): OperatorFunction<FlowValue, FlowValue> {
+	private createBufferOperator(o: Observable<FlowValue>, el: Element, options: OperatorOptions) {
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
 				el.id,
@@ -53,21 +47,21 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		}
 
 		const [refObservable] = options.referenceObservables;
-		// return buffer(refObservable.observable);
-		return null;
+		return o.pipe(buffer(refObservable.observable), mapFlowValuesArray(el.id));
 	}
 
-	private createMapOperator(el: Element): OperatorFunction<FlowValue, FlowValue> {
+	private createMapOperator(o: Observable<FlowValue>, el: Element) {
 		const mapEl = el as MapElement;
 		const mapFn = new Function(`return ${mapEl.properties.expression}`);
 
-		return mapOutputToFlowValue(map(mapFn()));
+		return o.pipe(mapOutputToFlowValue(map(mapFn())));
 	}
 
 	private createConcatMapOperator(
+		o: Observable<FlowValue>,
 		el: Element,
 		options: OperatorOptions,
-	): OperatorFunction<FlowValue, FlowValue> {
+	) {
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
 				el.id,
@@ -80,16 +74,19 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		}
 
 		const [refObservable] = options.referenceObservables;
-		return concatMap<FlowValue, ObservableInput<FlowValue>>((value) => {
-			refObservable.invokeTrigger?.(value);
-			return refObservable.observable;
-		});
+		return o.pipe(
+			concatMap<FlowValue, ObservableInput<FlowValue>>((value) => {
+				refObservable.invokeTrigger?.(value);
+				return refObservable.observable;
+			}),
+		);
 	}
 
 	private createMergeMapOperator(
+		o: Observable<FlowValue>,
 		el: Element,
 		options: OperatorOptions,
-	): OperatorFunction<FlowValue, FlowValue> {
+	) {
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
 				el.id,
@@ -102,10 +99,12 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		}
 
 		const [refObservable] = options.referenceObservables;
-		return mergeMap<FlowValue, ObservableInput<FlowValue>>((value) => {
-			refObservable.invokeTrigger?.(value);
-			return refObservable.observable;
-		});
+		return o.pipe(
+			mergeMap<FlowValue, ObservableInput<FlowValue>>((value) => {
+				refObservable.invokeTrigger?.(value);
+				return refObservable.observable;
+			}),
+		);
 	}
 }
 

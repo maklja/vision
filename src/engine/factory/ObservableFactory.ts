@@ -13,6 +13,7 @@ import { DefaultCreationOperatorFactory } from './DefaultCreationOperatorFactory
 import { DefaultPipeOperatorFactory } from './DefaultPipeOperatorFactory';
 import { GraphBranch, GraphNode, GraphNodeType } from '../simulationGraph';
 import { DefaultJoinCreationOperatorFactory } from './DefaultJoinCreationOperatorFactory';
+import { ObservablePipeFactory } from './OperatorFactory';
 
 interface ReferenceObservableData {
 	observable: Observable<FlowValue>;
@@ -70,7 +71,7 @@ export class ObservableFactory {
 		graphBranch: GraphBranch,
 		observables: Map<string, Observable<FlowValue>>,
 	): Observable<FlowValue> {
-		const pipeOperators: OperatorFunction<FlowValue, FlowValue>[] = [];
+		const pipeOperators: ObservablePipeFactory[] = [];
 		const { entryElementId } = this.simulationModel;
 
 		const isMainGraphBranch = graphBranch.nodes.at(0)?.id === entryElementId;
@@ -109,7 +110,7 @@ export class ObservableFactory {
 			throw new Error('Creator operator was not found');
 		}
 
-		return creationOperator.pipe(...(pipeOperators as [])) as Observable<FlowValue>;
+		return pipeOperators.reduce((o, pipeFactory) => pipeFactory(o), creationOperator);
 	}
 
 	private createEntryOperator(el: Element, refObservablesData: ReferenceObservableData[]) {
