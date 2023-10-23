@@ -22,6 +22,7 @@ import {
 import { JoinCreationOperatorFactory, ObservableOptions, OperatorOptions } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
 import { UnsupportedElementTypeError } from '../errors';
+import { mapFlowValuesArray } from './utils';
 
 type JoinCreationOperatorFunctionFactory = (
 	el: Element,
@@ -82,7 +83,7 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		if (combineLatestEl.properties.observableInputsType === ObservableInputsType.Array) {
 			return combineLatest<FlowValue[]>(
 				this.createIndexedObservableInput(combineLatestEl.id, options.referenceObservables),
-			).pipe(this.mapFlowValuesArray(combineLatestEl.id));
+			).pipe(mapFlowValuesArray(combineLatestEl.id));
 		}
 
 		return combineLatest<Record<string, ObservableInput<unknown>>>(
@@ -107,7 +108,7 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		if (forkJoinEl.properties.observableInputsType === ObservableInputsType.Array) {
 			return forkJoin<FlowValue[]>(
 				this.createIndexedObservableInput(forkJoinEl.id, options.referenceObservables),
-			).pipe(this.mapFlowValuesArray(forkJoinEl.id));
+			).pipe(mapFlowValuesArray(forkJoinEl.id));
 		}
 
 		return forkJoin<Record<string, ObservableInput<unknown>>>(
@@ -134,7 +135,7 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 					return refObservable.observable;
 				}),
 			),
-		).pipe(this.mapFlowValuesArray(el.id));
+		).pipe(mapFlowValuesArray(el.id));
 	}
 
 	private createIndexedObservableInput(
@@ -162,17 +163,6 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 				}),
 			}),
 			{},
-		);
-	}
-
-	private mapFlowValuesArray(elementId: string) {
-		return map(
-			(flowValues: FlowValue[]) =>
-				new FlowValue(
-					flowValues.map((flowValue) => flowValue.raw),
-					elementId,
-					FlowValueType.Next,
-				),
 		);
 	}
 

@@ -15,8 +15,13 @@ export interface CreationOperatorFactory extends OperatorFactory {
 }
 
 export interface PipeOperatorFactory extends OperatorFactory {
-	create(el: Element): OperatorFunction<FlowValue, FlowValue>;
+	create(el: Element, options?: OperatorOptions): OperatorFunction<FlowValue, FlowValue>;
 }
+
+export type PipeOperatorFunctionFactory = (
+	el: Element,
+	options: OperatorOptions,
+) => OperatorFunction<FlowValue, FlowValue>;
 
 export interface ObservableOptions {
 	readonly observable: Observable<FlowValue>;
