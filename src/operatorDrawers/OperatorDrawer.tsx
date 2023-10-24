@@ -30,6 +30,7 @@ import { useElementDrawerHandlers } from './state';
 import { ElementDrawerProps } from './ElementDrawerProps';
 import { animationRegistry } from '../animation';
 import {
+	BufferCountOperatorDrawer,
 	BufferOperatorDrawer,
 	ConcatMapOperatorDrawer,
 	MapOperatorDrawer,
@@ -82,6 +83,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 		// transformation operators
 		case ElementType.Buffer:
 			return <BufferOperatorDrawer {...props} />;
+		case ElementType.BufferCount:
+			return <BufferCountOperatorDrawer {...props} />;
 		case ElementType.Map:
 			return <MapOperatorDrawer {...props} />;
 		case ElementType.ConcatMap:

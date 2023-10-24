@@ -20,6 +20,7 @@ export enum ElementType {
 	Zip = 'zip',
 	// transformation operators
 	Buffer = 'buffer',
+	BufferCount = 'bufferCount',
 	ConcatMap = 'concatMap',
 	MergeMap = 'mergeMap',
 	Map = 'map',
@@ -56,6 +57,7 @@ export const creationOperators: ReadonlySet<ElementType> = new Set([
 
 export const transformationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Buffer,
+	ElementType.BufferCount,
 	ElementType.Map,
 	ElementType.ConcatMap,
 	ElementType.MergeMap,
