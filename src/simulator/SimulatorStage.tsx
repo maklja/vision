@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
 import { AnimationsLayer } from '../layers/animations';
@@ -17,7 +17,6 @@ import {
 } from '../store/stageSlice';
 import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
-import { calculateShapeSizeBoundingBox } from '../theme';
 import { GridLayer } from '../layers/grid';
 
 Konva.hitOnDragEnabled = true;
@@ -42,11 +41,13 @@ export const SimulatorStage = () => {
 	const stageHandlers = useStageHandlers();
 	const appDispatch = useAppDispatch();
 	const stageRef = useRef<Konva.Stage | null>(null);
+	// small workaround because react=dnd doesn't support key events
+	const [snapToGrid, setSnapToGrid] = useState(false);
 
 	const [, drop] = useDrop<DragNDropItem>(
 		() => ({
 			accept: DragNDropType.CreateElement,
-			drop({ element, shapeSize }, monitor) {
+			drop(_data, monitor) {
 				if (!monitor.isOver()) {
 					appDispatch(clearDraftElement());
 					appDispatch(clearSnapLines());
@@ -57,21 +58,7 @@ export const SimulatorStage = () => {
 					return;
 				}
 
-				const position = stageRef.current.getPosition();
-				const scale = stageRef.current.scale() ?? { x: 1, y: 1 };
-
-				const clientOffset = monitor.getClientOffset();
-				const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
-				const xPosition = ((clientOffset?.x ?? 0) - position.x) / scale.x - bb.width / 2;
-				const yPosition = ((clientOffset?.y ?? 0) - position.y) / scale.y - bb.height / 2;
-
-				appDispatch(
-					addDraftElement({
-						...element,
-						x: xPosition,
-						y: yPosition,
-					}),
-				);
+				appDispatch(addDraftElement());
 				appDispatch(clearSnapLines());
 			},
 		}),
@@ -79,15 +66,18 @@ export const SimulatorStage = () => {
 	);
 
 	useEffect(() => {
-		const handler = (e: KeyboardEvent) => stageHandlers.onKeyUp?.(e, stageRef.current);
-		if (stageHandlers.onKeyUp) {
-			window.addEventListener('keyup', handler, false);
-		}
+		const keyDownHandler = (e: KeyboardEvent) => stageHandlers.onKeyDown?.(e, stageRef.current);
+		const keyUpHandler = (e: KeyboardEvent) => stageHandlers.onKeyUp?.(e, stageRef.current);
+		const dragHandler = (e: DragEvent) => setSnapToGrid(e.shiftKey);
+
+		window.addEventListener('keydown', keyDownHandler, false);
+		window.addEventListener('keyup', keyUpHandler, false);
+		window.addEventListener('drag', dragHandler, false);
 
 		return () => {
-			if (stageHandlers.onKeyUp) {
-				window.removeEventListener('keyup', handler, false);
-			}
+			window.removeEventListener('keydown', keyDownHandler, false);
+			window.removeEventListener('keyup', keyUpHandler, false);
+			window.removeEventListener('drag', dragHandler, false);
 		};
 	}, []);
 
@@ -124,7 +114,7 @@ export const SimulatorStage = () => {
 				<AnimationsLayer />
 				<DraftLayer />
 				<TooltipsLayer />
-				<DragNDropLayer />
+				<DragNDropLayer snapToGrid={snapToGrid} />
 			</Stage>
 		</div>
 	);

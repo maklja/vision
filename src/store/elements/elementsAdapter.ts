@@ -1,3 +1,4 @@
+import { current } from 'immer';
 import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
 import { Element, ElementProps } from '../../model';
@@ -34,11 +35,6 @@ export interface MoveElementAction {
 }
 
 export interface CreateDraftElementAction {
-	type: string;
-	payload: Element;
-}
-
-export interface AddDraftElementAction {
 	type: string;
 	payload: Element;
 }
@@ -189,15 +185,16 @@ export const elementsAdapterReducers = {
 		updateStateChange(slice, StageState.DrawElement);
 		slice.draftElement = action.payload;
 	},
-	addDraftElement: (slice: Draft<StageSlice>, action: AddDraftElementAction) => {
+	addDraftElement: (slice: Draft<StageSlice>) => {
 		updateStateChange(slice, StageState.Select);
 
 		if (!slice.draftElement) {
 			return;
 		}
 
-		slice.elements = elementsAdapter.addOne(slice.elements, action.payload);
-		createElementConnectPointsStateChange(slice, action.payload);
+		const draftEl = current<Element>(slice.draftElement);
+		slice.elements = elementsAdapter.addOne(slice.elements, draftEl);
+		createElementConnectPointsStateChange(slice, draftEl);
 		slice.draftElement = null;
 	},
 	clearDraftElement: (slice: Draft<StageSlice>) => {
@@ -234,3 +231,4 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
+

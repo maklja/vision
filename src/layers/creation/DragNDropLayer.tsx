@@ -11,9 +11,10 @@ import {
 } from '../../store/stageSlice';
 import { DragNDropType } from '../../dragNDrop';
 import { createOperatorDrawer } from '../../operatorDrawers';
-import { ShapeSize, calculateShapeSizeBoundingBox } from '../../theme';
+import { ShapeSize, calculateShapeSizeBoundingBox, useGridTheme } from '../../theme';
 import { useAppDispatch, useAppSelector } from '../../store/rootState';
 import { selectStageDraftElement } from '../../store/elements';
+import { calcSnapPosition } from '../../drawers';
 
 export interface DragNDropItem {
 	element: Element;
@@ -27,9 +28,14 @@ interface DragCollectedProps {
 	isDragging: boolean;
 }
 
-export const DragNDropLayer = () => {
+export interface DragNDropLayerProps {
+	snapToGrid: boolean;
+}
+
+export const DragNDropLayer = ({ snapToGrid }: DragNDropLayerProps) => {
 	const appDispatch = useAppDispatch();
 	const theme = useThemeContext();
+	const gridTheme = useGridTheme(theme);
 	const elementSizeOptions = useAppSelector(selectElementSizeOptions);
 	const draftElement = useAppSelector(selectStageDraftElement) ?? {
 		id: '',
@@ -60,19 +66,17 @@ export const DragNDropLayer = () => {
 		const position = stage.getPosition();
 		const scale = stage.scale() ?? { x: 1, y: 1 };
 
-		const { shapeSize } = item;
-		const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, shapeSize);
+		const bb = calculateShapeSizeBoundingBox({ x: 0, y: 0 }, item.shapeSize);
 		const x = ((clientOffset?.x ?? 0) - position.x) / scale.x - bb.width / 2;
 		const y = ((clientOffset?.y ?? 0) - position.y) / scale.y - bb.height / 2;
 
-		appDispatch(
-			updateDraftElementPosition({
-				x,
-				y,
-			}),
-		);
+		const newPosition = snapToGrid
+			? calcSnapPosition({ x, y }, gridTheme.size, stage)
+			: { x, y };
+
+		appDispatch(updateDraftElementPosition(newPosition));
 		appDispatch(createDraftElementSnapLines());
-	}, [clientOffset, item, isDragging, itemType]);
+	}, [snapToGrid, clientOffset, item, isDragging, itemType]);
 
 	const drawer = createOperatorDrawer(draftElement.type, {
 		id: draftElement.id,
