@@ -1,11 +1,26 @@
-import { Observable, ObservableInput, buffer, bufferCount, concatMap, map, mergeMap } from 'rxjs';
+import {
+	Observable,
+	ObservableInput,
+	buffer,
+	bufferCount,
+	bufferTime,
+	concatMap,
+	map,
+	mergeMap,
+} from 'rxjs';
 import {
 	OperatorOptions,
 	PipeOperatorFactory,
 	PipeOperatorFunctionFactory,
 } from './OperatorFactory';
 import { FlowValue } from '../context';
-import { BufferCountElement, Element, ElementType, MapElement } from '../../model';
+import {
+	BufferCountElement,
+	BufferTimeElement,
+	Element,
+	ElementType,
+	MapElement,
+} from '../../model';
 import { MissingReferenceObservableError } from '../errors';
 import { mapFlowValuesArray, mapOutputToFlowValue } from './utils';
 
@@ -16,6 +31,7 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		this.supportedOperators = new Map([
 			[ElementType.Buffer, this.createBufferOperator.bind(this)],
 			[ElementType.BufferCount, this.createBufferCountOperator.bind(this)],
+			[ElementType.BufferTime, this.createBufferTimeOperator.bind(this)],
 			[ElementType.Map, this.createMapOperator.bind(this)],
 			[ElementType.ConcatMap, this.createConcatMapOperator.bind(this)],
 			[ElementType.MergeMap, this.createMergeMapOperator.bind(this)],
@@ -59,6 +75,26 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		const { properties } = el as BufferCountElement;
 		return o.pipe(
 			bufferCount(properties.bufferSize, properties.startBufferEvery),
+			mapFlowValuesArray(el.id),
+		);
+	}
+
+	private createBufferTimeOperator(o: Observable<FlowValue>, el: Element) {
+		const { properties } = el as BufferTimeElement;
+
+		if (properties.maxBufferSize) {
+			return o.pipe(
+				bufferTime(
+					properties.bufferTimeSpan,
+					properties.bufferCreationInterval,
+					properties.maxBufferSize,
+				),
+				mapFlowValuesArray(el.id),
+			);
+		}
+
+		return o.pipe(
+			bufferTime(properties.bufferTimeSpan, properties.bufferCreationInterval),
 			mapFlowValuesArray(el.id),
 		);
 	}

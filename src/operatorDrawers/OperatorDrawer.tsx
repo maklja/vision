@@ -32,6 +32,7 @@ import { animationRegistry } from '../animation';
 import {
 	BufferCountOperatorDrawer,
 	BufferOperatorDrawer,
+	BufferTimeOperatorDrawer,
 	ConcatMapOperatorDrawer,
 	MapOperatorDrawer,
 	MergeMapOperatorDrawer,
@@ -85,6 +86,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <BufferOperatorDrawer {...props} />;
 		case ElementType.BufferCount:
 			return <BufferCountOperatorDrawer {...props} />;
+		case ElementType.BufferTime:
+			return <BufferTimeOperatorDrawer {...props} />;
 		case ElementType.Map:
 			return <MapOperatorDrawer {...props} />;
 		case ElementType.ConcatMap:

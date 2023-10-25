@@ -1,6 +1,7 @@
 import { ElementProps, ElementType } from '../element';
 import {
 	bufferCountElementPropsTemplate,
+	bufferTimeElementPropsTemplate,
 	concatMapElementPropsTemplate,
 	mapElementPropsTemplate,
 	mergeMapElementPropsTemplate,
@@ -10,6 +11,8 @@ export const mapTransformationOperatorTemplates = (elType: ElementType): Element
 	switch (elType) {
 		case ElementType.BufferCount:
 			return bufferCountElementPropsTemplate;
+		case ElementType.BufferTime:
+			return bufferTimeElementPropsTemplate;
 		case ElementType.Map:
 			return mapElementPropsTemplate;
 		case ElementType.ConcatMap:
