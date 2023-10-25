@@ -22,6 +22,7 @@ export enum ElementType {
 	Buffer = 'buffer',
 	BufferCount = 'bufferCount',
 	BufferTime = 'bufferTime',
+	BufferWhen = 'bufferWhen',
 	ConcatMap = 'concatMap',
 	MergeMap = 'mergeMap',
 	Map = 'map',
@@ -60,6 +61,7 @@ export const transformationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Buffer,
 	ElementType.BufferCount,
 	ElementType.BufferTime,
+	ElementType.BufferWhen,
 	ElementType.Map,
 	ElementType.ConcatMap,
 	ElementType.MergeMap,
@@ -78,6 +80,7 @@ export const pipeOperators: ReadonlySet<ElementType> = new Set([
 export const eventPipeOperators: ReadonlySet<ElementType> = new Set([
 	...errorHandlerOperators,
 	ElementType.Buffer,
+	ElementType.BufferWhen,
 	ElementType.IIf,
 	ElementType.Defer,
 	ElementType.From,

@@ -4,3 +4,4 @@ export * from './MergeMapElement';
 export * from './BufferElement';
 export * from './BufferCountElement';
 export * from './BufferTimeElement';
+export * from './BufferWhenElement';

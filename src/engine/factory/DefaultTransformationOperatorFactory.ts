@@ -4,6 +4,7 @@ import {
 	buffer,
 	bufferCount,
 	bufferTime,
+	bufferWhen,
 	concatMap,
 	map,
 	mergeMap,
@@ -32,6 +33,7 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 			[ElementType.Buffer, this.createBufferOperator.bind(this)],
 			[ElementType.BufferCount, this.createBufferCountOperator.bind(this)],
 			[ElementType.BufferTime, this.createBufferTimeOperator.bind(this)],
+			[ElementType.BufferWhen, this.createBufferWhenOperator.bind(this)],
 			[ElementType.Map, this.createMapOperator.bind(this)],
 			[ElementType.ConcatMap, this.createConcatMapOperator.bind(this)],
 			[ElementType.MergeMap, this.createMergeMapOperator.bind(this)],
@@ -95,6 +97,30 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 
 		return o.pipe(
 			bufferTime(properties.bufferTimeSpan, properties.bufferCreationInterval),
+			mapFlowValuesArray(el.id),
+		);
+	}
+
+	private createBufferWhenOperator(
+		o: Observable<FlowValue>,
+		el: Element,
+		options: OperatorOptions,
+	) {
+		if (options.referenceObservables.length === 0) {
+			throw new MissingReferenceObservableError(
+				el.id,
+				'Reference observable is required for bufferWhen operator',
+			);
+		}
+
+		if (options.referenceObservables.length > 1) {
+			throw new Error('Too many reference observables for bufferWhen operator');
+		}
+
+		const [refObservable] = options.referenceObservables;
+		// TODO pre code execution
+		return o.pipe(
+			bufferWhen(() => refObservable.observable),
 			mapFlowValuesArray(el.id),
 		);
 	}
