@@ -10,6 +10,7 @@ import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 import { AjaxElementProperties, HttpMethod } from '../../../model';
 import { KeyValueList } from '../../pair';
+import { handleNumberInputChanged } from '../utils';
 
 const responseTypes = [
 	{
@@ -50,17 +51,6 @@ export const AjaxElementPropertiesForm = ({
 
 	const handleMethodChanged = (e: SelectChangeEvent) =>
 		onPropertyValueChange?.(id, 'method', e.target.value ? e.target.value : properties.url);
-
-	const handleTimeoutChanged: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (
-		e,
-	) => {
-		const newTimeoutValue = Number(e.target.value);
-		onPropertyValueChange?.(
-			id,
-			'timeout',
-			isNaN(newTimeoutValue) ? properties.timeout : newTimeoutValue,
-		);
-	};
 
 	const handleResponseTypeChanged = (e: SelectChangeEvent) =>
 		onPropertyValueChange?.(
@@ -133,7 +123,12 @@ export const AjaxElementPropertiesForm = ({
 				InputProps={{
 					inputProps: { min: 0 },
 				}}
-				onChange={handleTimeoutChanged}
+				onChange={handleNumberInputChanged(
+					id,
+					'timeout',
+					properties.timeout ?? 0,
+					onPropertyValueChange,
+				)}
 				helperText="The time to wait before causing the underlying XMLHttpRequest to timeout."
 			/>
 

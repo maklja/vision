@@ -1,11 +1,11 @@
-import { Observable, ObservableInput, buffer, concatMap, map, mergeMap } from 'rxjs';
+import { Observable, ObservableInput, buffer, bufferCount, concatMap, map, mergeMap } from 'rxjs';
 import {
 	OperatorOptions,
 	PipeOperatorFactory,
 	PipeOperatorFunctionFactory,
 } from './OperatorFactory';
 import { FlowValue } from '../context';
-import { Element, ElementType, MapElement } from '../../model';
+import { BufferCountElement, Element, ElementType, MapElement } from '../../model';
 import { MissingReferenceObservableError } from '../errors';
 import { mapFlowValuesArray, mapOutputToFlowValue } from './utils';
 
@@ -15,6 +15,7 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 	constructor() {
 		this.supportedOperators = new Map([
 			[ElementType.Buffer, this.createBufferOperator.bind(this)],
+			[ElementType.BufferCount, this.createBufferCountOperator.bind(this)],
 			[ElementType.Map, this.createMapOperator.bind(this)],
 			[ElementType.ConcatMap, this.createConcatMapOperator.bind(this)],
 			[ElementType.MergeMap, this.createMergeMapOperator.bind(this)],
@@ -52,6 +53,14 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 
 		const [refObservable] = options.referenceObservables;
 		return o.pipe(buffer(refObservable.observable), mapFlowValuesArray(el.id));
+	}
+
+	private createBufferCountOperator(o: Observable<FlowValue>, el: Element) {
+		const { properties } = el as BufferCountElement;
+		return o.pipe(
+			bufferCount(properties.bufferSize, properties.startBufferEvery),
+			mapFlowValuesArray(el.id),
+		);
 	}
 
 	private createMapOperator(o: Observable<FlowValue>, el: Element) {
@@ -111,3 +120,4 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		);
 	}
 }
+

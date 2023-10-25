@@ -3,6 +3,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { formStyle } from '../commonStyles';
 import { RangeElementProperties } from '../../../model';
+import { handleNumberInputChanged } from '../utils';
 
 export interface RangeElementPropertiesFormProps {
 	id: string;
@@ -15,15 +16,6 @@ export const RangeElementPropertiesForm = ({
 	properties,
 	onPropertyValueChange,
 }: RangeElementPropertiesFormProps) => {
-	const handleStartChanged: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
-		const newStartValue = Number(e.target.value);
-		onPropertyValueChange?.(
-			id,
-			'start',
-			isNaN(newStartValue) ? properties.start : newStartValue,
-		);
-	};
-
 	const handleCountChanged: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
 		if (!e.target.value) {
 			return onPropertyValueChange?.(id, 'count', undefined);
@@ -48,7 +40,12 @@ export const RangeElementPropertiesForm = ({
 				InputLabelProps={{
 					shrink: true,
 				}}
-				onChange={handleStartChanged}
+				onChange={handleNumberInputChanged(
+					id,
+					'start',
+					properties.start,
+					onPropertyValueChange,
+				)}
 				helperText="The value of the first integer in the sequence."
 			/>
 
