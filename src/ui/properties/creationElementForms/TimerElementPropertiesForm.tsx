@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { ChangeEventHandler } from 'react';
 import Stack from '@mui/material/Stack';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -13,6 +12,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { formStyle } from '../commonStyles';
 import { DueDateType, TimerElementProperties } from '../../../model';
+import { handleNumberInputChanged } from '../utils';
 
 export interface TimerElementPropertiesFormProps {
 	id: string;
@@ -31,28 +31,6 @@ export const TimerElementPropertiesForm = ({
 		}
 
 		onPropertyValueChange?.(id, 'startDue', e.toDate().getTime());
-	};
-
-	const handleDueMillisecondsChanged: ChangeEventHandler<
-		HTMLInputElement | HTMLTextAreaElement
-	> = (e) => {
-		const newDueValue = Number(e.target.value);
-		onPropertyValueChange?.(
-			id,
-			'startDue',
-			isNaN(newDueValue) ? properties.startDue : newDueValue,
-		);
-	};
-
-	const handleIntervalDurationChanged: ChangeEventHandler<
-		HTMLInputElement | HTMLTextAreaElement
-	> = (e) => {
-		const newIntervalDurationValue = Number(e.target.value);
-		onPropertyValueChange?.(
-			id,
-			'intervalDuration',
-			isNaN(newIntervalDurationValue) ? properties.startDue : newIntervalDurationValue,
-		);
 	};
 
 	const handleDueDateTypeChanged = (e: SelectChangeEvent<DueDateType>) => {
@@ -106,7 +84,12 @@ export const TimerElementPropertiesForm = ({
 							inputProps: { min: 0 },
 						}}
 						helperText="The amount of time in milliseconds to wait before emitting."
-						onChange={handleDueMillisecondsChanged}
+						onChange={handleNumberInputChanged(
+							id,
+							'startDue',
+							properties.startDue,
+							onPropertyValueChange,
+						)}
 					/>
 				)}
 			</FormGroup>
@@ -124,7 +107,12 @@ export const TimerElementPropertiesForm = ({
 					inputProps: { min: -1 },
 				}}
 				helperText="The delay between each value emitted in the interval. Passing a negative number here will result in immediate completion after the first value is emitted, as though no interval duration was passed at all."
-				onChange={handleIntervalDurationChanged}
+				onChange={handleNumberInputChanged(
+					id,
+					'intervalDuration',
+					properties.intervalDuration,
+					onPropertyValueChange,
+				)}
 			/>
 		</Stack>
 	);

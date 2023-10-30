@@ -13,7 +13,6 @@ export const JoinCreationElementForm = ({
 	relatedElements,
 	onConnectLineChange,
 }: JoinCreationElementFormProps) => {
-	console.log(relatedElements);
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<ObservableInputsOrder

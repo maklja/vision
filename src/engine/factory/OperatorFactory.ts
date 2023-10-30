@@ -1,4 +1,4 @@
-import { Observable, OperatorFunction } from 'rxjs';
+import { Observable } from 'rxjs';
 import { FlowValue } from '../context';
 import { ConnectLine, ConnectedElement, Element } from '../../model';
 
@@ -15,8 +15,14 @@ export interface CreationOperatorFactory extends OperatorFactory {
 }
 
 export interface PipeOperatorFactory extends OperatorFactory {
-	create(el: Element): OperatorFunction<FlowValue, FlowValue>;
+	create(o: Observable<FlowValue>, el: Element, options?: OperatorOptions): Observable<FlowValue>;
 }
+
+export type PipeOperatorFunctionFactory = (
+	o: Observable<FlowValue>,
+	el: Element,
+	options: OperatorOptions,
+) => Observable<FlowValue>;
 
 export interface ObservableOptions {
 	readonly observable: Observable<FlowValue>;
@@ -28,4 +34,3 @@ export interface ObservableOptions {
 export interface OperatorOptions {
 	readonly referenceObservables: readonly ObservableOptions[];
 }
-

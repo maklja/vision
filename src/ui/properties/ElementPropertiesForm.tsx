@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
 	AjaxElementProperties,
+	BufferCountElementProperties,
+	BufferTimeElementProperties,
 	CombineLatestElementProperties,
 	ConnectLine,
 	Element,
@@ -36,6 +38,10 @@ import {
 	JoinCreationElementForm,
 	MergeElementPropertiesForm,
 } from './joinCreationElementForms';
+import {
+	BufferCountElementPropertiesForm,
+	BufferTimeElementPropertiesForm,
+} from './transformationElementForms';
 
 export type RelatedElements = { connectLine: ConnectLine; element: Element }[];
 
@@ -158,6 +164,22 @@ const createElementPropertiesForm = ({
 					onConnectLineChange={onConnectLineChange}
 				/>
 			);
+		case ElementType.BufferCount:
+			return (
+				<BufferCountElementPropertiesForm
+					id={id}
+					properties={properties as BufferCountElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.BufferTime:
+			return (
+				<BufferTimeElementPropertiesForm
+					id={id}
+					properties={properties as BufferTimeElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
 		default:
 			return null;
 	}
@@ -194,3 +216,4 @@ export const ElementPropertiesForm = ({
 		</Box>
 	) : null;
 };
+

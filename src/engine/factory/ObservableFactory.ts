@@ -19,6 +19,11 @@ interface ReferenceObservableData {
 	connectLine: ConnectLine;
 }
 
+interface GraphNodePair {
+	node: GraphNode;
+	element: Element;
+}
+
 export interface CreateObservableParams {
 	creationElement: Element;
 	subscriberElement: Element;
@@ -70,46 +75,93 @@ export class ObservableFactory {
 		graphBranch: GraphBranch,
 		observables: Map<string, Observable<FlowValue>>,
 	): Observable<FlowValue> {
-		const pipeOperators: OperatorFunction<FlowValue, FlowValue>[] = [];
 		const { entryElementId } = this.simulationModel;
 
-		const isMainGraphBranch = graphBranch.nodes.at(0)?.id === entryElementId;
-		let creationOperator: Observable<FlowValue<unknown>> | null = null;
-		for (const currentNode of graphBranch.nodes) {
-			const el = this.simulationModel.getElement(currentNode.id);
+		const [creationNodePairs, pipeNodePairs] = graphBranch.nodes.reduce(
+			([creationOperators, pipeOperators]: [GraphNodePair[], GraphNodePair[]], node) => {
+				const element = this.simulationModel.getElement(node.id);
+				return isEntryOperatorType(element.type)
+					? [
+							[
+								...creationOperators,
+								{
+									element,
+									node,
+								},
+							],
+							pipeOperators,
+					  ]
+					: [
+							creationOperators,
+							[
+								...pipeOperators,
+								{
+									element,
+									node,
+								},
+							],
+					  ];
+			},
+			[[], []],
+		);
+
+		if (creationNodePairs.length === 0) {
+			throw new Error('Entry node not found');
+		}
+
+		if (creationNodePairs.length > 1) {
+			throw new Error('Multiple creation nodes found');
+		}
+
+		const creationNodePair = creationNodePairs[0];
+		const isMainGraphBranch = creationNodePair.element.id === entryElementId;
+		const refObservables: ReferenceObservableData[] = this.getRefObservables(
+			creationNodePair.node,
+			observables,
+		);
+		const creationOperator = creationNodePair.node.edges
+			.filter((edge) => edge.type === GraphNodeType.Direct)
+			.reduce((o, edge) => {
+				const nextEl = this.simulationModel.getElement(edge.targetNodeId);
+				const cl = this.simulationModel.getConnectLine(edge.id);
+				if (isMainGraphBranch && isSubscriberType(nextEl.type)) {
+					return o.pipe(
+						this.createControlOperator(cl),
+						this.createUnhandledErrorOperator(cl),
+					);
+				}
+
+				return o.pipe(this.createControlOperator(cl), this.createErrorTrackerOperator(cl));
+			}, this.createEntryOperator(creationNodePair.element, refObservables));
+
+		return pipeNodePairs.reduce((observable, { element, node }) => {
 			const refObservables: ReferenceObservableData[] = this.getRefObservables(
-				currentNode,
+				node,
 				observables,
 			);
 
-			if (isEntryOperatorType(el.type)) {
-				creationOperator = this.createEntryOperator(el, refObservables);
-			} else if (isPipeOperatorType(el.type)) {
-				pipeOperators.push(this.createPipeOperator(el, refObservables));
+			if (isPipeOperatorType(element.type)) {
+				observable = this.createPipeOperator(observable, element, refObservables);
 			}
 
-			const clOperators = currentNode.edges
+			return node.edges
 				.filter((edge) => edge.type === GraphNodeType.Direct)
-				.flatMap((edge) => {
+				.reduce((o, edge) => {
 					const nextEl = this.simulationModel.getElement(edge.targetNodeId);
 					const cl = this.simulationModel.getConnectLine(edge.id);
 					if (isMainGraphBranch && isSubscriberType(nextEl.type)) {
-						return [
+						return o.pipe(
 							this.createControlOperator(cl),
 							this.createUnhandledErrorOperator(cl),
-						];
+						);
 					}
 
-					return [this.createControlOperator(cl), this.createErrorTrackerOperator(cl)];
-				});
-			pipeOperators.push(...clOperators);
-		}
-
-		if (!creationOperator) {
-			throw new Error('Creator operator was not found');
-		}
-
-		return creationOperator.pipe(...(pipeOperators as [])) as Observable<FlowValue>;
+					return o.pipe(
+						this.createControlOperator(cl),
+						this.createErrorTrackerOperator(cl),
+					);
+				}, observable);
+		}, creationOperator);
 	}
 
 	private createEntryOperator(el: Element, refObservablesData: ReferenceObservableData[]) {
@@ -138,8 +190,12 @@ export class ObservableFactory {
 		throw new Error(`Unsupported entry operator type ${el.type}`);
 	}
 
-	private createPipeOperator(el: Element, refObservablesData: ReferenceObservableData[]) {
-		return this.pipeOperatorFactory.create(el, {
+	private createPipeOperator(
+		o: Observable<FlowValue>,
+		el: Element,
+		refObservablesData: ReferenceObservableData[],
+	) {
+		return this.pipeOperatorFactory.create(o, el, {
 			referenceObservables: refObservablesData
 				.map((refObservable) => ({
 					connectPoint: refObservable.connectLine.source,
@@ -200,4 +256,3 @@ export class ObservableFactory {
 		});
 	}
 }
-

@@ -1,8 +1,8 @@
-import { ChangeEventHandler } from 'react';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { IntervalElementProperties } from '../../../model';
 import { formStyle } from '../commonStyles';
+import { handleNumberInputChanged } from '../utils';
 
 export interface IntervalElementPropertiesFormProps {
 	id: string;
@@ -15,15 +15,6 @@ export const IntervalElementPropertiesForm = ({
 	properties,
 	onPropertyValueChange,
 }: IntervalElementPropertiesFormProps) => {
-	const handlePeriodChanged: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
-		const newPeriodValue = Number(e.target.value);
-		onPropertyValueChange?.(
-			id,
-			'period',
-			isNaN(newPeriodValue) ? properties.period : newPeriodValue,
-		);
-	};
-
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<TextField
@@ -38,7 +29,12 @@ export const IntervalElementPropertiesForm = ({
 				InputProps={{
 					inputProps: { min: 0 },
 				}}
-				onChange={handlePeriodChanged}
+				onChange={handleNumberInputChanged(
+					id,
+					'period',
+					properties.period,
+					onPropertyValueChange,
+				)}
 				helperText="The interval size in milliseconds (by default) or the time unit determined by the scheduler's clock."
 			/>
 		</Stack>

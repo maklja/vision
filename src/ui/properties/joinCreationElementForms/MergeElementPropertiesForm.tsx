@@ -1,10 +1,10 @@
-import { ChangeEventHandler } from 'react';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { formStyle } from '../commonStyles';
 import { MergeElementProperties } from '../../../model';
 import { ObservableInputsOrder } from '../../observableInput';
 import { RelatedElements } from '../ElementPropertiesForm';
+import { handleNumberInputChanged } from '../utils';
 
 export interface MergeElementPropertiesFormProps {
 	id: string;
@@ -21,17 +21,6 @@ export const MergeElementPropertiesForm = ({
 	onPropertyValueChange,
 	onConnectLineChange,
 }: MergeElementPropertiesFormProps) => {
-	const handleLimitConcurrentChanged: ChangeEventHandler<
-		HTMLInputElement | HTMLTextAreaElement
-	> = (e) => {
-		const newLimitConcurrentValue = Number(e.target.value);
-		onPropertyValueChange?.(
-			id,
-			'limitConcurrent',
-			isNaN(newLimitConcurrentValue) ? properties.limitConcurrent : newLimitConcurrentValue,
-		);
-	};
-
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<TextField
@@ -43,7 +32,12 @@ export const MergeElementPropertiesForm = ({
 				InputLabelProps={{
 					shrink: true,
 				}}
-				onChange={handleLimitConcurrentChanged}
+				onChange={handleNumberInputChanged(
+					id,
+					'limitConcurrent',
+					properties.limitConcurrent,
+					onPropertyValueChange,
+				)}
 				helperText="Limit number of concurrently subscribed observable inputs."
 			/>
 

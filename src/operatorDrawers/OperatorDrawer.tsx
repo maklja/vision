@@ -30,6 +30,10 @@ import { useElementDrawerHandlers } from './state';
 import { ElementDrawerProps } from './ElementDrawerProps';
 import { animationRegistry } from '../animation';
 import {
+	BufferCountOperatorDrawer,
+	BufferOperatorDrawer,
+	BufferTimeOperatorDrawer,
+	BufferWhenOperatorDrawer,
 	ConcatMapOperatorDrawer,
 	MapOperatorDrawer,
 	MergeMapOperatorDrawer,
@@ -78,6 +82,21 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <RaceOperatorDrawer {...props} />;
 		case ElementType.Zip:
 			return <ZipOperatorDrawer {...props} />;
+		// transformation operators
+		case ElementType.Buffer:
+			return <BufferOperatorDrawer {...props} />;
+		case ElementType.BufferCount:
+			return <BufferCountOperatorDrawer {...props} />;
+		case ElementType.BufferTime:
+			return <BufferTimeOperatorDrawer {...props} />;
+		case ElementType.BufferWhen:
+			return <BufferWhenOperatorDrawer {...props} />;
+		case ElementType.Map:
+			return <MapOperatorDrawer {...props} />;
+		case ElementType.ConcatMap:
+			return <ConcatMapOperatorDrawer {...props} />;
+		case ElementType.MergeMap:
+			return <MergeMapOperatorDrawer {...props} />;
 		// other
 		case ElementType.Filter:
 			return <FilterOperatorDrawer {...props} />;
@@ -85,12 +104,6 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <CatchErrorOperatorDrawer {...props} />;
 		case ElementType.Subscriber:
 			return <SubscriberDrawer {...props} />;
-		case ElementType.Map:
-			return <MapOperatorDrawer {...props} />;
-		case ElementType.ConcatMap:
-			return <ConcatMapOperatorDrawer {...props} />;
-		case ElementType.MergeMap:
-			return <MergeMapOperatorDrawer {...props} />;
 		default:
 			return null;
 	}
