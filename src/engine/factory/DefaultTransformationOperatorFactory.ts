@@ -1,5 +1,4 @@
 import {
-	Observable,
 	ObservableInput,
 	buffer,
 	bufferCount,
@@ -10,8 +9,8 @@ import {
 	mergeMap,
 } from 'rxjs';
 import {
-	OperatorOptions,
 	PipeOperatorFactory,
+	PipeOperatorFactoryParams,
 	PipeOperatorFunctionFactory,
 } from './OperatorFactory';
 import { FlowValue } from '../context';
@@ -40,27 +39,23 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		]);
 	}
 
-	create(
-		o: Observable<FlowValue>,
-		el: Element,
-		options: OperatorOptions = { referenceObservables: [] },
-	) {
-		const factory = this.supportedOperators.get(el.type);
+	create(params: PipeOperatorFactoryParams) {
+		const factory = this.supportedOperators.get(params.element.type);
 		if (!factory) {
-			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
+			throw new Error(`Unsupported element type ${params.element.type} as pipe operator.`);
 		}
 
-		return factory(o, el, options);
+		return factory(params);
 	}
 
 	isSupported(el: Element): boolean {
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createBufferOperator(o: Observable<FlowValue>, el: Element, options: OperatorOptions) {
+	private createBufferOperator({ observable, element, options }: PipeOperatorFactoryParams) {
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
-				el.id,
+				element.id,
 				'Reference observable is required for buffer operator',
 			);
 		}
@@ -70,45 +65,41 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		}
 
 		const [refObservable] = options.referenceObservables;
-		return o.pipe(buffer(refObservable.observable), mapFlowValuesArray(el.id));
+		return observable.pipe(buffer(refObservable.observable), mapFlowValuesArray(element.id));
 	}
 
-	private createBufferCountOperator(o: Observable<FlowValue>, el: Element) {
-		const { properties } = el as BufferCountElement;
-		return o.pipe(
+	private createBufferCountOperator({ observable, element }: PipeOperatorFactoryParams) {
+		const { properties } = element as BufferCountElement;
+		return observable.pipe(
 			bufferCount(properties.bufferSize, properties.startBufferEvery),
-			mapFlowValuesArray(el.id),
+			mapFlowValuesArray(element.id),
 		);
 	}
 
-	private createBufferTimeOperator(o: Observable<FlowValue>, el: Element) {
-		const { properties } = el as BufferTimeElement;
+	private createBufferTimeOperator({ element, observable }: PipeOperatorFactoryParams) {
+		const { properties } = element as BufferTimeElement;
 
 		if (properties.maxBufferSize) {
-			return o.pipe(
+			return observable.pipe(
 				bufferTime(
 					properties.bufferTimeSpan,
 					properties.bufferCreationInterval,
 					properties.maxBufferSize,
 				),
-				mapFlowValuesArray(el.id),
+				mapFlowValuesArray(element.id),
 			);
 		}
 
-		return o.pipe(
+		return observable.pipe(
 			bufferTime(properties.bufferTimeSpan, properties.bufferCreationInterval),
-			mapFlowValuesArray(el.id),
+			mapFlowValuesArray(element.id),
 		);
 	}
 
-	private createBufferWhenOperator(
-		o: Observable<FlowValue>,
-		el: Element,
-		options: OperatorOptions,
-	) {
+	private createBufferWhenOperator({ observable, element, options }: PipeOperatorFactoryParams) {
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
-				el.id,
+				element.id,
 				'Reference observable is required for bufferWhen operator',
 			);
 		}
@@ -119,27 +110,23 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 
 		const [refObservable] = options.referenceObservables;
 		// TODO pre code execution
-		return o.pipe(
+		return observable.pipe(
 			bufferWhen(() => refObservable.observable),
-			mapFlowValuesArray(el.id),
+			mapFlowValuesArray(element.id),
 		);
 	}
 
-	private createMapOperator(o: Observable<FlowValue>, el: Element) {
-		const mapEl = el as MapElement;
+	private createMapOperator({ element, observable }: PipeOperatorFactoryParams) {
+		const mapEl = element as MapElement;
 		const mapFn = new Function(`return ${mapEl.properties.expression}`);
 
-		return o.pipe(mapOutputToFlowValue(map(mapFn())));
+		return observable.pipe(mapOutputToFlowValue(map(mapFn())));
 	}
 
-	private createConcatMapOperator(
-		o: Observable<FlowValue>,
-		el: Element,
-		options: OperatorOptions,
-	) {
+	private createConcatMapOperator({ element, observable, options }: PipeOperatorFactoryParams) {
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
-				el.id,
+				element.id,
 				'Reference observable is required for concatMap operator',
 			);
 		}
@@ -149,7 +136,7 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		}
 
 		const [refObservable] = options.referenceObservables;
-		return o.pipe(
+		return observable.pipe(
 			concatMap<FlowValue, ObservableInput<FlowValue>>((value) => {
 				refObservable.invokeTrigger?.(value);
 				return refObservable.observable;
@@ -157,14 +144,10 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		);
 	}
 
-	private createMergeMapOperator(
-		o: Observable<FlowValue>,
-		el: Element,
-		options: OperatorOptions,
-	) {
+	private createMergeMapOperator({ element, observable, options }: PipeOperatorFactoryParams) {
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
-				el.id,
+				element.id,
 				'Reference observable is required for mergeMap operator',
 			);
 		}
@@ -174,7 +157,7 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		}
 
 		const [refObservable] = options.referenceObservables;
-		return o.pipe(
+		return observable.pipe(
 			mergeMap<FlowValue, ObservableInput<FlowValue>>((value) => {
 				refObservable.invokeTrigger?.(value);
 				return refObservable.observable;

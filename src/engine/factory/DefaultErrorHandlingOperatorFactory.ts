@@ -1,7 +1,7 @@
-import { Observable, ObservableInput, catchError } from 'rxjs';
+import { ObservableInput, catchError } from 'rxjs';
 import {
-	OperatorOptions,
 	PipeOperatorFactory,
+	PipeOperatorFactoryParams,
 	PipeOperatorFunctionFactory,
 } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
@@ -17,31 +17,23 @@ export class DefaultErrorHandlingOperatorFactory implements PipeOperatorFactory 
 		]);
 	}
 
-	create(
-		o: Observable<FlowValue>,
-		el: Element,
-		options: OperatorOptions = { referenceObservables: [] },
-	) {
-		const factory = this.supportedOperators.get(el.type);
+	create(params: PipeOperatorFactoryParams) {
+		const factory = this.supportedOperators.get(params.element.type);
 		if (!factory) {
-			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
+			throw new Error(`Unsupported element type ${params.element.type} as pipe operator.`);
 		}
 
-		return factory(o, el, options);
+		return factory(params);
 	}
 
 	isSupported(el: Element): boolean {
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createCatchErrorOperator(
-		o: Observable<FlowValue>,
-		el: Element,
-		options: OperatorOptions,
-	) {
+	private createCatchErrorOperator({ element, observable, options }: PipeOperatorFactoryParams) {
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
-				el.id,
+				element.id,
 				'Reference observable is required for catchError operator',
 			);
 		}
@@ -51,7 +43,7 @@ export class DefaultErrorHandlingOperatorFactory implements PipeOperatorFactory 
 		}
 
 		const [refObservable] = options.referenceObservables;
-		return o.pipe(
+		return observable.pipe(
 			catchError<FlowValue, ObservableInput<FlowValue>>((error) => {
 				refObservable.invokeTrigger?.({
 					...error,
@@ -62,3 +54,4 @@ export class DefaultErrorHandlingOperatorFactory implements PipeOperatorFactory 
 		);
 	}
 }
+

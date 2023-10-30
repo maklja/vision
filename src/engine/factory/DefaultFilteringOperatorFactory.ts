@@ -1,10 +1,9 @@
-import { Observable, filter } from 'rxjs';
+import { filter } from 'rxjs';
 import {
-	OperatorOptions,
 	PipeOperatorFactory,
+	PipeOperatorFactoryParams,
 	PipeOperatorFunctionFactory,
 } from './OperatorFactory';
-import { FlowValue } from '../context';
 import { Element, ElementType, FilterElement } from '../../model';
 import { mapOutputToFlowValue } from './utils';
 
@@ -17,27 +16,24 @@ export class DefaultFilteringOperatorFactory implements PipeOperatorFactory {
 		]);
 	}
 
-	create(
-		o: Observable<FlowValue>,
-		el: Element,
-		options: OperatorOptions = { referenceObservables: [] },
-	) {
-		const factory = this.supportedOperators.get(el.type);
+	create(params: PipeOperatorFactoryParams) {
+		const factory = this.supportedOperators.get(params.element.type);
 		if (!factory) {
-			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
+			throw new Error(`Unsupported element type ${params.element.type} as pipe operator.`);
 		}
 
-		return factory(o, el, options);
+		return factory(params);
 	}
 
 	isSupported(el: Element): boolean {
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createFilterOperator(o: Observable<FlowValue>, el: Element) {
-		const filterEl = el as FilterElement;
+	private createFilterOperator({ element, observable }: PipeOperatorFactoryParams) {
+		const filterEl = element as FilterElement;
 		const filterFn = new Function(`return ${filterEl.properties.expression}`);
 
-		return o.pipe(mapOutputToFlowValue(filter(filterFn())));
+		return observable.pipe(mapOutputToFlowValue(filter(filterFn())));
 	}
 }
+

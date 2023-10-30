@@ -14,16 +14,6 @@ export interface CreationOperatorFactory extends OperatorFactory {
 	create(el: Element): Observable<FlowValue>;
 }
 
-export interface PipeOperatorFactory extends OperatorFactory {
-	create(o: Observable<FlowValue>, el: Element, options?: OperatorOptions): Observable<FlowValue>;
-}
-
-export type PipeOperatorFunctionFactory = (
-	o: Observable<FlowValue>,
-	el: Element,
-	options: OperatorOptions,
-) => Observable<FlowValue>;
-
 export interface ObservableOptions {
 	readonly observable: Observable<FlowValue>;
 	readonly invokeTrigger?: (value: FlowValue) => void;
@@ -31,6 +21,22 @@ export interface ObservableOptions {
 	readonly connectLine: ConnectLine;
 }
 
+export interface PipeOperatorFactoryParams {
+	observable: Observable<FlowValue>;
+	element: Element;
+	context: Record<string, unknown>;
+	options: OperatorOptions;
+}
+
+export interface PipeOperatorFactory extends OperatorFactory {
+	create(params: PipeOperatorFactoryParams): Observable<FlowValue>;
+}
+
+export type PipeOperatorFunctionFactory = (
+	params: PipeOperatorFactoryParams,
+) => Observable<FlowValue>;
+
 export interface OperatorOptions {
 	readonly referenceObservables: readonly ObservableOptions[];
 }
+

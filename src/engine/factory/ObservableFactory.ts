@@ -191,11 +191,11 @@ export class ObservableFactory {
 	}
 
 	private createPipeOperator(
-		o: Observable<FlowValue>,
-		el: Element,
+		observable: Observable<FlowValue>,
+		element: Element,
 		refObservablesData: ReferenceObservableData[],
 	) {
-		return this.pipeOperatorFactory.create(o, el, {
+		const options = {
 			referenceObservables: refObservablesData
 				.map((refObservable) => ({
 					connectPoint: refObservable.connectLine.source,
@@ -205,6 +205,12 @@ export class ObservableFactory {
 						this.flowManager.handleNextEvent(value, refObservable.connectLine),
 				}))
 				.sort((o1, o2) => o1.connectLine.index - o2.connectLine.index),
+		};
+		return this.pipeOperatorFactory.create({
+			observable,
+			element,
+			options,
+			context: {},
 		});
 	}
 
@@ -256,3 +262,4 @@ export class ObservableFactory {
 		});
 	}
 }
+
