@@ -1,10 +1,8 @@
-import { Observable } from 'rxjs';
 import { Element } from '../../model';
-import { OperatorOptions, PipeOperatorFactory } from './OperatorFactory';
+import { PipeOperatorFactory, PipeOperatorFactoryParams } from './OperatorFactory';
 import { DefaultTransformationOperatorFactory } from './DefaultTransformationOperatorFactory';
 import { DefaultFilteringOperatorFactory } from './DefaultFilteringOperatorFactory';
 import { DefaultErrorHandlingOperatorFactory } from './DefaultErrorHandlingOperatorFactory';
-import { FlowValue } from '../context';
 
 export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 	private readonly supportedOperators: PipeOperatorFactory[] = [
@@ -13,20 +11,19 @@ export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 		new DefaultErrorHandlingOperatorFactory(),
 	];
 
-	create(
-		o: Observable<FlowValue>,
-		el: Element,
-		options: OperatorOptions = { referenceObservables: [] },
-	) {
-		const factory = this.supportedOperators.find((factory) => factory.isSupported(el));
+	create(params: PipeOperatorFactoryParams) {
+		const factory = this.supportedOperators.find((factory) =>
+			factory.isSupported(params.element),
+		);
 		if (!factory) {
-			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
+			throw new Error(`Unsupported element type ${params.element.type} as pipe operator.`);
 		}
 
-		return factory.create(o, el, options);
+		return factory.create(params);
 	}
 
 	isSupported(el: Element): boolean {
 		return this.supportedOperators.some((factory) => factory.isSupported(el));
 	}
 }
+
