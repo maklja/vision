@@ -47,6 +47,7 @@ export class ObservableFactory {
 
 		const observables = new Map<string, Observable<FlowValue>>();
 		const graphBranchesDependencyQueue: string[] = [entryElementId];
+		const context = {};
 		while (graphBranchesDependencyQueue.length > 0) {
 			const curElId = graphBranchesDependencyQueue[0];
 			const graphBranch = this.simulationModel.getGraphBranch(curElId);
@@ -59,7 +60,10 @@ export class ObservableFactory {
 				continue;
 			}
 
-			observables.set(curElId, this.createBranchObservable(graphBranch, observables));
+			observables.set(
+				curElId,
+				this.createBranchObservable(graphBranch, observables, context),
+			);
 			graphBranchesDependencyQueue.shift();
 		}
 
@@ -74,6 +78,7 @@ export class ObservableFactory {
 	private createBranchObservable(
 		graphBranch: GraphBranch,
 		observables: Map<string, Observable<FlowValue>>,
+		context: Record<string, unknown>,
 	): Observable<FlowValue> {
 		const { entryElementId } = this.simulationModel;
 
@@ -132,7 +137,7 @@ export class ObservableFactory {
 				}
 
 				return o.pipe(this.createControlOperator(cl), this.createErrorTrackerOperator(cl));
-			}, this.createEntryOperator(creationNodePair.element, refObservables));
+			}, this.createEntryOperator(creationNodePair.element, refObservables, context));
 
 		return pipeNodePairs.reduce((observable, { element, node }) => {
 			const refObservables: ReferenceObservableData[] = this.getRefObservables(
@@ -141,7 +146,7 @@ export class ObservableFactory {
 			);
 
 			if (isPipeOperatorType(element.type)) {
-				observable = this.createPipeOperator(observable, element, refObservables);
+				observable = this.createPipeOperator(observable, element, refObservables, context);
 			}
 
 			return node.edges
@@ -164,7 +169,11 @@ export class ObservableFactory {
 		}, creationOperator);
 	}
 
-	private createEntryOperator(el: Element, refObservablesData: ReferenceObservableData[]) {
+	private createEntryOperator(
+		element: Element,
+		refObservablesData: ReferenceObservableData[],
+		context: Record<string, unknown>,
+	) {
 		const referenceObservables = refObservablesData
 			.map((refObservable) => ({
 				connectPoint: refObservable.connectLine.source,
@@ -175,25 +184,34 @@ export class ObservableFactory {
 			}))
 			.sort((o1, o2) => o1.connectLine.index - o2.connectLine.index);
 
-		if (isCreationOperatorType(el.type)) {
-			return this.creationOperatorFactory.create(el, {
-				referenceObservables,
+		if (isCreationOperatorType(element.type)) {
+			return this.creationOperatorFactory.create({
+				element,
+				context,
+				options: {
+					referenceObservables,
+				},
 			});
 		}
 
-		if (isJoinCreationOperatorType(el.type)) {
-			return this.joinCreationOperatorFactory.create(el, {
-				referenceObservables,
+		if (isJoinCreationOperatorType(element.type)) {
+			return this.joinCreationOperatorFactory.create({
+				element,
+				context,
+				options: {
+					referenceObservables,
+				},
 			});
 		}
 
-		throw new Error(`Unsupported entry operator type ${el.type}`);
+		throw new Error(`Unsupported entry operator type ${element.type}`);
 	}
 
 	private createPipeOperator(
 		observable: Observable<FlowValue>,
 		element: Element,
 		refObservablesData: ReferenceObservableData[],
+		context: Record<string, unknown>,
 	) {
 		const options = {
 			referenceObservables: refObservablesData
@@ -210,7 +228,7 @@ export class ObservableFactory {
 			observable,
 			element,
 			options,
-			context: {},
+			context,
 		});
 	}
 

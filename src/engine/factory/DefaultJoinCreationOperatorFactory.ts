@@ -19,21 +19,18 @@ import {
 	MergeElement,
 	ObservableInputsType,
 } from '../../model';
-import { JoinCreationOperatorFactory, ObservableOptions, OperatorOptions } from './OperatorFactory';
+import {
+	CreationOperatorFunctionFactory,
+	JoinCreationOperatorFactory,
+	ObservableOptions,
+	OperatorFactoryParams,
+} from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
 import { UnsupportedElementTypeError } from '../errors';
 import { mapFlowValuesArray } from './utils';
 
-type JoinCreationOperatorFunctionFactory = (
-	el: Element,
-	options: OperatorOptions,
-) => Observable<FlowValue>;
-
 export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorFactory {
-	private readonly supportedOperators: ReadonlyMap<
-		ElementType,
-		JoinCreationOperatorFunctionFactory
-	>;
+	private readonly supportedOperators: ReadonlyMap<ElementType, CreationOperatorFunctionFactory>;
 
 	constructor() {
 		this.supportedOperators = new Map([
@@ -46,30 +43,31 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		]);
 	}
 
-	create(
-		el: Element,
-		options: OperatorOptions = { referenceObservables: [] },
-	): Observable<FlowValue> {
-		const factory = this.supportedOperators.get(el.type);
+	create(params: OperatorFactoryParams): Observable<FlowValue> {
+		const factory = this.supportedOperators.get(params.element.type);
 		if (!factory) {
-			throw new UnsupportedElementTypeError(el.id, el.type, ElementGroup.JoinCreation);
+			throw new UnsupportedElementTypeError(
+				params.element.id,
+				params.element.type,
+				ElementGroup.JoinCreation,
+			);
 		}
 
-		return factory(el, options);
+		return factory(params);
 	}
 
 	isSupported(el: Element): boolean {
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createMergeOperator(el: Element, options: OperatorOptions) {
-		const { properties } = el as MergeElement;
+	private createMergeOperator({ element, options }: OperatorFactoryParams) {
+		const { properties } = element as MergeElement;
 
 		return merge<FlowValue[]>(
 			...options.referenceObservables.map(
 				(refObservable) =>
 					defer(() => {
-						refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
+						refObservable.invokeTrigger?.(FlowValue.createEmptyValue(element.id));
 						return refObservable.observable;
 					}),
 				properties.limitConcurrent > 0 ? properties.limitConcurrent : undefined,
@@ -77,8 +75,8 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		);
 	}
 
-	private createCombineLatestOperator(el: Element, options: OperatorOptions) {
-		const combineLatestEl = el as CombineLatestElement;
+	private createCombineLatestOperator({ element, options }: OperatorFactoryParams) {
+		const combineLatestEl = element as CombineLatestElement;
 
 		if (combineLatestEl.properties.observableInputsType === ObservableInputsType.Array) {
 			return combineLatest<FlowValue[]>(
@@ -91,19 +89,19 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		).pipe(map((value) => this.createFlowValue(value, combineLatestEl.id)));
 	}
 
-	private createConcatOperator(el: Element, options: OperatorOptions) {
+	private createConcatOperator({ element, options }: OperatorFactoryParams) {
 		return concat<FlowValue[]>(
 			...options.referenceObservables.map((refObservable) =>
 				defer(() => {
-					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
+					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(element.id));
 					return refObservable.observable;
 				}),
 			),
 		);
 	}
 
-	private createForkJoinOperator(el: Element, options: OperatorOptions) {
-		const forkJoinEl = el as ForkJoinElement;
+	private createForkJoinOperator({ element, options }: OperatorFactoryParams) {
+		const forkJoinEl = element as ForkJoinElement;
 
 		if (forkJoinEl.properties.observableInputsType === ObservableInputsType.Array) {
 			return forkJoin<FlowValue[]>(
@@ -116,26 +114,26 @@ export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorF
 		).pipe(map((value) => this.createFlowValue(value, forkJoinEl.id)));
 	}
 
-	private createRaceOperator(el: Element, options: OperatorOptions) {
+	private createRaceOperator({ element, options }: OperatorFactoryParams) {
 		return race<FlowValue[]>(
 			options.referenceObservables.map((refObservable) =>
 				defer(() => {
-					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
+					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(element.id));
 					return refObservable.observable;
 				}),
 			),
 		);
 	}
 
-	private createZipOperator(el: Element, options: OperatorOptions) {
+	private createZipOperator({ element, options }: OperatorFactoryParams) {
 		return zip<FlowValue[]>(
 			options.referenceObservables.map((refObservable) =>
 				defer(() => {
-					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(el.id));
+					refObservable.invokeTrigger?.(FlowValue.createEmptyValue(element.id));
 					return refObservable.observable;
 				}),
 			),
-		).pipe(mapFlowValuesArray(el.id));
+		).pipe(mapFlowValuesArray(element.id));
 	}
 
 	private createIndexedObservableInput(

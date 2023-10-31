@@ -9,6 +9,7 @@ import {
 	BufferCountElementProperties,
 	BufferTimeElementProperties,
 	CombineLatestElementProperties,
+	ConcatMapElementProperties,
 	ConnectLine,
 	Element,
 	ElementType,
@@ -41,6 +42,7 @@ import {
 import {
 	BufferCountElementPropertiesForm,
 	BufferTimeElementPropertiesForm,
+	ConcatMapElementPropertiesForm,
 } from './transformationElementForms';
 
 export type RelatedElements = { connectLine: ConnectLine; element: Element }[];
@@ -177,6 +179,14 @@ const createElementPropertiesForm = ({
 				<BufferTimeElementPropertiesForm
 					id={id}
 					properties={properties as BufferTimeElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.ConcatMap:
+			return (
+				<ConcatMapElementPropertiesForm
+					id={id}
+					properties={properties as ConcatMapElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
