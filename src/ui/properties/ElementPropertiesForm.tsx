@@ -19,6 +19,7 @@ import {
 	IifElementProperties,
 	IntervalElementProperties,
 	MergeElementProperties,
+	OfElementProperties,
 	RangeElementProperties,
 	ThrowErrorElementProperties,
 	TimerElementProperties,
@@ -29,6 +30,7 @@ import {
 	GenerateElementPropertiesForm,
 	IifElementPropertiesForm,
 	IntervalElementPropertiesForm,
+	OfElementPropertiesForm,
 	RangeElementPropertiesForm,
 	ThrowErrorElementPropertiesForm,
 	TimerElementPropertiesForm,
@@ -91,6 +93,14 @@ const createElementPropertiesForm = ({
 				<ThrowErrorElementPropertiesForm
 					id={id}
 					properties={properties as ThrowErrorElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Of:
+			return (
+				<OfElementPropertiesForm
+					id={id}
+					properties={properties as OfElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);

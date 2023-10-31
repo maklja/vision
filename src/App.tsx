@@ -20,7 +20,9 @@ const e1: OfElement = {
 	y: 50,
 	type: ElementType.Of,
 	visible: true,
-	properties: { items: [4, 3, 2, 1] },
+	properties: {
+		itemsFactory: '() => [4, 3, 2, 1]',
+	},
 };
 
 const e3: FromElement = {
