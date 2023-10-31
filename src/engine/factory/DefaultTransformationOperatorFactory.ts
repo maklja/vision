@@ -9,6 +9,7 @@ import {
 	mergeMap,
 } from 'rxjs';
 import {
+	CONTEXT_VARIABLE_NAME,
 	PipeOperatorFactory,
 	PipeOperatorFactoryParams,
 	PipeOperatorFunctionFactory,
@@ -17,6 +18,7 @@ import { FlowValue } from '../context';
 import {
 	BufferCountElement,
 	BufferTimeElement,
+	ConcatMapElement,
 	Element,
 	ElementType,
 	MapElement,
@@ -123,7 +125,12 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		return observable.pipe(mapOutputToFlowValue(map(mapFn())));
 	}
 
-	private createConcatMapOperator({ element, observable, options }: PipeOperatorFactoryParams) {
+	private createConcatMapOperator({
+		element,
+		observable,
+		context,
+		options,
+	}: PipeOperatorFactoryParams) {
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
 				element.id,
@@ -135,9 +142,18 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 			throw new Error('Too many reference observables for concatMap operator');
 		}
 
+		const { properties } = element as ConcatMapElement;
 		const [refObservable] = options.referenceObservables;
 		return observable.pipe(
 			concatMap<FlowValue, ObservableInput<FlowValue>>((value) => {
+				if (properties.preInputObservableCreation) {
+					const hook = new Function(
+						CONTEXT_VARIABLE_NAME,
+						`return ${properties.preInputObservableCreation}`,
+					);
+					hook(context)(value.raw);
+				}
+
 				refObservable.invokeTrigger?.(value);
 				return refObservable.observable;
 			}),

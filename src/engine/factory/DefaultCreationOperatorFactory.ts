@@ -32,18 +32,17 @@ import {
 	ThrowErrorElement,
 	TimerElement,
 } from '../../model';
-import { CreationOperatorFactory, OperatorOptions } from './OperatorFactory';
+import {
+	CreationOperatorFactory,
+	CreationOperatorFunctionFactory,
+	OperatorFactoryParams,
+} from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
 import {
 	InvalidElementPropertyValueError,
 	MissingReferenceObservableError,
 	UnsupportedElementTypeError,
 } from '../errors';
-
-type CreationOperatorFunctionFactory = (
-	el: Element,
-	options: OperatorOptions,
-) => Observable<FlowValue>;
 
 export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	private readonly supportedOperators: ReadonlyMap<ElementType, CreationOperatorFunctionFactory>;
@@ -64,24 +63,25 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		]);
 	}
 
-	create(
-		el: Element,
-		options: OperatorOptions = { referenceObservables: [] },
-	): Observable<FlowValue> {
-		const factory = this.supportedOperators.get(el.type);
+	create(params: OperatorFactoryParams): Observable<FlowValue> {
+		const factory = this.supportedOperators.get(params.element.type);
 		if (!factory) {
-			throw new UnsupportedElementTypeError(el.id, el.type, ElementGroup.Creation);
+			throw new UnsupportedElementTypeError(
+				params.element.id,
+				params.element.type,
+				ElementGroup.Creation,
+			);
 		}
 
-		return factory(el, options);
+		return factory(params);
 	}
 
 	isSupported(el: Element): boolean {
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createOfCreationOperator(el: Element) {
-		const ofEl = el as OfElement<unknown>;
+	private createOfCreationOperator({ element }: OperatorFactoryParams) {
+		const ofEl = element as OfElement<unknown>;
 		const { items } = ofEl.properties;
 		return items
 			? of(...items).pipe(
@@ -90,8 +90,8 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			: of(this.createFlowValue(null, ofEl.id));
 	}
 
-	private createFromCreationOperator(el: Element, options: OperatorOptions) {
-		const { id, properties } = el as FromElement;
+	private createFromCreationOperator({ element, options }: OperatorFactoryParams) {
+		const { id, properties } = element as FromElement;
 
 		if (!properties.enableObservableEvent) {
 			const inputFn = new Function(`return ${properties.input}`);
@@ -100,7 +100,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
-				el.id,
+				element.id,
 				'Reference observable is required for from operator',
 			);
 		}
@@ -116,15 +116,15 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		}).pipe(map((item) => this.createFlowValue(item, id)));
 	}
 
-	private createIntervalCreationOperator(el: Element) {
-		const intervalEl = el as IntervalElement;
+	private createIntervalCreationOperator({ element }: OperatorFactoryParams) {
+		const intervalEl = element as IntervalElement;
 		return interval(intervalEl.properties.period).pipe(
-			map((item) => this.createFlowValue(item, el.id)),
+			map((item) => this.createFlowValue(item, element.id)),
 		);
 	}
 
-	private createIifCreationOperator(el: Element, options: OperatorOptions) {
-		const iifEl = el as IifElement;
+	private createIifCreationOperator({ element, options }: OperatorFactoryParams) {
+		const iifEl = element as IifElement;
 		const conditionFn = new Function(`return ${iifEl.properties.conditionExpression}`);
 
 		const trueRefObservable = options.referenceObservables.find(
@@ -164,8 +164,8 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		);
 	}
 
-	private createAjaxCreationOperator(el: Element) {
-		const ajaxEl = el as AjaxElement;
+	private createAjaxCreationOperator({ element }: OperatorFactoryParams) {
+		const ajaxEl = element as AjaxElement;
 		const { url, method, headers, queryParams, responseType, timeout, body } =
 			ajaxEl.properties;
 		let bodyJson: object | undefined;
@@ -216,15 +216,15 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		}).pipe(map((item) => this.createFlowValue(item, ajaxEl.id)));
 	}
 
-	private createEmptyCreationOperator(el: Element) {
-		const emptyEl = el as EmptyElement;
+	private createEmptyCreationOperator({ element }: OperatorFactoryParams) {
+		const emptyEl = element as EmptyElement;
 		return EMPTY.pipe(map((item) => this.createFlowValue(item, emptyEl.id)));
 	}
 
-	private createDeferCreationOperator(el: Element, options: OperatorOptions) {
+	private createDeferCreationOperator({ element, options }: OperatorFactoryParams) {
 		if (options.referenceObservables.length === 0) {
 			throw new MissingReferenceObservableError(
-				el.id,
+				element.id,
 				'Reference observable is required for defer operator',
 			);
 		}
@@ -233,7 +233,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			throw new Error('Too many reference observables for defer operator');
 		}
 
-		const deferEl = el as DeferElement;
+		const deferEl = element as DeferElement;
 		const [refObservable] = options.referenceObservables;
 		return defer(() => {
 			refObservable.invokeTrigger?.(FlowValue.createEmptyValue(deferEl.id));
@@ -241,8 +241,8 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		});
 	}
 
-	private createGenerateCreationOperator(el: Element) {
-		const generateEl = el as GenerateElement;
+	private createGenerateCreationOperator({ element }: OperatorFactoryParams) {
+		const generateEl = element as GenerateElement;
 		const { initialState, iterate, resultSelector, condition } = generateEl.properties;
 		const initialStateFn = new Function(`return ${initialState}`);
 		const conditionFn = condition ? new Function(`return ${condition}`) : undefined;
@@ -257,8 +257,8 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		}).pipe(map((item) => this.createFlowValue(item, generateEl.id)));
 	}
 
-	private createThrowErrorCreationOperator(el: Element) {
-		const throwErrorEl = el as ThrowErrorElement;
+	private createThrowErrorCreationOperator({ element }: OperatorFactoryParams) {
+		const throwErrorEl = element as ThrowErrorElement;
 		const errorFactoryFn = new Function(
 			`return ${throwErrorEl.properties.errorOrErrorFactory}`,
 		)();
@@ -266,20 +266,20 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		return throwError(errorFactoryFn as () => unknown);
 	}
 
-	private createRangeCreationOperator(el: Element) {
-		const rangeEl = el as RangeElement;
+	private createRangeCreationOperator({ element }: OperatorFactoryParams) {
+		const rangeEl = element as RangeElement;
 		const { start, count } = rangeEl.properties;
 		return range(start, count).pipe(map((item) => this.createFlowValue(item, rangeEl.id)));
 	}
 
-	private createTimerCreationOperator(el: Element) {
-		const timerEl = el as TimerElement;
+	private createTimerCreationOperator({ element }: OperatorFactoryParams) {
+		const timerEl = element as TimerElement;
 		const startDue =
 			timerEl.properties.dueDateType === DueDateType.Date
 				? new Date(timerEl.properties.startDue)
 				: timerEl.properties.startDue;
 		return timer(startDue, timerEl.properties.intervalDuration).pipe(
-			map((item) => this.createFlowValue(item, el.id)),
+			map((item) => this.createFlowValue(item, element.id)),
 		);
 	}
 

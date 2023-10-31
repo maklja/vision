@@ -1,13 +1,14 @@
-import { ObservableInput } from 'rxjs';
 import { ElementType, Element } from '../element';
 
-export interface ConcatMapElementProperties<T> extends Record<string, unknown> {
-	mapInput?: ObservableInput<T>;
+export interface ConcatMapElementProperties extends Record<string, unknown> {
+	preInputObservableCreation: string;
 }
 
-export interface ConcatMapElement<T = unknown> extends Element<ConcatMapElementProperties<T>> {
+export interface ConcatMapElement extends Element<ConcatMapElementProperties> {
 	type: ElementType.ConcatMap;
 }
 
-export const concatMapElementPropsTemplate: ConcatMapElementProperties<unknown> = {};
+export const concatMapElementPropsTemplate: ConcatMapElementProperties = {
+	preInputObservableCreation: '',
+};
 
