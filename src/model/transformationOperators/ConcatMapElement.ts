@@ -9,6 +9,6 @@ export interface ConcatMapElement extends Element<ConcatMapElementProperties> {
 }
 
 export const concatMapElementPropsTemplate: ConcatMapElementProperties = {
-	preInputObservableCreation: '',
+	preInputObservableCreation: '(value) => {}',
 };
 

@@ -33,6 +33,7 @@ import {
 	TimerElement,
 } from '../../model';
 import {
+	CONTEXT_VARIABLE_NAME,
 	CreationOperatorFactory,
 	CreationOperatorFunctionFactory,
 	OperatorFactoryParams,
@@ -80,14 +81,23 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		return this.supportedOperators.has(el.type);
 	}
 
-	private createOfCreationOperator({ element }: OperatorFactoryParams) {
-		const ofEl = element as OfElement<unknown>;
-		const { items } = ofEl.properties;
-		return items
-			? of(...items).pipe(
-					map<unknown, FlowValue>((item) => this.createFlowValue(item, ofEl.id)),
-			  )
-			: of(this.createFlowValue(null, ofEl.id));
+	private createOfCreationOperator({ element, context }: OperatorFactoryParams) {
+		const ofEl = element as OfElement;
+		const { itemsFactory } = ofEl.properties;
+
+		if (!itemsFactory) {
+			return of().pipe(
+				map<unknown, FlowValue>((item) => this.createFlowValue(item, ofEl.id)),
+			);
+		}
+
+		const itemsFactoryFn = new Function(
+			CONTEXT_VARIABLE_NAME,
+			`return ${ofEl.properties.itemsFactory}`,
+		);
+		return of(...itemsFactoryFn(context)()).pipe(
+			map<unknown, FlowValue>((item) => this.createFlowValue(item, ofEl.id)),
+		);
 	}
 
 	private createFromCreationOperator({ element, options }: OperatorFactoryParams) {
