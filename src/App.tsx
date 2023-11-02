@@ -35,6 +35,7 @@ const e3: FromElement = {
 	properties: {
 		enableObservableEvent: true,
 		input: '() => [1, 2, 3, 4]',
+		preInputObservableCreation: '() => {}',
 	},
 };
 

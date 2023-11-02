@@ -49,3 +49,6 @@ export type PipeOperatorFunctionFactory = (
 
 export const CONTEXT_VARIABLE_NAME = '$context';
 
+export const createContextFn = (fnBody: string) =>
+	new Function(CONTEXT_VARIABLE_NAME, `return ${fnBody}`);
+
