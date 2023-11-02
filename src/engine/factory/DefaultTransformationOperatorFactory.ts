@@ -9,10 +9,10 @@ import {
 	mergeMap,
 } from 'rxjs';
 import {
-	CONTEXT_VARIABLE_NAME,
 	PipeOperatorFactory,
 	PipeOperatorFactoryParams,
 	PipeOperatorFunctionFactory,
+	createContextFn,
 } from './OperatorFactory';
 import { FlowValue } from '../context';
 import {
@@ -147,11 +147,7 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		return observable.pipe(
 			concatMap<FlowValue, ObservableInput<FlowValue>>((value) => {
 				if (properties.preInputObservableCreation) {
-					const hook = new Function(
-						CONTEXT_VARIABLE_NAME,
-						`return ${properties.preInputObservableCreation}`,
-					);
-					hook(context)(value.raw);
+					createContextFn(properties.preInputObservableCreation)(context)(value.raw);
 				}
 
 				refObservable.invokeTrigger?.(value);

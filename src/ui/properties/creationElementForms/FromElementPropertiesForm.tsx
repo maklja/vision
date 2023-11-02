@@ -17,8 +17,6 @@ export const FromElementPropertiesForm = ({
 	properties,
 	onPropertyValueChange,
 }: FromElementPropertiesFormProps) => {
-	const handleInputChanged = (input: string) => onPropertyValueChange?.(id, 'input', input);
-
 	const handleObservableEventChange = (
 		_event: SyntheticEvent<Element, Event>,
 		checked: boolean,
@@ -32,12 +30,21 @@ export const FromElementPropertiesForm = ({
 				onChange={handleObservableEventChange}
 			/>
 
-			{properties.enableObservableEvent ? null : (
+			{properties.enableObservableEvent ? (
+				<SimpleCodeEditor
+					code={properties.preInputObservableCreation}
+					label="Pre code execution"
+					helperText="Hook that will be executed each before input observable is created."
+					onCodeChange={(input: string) =>
+						onPropertyValueChange?.(id, 'preInputObservableCreation', input)
+					}
+				/>
+			) : (
 				<SimpleCodeEditor
 					code={properties.input}
 					label="Input"
 					helperText="A subscription object, a Promise, an Observable-like, an Array, an iterable, or an array-like object to be converted."
-					onCodeChange={handleInputChanged}
+					onCodeChange={(input: string) => onPropertyValueChange?.(id, 'input', input)}
 				/>
 			)}
 		</Stack>

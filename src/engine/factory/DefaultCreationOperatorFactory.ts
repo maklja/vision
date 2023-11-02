@@ -33,7 +33,7 @@ import {
 	TimerElement,
 } from '../../model';
 import {
-	CONTEXT_VARIABLE_NAME,
+	createContextFn,
 	CreationOperatorFactory,
 	CreationOperatorFunctionFactory,
 	OperatorFactoryParams,
@@ -98,11 +98,7 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		const [refObservable] = options.referenceObservables;
 		return defer(() => {
 			if (deferEl.properties.preInputObservableCreation) {
-				const hook = new Function(
-					CONTEXT_VARIABLE_NAME,
-					`return ${deferEl.properties.preInputObservableCreation}`,
-				);
-				hook(context)();
+				createContextFn(deferEl.properties.preInputObservableCreation)(context)();
 			}
 
 			refObservable.invokeTrigger?.(FlowValue.createEmptyValue(deferEl.id));
@@ -112,29 +108,27 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	private createOfCreationOperator({ element, context }: OperatorFactoryParams) {
 		const ofEl = element as OfElement;
-		const { itemsFactory } = ofEl.properties;
 
-		if (!itemsFactory) {
+		if (!ofEl.properties) {
 			return of().pipe(
 				map<unknown, FlowValue>((item) => this.createFlowValue(item, ofEl.id)),
 			);
 		}
 
-		const itemsFactoryFn = new Function(
-			CONTEXT_VARIABLE_NAME,
-			`return ${ofEl.properties.itemsFactory}`,
-		);
+		const itemsFactoryFn = createContextFn(ofEl.properties.itemsFactory);
 		return of(...itemsFactoryFn(context)()).pipe(
 			map<unknown, FlowValue>((item) => this.createFlowValue(item, ofEl.id)),
 		);
 	}
 
-	private createFromCreationOperator({ element, options }: OperatorFactoryParams) {
-		const { id, properties } = element as FromElement;
+	private createFromCreationOperator({ element, context, options }: OperatorFactoryParams) {
+		const fromEl = element as FromElement;
 
-		if (!properties.enableObservableEvent) {
-			const inputFn = new Function(`return ${properties.input}`);
-			return from(inputFn()()).pipe(map((item) => this.createFlowValue(item, id)));
+		if (!fromEl.properties.enableObservableEvent) {
+			const inputFn = createContextFn(fromEl.properties.input);
+			return from(inputFn(context)()).pipe(
+				map((item) => this.createFlowValue(item, fromEl.id)),
+			);
 		}
 
 		if (options.referenceObservables.length === 0) {
@@ -150,9 +144,13 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 		const [refObservable] = options.referenceObservables;
 		return defer(() => {
-			refObservable.invokeTrigger?.(FlowValue.createEmptyValue(id));
+			if (fromEl.properties.preInputObservableCreation) {
+				createContextFn(fromEl.properties.preInputObservableCreation)(context)();
+			}
+
+			refObservable.invokeTrigger?.(FlowValue.createEmptyValue(fromEl.id));
 			return from(refObservable.observable);
-		}).pipe(map((item) => this.createFlowValue(item, id)));
+		}).pipe(map((item) => this.createFlowValue(item, fromEl.id)));
 	}
 
 	private createIntervalCreationOperator({ element, context }: OperatorFactoryParams) {
