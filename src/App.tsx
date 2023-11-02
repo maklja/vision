@@ -53,7 +53,7 @@ const i1: IntervalElement = {
 	y: 300,
 	type: ElementType.Interval,
 	visible: true,
-	properties: { period: 2_000 },
+	properties: { period: '2000' },
 };
 
 const e4: FilterElement = {

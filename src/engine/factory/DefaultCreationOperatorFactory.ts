@@ -44,19 +44,20 @@ import {
 	MissingReferenceObservableError,
 	UnsupportedElementTypeError,
 } from '../errors';
+import { isPropertyValueVariable, retrieveContextPropertyValue } from './utils';
 
 export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	private readonly supportedOperators: ReadonlyMap<ElementType, CreationOperatorFunctionFactory>;
 
 	constructor() {
 		this.supportedOperators = new Map([
+			[ElementType.Ajax, this.createAjaxCreationOperator.bind(this)],
+			[ElementType.Defer, this.createDeferCreationOperator.bind(this)],
 			[ElementType.Of, this.createOfCreationOperator.bind(this)],
 			[ElementType.From, this.createFromCreationOperator.bind(this)],
 			[ElementType.Interval, this.createIntervalCreationOperator.bind(this)],
 			[ElementType.IIf, this.createIifCreationOperator.bind(this)],
-			[ElementType.Ajax, this.createAjaxCreationOperator.bind(this)],
 			[ElementType.Empty, this.createEmptyCreationOperator.bind(this)],
-			[ElementType.Defer, this.createDeferCreationOperator.bind(this)],
 			[ElementType.Generate, this.createGenerateCreationOperator.bind(this)],
 			[ElementType.Range, this.createRangeCreationOperator.bind(this)],
 			[ElementType.ThrowError, this.createThrowErrorCreationOperator.bind(this)],
@@ -79,6 +80,34 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	isSupported(el: Element): boolean {
 		return this.supportedOperators.has(el.type);
+	}
+
+	private createDeferCreationOperator({ element, context, options }: OperatorFactoryParams) {
+		if (options.referenceObservables.length === 0) {
+			throw new MissingReferenceObservableError(
+				element.id,
+				'Reference observable is required for defer operator',
+			);
+		}
+
+		if (options.referenceObservables.length > 1) {
+			throw new Error('Too many reference observables for defer operator');
+		}
+
+		const deferEl = element as DeferElement;
+		const [refObservable] = options.referenceObservables;
+		return defer(() => {
+			if (deferEl.properties.preInputObservableCreation) {
+				const hook = new Function(
+					CONTEXT_VARIABLE_NAME,
+					`return ${deferEl.properties.preInputObservableCreation}`,
+				);
+				hook(context)();
+			}
+
+			refObservable.invokeTrigger?.(FlowValue.createEmptyValue(deferEl.id));
+			return refObservable.observable;
+		});
 	}
 
 	private createOfCreationOperator({ element, context }: OperatorFactoryParams) {
@@ -126,11 +155,19 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		}).pipe(map((item) => this.createFlowValue(item, id)));
 	}
 
-	private createIntervalCreationOperator({ element }: OperatorFactoryParams) {
+	private createIntervalCreationOperator({ element, context }: OperatorFactoryParams) {
 		const intervalEl = element as IntervalElement;
-		return interval(intervalEl.properties.period).pipe(
-			map((item) => this.createFlowValue(item, element.id)),
-		);
+		const { period } = intervalEl.properties;
+
+		return defer(() => {
+			const periodValue = isPropertyValueVariable(period)
+				? retrieveContextPropertyValue<number>(period, context)
+				: Number(period);
+
+			return interval(periodValue).pipe(
+				map((item) => this.createFlowValue(item, element.id)),
+			);
+		});
 	}
 
 	private createIifCreationOperator({ element, options }: OperatorFactoryParams) {
@@ -229,26 +266,6 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	private createEmptyCreationOperator({ element }: OperatorFactoryParams) {
 		const emptyEl = element as EmptyElement;
 		return EMPTY.pipe(map((item) => this.createFlowValue(item, emptyEl.id)));
-	}
-
-	private createDeferCreationOperator({ element, options }: OperatorFactoryParams) {
-		if (options.referenceObservables.length === 0) {
-			throw new MissingReferenceObservableError(
-				element.id,
-				'Reference observable is required for defer operator',
-			);
-		}
-
-		if (options.referenceObservables.length > 1) {
-			throw new Error('Too many reference observables for defer operator');
-		}
-
-		const deferEl = element as DeferElement;
-		const [refObservable] = options.referenceObservables;
-		return defer(() => {
-			refObservable.invokeTrigger?.(FlowValue.createEmptyValue(deferEl.id));
-			return refObservable.observable;
-		});
 	}
 
 	private createGenerateCreationOperator({ element }: OperatorFactoryParams) {
