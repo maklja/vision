@@ -1,5 +1,14 @@
 import { Element, ElementType } from '../element';
 
-export interface DeferElement extends Element<never> {
+export interface DeferElementProperties extends Record<string, unknown> {
+	preInputObservableCreation: string;
+}
+
+export interface DeferElement extends Element<DeferElementProperties> {
 	type: ElementType.Defer;
 }
+
+export const deferElementPropsTemplate: DeferElementProperties = {
+	preInputObservableCreation: '() => {}',
+};
+

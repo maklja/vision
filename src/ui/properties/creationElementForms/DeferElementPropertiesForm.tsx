@@ -3,17 +3,17 @@ import { ConcatMapElementProperties } from '../../../model';
 import { SimpleCodeEditor } from '../../code';
 import { formStyle } from '../commonStyles';
 
-export interface ConcatMapElementPropertiesFormProps {
+export interface DeferElementPropertiesFormProps {
 	id: string;
 	properties: ConcatMapElementProperties;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const ConcatMapElementPropertiesForm = ({
+export const DeferElementPropertiesForm = ({
 	id,
 	properties,
 	onPropertyValueChange,
-}: ConcatMapElementPropertiesFormProps) => {
+}: DeferElementPropertiesFormProps) => {
 	const handlePreInputObservableCreation = (input: string) =>
 		onPropertyValueChange?.(id, 'preInputObservableCreation', input.trim());
 

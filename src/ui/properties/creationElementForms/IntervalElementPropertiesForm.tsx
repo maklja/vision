@@ -2,7 +2,6 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { IntervalElementProperties } from '../../../model';
 import { formStyle } from '../commonStyles';
-import { handleNumberInputChanged } from '../utils';
 
 export interface IntervalElementPropertiesFormProps {
 	id: string;
@@ -21,7 +20,7 @@ export const IntervalElementPropertiesForm = ({
 				id="interval-el-period-prop"
 				label="Period"
 				value={properties.period}
-				type="number"
+				type="text"
 				size="small"
 				InputLabelProps={{
 					shrink: true,
@@ -29,12 +28,7 @@ export const IntervalElementPropertiesForm = ({
 				InputProps={{
 					inputProps: { min: 0 },
 				}}
-				onChange={handleNumberInputChanged(
-					id,
-					'period',
-					properties.period,
-					onPropertyValueChange,
-				)}
+				onChange={(e) => onPropertyValueChange?.(id, 'period', e.currentTarget.value)}
 				helperText="The interval size in milliseconds (by default) or the time unit determined by the scheduler's clock."
 			/>
 		</Stack>

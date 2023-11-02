@@ -1,4 +1,5 @@
 export * from './AjaxElementPropertiesForm';
+export * from './DeferElementPropertiesForm';
 export * from './IntervalElementPropertiesForm';
 export * from './FromElementPropertiesForm';
 export * from './RangeElementPropertiesForm';

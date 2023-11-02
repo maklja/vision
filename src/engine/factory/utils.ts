@@ -33,3 +33,15 @@ export const mapFlowValuesArray = (elementId: string) => {
 	);
 };
 
+const variableRegex = /\{{(.*?)\}}/gm;
+
+export const isPropertyValueVariable = (propValue: string) => variableRegex.test(propValue);
+
+export const retrieveContextPropertyValue = <T>(propKey: string, ctx: Record<string, unknown>) => {
+	const prop = propKey.replaceAll('{{', '').replaceAll('}}', '').trim();
+	const propPath = prop.split('.');
+
+	const propValue = propPath.reduce((obj, path) => obj[path] as Record<string, unknown>, ctx);
+	return propValue as T;
+};
+

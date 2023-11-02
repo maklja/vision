@@ -11,6 +11,7 @@ import {
 	CombineLatestElementProperties,
 	ConcatMapElementProperties,
 	ConnectLine,
+	DeferElementProperties,
 	Element,
 	ElementType,
 	ForkJoinElementProperties,
@@ -26,6 +27,7 @@ import {
 } from '../../model';
 import {
 	AjaxElementPropertiesForm,
+	DeferElementPropertiesForm,
 	FromElementPropertiesForm,
 	GenerateElementPropertiesForm,
 	IifElementPropertiesForm,
@@ -109,6 +111,14 @@ const createElementPropertiesForm = ({
 				<AjaxElementPropertiesForm
 					id={id}
 					properties={properties as AjaxElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Defer:
+			return (
+				<DeferElementPropertiesForm
+					id={id}
+					properties={properties as DeferElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);

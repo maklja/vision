@@ -1,5 +1,6 @@
 import {
 	ajaxElementPropsTemplate,
+	deferElementPropsTemplate,
 	fromElementPropsTemplate,
 	generateElementPropsTemplate,
 	iifElementPropsTemplate,
@@ -13,6 +14,8 @@ import { ElementProps, ElementType } from '../element';
 
 export const mapToCreationOperatorPropsTemplates = (elType: ElementType): ElementProps => {
 	switch (elType) {
+		case ElementType.Defer:
+			return deferElementPropsTemplate;
 		case ElementType.From:
 			return fromElementPropsTemplate;
 		case ElementType.IIf:
@@ -35,3 +38,4 @@ export const mapToCreationOperatorPropsTemplates = (elType: ElementType): Elemen
 			return {};
 	}
 };
+
