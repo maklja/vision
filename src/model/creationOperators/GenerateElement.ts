@@ -12,7 +12,7 @@ export interface GenerateElement extends Element<GenerateElementProperties> {
 }
 
 export const generateElementPropsTemplate: GenerateElementProperties = {
-	initialState: '0',
+	initialState: '() => 0',
 	condition: '(value) => value < 3',
 	iterate: '(value) => value + 1',
 	resultSelector: '(value) => value * 1000',
