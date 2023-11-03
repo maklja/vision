@@ -22,7 +22,6 @@ import {
 	Element,
 	ElementGroup,
 	ElementType,
-	EmptyElement,
 	FromElement,
 	GenerateElement,
 	IifElement,
@@ -262,23 +261,23 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	}
 
 	private createEmptyCreationOperator({ element }: OperatorFactoryParams) {
-		const emptyEl = element as EmptyElement;
-		return EMPTY.pipe(map((item) => this.createFlowValue(item, emptyEl.id)));
+		return EMPTY.pipe(map((item) => this.createFlowValue(item, element.id)));
 	}
 
-	private createGenerateCreationOperator({ element }: OperatorFactoryParams) {
+	private createGenerateCreationOperator({ element, context }: OperatorFactoryParams) {
 		const generateEl = element as GenerateElement;
 		const { initialState, iterate, resultSelector, condition } = generateEl.properties;
-		const initialStateFn = new Function(`return ${initialState}`);
-		const conditionFn = condition ? new Function(`return ${condition}`) : undefined;
-		const iterateFn = new Function(`return ${iterate}`);
-		const resultSelectorFn = new Function(`return ${resultSelector}`);
+
+		const initialStateFn = createContextFn(initialState);
+		const conditionFn = condition ? createContextFn(condition) : undefined;
+		const iterateFn = createContextFn(iterate);
+		const resultSelectorFn = createContextFn(resultSelector);
 
 		return generate({
-			initialState: initialStateFn(),
-			condition: conditionFn?.(),
-			iterate: iterateFn(),
-			resultSelector: resultSelectorFn(),
+			initialState: initialStateFn(context)(),
+			condition: conditionFn?.(context),
+			iterate: iterateFn(context),
+			resultSelector: resultSelectorFn(context),
 		}).pipe(map((item) => this.createFlowValue(item, generateEl.id)));
 	}
 
