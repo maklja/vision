@@ -155,12 +155,15 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	private createIntervalCreationOperator({ element, context }: OperatorFactoryParams) {
 		const intervalEl = element as IntervalElement;
-		const { period } = intervalEl.properties;
 
 		return defer(() => {
-			const periodValue = isPropertyValueVariable(period)
-				? retrieveContextPropertyValue<number>(period, context)
-				: Number(period);
+			if (intervalEl.properties.preInputObservableCreation) {
+				createContextFn(intervalEl.properties.preInputObservableCreation, context)();
+			}
+
+			const periodValue = isPropertyValueVariable(intervalEl.properties.period)
+				? retrieveContextPropertyValue<number>(intervalEl.properties.period, context)
+				: Number(intervalEl.properties.period);
 
 			return interval(periodValue).pipe(
 				map((item) => this.createFlowValue(item, element.id)),
@@ -294,34 +297,70 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		});
 	}
 
-	private createThrowErrorCreationOperator({ element }: OperatorFactoryParams) {
+	private createThrowErrorCreationOperator({ element, context }: OperatorFactoryParams) {
 		const throwErrorEl = element as ThrowErrorElement;
-		const errorFactoryFn = new Function(
-			`return ${throwErrorEl.properties.errorOrErrorFactory}`,
-		)();
 
-		return throwError(errorFactoryFn as () => unknown);
+		return defer(() => {
+			const errorFactoryFn = createContextFn(
+				throwErrorEl.properties.errorOrErrorFactory,
+				context,
+			);
+
+			return throwError(errorFactoryFn as () => unknown);
+		});
 	}
 
-	private createRangeCreationOperator({ element }: OperatorFactoryParams) {
+	private createRangeCreationOperator({ element, context }: OperatorFactoryParams) {
 		const rangeEl = element as RangeElement;
-		const { start, count } = rangeEl.properties;
-		return range(start, count).pipe(map((item) => this.createFlowValue(item, rangeEl.id)));
+		return defer(() => {
+			if (rangeEl.properties.preInputObservableCreation) {
+				createContextFn(rangeEl.properties.preInputObservableCreation, context)();
+			}
+
+			const startValue = isPropertyValueVariable(rangeEl.properties.start)
+				? retrieveContextPropertyValue<number>(rangeEl.properties.start, context)
+				: Number(rangeEl.properties.start);
+
+			let countValue;
+			if (rangeEl.properties.count) {
+				countValue = isPropertyValueVariable(rangeEl.properties.count)
+					? retrieveContextPropertyValue<number>(rangeEl.properties.count, context)
+					: Number(rangeEl.properties.count);
+			}
+
+			return range(startValue, countValue).pipe(
+				map((item) => this.createFlowValue(item, rangeEl.id)),
+			);
+		});
 	}
 
-	private createTimerCreationOperator({ element }: OperatorFactoryParams) {
+	private createTimerCreationOperator({ element, context }: OperatorFactoryParams) {
 		const timerEl = element as TimerElement;
-		const startDue =
-			timerEl.properties.dueDateType === DueDateType.Date
-				? new Date(timerEl.properties.startDue)
-				: timerEl.properties.startDue;
-		return timer(startDue, timerEl.properties.intervalDuration).pipe(
-			map((item) => this.createFlowValue(item, element.id)),
-		);
+		return defer(() => {
+			if (timerEl.properties.preInputObservableCreation) {
+				createContextFn(timerEl.properties.preInputObservableCreation, context)();
+			}
+
+			let startDue;
+			if (timerEl.properties.dueDateType === DueDateType.Date) {
+				startDue = new Date(timerEl.properties.startDue);
+			} else if (timerEl.properties.dueDateType === DueDateType.Milliseconds) {
+				startDue = Number(timerEl.properties.startDue);
+			} else {
+				startDue = retrieveContextPropertyValue<number | Date>(
+					timerEl.properties.startDue,
+					context,
+				);
+			}
+			const intervalDuration = Number(timerEl.properties.intervalDuration);
+
+			return timer(startDue, intervalDuration).pipe(
+				map((item) => this.createFlowValue(item, element.id)),
+			);
+		});
 	}
 
 	private createFlowValue(value: unknown, elementId: string): FlowValue {
 		return new FlowValue(value, elementId, FlowValueType.Next);
 	}
 }
-

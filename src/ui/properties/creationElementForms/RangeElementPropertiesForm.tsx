@@ -1,8 +1,8 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { formStyle } from '../commonStyles';
+import { SimpleCodeEditor } from '../../code';
 import { RangeElementProperties } from '../../../model';
-import { handleNumberInputChanged, handleOptionalNumberInputChanged } from '../utils';
 
 export interface RangeElementPropertiesFormProps {
 	id: string;
@@ -15,23 +15,21 @@ export const RangeElementPropertiesForm = ({
 	properties,
 	onPropertyValueChange,
 }: RangeElementPropertiesFormProps) => {
+	const handlePreInputObservableCreation = (input: string) =>
+		onPropertyValueChange?.(id, 'preInputObservableCreation', input.trim());
+
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<TextField
 				id="range-el-start-prop"
 				label="Start"
 				value={properties.start}
-				type="number"
+				type="text"
 				size="small"
 				InputLabelProps={{
 					shrink: true,
 				}}
-				onChange={handleNumberInputChanged(
-					id,
-					'start',
-					properties.start,
-					onPropertyValueChange,
-				)}
+				onChange={(e) => onPropertyValueChange?.(id, 'start', e.target.value)}
 				helperText="The value of the first integer in the sequence."
 			/>
 
@@ -39,23 +37,21 @@ export const RangeElementPropertiesForm = ({
 				id="range-el-count-prop"
 				label="Count"
 				value={properties.count}
-				type="number"
+				type="text"
 				size="small"
 				InputLabelProps={{
 					shrink: true,
 				}}
-				InputProps={{
-					inputProps: { min: 0 },
-				}}
-				onChange={handleOptionalNumberInputChanged(
-					id,
-					'count',
-					properties.count,
-					onPropertyValueChange,
-				)}
+				onChange={(e) => onPropertyValueChange?.(id, 'count', e.target.value)}
 				helperText="The number of sequential integers to generate."
+			/>
+
+			<SimpleCodeEditor
+				code={properties.preInputObservableCreation}
+				label="Pre code execution"
+				helperText="Hook that will be executed before input observable is created."
+				onCodeChange={handlePreInputObservableCreation}
 			/>
 		</Stack>
 	);
 };
-

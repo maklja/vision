@@ -1,6 +1,7 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { IntervalElementProperties } from '../../../model';
+import { SimpleCodeEditor } from '../../code';
 import { formStyle } from '../commonStyles';
 
 export interface IntervalElementPropertiesFormProps {
@@ -14,6 +15,9 @@ export const IntervalElementPropertiesForm = ({
 	properties,
 	onPropertyValueChange,
 }: IntervalElementPropertiesFormProps) => {
+	const handlePreInputObservableCreation = (input: string) =>
+		onPropertyValueChange?.(id, 'preInputObservableCreation', input.trim());
+
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<TextField
@@ -25,13 +29,16 @@ export const IntervalElementPropertiesForm = ({
 				InputLabelProps={{
 					shrink: true,
 				}}
-				InputProps={{
-					inputProps: { min: 0 },
-				}}
 				onChange={(e) => onPropertyValueChange?.(id, 'period', e.currentTarget.value)}
 				helperText="The interval size in milliseconds (by default) or the time unit determined by the scheduler's clock."
+			/>
+
+			<SimpleCodeEditor
+				code={properties.preInputObservableCreation}
+				label="Pre code execution"
+				helperText="Hook that will be executed before input observable is created."
+				onCodeChange={handlePreInputObservableCreation}
 			/>
 		</Stack>
 	);
 };
-
