@@ -32,9 +32,14 @@ export const OperatorPropertiesPanel = ({
 				}}
 				elevation={0}
 			>
-				<ElementExplorer element={element} onPositionChange={onPositionChange} />
+				<ElementExplorer
+					key={element.id}
+					element={element}
+					onPositionChange={onPositionChange}
+				/>
 
 				<ElementPropertiesForm
+					key={element.id}
 					element={element}
 					relatedElements={relatedElements}
 					onPropertyValueChange={onPropertyValueChange}
