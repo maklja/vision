@@ -147,7 +147,7 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		return observable.pipe(
 			concatMap<FlowValue, ObservableInput<FlowValue>>((value) => {
 				if (properties.preInputObservableCreation) {
-					createContextFn(properties.preInputObservableCreation)(context)(value.raw);
+					createContextFn(properties.preInputObservableCreation, context)(value.raw);
 				}
 
 				refObservable.invokeTrigger?.(value);
@@ -177,4 +177,3 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		);
 	}
 }
-

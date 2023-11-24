@@ -22,10 +22,9 @@ export const ConcatMapElementPropertiesForm = ({
 			<SimpleCodeEditor
 				code={properties.preInputObservableCreation}
 				label="Pre code execution"
-				helperText="Hook that will be executed each before input observable is created."
+				helperText="Hook that will be executed before input observable is created."
 				onCodeChange={handlePreInputObservableCreation}
 			/>
 		</Stack>
 	);
 };
-
