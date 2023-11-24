@@ -114,10 +114,13 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			);
 		}
 
-		const itemsFactoryFn = createContextFn(ofEl.properties.itemsFactory, context);
-		return of(...itemsFactoryFn()).pipe(
-			map<unknown, FlowValue>((item) => this.createFlowValue(item, ofEl.id)),
-		);
+		return defer(() => {
+			const itemsFactoryFn = createContextFn(ofEl.properties.itemsFactory, context);
+
+			return of(...itemsFactoryFn()).pipe(
+				map<unknown, FlowValue>((item) => this.createFlowValue(item, ofEl.id)),
+			);
+		});
 	}
 
 	private createFromCreationOperator({ element, context, options }: OperatorFactoryParams) {
@@ -167,7 +170,6 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	private createIifCreationOperator({ element, options, context }: OperatorFactoryParams) {
 		const iifEl = element as IifElement;
-		const conditionFn = createContextFn(iifEl.properties.conditionExpression, context);
 
 		const trueRefObservable = options.referenceObservables.find(
 			({ connectPoint }) =>
@@ -193,23 +195,27 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 			);
 		}
 
-		return iif(
-			conditionFn(),
-			defer(() => {
-				if (iifEl.properties.truthyInputObservableCreation) {
-					createContextFn(iifEl.properties.truthyInputObservableCreation, context)();
-				}
-				trueRefObservable.invokeTrigger?.(FlowValue.createEmptyValue(iifEl.id));
-				return trueRefObservable.observable;
-			}),
-			defer(() => {
-				if (iifEl.properties.falsyInputObservableCreation) {
-					createContextFn(iifEl.properties.falsyInputObservableCreation, context)();
-				}
-				falseRefObservable.invokeTrigger?.(FlowValue.createEmptyValue(iifEl.id));
-				return falseRefObservable.observable;
-			}),
-		);
+		return defer(() => {
+			const conditionFn = createContextFn(iifEl.properties.conditionExpression, context);
+
+			return iif(
+				conditionFn,
+				defer(() => {
+					if (iifEl.properties.truthyInputObservableCreation) {
+						createContextFn(iifEl.properties.truthyInputObservableCreation, context)();
+					}
+					trueRefObservable.invokeTrigger?.(FlowValue.createEmptyValue(iifEl.id));
+					return trueRefObservable.observable;
+				}),
+				defer(() => {
+					if (iifEl.properties.falsyInputObservableCreation) {
+						createContextFn(iifEl.properties.falsyInputObservableCreation, context)();
+					}
+					falseRefObservable.invokeTrigger?.(FlowValue.createEmptyValue(iifEl.id));
+					return falseRefObservable.observable;
+				}),
+			);
+		});
 	}
 
 	private createAjaxCreationOperator({ element }: OperatorFactoryParams) {
@@ -270,19 +276,22 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 	private createGenerateCreationOperator({ element, context }: OperatorFactoryParams) {
 		const generateEl = element as GenerateElement;
-		const { initialState, iterate, resultSelector, condition } = generateEl.properties;
 
-		const initialStateFn = createContextFn(initialState, context);
-		const conditionFn = condition ? createContextFn(condition, context) : undefined;
-		const iterateFn = createContextFn(iterate, context);
-		const resultSelectorFn = createContextFn(resultSelector, context);
+		return defer(() => {
+			const { initialState, iterate, resultSelector, condition } = generateEl.properties;
 
-		return generate({
-			initialState: initialStateFn(),
-			condition: conditionFn,
-			iterate: iterateFn,
-			resultSelector: resultSelectorFn,
-		}).pipe(map((item) => this.createFlowValue(item, generateEl.id)));
+			const initialStateFn = createContextFn(initialState, context);
+			const conditionFn = condition ? createContextFn(condition, context) : undefined;
+			const iterateFn = createContextFn(iterate, context);
+			const resultSelectorFn = createContextFn(resultSelector, context);
+
+			return generate({
+				initialState: initialStateFn(),
+				condition: conditionFn,
+				iterate: iterateFn,
+				resultSelector: resultSelectorFn,
+			}).pipe(map((item) => this.createFlowValue(item, generateEl.id)));
+		});
 	}
 
 	private createThrowErrorCreationOperator({ element }: OperatorFactoryParams) {
@@ -315,3 +324,4 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		return new FlowValue(value, elementId, FlowValueType.Next);
 	}
 }
+

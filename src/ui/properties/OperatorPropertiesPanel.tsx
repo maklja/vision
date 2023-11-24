@@ -45,6 +45,7 @@ export const OperatorPropertiesPanel = ({
 				/>
 
 				<ElementPropertiesForm
+					key={element.id}
 					element={element}
 					relatedElements={relatedElements}
 					onPropertyValueChange={onPropertyValueChange}
@@ -54,3 +55,4 @@ export const OperatorPropertiesPanel = ({
 		</Box>
 	);
 };
+
