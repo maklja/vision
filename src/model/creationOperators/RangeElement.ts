@@ -1,8 +1,9 @@
 import { Element, ElementType } from '../element';
 
 export interface RangeElementProperties extends Record<string, unknown> {
-	start: number;
-	count?: number;
+	start: string;
+	count?: string;
+	preInputObservableCreation: string;
 }
 
 export interface RangeElement extends Element<RangeElementProperties> {
@@ -10,7 +11,7 @@ export interface RangeElement extends Element<RangeElementProperties> {
 }
 
 export const rangeElementPropsTemplate: RangeElementProperties = {
-	start: 1,
-	count: 10,
+	start: '1',
+	count: '10',
+	preInputObservableCreation: '() => {}',
 };
-

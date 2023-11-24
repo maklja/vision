@@ -20,6 +20,7 @@ export const OperatorPropertiesPanel = ({
 }: OperatorPropertiesPanelProps) => {
 	return (
 		<Box
+			key={element.id}
 			sx={{
 				width: '100%',
 				height: '100%',
@@ -32,14 +33,9 @@ export const OperatorPropertiesPanel = ({
 				}}
 				elevation={0}
 			>
-				<ElementExplorer
-					key={element.id}
-					element={element}
-					onPositionChange={onPositionChange}
-				/>
+				<ElementExplorer element={element} onPositionChange={onPositionChange} />
 
 				<ElementPropertiesForm
-					key={element.id}
 					element={element}
 					relatedElements={relatedElements}
 					onPropertyValueChange={onPropertyValueChange}
@@ -49,4 +45,3 @@ export const OperatorPropertiesPanel = ({
 		</Box>
 	);
 };
-

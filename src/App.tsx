@@ -54,7 +54,10 @@ const i1: IntervalElement = {
 	y: 300,
 	type: ElementType.Interval,
 	visible: true,
-	properties: { period: '2000' },
+	properties: {
+		period: '2000',
+		preInputObservableCreation: '() => { $context.timerName = "my-timer" }',
+	},
 };
 
 const e4: FilterElement = {
@@ -163,4 +166,3 @@ const App = () => {
 };
 
 export default App;
-

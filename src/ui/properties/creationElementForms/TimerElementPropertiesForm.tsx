@@ -12,7 +12,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { formStyle } from '../commonStyles';
 import { DueDateType, TimerElementProperties } from '../../../model';
-import { handleNumberInputChanged } from '../utils';
+import { SimpleCodeEditor } from '../../code';
 
 export interface TimerElementPropertiesFormProps {
 	id: string;
@@ -43,6 +43,9 @@ export const TimerElementPropertiesForm = ({
 		onPropertyValueChange?.(id, 'dueDateType', newDueDateType);
 	};
 
+	const handlePreInputObservableCreation = (input: string) =>
+		onPropertyValueChange?.(id, 'preInputObservableCreation', input.trim());
+
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<FormGroup sx={{ gap: formStyle.componentGap, flexWrap: 'nowrap' }}>
@@ -56,6 +59,7 @@ export const TimerElementPropertiesForm = ({
 					>
 						<MenuItem value={DueDateType.Milliseconds}>Milliseconds</MenuItem>
 						<MenuItem value={DueDateType.Date}>Date</MenuItem>
+						<MenuItem value={DueDateType.Variable}>Variable</MenuItem>
 					</Select>
 				</FormControl>
 				{properties.dueDateType === DueDateType.Date ? (
@@ -75,21 +79,17 @@ export const TimerElementPropertiesForm = ({
 						id="timer-el-due-ms-prop"
 						label="Due milliseconds"
 						value={properties.startDue}
-						type="number"
+						type={properties.dueDateType === DueDateType.Variable ? 'text' : 'number'}
 						size="small"
 						InputLabelProps={{
 							shrink: true,
 						}}
 						InputProps={{
-							inputProps: { min: 0 },
+							inputProps:
+								properties.dueDateType === DueDateType.Variable ? {} : { min: 0 },
 						}}
 						helperText="The amount of time in milliseconds to wait before emitting."
-						onChange={handleNumberInputChanged(
-							id,
-							'startDue',
-							properties.startDue,
-							onPropertyValueChange,
-						)}
+						onChange={(e) => onPropertyValueChange?.(id, 'startDue', e.target.value)}
 					/>
 				)}
 			</FormGroup>
@@ -97,24 +97,22 @@ export const TimerElementPropertiesForm = ({
 			<TextField
 				id="timer-el-interval-duration-prop"
 				label="Interval duration"
-				type="number"
+				type="text"
 				size="small"
 				value={properties.intervalDuration}
 				InputLabelProps={{
 					shrink: true,
 				}}
-				InputProps={{
-					inputProps: { min: -1 },
-				}}
 				helperText="The delay between each value emitted in the interval. Passing a negative number here will result in immediate completion after the first value is emitted, as though no interval duration was passed at all."
-				onChange={handleNumberInputChanged(
-					id,
-					'intervalDuration',
-					properties.intervalDuration,
-					onPropertyValueChange,
-				)}
+				onChange={(e) => onPropertyValueChange?.(id, 'intervalDuration', e.target.value)}
+			/>
+
+			<SimpleCodeEditor
+				code={properties.preInputObservableCreation}
+				label="Pre code execution"
+				helperText="Hook that will be executed before input observable is created."
+				onCodeChange={handlePreInputObservableCreation}
 			/>
 		</Stack>
 	);
 };
-
