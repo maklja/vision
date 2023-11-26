@@ -16,11 +16,16 @@ import { formStyle } from './commonStyles';
 
 export interface ElementExplorerProps {
 	element: Element;
+	onNameChange?: (id: string, name: string) => void;
 	onPositionChange?: (id: string, position: Point) => void;
 }
 
-export const ElementExplorer = ({ element, onPositionChange }: ElementExplorerProps) => {
-	const { id, type, x, y } = element;
+export const ElementExplorer = ({
+	element,
+	onNameChange,
+	onPositionChange,
+}: ElementExplorerProps) => {
+	const { id, name, type, x, y } = element;
 	const operatorGroup = mapElementTypeToGroup(type);
 	const shapeSize = useShapeSize(type);
 
@@ -32,6 +37,10 @@ export const ElementExplorer = ({ element, onPositionChange }: ElementExplorerPr
 	const handleYChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
 		const newY = Number(e.target.value);
 		onPositionChange?.(id, { x, y: isNaN(newY) ? y : newY });
+	};
+
+	const handleNameChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
+		//
 	};
 
 	return (
@@ -54,6 +63,16 @@ export const ElementExplorer = ({ element, onPositionChange }: ElementExplorerPr
 								InputProps={{
 									readOnly: true,
 								}}
+								InputLabelProps={{
+									shrink: true,
+								}}
+							/>
+
+							<TextField
+								id="element-name"
+								label="Name"
+								value={name}
+								size="small"
 								InputLabelProps={{
 									shrink: true,
 								}}

@@ -1,7 +1,8 @@
+import { v1 } from 'uuid';
 import { current } from 'immer';
 import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
-import { Element, ElementProps } from '../../model';
+import { Element, ElementProps, ElementType, mapToOperatorPropsTemplate } from '../../model';
 import { RootState } from '../rootState';
 import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
 import { StageState, updateStateChange } from '../stage';
@@ -36,7 +37,11 @@ export interface MoveElementAction {
 
 export interface CreateDraftElementAction {
 	type: string;
-	payload: Element;
+	payload: {
+		type: ElementType;
+		x: number;
+		y: number;
+	};
 }
 
 export interface RemoveElementsPayload {
@@ -77,6 +82,16 @@ export interface LoadElementsAction {
 const elementsAdapter = createEntityAdapter<Element>({
 	selectId: (el) => el.id,
 });
+
+function createElementName(takenElNames: string[], elType: ElementType) {
+	let idx = 0;
+	let newElName = `${elType}_${idx}`;
+	while (takenElNames.includes(newElName)) {
+		newElName = `${elType}_${++idx}`;
+	}
+
+	return newElName;
+}
 
 export const createElementsAdapterInitialState = () => elementsAdapter.getInitialState();
 
@@ -183,7 +198,16 @@ export const elementsAdapterReducers = {
 		updateElementPropertyStateChange(slice, action.payload),
 	createDraftElement: (slice: Draft<StageSlice>, action: CreateDraftElementAction) => {
 		updateStateChange(slice, StageState.DrawElement);
-		slice.draftElement = action.payload;
+
+		const allElementNames = selectAllElements(slice.elements).map((el) => el.name);
+		const elName = createElementName(allElementNames, action.payload.type);
+		slice.draftElement = {
+			...action.payload,
+			visible: true,
+			name: elName,
+			id: v1(),
+			properties: mapToOperatorPropsTemplate(action.payload.type),
+		};
 	},
 	addDraftElement: (slice: Draft<StageSlice>) => {
 		updateStateChange(slice, StageState.Select);
@@ -231,4 +255,3 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
-

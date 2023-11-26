@@ -17,7 +17,7 @@ import { selectStageDraftElement } from '../../store/elements';
 import { calcSnapPosition } from '../../drawers';
 
 export interface DragNDropItem {
-	element: Element;
+	elementType: ElementType;
 	shapeSize: ShapeSize;
 }
 
@@ -92,4 +92,3 @@ export const DragNDropLayer = ({ snapToGrid }: DragNDropLayerProps) => {
 
 	return <Layer ref={layerRef}>{drawer}</Layer>;
 };
-
