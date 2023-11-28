@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box';
-import { v1 } from 'uuid';
 import { useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { Layer, Stage } from 'react-konva';

@@ -1,4 +1,4 @@
-import { ChangeEventHandler, Fragment } from 'react';
+import { ChangeEventHandler, FocusEventHandler, Fragment, useState } from 'react';
 import FormGroup from '@mui/material/FormGroup';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -16,18 +16,23 @@ import { formStyle } from './commonStyles';
 
 export interface ElementExplorerProps {
 	element: Element;
+	elementNames: string[];
 	onNameChange?: (id: string, name: string) => void;
 	onPositionChange?: (id: string, position: Point) => void;
 }
 
 export const ElementExplorer = ({
 	element,
+	elementNames,
 	onNameChange,
 	onPositionChange,
 }: ElementExplorerProps) => {
-	const { id, name, type, x, y } = element;
+	const { id, type, x, y } = element;
 	const operatorGroup = mapElementTypeToGroup(type);
 	const shapeSize = useShapeSize(type);
+
+	const [name, setName] = useState(element.name);
+	const [isNameUnique, setIsNameUnique] = useState(!elementNames.includes(element.name));
 
 	const handleXChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
 		const newX = Number(e.target.value);
@@ -40,8 +45,28 @@ export const ElementExplorer = ({
 	};
 
 	const handleNameChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
-		//
+		const newName = e.currentTarget.value;
+		setName(newName);
+		setIsNameUnique(!elementNames.includes(newName.toLowerCase()));
 	};
+
+	const handleNameBlur: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement> = () => {
+		if (isNameUnique) {
+			onNameChange?.(id, name);
+		} else {
+			setName(element.name);
+			setIsNameUnique(true);
+		}
+	};
+
+	// TODO better validation later
+	const hasErrorInHame = name === '' || !isNameUnique;
+	let errorMessage = '';
+	if (!name) {
+		errorMessage = 'Name is required';
+	} else if (!isNameUnique) {
+		errorMessage = 'Name must be unique';
+	}
 
 	return (
 		<Box component="form" noValidate autoComplete="off">
@@ -76,6 +101,10 @@ export const ElementExplorer = ({
 								InputLabelProps={{
 									shrink: true,
 								}}
+								onChange={handleNameChange}
+								onBlur={handleNameBlur}
+								error={hasErrorInHame}
+								helperText={errorMessage}
 							/>
 
 							<TextField

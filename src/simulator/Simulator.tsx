@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
@@ -40,6 +40,14 @@ export const Simulator = () => {
 	const selectedElements = useAppSelector(selectElementsInSelection);
 	const selectedElementConnectLines = useAppSelector(
 		selectRelatedElementElements(selectedElements[0]?.id),
+	);
+
+	const elementNames = useMemo<string[]>(
+		() =>
+			elements
+				.filter((el) => el.id !== selectedElements[0]?.id)
+				.map((el) => el.name.toLowerCase()),
+		[elements, selectedElements],
 	);
 
 	const appDispatch = useAppDispatch();
@@ -217,6 +225,7 @@ export const Simulator = () => {
 				>
 					<OperatorPropertiesPanel
 						element={selectedElements[0]}
+						elementNames={elementNames}
 						relatedElements={selectedElementConnectLines}
 						onPositionChange={handleElementPositionChange}
 						onPropertyValueChange={handleElementPropertyChange}
@@ -227,4 +236,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-

@@ -2,7 +2,7 @@
 -   laso and multi selection
 -   save/load
 -   copy/paste
--   elements names, filter element name, search element names
+-   filter element name, search element names
 -   scheduler, multi result animations
 -   results preview
 -   marble diagrams
