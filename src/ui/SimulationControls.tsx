@@ -100,7 +100,7 @@ export const SimulationControls = ({
 					>
 						{entryElements.map((el) => (
 							<MenuItem key={el.id} value={el.id}>
-								{el.type}
+								{el.type} - {el.name}
 							</MenuItem>
 						))}
 					</Select>

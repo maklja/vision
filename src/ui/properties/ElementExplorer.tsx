@@ -1,4 +1,4 @@
-import { ChangeEventHandler, FocusEventHandler, Fragment, useEffect, useState } from 'react';
+import { ChangeEventHandler, Fragment, useEffect, useRef } from 'react';
 import FormGroup from '@mui/material/FormGroup';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -27,28 +27,27 @@ export const ElementExplorer = ({
 	onNameChange,
 	onPositionChange,
 }: ElementExplorerProps) => {
-	const { id, type, x, y } = element;
+	const { id, name, type, x, y } = element;
 	const operatorGroup = mapElementTypeToGroup(type);
 	const shapeSize = useShapeSize(type);
 
-	const [name, setName] = useState(element.name);
-	const [isNameUnique, setIsNameUnique] = useState(!elementNames.includes(element.name));
+	const nameRef = useRef(name);
+	const nameValidRef = useRef(true);
 
 	const handleNameBlur = () => {
-		alert(name);
-		if (isNameUnique) {
-			onNameChange?.(id, name);
-		} else {
-			setName(element.name);
-			setIsNameUnique(true);
+		if (!nameValidRef.current) {
+			onNameChange?.(id, nameRef.current);
+			nameValidRef.current = true;
 		}
 	};
 
 	useEffect(() => {
 		return () => {
-			console.log('changed');
+			if (!nameValidRef.current) {
+				onNameChange?.(id, nameRef.current);
+			}
 		};
-	}, [name]);
+	}, []);
 
 	const handleXChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
 		const newX = Number(e.target.value);
@@ -62,16 +61,14 @@ export const ElementExplorer = ({
 
 	const handleNameChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
 		const newName = e.currentTarget.value;
-		setName(newName);
-		setIsNameUnique(!elementNames.includes(newName.toLowerCase()));
+		nameValidRef.current = Boolean(newName) && !elementNames.includes(newName.toLowerCase());
+		onNameChange?.(id, newName);
 	};
 
-	// TODO better validation later
-	const hasErrorInHame = name === '' || !isNameUnique;
 	let errorMessage = '';
 	if (!name) {
 		errorMessage = 'Name is required';
-	} else if (!isNameUnique) {
+	} else if (elementNames.includes(name.toLowerCase())) {
 		errorMessage = 'Name must be unique';
 	}
 
@@ -110,7 +107,7 @@ export const ElementExplorer = ({
 								}}
 								onChange={handleNameChange}
 								onBlur={handleNameBlur}
-								error={hasErrorInHame}
+								error={Boolean(errorMessage)}
 								helperText={errorMessage}
 							/>
 
