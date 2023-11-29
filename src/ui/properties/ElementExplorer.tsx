@@ -1,4 +1,4 @@
-import { ChangeEventHandler, FocusEventHandler, Fragment, useState } from 'react';
+import { ChangeEventHandler, FocusEventHandler, Fragment, useEffect, useState } from 'react';
 import FormGroup from '@mui/material/FormGroup';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -34,6 +34,22 @@ export const ElementExplorer = ({
 	const [name, setName] = useState(element.name);
 	const [isNameUnique, setIsNameUnique] = useState(!elementNames.includes(element.name));
 
+	const handleNameBlur = () => {
+		alert(name);
+		if (isNameUnique) {
+			onNameChange?.(id, name);
+		} else {
+			setName(element.name);
+			setIsNameUnique(true);
+		}
+	};
+
+	useEffect(() => {
+		return () => {
+			console.log('changed');
+		};
+	}, [name]);
+
 	const handleXChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
 		const newX = Number(e.target.value);
 		onPositionChange?.(id, { x: isNaN(newX) ? x : newX, y });
@@ -48,15 +64,6 @@ export const ElementExplorer = ({
 		const newName = e.currentTarget.value;
 		setName(newName);
 		setIsNameUnique(!elementNames.includes(newName.toLowerCase()));
-	};
-
-	const handleNameBlur: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement> = () => {
-		if (isNameUnique) {
-			onNameChange?.(id, name);
-		} else {
-			setName(element.name);
-			setIsNameUnique(true);
-		}
 	};
 
 	// TODO better validation later

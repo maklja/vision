@@ -13,6 +13,7 @@ import {
 	resetSimulation,
 	startSimulation,
 	updateConnectLine,
+	updateElement,
 	updateElementProperty,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
@@ -138,6 +139,14 @@ export const Simulator = () => {
 			}),
 		);
 
+	const handleElementNameChange = (id: string, name: string) =>
+		appDispatch(
+			updateElement({
+				id,
+				name,
+			}),
+		);
+
 	const handleElementPropertyChange = (
 		id: string,
 		propertyName: string,
@@ -227,6 +236,7 @@ export const Simulator = () => {
 						element={selectedElements[0]}
 						elementNames={elementNames}
 						relatedElements={selectedElementConnectLines}
+						onNameChange={handleElementNameChange}
 						onPositionChange={handleElementPositionChange}
 						onPropertyValueChange={handleElementPropertyChange}
 						onConnectLineChange={handleConnectLineChanged}
