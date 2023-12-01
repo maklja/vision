@@ -1,4 +1,4 @@
-import { ChangeEventHandler, Fragment } from 'react';
+import { ChangeEventHandler, Fragment, useEffect, useRef } from 'react';
 import FormGroup from '@mui/material/FormGroup';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -16,18 +16,38 @@ import { formStyle } from './commonStyles';
 
 export interface ElementExplorerProps {
 	element: Element;
+	elementNames: string[];
 	onNameChange?: (id: string, name: string) => void;
 	onPositionChange?: (id: string, position: Point) => void;
 }
 
 export const ElementExplorer = ({
 	element,
+	elementNames,
 	onNameChange,
 	onPositionChange,
 }: ElementExplorerProps) => {
 	const { id, name, type, x, y } = element;
 	const operatorGroup = mapElementTypeToGroup(type);
 	const shapeSize = useShapeSize(type);
+
+	const nameRef = useRef(name);
+	const nameValidRef = useRef(true);
+
+	const handleNameBlur = () => {
+		if (!nameValidRef.current) {
+			onNameChange?.(id, nameRef.current);
+			nameValidRef.current = true;
+		}
+	};
+
+	useEffect(() => {
+		return () => {
+			if (!nameValidRef.current) {
+				onNameChange?.(id, nameRef.current);
+			}
+		};
+	}, []);
 
 	const handleXChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
 		const newX = Number(e.target.value);
@@ -40,8 +60,17 @@ export const ElementExplorer = ({
 	};
 
 	const handleNameChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
-		//
+		const newName = e.currentTarget.value;
+		nameValidRef.current = Boolean(newName) && !elementNames.includes(newName.toLowerCase());
+		onNameChange?.(id, newName);
 	};
+
+	let errorMessage = '';
+	if (!name) {
+		errorMessage = 'Name is required';
+	} else if (elementNames.includes(name.toLowerCase())) {
+		errorMessage = 'Name must be unique';
+	}
 
 	return (
 		<Box component="form" noValidate autoComplete="off">
@@ -76,6 +105,10 @@ export const ElementExplorer = ({
 								InputLabelProps={{
 									shrink: true,
 								}}
+								onChange={handleNameChange}
+								onBlur={handleNameBlur}
+								error={Boolean(errorMessage)}
+								helperText={errorMessage}
 							/>
 
 							<TextField

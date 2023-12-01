@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import Konva from 'konva';
 import { Layer } from 'react-konva';
 import { XYCoord, useDragLayer } from 'react-dnd';
-import { Element, ElementType } from '../../model';
+import { ElementType } from '../../model';
 import {
 	createDraftElementSnapLines,
 	selectElementSizeOptions,

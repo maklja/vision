@@ -14,6 +14,7 @@ import {
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
+	name?: string;
 	visible?: boolean;
 	scale?: number;
 	properties?: P;

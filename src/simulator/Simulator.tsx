@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
@@ -13,6 +13,7 @@ import {
 	resetSimulation,
 	startSimulation,
 	updateConnectLine,
+	updateElement,
 	updateElementProperty,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
@@ -40,6 +41,14 @@ export const Simulator = () => {
 	const selectedElements = useAppSelector(selectElementsInSelection);
 	const selectedElementConnectLines = useAppSelector(
 		selectRelatedElementElements(selectedElements[0]?.id),
+	);
+
+	const elementNames = useMemo<string[]>(
+		() =>
+			elements
+				.filter((el) => el.id !== selectedElements[0]?.id)
+				.map((el) => el.name.toLowerCase()),
+		[elements, selectedElements],
 	);
 
 	const appDispatch = useAppDispatch();
@@ -130,6 +139,14 @@ export const Simulator = () => {
 			}),
 		);
 
+	const handleElementNameChange = (id: string, name: string) =>
+		appDispatch(
+			updateElement({
+				id,
+				name,
+			}),
+		);
+
 	const handleElementPropertyChange = (
 		id: string,
 		propertyName: string,
@@ -217,7 +234,9 @@ export const Simulator = () => {
 				>
 					<OperatorPropertiesPanel
 						element={selectedElements[0]}
+						elementNames={elementNames}
 						relatedElements={selectedElementConnectLines}
+						onNameChange={handleElementNameChange}
 						onPositionChange={handleElementPositionChange}
 						onPropertyValueChange={handleElementPropertyChange}
 						onConnectLineChange={handleConnectLineChanged}
@@ -227,4 +246,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-
