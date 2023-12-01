@@ -15,9 +15,9 @@ export type ElementProps = Record<string, unknown>;
 export interface Element<P extends ElementProps = Record<string, unknown>> {
 	id: string;
 	type: ElementType;
+	name: string;
 	x: number;
 	y: number;
 	visible: boolean;
 	properties: P;
 }
-

@@ -57,6 +57,7 @@ export const AnimationsLayer = () => {
 			<OperatorDrawer
 				element={{
 					id: simulation.id,
+					name: ElementType.Result,
 					x: sourcePosition.x,
 					y: sourcePosition.y,
 					type: ElementType.Result,
@@ -71,4 +72,3 @@ export const AnimationsLayer = () => {
 		</Layer>
 	);
 };
-

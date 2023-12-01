@@ -1,11 +1,10 @@
 import Box from '@mui/material/Box';
-import { v1 } from 'uuid';
 import { useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { Layer, Stage } from 'react-konva';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { createDraftElement, useShapeSize, useThemeContext } from '../../store/stageSlice';
-import { Element, ElementType, mapToOperatorPropsTemplate } from '../../model';
+import { ElementType } from '../../model';
 import { DragNDropType } from '../../dragNDrop';
 import { useAppDispatch } from '../../store/rootState';
 import { calculateShapeSizeBoundingBox, scaleShapeSize } from '../../theme';
@@ -42,18 +41,16 @@ export const OperatorButton = ({ elementType, padding = 4, scale = 0.65 }: Opera
 				const xPosition = (clientOffset?.x ?? 0) - bb.width / 2;
 				const yPosition = (clientOffset?.y ?? 0) - bb.height / 2;
 
-				const element: Element = {
-					id: v1(),
-					x: xPosition,
-					y: yPosition,
-					visible: true,
-					type: elementType,
-					properties: mapToOperatorPropsTemplate(elementType),
-				};
-				appDispatch(createDraftElement(element));
+				appDispatch(
+					createDraftElement({
+						x: xPosition,
+						y: yPosition,
+						type: elementType,
+					}),
+				);
 
 				return {
-					element,
+					elementType,
 					shapeSize,
 				};
 			},
@@ -93,4 +90,3 @@ export const OperatorButton = ({ elementType, padding = 4, scale = 0.65 }: Opera
 		</Box>
 	);
 };
-

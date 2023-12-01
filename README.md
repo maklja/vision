@@ -2,7 +2,7 @@
 -   laso and multi selection
 -   save/load
 -   copy/paste
--   elements names, filter element name, search element names
+-   locate element by name
 -   scheduler, multi result animations
 -   results preview
 -   marble diagrams
@@ -21,3 +21,4 @@
 -   event observable position passed
 -   key bind array observable result
 -   handle partition join creation operator
+

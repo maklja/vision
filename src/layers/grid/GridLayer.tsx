@@ -22,6 +22,7 @@ export const GridLayer = () => {
 				gridLines: [],
 			};
 		}
+
 		const gridSize = gridTheme.size;
 		const stageRect = {
 			x1: 0,

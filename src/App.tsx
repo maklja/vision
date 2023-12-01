@@ -15,6 +15,7 @@ import { useAppDispatch } from './store/rootState';
 
 const e1: OfElement = {
 	id: 'ofElement',
+	name: 'ofElement',
 	x: 50,
 	y: 50,
 	type: ElementType.Of,
@@ -26,6 +27,7 @@ const e1: OfElement = {
 
 const e3: FromElement = {
 	id: 'fromElement',
+	name: 'fromElement',
 	x: 50,
 	y: 200,
 	type: ElementType.From,
@@ -39,6 +41,7 @@ const e3: FromElement = {
 
 const mapElement: MapElement = {
 	id: 'mapElement',
+	name: 'mapElement',
 	x: 80,
 	y: 400,
 	type: ElementType.Map,
@@ -50,6 +53,7 @@ const mapElement: MapElement = {
 
 const i1: IntervalElement = {
 	id: 'intervalElement',
+	name: 'intervalElement',
 	x: 50,
 	y: 300,
 	type: ElementType.Interval,
@@ -62,6 +66,7 @@ const i1: IntervalElement = {
 
 const e4: FilterElement = {
 	id: 'filterElement',
+	name: 'filterElement',
 	x: 200,
 	y: 125,
 	type: ElementType.Filter,
@@ -75,6 +80,7 @@ const e4: FilterElement = {
 
 const e5: FilterElement = {
 	id: 'filterElement_1',
+	name: 'filterElement_1',
 	x: 500,
 	y: 125,
 	type: ElementType.Filter,
@@ -92,6 +98,7 @@ const e5: FilterElement = {
 
 const ce1: CatchErrorElement = {
 	id: 'catchError_1',
+	name: 'catchError_1',
 	x: 82.5,
 	y: 80,
 	type: ElementType.CatchError,
@@ -101,6 +108,7 @@ const ce1: CatchErrorElement = {
 
 const subscriber1: Element = {
 	id: 'subscriber_0',
+	name: 'subscriber_0',
 	x: 680,
 	y: 125,
 	type: ElementType.Subscriber,
@@ -110,6 +118,7 @@ const subscriber1: Element = {
 
 const subscriber2: Element = {
 	id: 'subscriber_1',
+	name: 'subscriber_1',
 	x: 680,
 	y: 325,
 	type: ElementType.Subscriber,
@@ -119,6 +128,7 @@ const subscriber2: Element = {
 
 const subscriber3: Element = {
 	id: 'subscriber_2',
+	name: 'subscriber_2',
 	x: 780,
 	y: 125,
 	type: ElementType.Subscriber,
@@ -128,6 +138,7 @@ const subscriber3: Element = {
 
 const subscriber4: Element = {
 	id: 'subscriber_3',
+	name: 'subscriber_3',
 	x: 780,
 	y: 325,
 	type: ElementType.Subscriber,

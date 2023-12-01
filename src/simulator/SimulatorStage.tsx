@@ -3,10 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
 import { AnimationsLayer } from '../layers/animations';
-import { ConnectLinesLayer } from '../layers/connectLines';
 import { DraftLayer, DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DrawersLayer } from '../layers/drawers';
-import { TooltipsLayer } from '../layers/tooltips';
 import { useAppDispatch } from '../store/rootState';
 import {
 	addDraftElement,
@@ -109,11 +107,9 @@ export const SimulatorStage = () => {
 				ref={stageRef}
 			>
 				<GridLayer />
-				<ConnectLinesLayer />
 				<DrawersLayer />
 				<AnimationsLayer />
 				<DraftLayer />
-				<TooltipsLayer />
 				<DragNDropLayer snapToGrid={snapToGrid} />
 			</Stage>
 		</div>
