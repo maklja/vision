@@ -11,6 +11,18 @@ export const GridLayer = () => {
 	const { x, y, width, height, scaleX } = useAppSelector(selectCanvasState);
 
 	const { viewRect, gridLines } = useMemo(() => {
+		if (scaleX === 0) {
+			return {
+				viewRect: {
+					x1: 0,
+					y1: 0,
+					x2: 0,
+					y2: 0,
+				},
+				gridLines: [],
+			};
+		}
+
 		const gridSize = gridTheme.size;
 		const stageRect = {
 			x1: 0,
@@ -92,8 +104,8 @@ export const GridLayer = () => {
 		<Layer
 			clipX={viewRect.x1}
 			clipY={viewRect.y1}
-			width={viewRect.x2 - viewRect.x1}
-			height={viewRect.y2 - viewRect.y1}
+			clipWidth={viewRect.x2 - viewRect.x1}
+			clipHeight={viewRect.y2 - viewRect.y1}
 			draggable={false}
 		>
 			{gridLines}
