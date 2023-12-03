@@ -18,6 +18,7 @@ import {
 	selectAllElements,
 	selectElementById,
 	selectElementsStateChange,
+	updateElementPropertyStateChange,
 } from '../elements';
 import { StageState } from '../stage';
 import {
@@ -27,6 +28,7 @@ import {
 	updateManyConnectPointsStateChange,
 } from '../connectPoints';
 import { removeAllDrawerAnimationStateChange } from '../drawerAnimations';
+import { SimulationGraph, generateCreationCallbackCode } from '../../engine';
 
 export interface DraftConnectLine {
 	id: string;
@@ -433,6 +435,31 @@ export const connectLinesAdapterReducers = {
 				connectPosition: payload.targetConnectPointPosition,
 			},
 		});
+
+		const elements = selectAllElements(slice.elements);
+		const connectLines = selectAllConnectLines(slice.connectLines);
+
+		// TODO move somewhere else
+		const elementsMap = elements.reduce(
+			(map, element) => map.set(element.id, element),
+			new Map<string, Element>(),
+		);
+		const connectLinePath = connectLines.reduce((map, cl) => {
+			const cls = map.get(cl.source.id) ?? [];
+			return map.set(cl.source.id, [...cls, cl]);
+		}, new Map<string, ConnectLine[]>());
+
+		const graphGraph = new SimulationGraph(elementsMap, connectLinePath);
+		const creationCallbackCode = generateCreationCallbackCode(
+			draftConnectLine.source.id,
+			graphGraph.createObservableGraph(draftConnectLine.source.id),
+			elementsMap,
+		);
+		updateElementPropertyStateChange(slice, {
+			id: draftConnectLine.source.id,
+			propertyName: 'eventCallback',
+			propertyValue: creationCallbackCode,
+		});
 		removeAllDrawerAnimationStateChange(slice, { drawerId: payload.connectPointId });
 	},
 	moveConnectLinePointsByDelta: (
@@ -552,7 +579,7 @@ export const selectStageConnectLines = (state: RootState) =>
 export const selectStageConnectLineById = (id: string | null) => (state: RootState) =>
 	!id ? null : globalConnectLinesSelector.selectById(state, id) ?? null;
 
-const selectElementConnectLinesById = (_state: RootState, elId?: string) => elId;
+const selectElementConnectLinesById = (_state: RootState, elId: string) => elId;
 
 const selectElementConnectLinesBySource = createSelector(
 	(state: RootState) => state.stage.elements,
@@ -579,4 +606,3 @@ const selectElementConnectLinesBySource = createSelector(
 
 export const selectRelatedElementElements = (id: string) => (state: RootState) =>
 	selectElementConnectLinesBySource(state, id);
-

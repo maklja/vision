@@ -43,6 +43,7 @@ export const Simulator = () => {
 		selectRelatedElementElements(selectedElements[0]?.id),
 	);
 
+	// TODO optimize
 	const elementNames = useMemo<string[]>(
 		() =>
 			elements

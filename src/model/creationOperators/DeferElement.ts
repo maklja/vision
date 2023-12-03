@@ -1,7 +1,8 @@
 import { Element, ElementType } from '../element';
 
 export interface DeferElementProperties extends Record<string, unknown> {
-	preInputObservableCreation: string;
+	preInputObservableCreation: string; // TODO remove
+	eventCallback: string | null;
 }
 
 export interface DeferElement extends Element<DeferElementProperties> {
@@ -10,5 +11,5 @@ export interface DeferElement extends Element<DeferElementProperties> {
 
 export const deferElementPropsTemplate: DeferElementProperties = {
 	preInputObservableCreation: '() => {}',
+	eventCallback: null,
 };
-

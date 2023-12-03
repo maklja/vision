@@ -1,4 +1,4 @@
-import { ConnectLine, Element, isCreationOperatorType, isSubscriberType } from '../../model';
+import { ConnectLine, Element, isEntryOperatorType, isSubscriberType } from '../../model';
 import { MissingNextElementError } from '../errors';
 
 export enum GraphNodeType {
@@ -7,20 +7,20 @@ export enum GraphNodeType {
 }
 
 export interface GraphEdge {
-	id: string;
-	type: GraphNodeType;
-	sourceNodeId: string;
-	targetNodeId: string;
+	readonly id: string;
+	readonly type: GraphNodeType;
+	readonly sourceNodeId: string;
+	readonly targetNodeId: string;
 }
 
 export interface GraphNode {
-	id: string;
-	edges: GraphEdge[];
+	readonly id: string;
+	readonly edges: readonly GraphEdge[];
 }
 
 export interface GraphBranch {
-	nodes: GraphNode[];
-	refNodeIds: Set<string>;
+	readonly nodes: readonly GraphNode[];
+	readonly refNodeIds: ReadonlySet<string>;
 }
 
 export class SimulationGraph {
@@ -88,7 +88,7 @@ export class SimulationGraph {
 				id: cl.id,
 				sourceNodeId: el.id,
 				targetNodeId: nextEl.id,
-				type: isCreationOperatorType(nextEl.type)
+				type: isEntryOperatorType(nextEl.type)
 					? GraphNodeType.Reference
 					: GraphNodeType.Direct,
 			};
