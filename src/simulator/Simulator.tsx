@@ -17,7 +17,7 @@ import {
 	updateElementProperty,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
-import { CommonProps, ConnectPointType, Point, isEntryOperatorType } from '../model';
+import { CommonProps, ConnectPointType, Point } from '../model';
 import { OperatorsPanel, SimulationControls } from '../ui';
 import {
 	FlowValueEvent,
@@ -27,8 +27,13 @@ import {
 	UnsupportedElementTypeError,
 	createObservableSimulation,
 } from '../engine';
-import { selectElementsInSelection, selectStageElements } from '../store/elements';
-import { selectRelatedElementElements, selectStageConnectLines } from '../store/connectLines';
+import {
+	selectElementsAsMap,
+	selectElementsInSelection,
+	selectEntryElements,
+	selectStageElements,
+} from '../store/elements';
+import { selectRelatedElementElements, selectConnectLinesAsMap } from '../store/connectLines';
 import { SimulationState, selectSimulation } from '../store/simulation';
 import { OperatorPropertiesPanel } from '../ui/properties';
 import { StageState, selectStageState } from '../store/stage';
@@ -37,8 +42,10 @@ export const Simulator = () => {
 	const stageState = useAppSelector(selectStageState);
 	const simulation = useAppSelector(selectSimulation);
 	const elements = useAppSelector(selectStageElements);
-	const connectLines = useAppSelector(selectStageConnectLines);
+	const elementsMap = useAppSelector(selectElementsAsMap);
+	const connectLinesMap = useAppSelector(selectConnectLinesAsMap);
 	const selectedElements = useAppSelector(selectElementsInSelection);
+	const entryElements = useAppSelector(selectEntryElements);
 	const selectedElementConnectLines = useAppSelector(
 		selectRelatedElementElements(selectedElements[0]?.id),
 	);
@@ -86,8 +93,8 @@ export const Simulator = () => {
 			appDispatch(clearSelected());
 			const subscription = createObservableSimulation(
 				entryElementId,
-				elements,
-				connectLines,
+				elementsMap,
+				connectLinesMap,
 			).start({
 				next: dispatchObservableEvent,
 				error: dispatchObservableEvent,
@@ -200,7 +207,7 @@ export const Simulator = () => {
 				<SimulationControls
 					simulatorId={simulation.id}
 					simulationState={simulation.state}
-					entryElements={elements.filter((el) => isEntryOperatorType(el.type))}
+					entryElements={entryElements}
 					onSimulationStart={handleSimulationStart}
 					onSimulationStop={handleSimulationStop}
 					onSimulationReset={handleSimulationReset}
@@ -247,3 +254,4 @@ export const Simulator = () => {
 		</Box>
 	);
 };
+

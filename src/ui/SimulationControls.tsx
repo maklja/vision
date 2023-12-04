@@ -13,7 +13,7 @@ import { SimulationState } from '../store/simulation';
 export interface SimulationControlsProps {
 	simulatorId: string;
 	simulationState: SimulationState;
-	entryElements: Element[];
+	entryElements: readonly Element[];
 	onSimulationStart?: (entryElementId: string, simulatorId: string) => void;
 	onSimulationStop?: (entryElementId: string, simulatorId: string) => void;
 	onSimulationReset?: (entryElementId: string, simulatorId: string) => void;

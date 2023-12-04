@@ -1,8 +1,14 @@
 import { v1 } from 'uuid';
 import { current } from 'immer';
-import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
+import { Draft, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
-import { Element, ElementProps, ElementType, mapToOperatorPropsTemplate } from '../../model';
+import {
+	Element,
+	ElementProps,
+	ElementType,
+	isEntryOperatorType,
+	mapToOperatorPropsTemplate,
+} from '../../model';
 import { RootState } from '../rootState';
 import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
 import { StageState, updateStateChange } from '../stage';
@@ -94,13 +100,16 @@ function createElementName(takenElNames: string[], elType: ElementType) {
 	return newElName;
 }
 
-export const createElementsAdapterInitialState = () => elementsAdapter.getInitialState();
+export function createElementsAdapterInitialState() {
+	return elementsAdapter.getInitialState();
+}
 
-export const {
-	selectAll: selectAllElements,
-	selectById: selectElementById,
-	selectEntities: selectElementEntities,
-} = elementsAdapter.getSelectors();
+export const { selectAll: selectAllElements, selectById: selectElementById } =
+	elementsAdapter.getSelectors();
+
+const globalElementsSelector = elementsAdapter.getSelectors<RootState>(
+	(state) => state.stage.elements,
+);
 
 export const updateElementStateChange = (
 	slice: Draft<StageSlice>,
@@ -246,9 +255,7 @@ export const elementsAdapterReducers = {
 	},
 };
 
-const globalElementsSelector = elementsAdapter.getSelectors<RootState>(
-	(state) => state.stage.elements,
-);
+// global selectors
 
 export const selectStageElements = (state: RootState) => globalElementsSelector.selectAll(state);
 
@@ -256,3 +263,41 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
+
+const elementsAsMapSelector = createSelector(
+	(state: RootState) => globalElementsSelector.selectAll(state),
+	(elements) =>
+		elements.reduce(
+			(map, element) => map.set(element.id, element),
+			new Map<string, Element>(),
+		) as ReadonlyMap<string, Element>,
+);
+
+export function selectElementsAsMap(state: RootState) {
+	return elementsAsMapSelector(state);
+}
+
+const entryElementsSelector = createSelector(
+	(state: RootState) => globalElementsSelector.selectAll(state),
+	(elements) => elements.filter((el) => isEntryOperatorType(el.type)) as readonly Element[],
+);
+
+export function selectEntryElements(state: RootState) {
+	return entryElementsSelector(state);
+}
+
+// slice selectors
+
+const elementsAsMapSlice = createSelector(
+	(slice: Draft<StageSlice>) => selectAllElements(slice.elements),
+	(elements) =>
+		elements.reduce(
+			(map, element) => map.set(element.id, element),
+			new Map<string, Element>(),
+		) as ReadonlyMap<string, Element>,
+);
+
+export function selectElementsAsMapSlice(slice: Draft<StageSlice>) {
+	return elementsAsMapSlice(slice);
+}
+

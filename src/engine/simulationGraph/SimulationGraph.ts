@@ -36,6 +36,15 @@ export class SimulationGraph {
 		return nodes;
 	}
 
+	createGraphNode(elId: string) {
+		const el = this.elements.get(elId);
+		if (!el) {
+			throw new Error(`Element with id ${elId} was not found`);
+		}
+
+		return this.createGraphNodeForElement(el);
+	}
+
 	private createGraph(elementId: string, graphBranches: Map<string, GraphBranch>) {
 		if (graphBranches.has(elementId)) {
 			return;
@@ -73,11 +82,17 @@ export class SimulationGraph {
 			];
 		}
 
-		const connectLines = this.cls.get(el.id) ?? [];
-		if (!connectLines.length) {
+		const graphNode = this.createGraphNodeForElement(el);
+		const directEdges = graphNode.edges.filter((edge) => edge.type === GraphNodeType.Direct);
+		if (directEdges.length !== 1) {
 			throw new MissingNextElementError(el.id, `Element ${el.id} has no next element`);
 		}
 
+		return [graphNode, ...this.createGraphBranch(directEdges[0].targetNodeId)];
+	}
+
+	private createGraphNodeForElement(el: Element) {
+		const connectLines = this.cls.get(el.id) ?? [];
 		const graphEdges: GraphEdge[] = connectLines.map((cl) => {
 			const nextEl = this.elements.get(cl.target.id);
 			if (!nextEl) {
@@ -94,17 +109,10 @@ export class SimulationGraph {
 			};
 		});
 
-		const directEdges = graphEdges.filter((edge) => edge.type === GraphNodeType.Direct);
-		if (directEdges.length !== 1) {
-			throw new Error(`Unexpected number(${directEdges.length}) direct edges`);
-		}
-
-		return [
-			{
-				id: el.id,
-				edges: graphEdges,
-			},
-			...this.createGraphBranch(directEdges[0].targetNodeId),
-		];
+		return {
+			id: el.id,
+			edges: graphEdges,
+		};
 	}
 }
+

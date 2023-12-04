@@ -18,6 +18,7 @@ import {
 	selectAllElements,
 	selectElementById,
 	selectElementsStateChange,
+	selectElementsAsMapSlice,
 	updateElementPropertyStateChange,
 } from '../elements';
 import { StageState } from '../stage';
@@ -28,7 +29,7 @@ import {
 	updateManyConnectPointsStateChange,
 } from '../connectPoints';
 import { removeAllDrawerAnimationStateChange } from '../drawerAnimations';
-import { SimulationGraph, generateCreationCallbackCode } from '../../engine';
+import { generateCreationCallbackCode } from '../../engine';
 
 export interface DraftConnectLine {
 	id: string;
@@ -188,6 +189,10 @@ export const removeConnectLinesStateChange = (
 
 export const { selectAll: selectAllConnectLines, selectById: selectConnectLineById } =
 	connectLinesAdapter.getSelectors();
+
+const globalConnectLinesSelector = connectLinesAdapter.getSelectors<RootState>(
+	(state) => state.stage.connectLines,
+);
 
 export const createConnectLinesAdapterInitialState = () => connectLinesAdapter.getInitialState();
 
@@ -436,24 +441,13 @@ export const connectLinesAdapterReducers = {
 			},
 		});
 
-		const elements = selectAllElements(slice.elements);
-		const connectLines = selectAllConnectLines(slice.connectLines);
+		const elements = selectElementsAsMapSlice(slice);
+		const connectLines = selectConnectLinesBySourceElementSlice(slice);
 
-		// TODO move somewhere else
-		const elementsMap = elements.reduce(
-			(map, element) => map.set(element.id, element),
-			new Map<string, Element>(),
-		);
-		const connectLinePath = connectLines.reduce((map, cl) => {
-			const cls = map.get(cl.source.id) ?? [];
-			return map.set(cl.source.id, [...cls, cl]);
-		}, new Map<string, ConnectLine[]>());
-
-		const graphGraph = new SimulationGraph(elementsMap, connectLinePath);
 		const creationCallbackCode = generateCreationCallbackCode(
 			draftConnectLine.source.id,
-			graphGraph.createObservableGraph(draftConnectLine.source.id),
-			elementsMap,
+			elements,
+			connectLines,
 		);
 		updateElementPropertyStateChange(slice, {
 			id: draftConnectLine.source.id,
@@ -567,9 +561,7 @@ export const connectLinesAdapterReducers = {
 	},
 };
 
-const globalConnectLinesSelector = connectLinesAdapter.getSelectors<RootState>(
-	(state) => state.stage.connectLines,
-);
+// global selectors
 
 export const selectStageDraftConnectLine = (state: RootState) => state.stage.draftConnectLine;
 
@@ -606,3 +598,45 @@ const selectElementConnectLinesBySource = createSelector(
 
 export const selectRelatedElementElements = (id: string) => (state: RootState) =>
 	selectElementConnectLinesBySource(state, id);
+
+const connectLinesAsMapSelector = createSelector(
+	(state: RootState) => globalConnectLinesSelector.selectAll(state),
+	(connectLines) =>
+		connectLines.reduce(
+			(map, cl) => map.set(cl.id, cl),
+			new Map<string, ConnectLine>(),
+		) as ReadonlyMap<string, ConnectLine>,
+);
+
+export function selectConnectLinesAsMap(state: RootState) {
+	return connectLinesAsMapSelector(state);
+}
+
+// slice selectors
+
+const connectLinesAsMapSliceSelector = createSelector(
+	(slice: Draft<StageSlice>) => selectAllConnectLines(slice.connectLines),
+	(connectLines) =>
+		connectLines.reduce(
+			(map, cl) => map.set(cl.id, cl),
+			new Map<string, ConnectLine>(),
+		) as ReadonlyMap<string, ConnectLine>,
+);
+
+export function selectConnectLinesAsMapSlice(slice: Draft<StageSlice>) {
+	return connectLinesAsMapSliceSelector(slice);
+}
+
+const connectLinesBySourceElementSliceSelector = createSelector(
+	(slice: Draft<StageSlice>) => selectAllConnectLines(slice.connectLines),
+	(cls) =>
+		cls.reduce((map, cl) => {
+			const cls = map.get(cl.source.id) ?? [];
+			return map.set(cl.source.id, [...cls, cl]);
+		}, new Map<string, ConnectLine[]>()) as ReadonlyMap<string, ConnectLine[]>,
+);
+
+export function selectConnectLinesBySourceElementSlice(slice: Draft<StageSlice>) {
+	return connectLinesBySourceElementSliceSelector(slice);
+}
+

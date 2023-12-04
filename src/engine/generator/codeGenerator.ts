@@ -1,11 +1,17 @@
-import { Element, ElementType, isCreationOperatorType, isEventPipeOperatorType } from '../../model';
-import { GraphBranch, GraphNodeType } from '../simulationGraph';
+import {
+	ConnectLine,
+	Element,
+	ElementType,
+	isCreationOperatorType,
+	isEventPipeOperatorType,
+} from '../../model';
+import { GraphNodeType, SimulationGraph } from '../simulationGraph';
 
 function createCreationCallback(el: Element, creationFactoryName: string) {
 	switch (el.type) {
 		case ElementType.Defer:
-			return `function() {
-                return ${creationFactoryName}();
+			return `function deferCallback() {
+                return ${creationFactoryName};
             }`;
 	}
 
@@ -21,8 +27,8 @@ export function generateCreationFactoryName(el: Element) {
 
 export function generateCreationCallbackCode(
 	sourceElId: string,
-	graph: ReadonlyMap<string, GraphBranch>,
 	elements: ReadonlyMap<string, Element>,
+	cls: ReadonlyMap<string, ConnectLine[]>,
 ): string | null {
 	const sourceEl = elements.get(sourceElId);
 	if (!sourceEl) {
@@ -33,12 +39,8 @@ export function generateCreationCallbackCode(
 		return null;
 	}
 
-	const graphBranch = graph.get(sourceEl.id);
-	if (!graphBranch) {
-		throw new Error(`Missing graph branch for element ${sourceEl.id}`);
-	}
-
-	const [sourceElNode] = graphBranch.nodes;
+	const simGraph = new SimulationGraph(elements, cls);
+	const sourceElNode = simGraph.createGraphNode(sourceEl.id);
 	if (sourceEl.id !== sourceElNode?.id) {
 		throw new Error(
 			`Invalid entry node of the graph, expected ${sourceEl.id} received ${sourceElNode?.id}`,
@@ -57,9 +59,10 @@ export function generateCreationCallbackCode(
 		}
 
 		const creationFactoryParams =
-			generateCreationCallbackCode(targetEl.id, graph, elements) ?? '';
+			generateCreationCallbackCode(targetEl.id, elements, cls) ?? '';
 		return `${generateCreationFactoryName(targetEl)}(${creationFactoryParams})`;
 	});
 
 	return createCreationCallback(sourceEl, refNodesCreationCode.join(', '));
 }
+
