@@ -79,6 +79,7 @@ export const pipeOperators: ReadonlySet<ElementType> = new Set([
 
 export const eventPipeOperators: ReadonlySet<ElementType> = new Set([
 	...errorHandlerOperators,
+	...joinCreationOperators,
 	ElementType.Buffer,
 	ElementType.BufferWhen,
 	ElementType.IIf,

@@ -13,6 +13,8 @@ function createCreationCallback(el: Element, creationFactoryName: string) {
 			return `function deferCallback() {
                 return ${creationFactoryName};
             }`;
+		default:
+			return creationFactoryName;
 	}
 
 	return null;
@@ -65,4 +67,3 @@ export function generateCreationCallbackCode(
 
 	return createCreationCallback(sourceEl, refNodesCreationCode.join(', '));
 }
-
