@@ -26,7 +26,7 @@ export interface GraphBranch {
 export class SimulationGraph {
 	constructor(
 		private readonly elements: ReadonlyMap<string, Element>,
-		private readonly cls: ReadonlyMap<string, ConnectLine[]>,
+		private readonly cls: ReadonlyMap<string, readonly ConnectLine[]>,
 	) {}
 
 	createObservableGraph(elementId: string): ReadonlyMap<string, GraphBranch> {
@@ -93,21 +93,24 @@ export class SimulationGraph {
 
 	private createGraphNodeForElement(el: Element) {
 		const connectLines = this.cls.get(el.id) ?? [];
-		const graphEdges: GraphEdge[] = connectLines.map((cl) => {
-			const nextEl = this.elements.get(cl.target.id);
-			if (!nextEl) {
-				throw new Error(`Failed to find next element with id ${cl.target.id}`);
-			}
+		const graphEdges: readonly GraphEdge[] = connectLines
+			.slice()
+			.sort((cl1, cl2) => cl1.index - cl2.index)
+			.map((cl) => {
+				const nextEl = this.elements.get(cl.target.id);
+				if (!nextEl) {
+					throw new Error(`Failed to find next element with id ${cl.target.id}`);
+				}
 
-			return {
-				id: cl.id,
-				sourceNodeId: el.id,
-				targetNodeId: nextEl.id,
-				type: isEntryOperatorType(nextEl.type)
-					? GraphNodeType.Reference
-					: GraphNodeType.Direct,
-			};
-		});
+				return {
+					id: cl.id,
+					sourceNodeId: el.id,
+					targetNodeId: nextEl.id,
+					type: isEntryOperatorType(nextEl.type)
+						? GraphNodeType.Reference
+						: GraphNodeType.Direct,
+				};
+			});
 
 		return {
 			id: el.id,
@@ -115,4 +118,3 @@ export class SimulationGraph {
 		};
 	}
 }
-

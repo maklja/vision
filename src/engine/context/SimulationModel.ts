@@ -1,11 +1,11 @@
-import { ConnectLine, Element } from '../../model';
+import { ConnectLineCollection, Element } from '../../model';
 import { GraphBranch } from '../simulationGraph';
 
 export class SimulationModel {
 	constructor(
 		public readonly entryElementId: string,
 		public readonly elements: ReadonlyMap<string, Element>,
-		public readonly connectLines: ReadonlyMap<string, ConnectLine>,
+		public readonly connectLineCollection: ConnectLineCollection,
 		public readonly graphBranches: ReadonlyMap<string, GraphBranch>,
 	) {}
 
@@ -19,7 +19,7 @@ export class SimulationModel {
 	}
 
 	getConnectLine(clId: string) {
-		const cl = this.connectLines.get(clId);
+		const cl = this.connectLineCollection.connectLines.get(clId);
 		if (!cl) {
 			throw new Error(`Connect line with id ${clId} was not found`);
 		}
@@ -36,4 +36,3 @@ export class SimulationModel {
 		return graphBranch;
 	}
 }
-

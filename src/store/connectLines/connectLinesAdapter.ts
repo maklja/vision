@@ -2,6 +2,7 @@ import { Draft, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
 import {
 	ConnectLine,
+	ConnectLineCollection,
 	ConnectPointPosition,
 	ConnectPointType,
 	ConnectedElement,
@@ -442,12 +443,12 @@ export const connectLinesAdapterReducers = {
 		});
 
 		const elements = selectElementsAsMapSlice(slice);
-		const connectLines = selectConnectLinesBySourceElementSlice(slice);
+		const connectLines = selectConnectLinesAsMapSlice(slice);
 
 		const creationCallbackCode = generateCreationCallbackCode(
 			draftConnectLine.source.id,
 			elements,
-			connectLines,
+			new ConnectLineCollection(connectLines),
 		);
 		updateElementPropertyStateChange(slice, {
 			id: draftConnectLine.source.id,
@@ -633,10 +634,12 @@ const connectLinesBySourceElementSliceSelector = createSelector(
 		cls.reduce((map, cl) => {
 			const cls = map.get(cl.source.id) ?? [];
 			return map.set(cl.source.id, [...cls, cl]);
-		}, new Map<string, ConnectLine[]>()) as ReadonlyMap<string, ConnectLine[]>,
+		}, new Map<string, readonly ConnectLine[]>()) as ReadonlyMap<
+			string,
+			readonly ConnectLine[]
+		>,
 );
 
 export function selectConnectLinesBySourceElementSlice(slice: Draft<StageSlice>) {
 	return connectLinesBySourceElementSliceSelector(slice);
 }
-

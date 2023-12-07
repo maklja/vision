@@ -17,7 +17,7 @@ import {
 	updateElementProperty,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
-import { CommonProps, ConnectPointType, Point } from '../model';
+import { CommonProps, ConnectLineCollection, ConnectPointType, Point } from '../model';
 import { OperatorsPanel, SimulationControls } from '../ui';
 import {
 	FlowValueEvent,
@@ -94,7 +94,7 @@ export const Simulator = () => {
 			const subscription = createObservableSimulation(
 				entryElementId,
 				elementsMap,
-				connectLinesMap,
+				new ConnectLineCollection(connectLinesMap),
 			).start({
 				next: dispatchObservableEvent,
 				error: dispatchObservableEvent,
@@ -254,4 +254,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-

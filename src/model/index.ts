@@ -12,4 +12,4 @@ export * from './result';
 export * from './descriptors';
 export * from './utils';
 export * from './templates';
-
+export * from './collection';
