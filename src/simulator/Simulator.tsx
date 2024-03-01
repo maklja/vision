@@ -18,7 +18,7 @@ import {
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
 import { CommonProps, ConnectPointType, Point, isEntryOperatorType } from '../model';
-import { OperatorsPanel, SimulationControls } from '../ui';
+import { OperatorsPanel, SimulationControls, ZoomControls } from '../ui';
 import {
 	FlowValueEvent,
 	InvalidElementPropertyValueError,
@@ -32,6 +32,8 @@ import { selectRelatedElementElements, selectStageConnectLines } from '../store/
 import { SimulationState, selectSimulation } from '../store/simulation';
 import { OperatorPropertiesPanel } from '../ui/properties';
 import { StageState, selectStageState } from '../store/stage';
+import { selectCanvasState } from '../store/canvas';
+import { calculateScaleAndPosition } from './state';
 
 export const Simulator = () => {
 	const stageState = useAppSelector(selectStageState);
@@ -42,6 +44,7 @@ export const Simulator = () => {
 	const selectedElementConnectLines = useAppSelector(
 		selectRelatedElementElements(selectedElements[0]?.id),
 	);
+	const canvasState = useAppSelector(selectCanvasState);
 
 	const elementNames = useMemo<string[]>(
 		() =>
@@ -179,6 +182,42 @@ export const Simulator = () => {
 		);
 	};
 
+	function handleZoomIn() {
+		const oldScale = canvasState.x;
+
+		const stageCenter = {
+			x: canvasState.width / 2,
+			y: canvasState.height / 2,
+		};
+
+		const relatedTo = {
+			x: (stageCenter.x - canvasState.x) / oldScale,
+			y: (stageCenter.y - canvasState.y) / oldScale,
+		};
+
+		const { scale: newScale, position: newPosition } = calculateScaleAndPosition(
+			stageCenter,
+			relatedTo,
+			oldScale,
+			1,
+		);
+
+		// const newScale = e.evt.deltaY > 0 ? oldScale * ZOOM_BY : oldScale / ZOOM_BY;
+
+		// stage.scale({
+		// 	x: newScale,
+		// 	y: newScale,
+		// });
+
+		// const newPos = {
+		// 	x: center.x - relatedTo.x * newScale,
+		// 	y: center.y - relatedTo.y * newScale,
+		// };
+
+		// stage.scale({ x: newScale, y: newScale });
+		// stage.position(newPos);
+	}
+
 	if (!simulation) {
 		return null;
 	}
@@ -212,7 +251,7 @@ export const Simulator = () => {
 				sx={{
 					position: 'absolute',
 					top: '20%',
-					left: '15px',
+					left: '2px',
 					width: '70px',
 					height: '50%',
 				}}
@@ -220,6 +259,20 @@ export const Simulator = () => {
 				<OperatorsPanel
 					popperVisible={popperVisible}
 					disabled={simulation.state === SimulationState.Running}
+				/>
+			</Box>
+
+			<Box
+				sx={{
+					position: 'absolute',
+					bottom: '2%',
+					left: '2px',
+					width: '40px',
+				}}
+			>
+				<ZoomControls
+					onZoomIn={() => alert('zoom in')}
+					onZoomOut={() => alert('zoom out')}
 				/>
 			</Box>
 
