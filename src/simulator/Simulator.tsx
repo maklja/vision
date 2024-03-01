@@ -183,6 +183,8 @@ export const Simulator = () => {
 		return null;
 	}
 
+	const popperVisible =
+		simulation.state !== SimulationState.Running && stageState === StageState.Select;
 	return (
 		<Box sx={{ position: 'absolute', width: '100%', height: '100%' }}>
 			<SimulatorStage />
@@ -216,7 +218,7 @@ export const Simulator = () => {
 				}}
 			>
 				<OperatorsPanel
-					popperVisible={simulation.state !== SimulationState.Running}
+					popperVisible={popperVisible}
 					disabled={simulation.state === SimulationState.Running}
 				/>
 			</Box>
@@ -246,3 +248,4 @@ export const Simulator = () => {
 		</Box>
 	);
 };
+
