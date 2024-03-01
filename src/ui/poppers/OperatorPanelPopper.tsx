@@ -23,9 +23,16 @@ export const OperatorPanelPopper = ({
 
 	return (
 		<Popper
-			sx={{ marginLeft: '10px !important', width: '300px', minHeight: '50px' }}
+			sx={{
+				marginLeft: '10px !important',
+				minHeight: '50px',
+				width: '300px',
+				opacity: open ? 1 : 0,
+				visibility: open ? 'visible' : 'collapse',
+				transition: 'visibility 300ms, opacity 300ms',
+			}}
 			id={id}
-			open={open}
+			open={Boolean(anchorEl)}
 			anchorEl={anchorEl}
 			placement="right-start"
 		>
@@ -36,7 +43,11 @@ export const OperatorPanelPopper = ({
 							item
 							xs={4}
 							key={elType}
-							sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+							sx={{
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+							}}
 						>
 							<OperatorButton elementType={elType} />
 						</Grid>
