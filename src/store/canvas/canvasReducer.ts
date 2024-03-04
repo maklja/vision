@@ -2,6 +2,11 @@ import { Draft } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
 import { RootState } from '../rootState';
 
+export enum ZoomType {
+	In = 1,
+	Out = -1,
+}
+
 export interface CanvasState {
 	x: number;
 	y: number;

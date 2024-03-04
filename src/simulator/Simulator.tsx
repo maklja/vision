@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
-import { useMemo, useState } from 'react';
+import Konva from 'konva';
+import { useMemo, useRef, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
@@ -12,13 +13,14 @@ import {
 	removeElementConnectLines,
 	resetSimulation,
 	startSimulation,
+	updateCanvasState,
 	updateConnectLine,
 	updateElement,
 	updateElementProperty,
 } from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
 import { CommonProps, ConnectPointType, Point, isEntryOperatorType } from '../model';
-import { OperatorsPanel, SimulationControls } from '../ui';
+import { OperatorsPanel, SimulationControls, ZoomControls } from '../ui';
 import {
 	FlowValueEvent,
 	InvalidElementPropertyValueError,
@@ -32,6 +34,8 @@ import { selectRelatedElementElements, selectStageConnectLines } from '../store/
 import { SimulationState, selectSimulation } from '../store/simulation';
 import { OperatorPropertiesPanel } from '../ui/properties';
 import { StageState, selectStageState } from '../store/stage';
+import { ZoomType } from '../store/canvas';
+import { zoomStage } from './state';
 
 export const Simulator = () => {
 	const stageState = useAppSelector(selectStageState);
@@ -42,6 +46,7 @@ export const Simulator = () => {
 	const selectedElementConnectLines = useAppSelector(
 		selectRelatedElementElements(selectedElements[0]?.id),
 	);
+	const stageRef = useRef<Konva.Stage | null>(null);
 
 	const elementNames = useMemo<string[]>(
 		() =>
@@ -179,6 +184,25 @@ export const Simulator = () => {
 		);
 	};
 
+	function handleZoom(zoomType: ZoomType) {
+		const stage = stageRef.current;
+		if (!stage) {
+			return;
+		}
+
+		zoomStage(stage, zoomType);
+		appDispatch(
+			updateCanvasState({
+				x: stage.position().x,
+				y: stage.position().y,
+				width: stage.width(),
+				height: stage.height(),
+				scaleX: stage.scaleX(),
+				scaleY: stage.scaleY(),
+			}),
+		);
+	}
+
 	if (!simulation) {
 		return null;
 	}
@@ -187,7 +211,7 @@ export const Simulator = () => {
 		simulation.state !== SimulationState.Running && stageState === StageState.Select;
 	return (
 		<Box sx={{ position: 'absolute', width: '100%', height: '100%' }}>
-			<SimulatorStage />
+			<SimulatorStage ref={stageRef} />
 
 			<Box
 				sx={{
@@ -212,7 +236,7 @@ export const Simulator = () => {
 				sx={{
 					position: 'absolute',
 					top: '20%',
-					left: '15px',
+					left: '2px',
 					width: '70px',
 					height: '50%',
 				}}
@@ -220,6 +244,20 @@ export const Simulator = () => {
 				<OperatorsPanel
 					popperVisible={popperVisible}
 					disabled={simulation.state === SimulationState.Running}
+				/>
+			</Box>
+
+			<Box
+				sx={{
+					position: 'absolute',
+					bottom: '2%',
+					left: '2px',
+					width: '40px',
+				}}
+			>
+				<ZoomControls
+					onZoomIn={() => handleZoom(ZoomType.In)}
+					onZoomOut={() => handleZoom(ZoomType.Out)}
 				/>
 			</Box>
 

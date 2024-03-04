@@ -3,12 +3,11 @@ import { AppDispatch } from '../../store/rootState';
 import { StageEvents } from '../SimulatorStage';
 import { removeSelected, clearSelected, updateCanvasState } from '../../store/stageSlice';
 import { changeCursorStyle } from '../../operatorDrawers/utils';
+import { ZoomTo, zoomStage } from './calculateScaleAndPosition';
+import { ZoomType } from '../../store/canvas';
 
 const PAN_MOUSE_BUTTON_KEY = 1;
 const CANCEL_MOUSE_BUTTON_KEY = 2;
-const MIN_ZOOM = 0.1;
-const MAX_ZOOM = 10;
-const ZOOM_BY = 2.01;
 
 export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => ({
 	onDragStart: (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -53,31 +52,12 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 			return;
 		}
 
-		const oldScale = stage.scaleX();
-		const pointer = stage.getPointerPosition();
-
-		const pointerX = pointer?.x ?? 0;
-		const pointerY = pointer?.y ?? 0;
-
-		const mousePointTo = {
-			x: (pointerX - stage.x()) / oldScale,
-			y: (pointerY - stage.y()) / oldScale,
-		};
-
-		let direction = e.evt.deltaY > 0 ? 1 : -1;
+		let zoomType = e.evt.deltaY > 0 ? ZoomType.In : ZoomType.Out;
 		if (e.evt.ctrlKey) {
-			direction = -direction;
+			zoomType = -zoomType;
 		}
 
-		const unboundedNewScale = direction > 0 ? oldScale * ZOOM_BY : oldScale / ZOOM_BY;
-		const newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, unboundedNewScale));
-
-		stage.scale({ x: newScale, y: newScale });
-		stage.position({
-			x: pointerX - mousePointTo.x * newScale,
-			y: pointerY - mousePointTo.y * newScale,
-		});
-
+		zoomStage(stage, zoomType, ZoomTo.Pointer);
 		dispatch(
 			updateCanvasState({
 				x: stage.position().x,
