@@ -185,12 +185,12 @@ export const Simulator = () => {
 	};
 
 	function handleZoom(zoomType: ZoomType) {
-		if (!stageRef.current) {
+		const stage = stageRef.current;
+		if (!stage) {
 			return;
 		}
 
-		zoomStage(stageRef.current, zoomType);
-		const stage = stageRef.current;
+		zoomStage(stage, zoomType);
 		appDispatch(
 			updateCanvasState({
 				x: stage.position().x,
