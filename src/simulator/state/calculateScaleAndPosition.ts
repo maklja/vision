@@ -1,10 +1,17 @@
+import Konva from 'konva';
 import { Point } from '../../model';
+import { ZoomType } from '../../store/canvas';
+
+export enum ZoomTo {
+	Pointer = 'pointer',
+	Center = 'center',
+}
 
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 10;
 const ZOOM_BY = 2.01;
 
-export function calculateScaleAndPosition(
+function calculateScaleAndPosition(
 	origin: Point,
 	relativeTo: Point,
 	currentScale: number,
@@ -20,5 +27,38 @@ export function calculateScaleAndPosition(
 			y: origin.y - relativeTo.y * newScale,
 		},
 	};
+}
+
+export function zoomStage(stage: Konva.Stage, zoomType: ZoomType, zoomTo = ZoomTo.Center) {
+	const oldScale = stage.scaleX();
+
+	let zoomRelativeTo: Point;
+	if (zoomTo === ZoomTo.Pointer) {
+		const pointer = stage.getPointerPosition();
+		zoomRelativeTo = {
+			x: pointer?.x ?? 0,
+			y: pointer?.y ?? 0,
+		};
+	} else {
+		zoomRelativeTo = {
+			x: stage.width() / 2,
+			y: stage.height() / 2,
+		};
+	}
+
+	const mousePointTo = {
+		x: (zoomRelativeTo.x - stage.x()) / oldScale,
+		y: (zoomRelativeTo.y - stage.y()) / oldScale,
+	};
+
+	const { scale: newScale, position: newPosition } = calculateScaleAndPosition(
+		zoomRelativeTo,
+		mousePointTo,
+		oldScale,
+		zoomType,
+	);
+
+	stage.scale(newScale);
+	stage.position(newPosition);
 }
 

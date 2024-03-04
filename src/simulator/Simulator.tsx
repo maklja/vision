@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
-import { useMemo, useState } from 'react';
+import Konva from 'konva';
+import { useMemo, useRef, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
@@ -12,6 +13,7 @@ import {
 	removeElementConnectLines,
 	resetSimulation,
 	startSimulation,
+	updateCanvasState,
 	updateConnectLine,
 	updateElement,
 	updateElementProperty,
@@ -32,8 +34,8 @@ import { selectRelatedElementElements, selectStageConnectLines } from '../store/
 import { SimulationState, selectSimulation } from '../store/simulation';
 import { OperatorPropertiesPanel } from '../ui/properties';
 import { StageState, selectStageState } from '../store/stage';
-import { selectCanvasState } from '../store/canvas';
-import { calculateScaleAndPosition } from './state';
+import { ZoomType } from '../store/canvas';
+import { zoomStage } from './state';
 
 export const Simulator = () => {
 	const stageState = useAppSelector(selectStageState);
@@ -44,7 +46,7 @@ export const Simulator = () => {
 	const selectedElementConnectLines = useAppSelector(
 		selectRelatedElementElements(selectedElements[0]?.id),
 	);
-	const canvasState = useAppSelector(selectCanvasState);
+	const stageRef = useRef<Konva.Stage | null>(null);
 
 	const elementNames = useMemo<string[]>(
 		() =>
@@ -182,40 +184,23 @@ export const Simulator = () => {
 		);
 	};
 
-	function handleZoomIn() {
-		const oldScale = canvasState.x;
+	function handleZoom(zoomType: ZoomType) {
+		if (!stageRef.current) {
+			return;
+		}
 
-		const stageCenter = {
-			x: canvasState.width / 2,
-			y: canvasState.height / 2,
-		};
-
-		const relatedTo = {
-			x: (stageCenter.x - canvasState.x) / oldScale,
-			y: (stageCenter.y - canvasState.y) / oldScale,
-		};
-
-		const { scale: newScale, position: newPosition } = calculateScaleAndPosition(
-			stageCenter,
-			relatedTo,
-			oldScale,
-			1,
+		zoomStage(stageRef.current, zoomType);
+		const stage = stageRef.current;
+		appDispatch(
+			updateCanvasState({
+				x: stage.position().x,
+				y: stage.position().y,
+				width: stage.width(),
+				height: stage.height(),
+				scaleX: stage.scaleX(),
+				scaleY: stage.scaleY(),
+			}),
 		);
-
-		// const newScale = e.evt.deltaY > 0 ? oldScale * ZOOM_BY : oldScale / ZOOM_BY;
-
-		// stage.scale({
-		// 	x: newScale,
-		// 	y: newScale,
-		// });
-
-		// const newPos = {
-		// 	x: center.x - relatedTo.x * newScale,
-		// 	y: center.y - relatedTo.y * newScale,
-		// };
-
-		// stage.scale({ x: newScale, y: newScale });
-		// stage.position(newPos);
 	}
 
 	if (!simulation) {
@@ -226,7 +211,7 @@ export const Simulator = () => {
 		simulation.state !== SimulationState.Running && stageState === StageState.Select;
 	return (
 		<Box sx={{ position: 'absolute', width: '100%', height: '100%' }}>
-			<SimulatorStage />
+			<SimulatorStage ref={stageRef} />
 
 			<Box
 				sx={{
@@ -271,8 +256,8 @@ export const Simulator = () => {
 				}}
 			>
 				<ZoomControls
-					onZoomIn={() => alert('zoom in')}
-					onZoomOut={() => alert('zoom out')}
+					onZoomIn={() => handleZoom(ZoomType.In)}
+					onZoomOut={() => handleZoom(ZoomType.Out)}
 				/>
 			</Box>
 

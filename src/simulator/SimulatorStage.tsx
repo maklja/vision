@@ -1,5 +1,10 @@
 import Konva from 'konva';
-import { useEffect, useRef, useState } from 'react';
+import {
+	useEffect,
+	useRef,
+	useState,
+	forwardRef,
+} from 'react';
 import { Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
 import { AnimationsLayer } from '../layers/animations';
@@ -34,7 +39,10 @@ export interface StageEvents {
 	onKeyUp?: (event: KeyboardEvent, stage: Konva.Stage | null) => void;
 }
 
-export const SimulatorStage = () => {
+export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function SimulatorStage(
+	_props,
+	parentStageRef,
+) {
 	const theme = useThemeContext();
 	const stageHandlers = useStageHandlers();
 	const appDispatch = useAppDispatch();
@@ -96,6 +104,19 @@ export const SimulatorStage = () => {
 		);
 	}, [stageRef.current]);
 
+	function handleStageRef(stage: Konva.Stage) {
+		stageRef.current = stage;
+		if (!parentStageRef) {
+			return;
+		}
+
+		if (typeof parentStageRef === 'function') {
+			parentStageRef(stage);
+		} else {
+			parentStageRef.current = stage;
+		}
+	}
+
 	return (
 		<div ref={drop}>
 			<Stage
@@ -104,7 +125,7 @@ export const SimulatorStage = () => {
 				width={window.innerWidth}
 				height={window.innerHeight}
 				draggable={true}
-				ref={stageRef}
+				ref={handleStageRef}
 			>
 				<GridLayer />
 				<DrawersLayer />
@@ -114,5 +135,5 @@ export const SimulatorStage = () => {
 			</Stage>
 		</div>
 	);
-};
+});
 

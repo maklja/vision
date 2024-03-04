@@ -3,7 +3,8 @@ import { AppDispatch } from '../../store/rootState';
 import { StageEvents } from '../SimulatorStage';
 import { removeSelected, clearSelected, updateCanvasState } from '../../store/stageSlice';
 import { changeCursorStyle } from '../../operatorDrawers/utils';
-import { calculateScaleAndPosition } from './calculateScaleAndPosition';
+import { ZoomTo, zoomStage } from './calculateScaleAndPosition';
+import { ZoomType } from '../../store/canvas';
 
 const PAN_MOUSE_BUTTON_KEY = 1;
 const CANCEL_MOUSE_BUTTON_KEY = 2;
@@ -51,33 +52,12 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 			return;
 		}
 
-		const oldScale = stage.scaleX();
-		const pointer = stage.getPointerPosition();
-		const pointerPosition = {
-			x: pointer?.x ?? 0,
-			y: pointer?.y ?? 0,
-		};
-
-		const mousePointTo = {
-			x: (pointerPosition.x - stage.x()) / oldScale,
-			y: (pointerPosition.y - stage.y()) / oldScale,
-		};
-
-		let direction = e.evt.deltaY > 0 ? 1 : -1;
+		let zoomType = e.evt.deltaY > 0 ? ZoomType.In : ZoomType.Out;
 		if (e.evt.ctrlKey) {
-			direction = -direction;
+			zoomType = -zoomType;
 		}
 
-		const { scale: newScale, position: newPosition } = calculateScaleAndPosition(
-			pointerPosition,
-			mousePointTo,
-			oldScale,
-			direction,
-		);
-
-		stage.scale(newScale);
-		stage.position(newPosition);
-
+		zoomStage(stage, zoomType, ZoomTo.Pointer);
 		dispatch(
 			updateCanvasState({
 				x: stage.position().x,
