@@ -21,7 +21,7 @@
 		"@types/uuid": "^8.3.4",
 		"dayjs": "^1.11.9",
 		"deepmerge": "^4.3.1",
-		"konva": "^8.3.12",
+		"konva": "^9.3.5",
 		"object-hash": "^3.0.0",
 		"react": "^18.2.0",
 		"react-dnd": "^16.0.1",
