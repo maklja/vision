@@ -6,6 +6,7 @@ import {
 	bufferTime,
 	bufferWhen,
 	concatMap,
+	exhaustMap,
 	map,
 	mergeMap,
 } from 'rxjs';
@@ -34,6 +35,7 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 			[ElementType.BufferCount, this.createBufferCountOperator.bind(this)],
 			[ElementType.BufferTime, this.createBufferTimeOperator.bind(this)],
 			[ElementType.BufferWhen, this.createBufferWhenOperator.bind(this)],
+			[ElementType.ExhaustMap, this.createExhaustOperator.bind(this)],
 			[ElementType.Map, this.createMapOperator.bind(this)],
 			[ElementType.ConcatMap, this.createConcatMapOperator.bind(this)],
 			[ElementType.MergeMap, this.createMergeMapOperator.bind(this)],
@@ -176,6 +178,27 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 		const [refObservable] = options.referenceObservables;
 		return o.pipe(
 			mergeMap<FlowValue, ObservableInput<FlowValue>>((value) => {
+				refObservable.invokeTrigger?.(value);
+				return refObservable.observable;
+			}),
+		);
+	}
+
+	private createExhaustOperator(o: Observable<FlowValue>, el: Element, options: OperatorOptions) {
+		if (options.referenceObservables.length === 0) {
+			throw new MissingReferenceObservableError(
+				el.id,
+				'Reference observable is required for exhaust operator',
+			);
+		}
+
+		if (options.referenceObservables.length > 1) {
+			throw new Error('Too many reference observables for exhaust operator');
+		}
+
+		const [refObservable] = options.referenceObservables;
+		return o.pipe(
+			exhaustMap<FlowValue, ObservableInput<FlowValue>>((value) => {
 				refObservable.invokeTrigger?.(value);
 				return refObservable.observable;
 			}),
