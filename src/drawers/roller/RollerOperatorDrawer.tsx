@@ -30,6 +30,7 @@ export const RollerOperatorDrawer = ({
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
+	onMouseUp,
 	onDragMove,
 	onDragStart,
 	onDragEnd,
@@ -96,6 +97,12 @@ export const RollerOperatorDrawer = ({
 
 	const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseDown?.({
+			id,
+			originalEvent: e,
+		});
+
+	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseUp?.({
 			id,
 			originalEvent: e,
 		});
@@ -168,6 +175,7 @@ export const RollerOperatorDrawer = ({
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
 			onMouseDown={handleMouseDown}
+			onMouseUp={handleMouseUp}
 			onDragMove={handleDragMove}
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
@@ -226,3 +234,4 @@ export const RollerOperatorDrawer = ({
 		</Group>
 	);
 };
+

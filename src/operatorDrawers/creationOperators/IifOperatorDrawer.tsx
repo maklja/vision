@@ -26,6 +26,7 @@ export const IifOperatorDrawer = ({
 	onDragMove,
 	onDragStart,
 	onMouseDown,
+	onMouseUp,
 	onMouseOut,
 	onMouseOver,
 }: ElementDrawerProps) => {
@@ -83,6 +84,7 @@ export const IifOperatorDrawer = ({
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
 				onMouseDown={onMouseDown}
+				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}
 				onMouseOut={onMouseOut}
 			/>

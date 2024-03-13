@@ -22,6 +22,7 @@ export const DotCircleOperatorDrawer = ({
 	draggableSnap = false,
 	hasError = false,
 	onMouseDown,
+	onMouseUp,
 	onMouseOut,
 	onMouseOver,
 	onDragMove,
@@ -80,6 +81,12 @@ export const DotCircleOperatorDrawer = ({
 			originalEvent: e,
 		});
 
+	const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) =>
+		onMouseUp?.({
+			id,
+			originalEvent: e,
+		});
+
 	const handleDragMove = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onDragMove?.({
 			id,
@@ -114,6 +121,7 @@ export const DotCircleOperatorDrawer = ({
 			draggable={draggable}
 			dragBoundFunc={handleDragBoundFunc}
 			onMouseDown={handleMouseDown}
+			onMouseUp={handleMouseUp}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
 			onDragMove={handleDragMove}
@@ -139,3 +147,4 @@ export const DotCircleOperatorDrawer = ({
 		</Group>
 	);
 };
+

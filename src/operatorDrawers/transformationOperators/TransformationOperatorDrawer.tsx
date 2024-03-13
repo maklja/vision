@@ -33,6 +33,7 @@ export const TransformationOperatorDrawer = ({
 	onDragMove,
 	onDragStart,
 	onMouseDown,
+	onMouseUp,
 	onMouseOut,
 	onMouseOver,
 }: TransformationOperatorDrawerProps) => {
@@ -70,6 +71,7 @@ export const TransformationOperatorDrawer = ({
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
 				onMouseDown={onMouseDown}
+				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}
 				onMouseOut={onMouseOut}
 			/>

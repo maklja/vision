@@ -26,6 +26,7 @@ export const SubscriberDrawer = ({
 	onDragMove,
 	onDragStart,
 	onMouseDown,
+	onMouseUp,
 	onMouseOut,
 	onMouseOver,
 }: ElementDrawerProps) => {
@@ -63,6 +64,7 @@ export const SubscriberDrawer = ({
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
 				onMouseDown={onMouseDown}
+				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}
 				onMouseOut={onMouseOut}
 			/>
