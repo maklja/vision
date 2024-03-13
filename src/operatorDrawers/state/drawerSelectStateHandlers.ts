@@ -6,9 +6,13 @@ import {
 	clearSelected,
 	hideTooltip,
 	highlight,
+	selectConnectPoint,
+	selectElement,
 	selectElements,
 	setSelectionConnectPoints,
 	showTooltip,
+	toggleSelectElement,
+	toggleSelectionConnectPoint,
 } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
@@ -18,6 +22,21 @@ export const drawerSelectStateHandlers = (dispatch: AppDispatch): DrawerEvents =
 	onMouseDown: (e: DrawerEvent) => {
 		if (e.originalEvent) {
 			e.originalEvent.cancelBubble = true;
+		}
+
+		if (e.originalEvent?.evt.ctrlKey) {
+			dispatch(toggleSelectElement({ id: e.id }));
+			dispatch(toggleSelectionConnectPoint({ elementId: e.id }));
+		} else {
+			// here order matters so be aware that connect points are checking if
+			// element that they belong to is selected as well
+			dispatch(selectConnectPoint({ elementId: e.id }));
+			dispatch(selectElement({ id: e.id }));
+		}
+	},
+	onMouseUp: (e: DrawerEvent) => {
+		if (e.originalEvent?.evt.ctrlKey) {
+			return;
 		}
 
 		dispatch(clearSelected());

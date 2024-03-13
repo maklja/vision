@@ -1,4 +1,4 @@
-import { Draft, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
+import { Draft, Update, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import {
 	ConnectPointPosition,
 	ConnectPointType,
@@ -17,7 +17,7 @@ import {
 	findCircleShapeSize,
 	findElementSize,
 } from '../../theme';
-import { selectElementById } from '../elements';
+import { selectElementById, selectSelectedElementById } from '../elements';
 import { RootState } from '../rootState';
 import {
 	disposeDrawerAnimationStateChange,
@@ -34,8 +34,26 @@ export interface CreateElementConnectPointsAction {
 	payload: CreateElementConnectPointsPayload;
 }
 
+export interface ToggleConnectPointSelectionPayload {
+	elementId: string;
+}
+
+export interface ToggleConnectPointSelectionAction {
+	type: string;
+	payload: ToggleConnectPointSelectionPayload;
+}
+
+export interface SelectConnectPointPayload {
+	elementId: string;
+}
+
+export interface SelectConnectPointAction {
+	type: string;
+	payload: SelectConnectPointPayload;
+}
+
 export interface MoveConnectPointsByDeltaPayload {
-	id: string;
+	ids: string[];
 	dx: number;
 	dy: number;
 }
@@ -211,21 +229,29 @@ export const moveConnectPointsByDeltaStateChange = (
 	slice: Draft<StageSlice>,
 	payload: MoveConnectPointsByDeltaPayload,
 ) => {
-	const elementConnectPoints = selectConnectPointById(slice.connectPoints, payload.id);
-	if (!elementConnectPoints) {
-		return;
-	}
+	const connectPointEntities = selectConnectPointEntities(slice.connectPoints);
+	const elConnectPointsUpdate: Update<ElementConnectPoints>[] = payload.ids.map((elId) => {
+		const elementConnectPoints = connectPointEntities[elId];
+		if (!elementConnectPoints) {
+			throw new Error(`Connect points not found for element ${elId}`);
+		}
 
-	slice.connectPoints = connectPointsAdapter.updateOne(slice.connectPoints, {
-		id: payload.id,
-		changes: {
-			connectPoints: elementConnectPoints.connectPoints.map((cp) => ({
-				...cp,
-				x: cp.x + payload.dx,
-				y: cp.y + payload.dy,
-			})),
-		},
+		return {
+			id: elId,
+			changes: {
+				connectPoints: elementConnectPoints.connectPoints.map((cp) => ({
+					...cp,
+					x: cp.x + payload.dx,
+					y: cp.y + payload.dy,
+				})),
+			},
+		};
 	});
+
+	slice.connectPoints = connectPointsAdapter.updateMany(
+		slice.connectPoints,
+		elConnectPointsUpdate,
+	);
 };
 
 export const removeConnectPointsByIdsStateChange = (
@@ -234,6 +260,103 @@ export const removeConnectPointsByIdsStateChange = (
 ) => {
 	slice.connectPoints = connectPointsAdapter.removeMany(slice.connectPoints, payload.elementIds);
 };
+
+function calcElementConnectPointsVisibility(el: Element, elConnectPoints: ElementConnectPoints) {
+	const { eventsVisible, outputVisible } = calcConnectPointVisibility(el.type, el.properties);
+	return elConnectPoints.connectPoints.map((cp) => {
+		switch (cp.type) {
+			case ConnectPointType.Event:
+				return { ...cp, visible: eventsVisible };
+			case ConnectPointType.Output:
+				return { ...cp, visible: outputVisible };
+			default:
+				return cp;
+		}
+	});
+}
+
+export function selectConnectPointStateChange(
+	slice: Draft<StageSlice>,
+	payload: SelectConnectPointPayload,
+) {
+	const { elementId } = payload;
+	const elementSelection = selectSelectedElementById(slice.selectedElements, elementId);
+	// check if element that contains connect points is already selected
+	if (elementSelection) {
+		return;
+	}
+
+	const el = selectElementById(slice.elements, elementId);
+	if (!el) {
+		throw new Error(`Element with id ${elementId} was not found`);
+	}
+
+	const connectPoints = selectAllConnectPoints(slice.connectPoints);
+	const connectPointsUpdate: Update<ElementConnectPoints>[] = connectPoints.map(
+		(elConnectPoints) => {
+			if (elConnectPoints.id !== elementId) {
+				return {
+					id: elConnectPoints.id,
+					changes: {
+						connectPoints: elConnectPoints.connectPoints.map((cp) => ({
+							...cp,
+							visible: false,
+						})),
+					},
+				};
+			}
+
+			return {
+				id: elConnectPoints.id,
+				changes: {
+					connectPoints: calcElementConnectPointsVisibility(el, elConnectPoints),
+				},
+			};
+		},
+	);
+
+	slice.connectPoints = connectPointsAdapter.updateMany(slice.connectPoints, connectPointsUpdate);
+}
+
+export function toggleSelectionConnectPointStateChange(
+	slice: Draft<StageSlice>,
+	payload: ToggleConnectPointSelectionPayload,
+) {
+	const { elementId } = payload;
+	const el = selectElementById(slice.elements, elementId);
+	if (!el) {
+		throw new Error(`Element with id ${elementId} was not found`);
+	}
+
+	const elConnectPoints = selectConnectPointById(slice.connectPoints, elementId);
+	if (!elConnectPoints) {
+		throw new Error(`Connect points not found for element ${elementId}`);
+	}
+
+	const elementSelection = selectSelectedElementById(slice.selectedElements, elementId);
+	if (elementSelection) {
+		const updateConnectPoints = {
+			id: elementId,
+			changes: {
+				connectPoints: calcElementConnectPointsVisibility(el, elConnectPoints),
+			},
+		};
+		slice.connectPoints = connectPointsAdapter.updateOne(
+			slice.connectPoints,
+			updateConnectPoints,
+		);
+	} else {
+		slice.connectPoints = connectPointsAdapter.updateOne(slice.connectPoints, {
+			id: elementId,
+			changes: {
+				connectPoints: elConnectPoints.connectPoints.map((cp) => ({
+					...cp,
+					visible: false,
+				})),
+			},
+		});
+	}
+}
 
 export const setSelectionConnectPointsStateChange = (
 	slice: Draft<StageSlice>,
@@ -245,25 +368,15 @@ export const setSelectionConnectPointsStateChange = (
 			throw new Error(`Element with id ${elementId} was not found`);
 		}
 
-		const elementConnectPoints = selectConnectPointById(slice.connectPoints, elementId);
-		if (!elementConnectPoints) {
-			throw new Error(`Failed to find connect points for element ${elementId}`);
+		const elConnectPoints = selectConnectPointById(slice.connectPoints, elementId);
+		if (!elConnectPoints) {
+			throw new Error(`Connect points not found for element ${elementId}`);
 		}
 
-		const { eventsVisible, outputVisible } = calcConnectPointVisibility(el.type, el.properties);
 		return {
 			id: elementId,
 			changes: {
-				connectPoints: elementConnectPoints.connectPoints.map((cp) => {
-					switch (cp.type) {
-						case ConnectPointType.Event:
-							return { ...cp, visible: eventsVisible };
-						case ConnectPointType.Output:
-							return { ...cp, visible: outputVisible };
-						default:
-							return cp;
-					}
-				}),
+				connectPoints: calcElementConnectPointsVisibility(el, elConnectPoints),
 			},
 		};
 	});
@@ -354,6 +467,12 @@ export const connectPointsAdapterReducers = {
 		slice: Draft<StageSlice>,
 		action: SetSelectionConnectPointsAction,
 	) => setSelectionConnectPointsStateChange(slice, action.payload.elementIds),
+	toggleSelectionConnectPoint: (
+		slice: Draft<StageSlice>,
+		action: ToggleConnectPointSelectionAction,
+	) => toggleSelectionConnectPointStateChange(slice, action.payload),
+	selectConnectPoint: (slice: Draft<StageSlice>, action: SelectConnectPointAction) =>
+		selectConnectPointStateChange(slice, action.payload),
 	updateManyConnectPoints: (slice: Draft<StageSlice>, action: UpdateManyConnectPointsAction) =>
 		updateManyConnectPointsStateChange(slice, action.payload),
 	clearHighlighConnectPoints: (slice: Draft<StageSlice>) =>

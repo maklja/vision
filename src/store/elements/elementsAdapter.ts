@@ -1,6 +1,6 @@
 import { v1 } from 'uuid';
 import { current } from 'immer';
-import { Draft, createEntityAdapter } from '@reduxjs/toolkit';
+import { Draft, Update, createEntityAdapter } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
 import { Element, ElementProps, ElementType, mapToOperatorPropsTemplate } from '../../model';
 import { RootState } from '../rootState';
@@ -11,6 +11,7 @@ import {
 	createElementsConnectPointsStateChange,
 	moveConnectPointsByDeltaStateChange,
 } from '../connectPoints';
+import { selectAllSelectedElements } from './selectedElementsAdapter';
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
@@ -23,6 +24,16 @@ export interface UpdateElementPayload<P = ElementProps> {
 export interface UpdateElementAction<P = ElementProps> {
 	type: string;
 	payload: UpdateElementPayload<P>;
+}
+
+export interface MoveByDeltaElementPayload {
+	dx: number;
+	dy: number;
+}
+
+export interface MoveByDeltaElementAction {
+	type: string;
+	payload: MoveByDeltaElementPayload;
 }
 
 export interface MoveElementPayload {
@@ -130,7 +141,7 @@ export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveEl
 	const dy = payload.y - el.y;
 
 	moveConnectPointsByDeltaStateChange(slice, {
-		id: el.id,
+		ids: [el.id],
 		dx,
 		dy,
 	});
@@ -156,6 +167,56 @@ export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveEl
 		}
 	});
 };
+
+export function moveSelectedElementsByDeltaStateChange(
+	slice: Draft<StageSlice>,
+	payload: MoveByDeltaElementPayload,
+) {
+	const selectedElements = selectAllSelectedElements(slice.selectedElements);
+	if (selectedElements.length === 0) {
+		return;
+	}
+
+	const { dx, dy } = payload;
+	const selectedElementIds = selectedElements.map((selectedEl) => selectedEl.id);
+	const elementsUpdates: Update<Element>[] = selectAllElements(slice.elements)
+		.filter((el) => selectedElementIds.includes(el.id))
+		.map((el) => ({
+			id: el.id,
+			changes: {
+				x: el.x + dx,
+				y: el.y + dy,
+			},
+		}));
+
+	slice.elements = elementsAdapter.updateMany(slice.elements, elementsUpdates);
+	moveConnectPointsByDeltaStateChange(slice, {
+		ids: selectedElementIds,
+		dx,
+		dy,
+	});
+
+	const connectLines = selectAllConnectLines(slice.connectLines);
+	connectLines.forEach((cl) => {
+		if (selectedElementIds.includes(cl.source.id)) {
+			moveConnectLinePointsByDeltaStateChange(slice, {
+				id: cl.id,
+				pointIndexes: [0, 1],
+				dx,
+				dy,
+			});
+		}
+
+		if (selectedElementIds.includes(cl.target.id)) {
+			moveConnectLinePointsByDeltaStateChange(slice, {
+				id: cl.id,
+				pointIndexes: [cl.points.length - 2, cl.points.length - 1],
+				dx,
+				dy,
+			});
+		}
+	});
+}
 
 export const removeElementsStateChange = (
 	slice: Draft<StageSlice>,
@@ -193,6 +254,8 @@ export const elementsAdapterReducers = {
 		updateElementStateChange(slice, action.payload),
 	moveElement: (slice: Draft<StageSlice>, action: MoveElementAction) =>
 		moveElementStateChange(slice, action.payload),
+	moveSelectedElementsByDelta: (slice: Draft<StageSlice>, action: MoveByDeltaElementAction) =>
+		moveSelectedElementsByDeltaStateChange(slice, action.payload),
 	removeElements: (slice: Draft<StageSlice>, action: RemoveElementsAction) =>
 		removeElementsStateChange(slice, action.payload),
 	updateElementProperty: (slice: Draft<StageSlice>, action: UpdateElementPropertyAction) =>
@@ -256,3 +319,4 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
+

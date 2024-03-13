@@ -5,7 +5,7 @@ import {
 	changeState,
 	clearSnapLines,
 	createElementSnapLines,
-	moveElement,
+	moveSelectedElementsByDelta,
 } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
@@ -31,12 +31,10 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 
 		changeCursorStyle('grabbing', originalEvent.currentTarget.getStage());
 		originalEvent.cancelBubble = true;
-		const position = originalEvent.currentTarget.getPosition();
 		dispatch(
-			moveElement({
-				id,
-				x: position.x,
-				y: position.y,
+			moveSelectedElementsByDelta({
+				dx: originalEvent.evt.movementX,
+				dy: originalEvent.evt.movementY,
 			}),
 		);
 
@@ -48,3 +46,4 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 		);
 	},
 });
+

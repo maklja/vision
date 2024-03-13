@@ -155,6 +155,12 @@ export const {
 	createConnectPointSnapLines,
 	updateConnectLine,
 	updateCanvasState,
+	addElementsToSelection,
+	moveSelectedElementsByDelta,
+	toggleSelectElement,
+	selectElement,
+	toggleSelectionConnectPoint,
+	selectConnectPoint,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;

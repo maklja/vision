@@ -12,6 +12,21 @@ export interface SelectElementsAction {
 	payload: SelectedElement[];
 }
 
+export interface AddElementsToSelectionAction {
+	type: string;
+	payload: SelectedElement[];
+}
+
+export interface ToggleSelectElementAction {
+	type: string;
+	payload: SelectedElement;
+}
+
+export interface SelectElementAction {
+	type: string;
+	payload: SelectedElement;
+}
+
 const selectedElementsAdapter = createEntityAdapter<SelectedElement>({
 	selectId: (el) => el.id,
 });
@@ -41,9 +56,47 @@ export const selectElementsStateChange = (
 	);
 };
 
+export function selectElementStateChange(slice: Draft<StageSlice>, element: SelectedElement) {
+	const selectEl = selectSelectedElementById(slice.selectedElements, element.id);
+	if (selectEl) {
+		return;
+	}
+
+	slice.selectedElements = selectedElementsAdapter.addOne(
+		selectedElementsAdapter.removeAll(slice.selectedElements),
+		element,
+	);
+}
+
+export function toggleSelectElementStateChange(slice: Draft<StageSlice>, element: SelectedElement) {
+	const elementSelection = selectSelectedElementById(slice.selectedElements, element.id);
+	if (elementSelection) {
+		slice.selectedElements = selectedElementsAdapter.removeOne(
+			slice.selectedElements,
+			element.id,
+		);
+	} else {
+		slice.selectedElements = selectedElementsAdapter.addOne(slice.selectedElements, element);
+	}
+}
+
+export function addToSelectionStateChange(slice: Draft<StageSlice>, elements: SelectedElement[]) {
+	if (elements.length === 0) {
+		return;
+	}
+
+	slice.selectedElements = selectedElementsAdapter.addMany(slice.selectedElements, elements);
+}
+
 export const selectElementsAdapterReducers = {
 	selectElements: (slice: Draft<StageSlice>, action: SelectElementsAction) =>
 		selectElementsStateChange(slice, action.payload),
+	addElementsToSelection: (slice: Draft<StageSlice>, action: AddElementsToSelectionAction) =>
+		addToSelectionStateChange(slice, action.payload),
+	toggleSelectElement: (slice: Draft<StageSlice>, action: ToggleSelectElementAction) =>
+		toggleSelectElementStateChange(slice, action.payload),
+	selectElement: (slice: Draft<StageSlice>, action: SelectElementAction) =>
+		selectElementStateChange(slice, action.payload),
 };
 
 const globalSelectedElementsSelector = selectedElementsAdapter.getSelectors<RootState>(
