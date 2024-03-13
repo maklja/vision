@@ -27,8 +27,9 @@ export interface UpdateElementAction<P = ElementProps> {
 }
 
 export interface MoveByDeltaElementPayload {
-	dx: number;
-	dy: number;
+	referenceElementId: string;
+	x: number;
+	y: number;
 }
 
 export interface MoveByDeltaElementAction {
@@ -177,7 +178,14 @@ export function moveSelectedElementsByDeltaStateChange(
 		return;
 	}
 
-	const { dx, dy } = payload;
+	const el = selectElementById(slice.elements, payload.referenceElementId);
+	if (!el) {
+		return;
+	}
+
+	const dx = payload.x - el.x;
+	const dy = payload.y - el.y;
+
 	const selectedElementIds = selectedElements.map((selectedEl) => selectedEl.id);
 	const elementsUpdates: Update<Element>[] = selectAllElements(slice.elements)
 		.filter((el) => selectedElementIds.includes(el.id))
@@ -188,7 +196,6 @@ export function moveSelectedElementsByDeltaStateChange(
 				y: el.y + dy,
 			},
 		}));
-
 	slice.elements = elementsAdapter.updateMany(slice.elements, elementsUpdates);
 	moveConnectPointsByDeltaStateChange(slice, {
 		ids: selectedElementIds,
@@ -206,7 +213,6 @@ export function moveSelectedElementsByDeltaStateChange(
 				dy,
 			});
 		}
-
 		if (selectedElementIds.includes(cl.target.id)) {
 			moveConnectLinePointsByDeltaStateChange(slice, {
 				id: cl.id,

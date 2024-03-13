@@ -31,10 +31,12 @@ export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => 
 
 		changeCursorStyle('grabbing', originalEvent.currentTarget.getStage());
 		originalEvent.cancelBubble = true;
+		const position = originalEvent.currentTarget.getPosition();
 		dispatch(
 			moveSelectedElementsByDelta({
-				dx: originalEvent.evt.movementX,
-				dy: originalEvent.evt.movementY,
+				referenceElementId: id,
+				x: position.x,
+				y: position.y,
 			}),
 		);
 
