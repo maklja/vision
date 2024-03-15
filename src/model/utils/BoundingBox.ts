@@ -35,10 +35,19 @@ export class BoundingBox implements IBoundingBox {
 		return { x: this.x + this.width / 2, y: this.y + this.height / 2 };
 	}
 
+	get points() {
+		return [this.topLeft, this.topRight, this.bottomRight, this.bottomLeft];
+	}
+
 	static empty(x = 0, y = 0) {
 		return new BoundingBox(x, y);
+	}
+
+	static copy(bb: IBoundingBox) {
+		return new BoundingBox(bb.x, bb.y, bb.width, bb.height);
 	}
 }
 
 export const pointOverlapBoundingBox = (p: Point, bb: IBoundingBox) =>
 	bb.x <= p.x && p.x <= bb.x + bb.width && bb.y <= p.y && p.y <= bb.y + bb.height;
+

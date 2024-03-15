@@ -1,5 +1,5 @@
 import { createSlice, EntityState } from '@reduxjs/toolkit';
-import { Element, SnapLine } from '../model';
+import { Element, IBoundingBox, SnapLine } from '../model';
 import {
 	createThemeContext,
 	ThemesContext,
@@ -48,6 +48,7 @@ export interface StageSlice {
 	elements: EntityState<Element>;
 	selectedElements: EntityState<SelectedElement>;
 	draftElement: Element | null;
+	lassoSelection: IBoundingBox | null;
 	connectLines: EntityState<ConnectLineEntity>;
 	draftConnectLine: DraftConnectLine | null;
 	connectPoints: EntityState<ElementConnectPoints>;
@@ -80,6 +81,7 @@ export const createStageInitialState = (): StageSlice => ({
 	snapLines: createSnapLinesInitialState(),
 	animations: createDrawerAnimationsInitialState(),
 	canvasState: createCanvasInitialState(),
+	lassoSelection: null,
 });
 
 export const stageSlice = createSlice({
@@ -161,6 +163,9 @@ export const {
 	selectElement,
 	toggleSelectionConnectPoint,
 	selectConnectPoint,
+	startLassoSelection,
+	updateLassoSelection,
+	stopLassoSelection,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;

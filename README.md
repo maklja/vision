@@ -1,5 +1,4 @@
 -   pre code executions
--   laso and multi selection
 -   save/load
 -   copy/paste
 -   locate element by name

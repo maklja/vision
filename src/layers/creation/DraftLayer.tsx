@@ -1,5 +1,5 @@
 import { Layer } from 'react-konva';
-import { DraftLineDrawer, SnapLineDrawer } from '../../drawers';
+import { DraftLineDrawer, SnapLineDrawer, LassoSelection } from '../../drawers';
 import { useAppSelector } from '../../store/rootState';
 import { useBoundingBox, useThemeContext } from '../../store/stageSlice';
 import { selectStageDraftConnectLine } from '../../store/connectLines';
@@ -7,6 +7,7 @@ import { selectSnapLines } from '../../store/snapLines';
 import { selectStageElementById } from '../../store/elements';
 import { useMemo } from 'react';
 import { useLineSize } from '../../theme';
+import { selectLasso } from '../../store/stage';
 
 export const DraftLayer = () => {
 	const theme = useThemeContext();
@@ -16,6 +17,8 @@ export const DraftLayer = () => {
 	const sourceElement = useAppSelector(
 		selectStageElementById(draftConnectLine?.source.id ?? null),
 	);
+	const lassoBoundingBox = useAppSelector(selectLasso);
+
 	const elBoundingBox = useBoundingBox(sourceElement?.type ?? null, {
 		x: sourceElement?.x ?? 0,
 		y: sourceElement?.y ?? 0,
@@ -55,6 +58,16 @@ export const DraftLayer = () => {
 					theme={theme}
 					size={lineSize}
 					arrowVisible={draftConnectLine.locked}
+				/>
+			) : null}
+
+			{lassoBoundingBox ? (
+				<LassoSelection
+					x={lassoBoundingBox.x}
+					y={lassoBoundingBox.y}
+					width={lassoBoundingBox.width}
+					height={lassoBoundingBox.height}
+					theme={theme}
 				/>
 			) : null}
 

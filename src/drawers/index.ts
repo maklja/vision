@@ -7,3 +7,4 @@ export * from './rectangle';
 export * from './result';
 export * from './roller';
 export * from './utils';
+export * from './lasso';
