@@ -46,8 +46,46 @@ export class BoundingBox implements IBoundingBox {
 	static copy(bb: IBoundingBox) {
 		return new BoundingBox(bb.x, bb.y, bb.width, bb.height);
 	}
+
+	intersects(bb: IBoundingBox) {
+		return boundingBoxesIntersection(this, bb);
+	}
+
+	normalize() {
+		return normalizeBoundingBox(this);
+	}
 }
 
-export const pointOverlapBoundingBox = (p: Point, bb: IBoundingBox) =>
-	bb.x <= p.x && p.x <= bb.x + bb.width && bb.y <= p.y && p.y <= bb.y + bb.height;
+export function pointOverlapBoundingBox(p: Point, bb: IBoundingBox) {
+	return bb.x <= p.x && p.x <= bb.x + bb.width && bb.y <= p.y && p.y <= bb.y + bb.height;
+}
+
+export function normalizeBoundingBox(bb: IBoundingBox): IBoundingBox {
+	const { x, y, width, height } = bb;
+
+	const newX = width < 0 ? x + width : x;
+	const newY = height < 0 ? y + height : y;
+
+	return {
+		x: newX,
+		y: newY,
+		width: Math.abs(width),
+		height: Math.abs(height),
+	};
+}
+
+export function boundingBoxesIntersection(bb1: IBoundingBox, bb2: IBoundingBox) {
+	const bb1TopLeft = { x: bb1.x, y: bb1.y };
+	const bb1BottomRight = { x: bb1.x + bb1.width, y: bb1.y + bb1.height };
+
+	const bb2TopLeft = { x: bb2.x, y: bb2.y };
+	const bb2BottomRight = { x: bb2.x + bb2.width, y: bb2.y + bb2.height };
+
+	return !(
+		bb1BottomRight.x < bb2TopLeft.x ||
+		bb2BottomRight.x < bb1TopLeft.x ||
+		bb1BottomRight.y < bb2TopLeft.y ||
+		bb2BottomRight.y < bb1TopLeft.y
+	);
+}
 

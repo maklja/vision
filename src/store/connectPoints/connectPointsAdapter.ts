@@ -275,6 +275,13 @@ function calcElementConnectPointsVisibility(el: Element, elConnectPoints: Elemen
 	});
 }
 
+function hideElementConnectPointsVisibility(elConnectPoints: ElementConnectPoints) {
+	return elConnectPoints.connectPoints.map((cp) => ({
+		...cp,
+		visible: false,
+	}));
+}
+
 export function selectConnectPointStateChange(
 	slice: Draft<StageSlice>,
 	payload: SelectConnectPointPayload,
@@ -298,10 +305,7 @@ export function selectConnectPointStateChange(
 				return {
 					id: elConnectPoints.id,
 					changes: {
-						connectPoints: elConnectPoints.connectPoints.map((cp) => ({
-							...cp,
-							visible: false,
-						})),
+						connectPoints: hideElementConnectPointsVisibility(elConnectPoints),
 					},
 				};
 			}
@@ -349,32 +353,33 @@ export function toggleSelectionConnectPointStateChange(
 		slice.connectPoints = connectPointsAdapter.updateOne(slice.connectPoints, {
 			id: elementId,
 			changes: {
-				connectPoints: elConnectPoints.connectPoints.map((cp) => ({
-					...cp,
-					visible: false,
-				})),
+				connectPoints: hideElementConnectPointsVisibility(elConnectPoints),
 			},
 		});
 	}
 }
 
-export const setSelectionConnectPointsStateChange = (
+export function setSelectionConnectPointsStateChange(
 	slice: Draft<StageSlice>,
 	elementIds: string[],
-) => {
-	const connectPointsSelected = elementIds.map((elementId) => {
-		const el = selectElementById(slice.elements, elementId);
-		if (!el) {
-			throw new Error(`Element with id ${elementId} was not found`);
+) {
+	const connectPoints = selectAllConnectPoints(slice.connectPoints);
+	const connectPointsSelected = connectPoints.map((elConnectPoints) => {
+		if (!elementIds.includes(elConnectPoints.id)) {
+			return {
+				id: elConnectPoints.id,
+				changes: {
+					connectPoints: hideElementConnectPointsVisibility(elConnectPoints),
+				},
+			};
 		}
-
-		const elConnectPoints = selectConnectPointById(slice.connectPoints, elementId);
-		if (!elConnectPoints) {
-			throw new Error(`Connect points not found for element ${elementId}`);
+		const el = selectElementById(slice.elements, elConnectPoints.id);
+		if (!el) {
+			throw new Error(`Element with id ${elConnectPoints.id} was not found`);
 		}
 
 		return {
-			id: elementId,
+			id: elConnectPoints.id,
 			changes: {
 				connectPoints: calcElementConnectPointsVisibility(el, elConnectPoints),
 			},
@@ -385,7 +390,7 @@ export const setSelectionConnectPointsStateChange = (
 		slice.connectPoints,
 		connectPointsSelected,
 	);
-};
+}
 
 export const updateManyConnectPointsStateChange = (
 	slice: Draft<StageSlice>,
@@ -413,22 +418,19 @@ export const updateManyConnectPointsStateChange = (
 	slice.connectPoints = connectPointsAdapter.updateMany(slice.connectPoints, adapterUpdates);
 };
 
-export const clearSelectionConnectPointsStateChange = (slice: Draft<StageSlice>) => {
+export function clearSelectionConnectPointsStateChange(slice: Draft<StageSlice>) {
 	const connectPoints = selectAllConnectPoints(slice.connectPoints);
 
 	slice.connectPoints = connectPointsAdapter.updateMany(
 		slice.connectPoints,
-		connectPoints.map((elementConnectPoint) => ({
-			id: elementConnectPoint.id,
+		connectPoints.map((elementConnectPoints) => ({
+			id: elementConnectPoints.id,
 			changes: {
-				connectPoints: elementConnectPoint.connectPoints.map((cp) => ({
-					...cp,
-					visible: false,
-				})),
+				connectPoints: hideElementConnectPointsVisibility(elementConnectPoints),
 			},
 		})),
 	);
-};
+}
 
 export const clearHighlightConnectPointsStateChange = (slice: Draft<StageSlice>) => {
 	const connectPoints = selectAllConnectPoints(slice.connectPoints);

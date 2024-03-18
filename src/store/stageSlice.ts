@@ -166,6 +166,7 @@ export const {
 	startLassoSelection,
 	updateLassoSelection,
 	stopLassoSelection,
+	selectElementInLassoBoundingBox,
 } = stageSlice.actions;
 
 export default stageSlice.reducer;

@@ -8,6 +8,7 @@ import {
 	startLassoSelection,
 	updateLassoSelection,
 	stopLassoSelection,
+	selectElementInLassoBoundingBox,
 } from '../../store/stageSlice';
 import { changeCursorStyle } from '../../operatorDrawers/utils';
 import { ZoomTo, zoomStage } from './calculateScaleAndPosition';
@@ -59,6 +60,7 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 		}
 	},
 	onMouseUp: () => {
+		dispatch(selectElementInLassoBoundingBox());
 		dispatch(stopLassoSelection());
 	},
 	onDragStart: (e: Konva.KonvaEventObject<MouseEvent>) => {
