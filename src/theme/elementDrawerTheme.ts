@@ -69,6 +69,7 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 			primary: {
 				...elementDefault,
 				fill: themeColors.secondaryColor,
+				stroke: themeColors.tertiaryColor,
 			},
 			secondary: {
 				...elementDefault,
@@ -83,6 +84,7 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 			primary: {
 				...elementDefault,
 				fill: themeColors.secondaryColor,
+				stroke: themeColors.tertiaryColor,
 			},
 			secondary: {
 				...elementDefault,

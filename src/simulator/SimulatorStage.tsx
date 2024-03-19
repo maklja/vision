@@ -1,16 +1,11 @@
 import Konva from 'konva';
-import {
-	useEffect,
-	useRef,
-	useState,
-	forwardRef,
-} from 'react';
+import { useEffect, useRef, useState, forwardRef } from 'react';
 import { Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
 import { AnimationsLayer } from '../layers/animations';
 import { DraftLayer, DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DrawersLayer } from '../layers/drawers';
-import { useAppDispatch } from '../store/rootState';
+import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
 	addDraftElement,
 	clearDraftElement,
@@ -21,6 +16,7 @@ import {
 import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
 import { GridLayer } from '../layers/grid';
+import { StageState, selectStageState } from '../store/stage';
 
 Konva.hitOnDragEnabled = true;
 
@@ -44,6 +40,7 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 	parentStageRef,
 ) {
 	const theme = useThemeContext();
+	const stageState = useAppSelector(selectStageState);
 	const stageHandlers = useStageHandlers();
 	const appDispatch = useAppDispatch();
 	const stageRef = useRef<Konva.Stage | null>(null);
@@ -124,7 +121,7 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 				style={{ backgroundColor: theme.colors.backgroundPrimaryColor }}
 				width={window.innerWidth}
 				height={window.innerHeight}
-				draggable={true}
+				draggable={stageState === StageState.Select}
 				ref={handleStageRef}
 			>
 				<GridLayer />

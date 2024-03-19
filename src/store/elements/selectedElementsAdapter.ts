@@ -2,6 +2,12 @@ import { Draft, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
 import { RootState } from '../rootState';
 import { selectAllElements } from './elementsAdapter';
+import { calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
+import { normalizeBoundingBox } from '../../model';
+import {
+	clearSelectionConnectPointsStateChange,
+	setSelectionConnectPointsStateChange,
+} from '../connectPoints';
 
 export interface SelectedElement {
 	id: string;
@@ -10,6 +16,21 @@ export interface SelectedElement {
 export interface SelectElementsAction {
 	type: string;
 	payload: SelectedElement[];
+}
+
+export interface AddElementsToSelectionAction {
+	type: string;
+	payload: SelectedElement[];
+}
+
+export interface ToggleSelectElementAction {
+	type: string;
+	payload: SelectedElement;
+}
+
+export interface SelectElementAction {
+	type: string;
+	payload: SelectedElement;
 }
 
 const selectedElementsAdapter = createEntityAdapter<SelectedElement>({
@@ -26,10 +47,7 @@ export const {
 	selectTotal: selectSelectedElementsTotal,
 } = selectedElementsAdapter.getSelectors();
 
-export const selectElementsStateChange = (
-	slice: Draft<StageSlice>,
-	elements: SelectedElement[],
-) => {
+export function selectElementsStateChange(slice: Draft<StageSlice>, elements: SelectedElement[]) {
 	const totalSelected = selectSelectedElementsTotal(slice.selectedElements);
 	if (totalSelected === 0 && elements.length === 0) {
 		return;
@@ -39,11 +57,80 @@ export const selectElementsStateChange = (
 		selectedElementsAdapter.removeAll(slice.selectedElements),
 		elements,
 	);
-};
+}
+
+export function selectElementInLassoBoundingBoxStateChange(slice: Draft<StageSlice>) {
+	const lassoBoundingBox = slice.lassoSelection;
+	if (!lassoBoundingBox) {
+		return;
+	}
+	const normalizedLassoBB = normalizeBoundingBox(lassoBoundingBox);
+
+	const selectedElements = selectAllElements(slice.elements)
+		.filter((el) => {
+			const shapeSize = findElementSize(slice.elementSizes, el.type);
+			const elBoundingBox = calculateShapeSizeBoundingBox({ x: el.x, y: el.y }, shapeSize);
+			return elBoundingBox.intersects(normalizedLassoBB);
+		})
+		.map((el) => el.id);
+
+	// TODO isolation between select element and select connect points, maybe leave this for store refactor
+	if (selectedElements.length === 0) {
+		selectElementsStateChange(slice, []);
+		clearSelectionConnectPointsStateChange(slice);
+		return;
+	}
+
+	selectElementsStateChange(
+		slice,
+		selectedElements.map((elId) => ({ id: elId })),
+	);
+	setSelectionConnectPointsStateChange(slice, selectedElements);
+}
+
+export function selectElementStateChange(slice: Draft<StageSlice>, element: SelectedElement) {
+	const selectEl = selectSelectedElementById(slice.selectedElements, element.id);
+	if (selectEl) {
+		return;
+	}
+
+	slice.selectedElements = selectedElementsAdapter.addOne(
+		selectedElementsAdapter.removeAll(slice.selectedElements),
+		element,
+	);
+}
+
+export function toggleSelectElementStateChange(slice: Draft<StageSlice>, element: SelectedElement) {
+	const elementSelection = selectSelectedElementById(slice.selectedElements, element.id);
+	if (elementSelection) {
+		slice.selectedElements = selectedElementsAdapter.removeOne(
+			slice.selectedElements,
+			element.id,
+		);
+	} else {
+		slice.selectedElements = selectedElementsAdapter.addOne(slice.selectedElements, element);
+	}
+}
+
+export function addToSelectionStateChange(slice: Draft<StageSlice>, elements: SelectedElement[]) {
+	if (elements.length === 0) {
+		return;
+	}
+
+	slice.selectedElements = selectedElementsAdapter.addMany(slice.selectedElements, elements);
+}
 
 export const selectElementsAdapterReducers = {
 	selectElements: (slice: Draft<StageSlice>, action: SelectElementsAction) =>
 		selectElementsStateChange(slice, action.payload),
+	addElementsToSelection: (slice: Draft<StageSlice>, action: AddElementsToSelectionAction) =>
+		addToSelectionStateChange(slice, action.payload),
+	toggleSelectElement: (slice: Draft<StageSlice>, action: ToggleSelectElementAction) =>
+		toggleSelectElementStateChange(slice, action.payload),
+	selectElement: (slice: Draft<StageSlice>, action: SelectElementAction) =>
+		selectElementStateChange(slice, action.payload),
+	selectElementInLassoBoundingBox: (slice: Draft<StageSlice>) =>
+		selectElementInLassoBoundingBoxStateChange(slice),
 };
 
 const globalSelectedElementsSelector = selectedElementsAdapter.getSelectors<RootState>(

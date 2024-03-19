@@ -9,7 +9,7 @@ export interface EventCircleIconDrawerProps {
 	highlight?: boolean;
 }
 
-const ICON_SCALE_CORRECTION = 1.2;
+const ICON_SCALE_CORRECTION = 1.18;
 export const EventCircleIconDrawer = ({
 	theme,
 	size,

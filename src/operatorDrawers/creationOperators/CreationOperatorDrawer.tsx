@@ -33,6 +33,7 @@ export const CreationOperatorDrawer = ({
 	onDragMove,
 	onDragStart,
 	onMouseDown,
+	onMouseUp,
 	onMouseOut,
 	onMouseOver,
 }: CreationOperatorDrawerProps) => {
@@ -70,6 +71,7 @@ export const CreationOperatorDrawer = ({
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
 				onMouseDown={onMouseDown}
+				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}
 				onMouseOut={onMouseOut}
 			/>

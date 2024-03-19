@@ -1,6 +1,6 @@
 import { Point } from '../common';
 
-export const linesIntersection = (p0: Point, p1: Point, p2: Point, p3: Point): Point => {
+export function linesIntersection(p0: Point, p1: Point, p2: Point, p3: Point): Point {
 	const slope1 = (p1.y - p0.y) / (p1.x - p0.x);
 	const yIntercept1 = p0.y - slope1 * p0.x;
 
@@ -15,5 +15,5 @@ export const linesIntersection = (p0: Point, p1: Point, p2: Point, p3: Point): P
 	}
 
 	return { x, y };
-};
+}
 

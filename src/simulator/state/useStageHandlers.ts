@@ -9,7 +9,7 @@ export const useStageHandlers = () => {
 	const appDispatch = useAppDispatch();
 
 	return useMemo(() => {
-		if (stageState === StageState.Select) {
+		if (stageState === StageState.Select || stageState === StageState.LassoSelect) {
 			return stageSelectStateHandlers(appDispatch);
 		}
 

@@ -28,6 +28,7 @@ export const ResultDrawer = ({
 	onDragMove,
 	onDragStart,
 	onMouseDown,
+	onMouseUp,
 	onMouseOut,
 	onMouseOver,
 }: ResultDrawerProps) => {
@@ -55,6 +56,7 @@ export const ResultDrawer = ({
 			onDragMove={onDragMove}
 			onDragEnd={onDragEnd}
 			onMouseDown={onMouseDown}
+			onMouseUp={onMouseUp}
 			onMouseOver={onMouseOver}
 			onMouseOut={onMouseOut}
 		/>

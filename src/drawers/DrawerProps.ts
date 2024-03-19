@@ -17,6 +17,7 @@ export interface DrawerAnimationEvents {
 
 export interface DrawerEvents extends DrawerAnimationEvents {
 	onMouseDown?: (event: DrawerEvent) => void;
+	onMouseUp?: (event: DrawerEvent) => void;
 	onMouseOver?: (event: DrawerEvent) => void;
 	onMouseOut?: (event: DrawerEvent) => void;
 	onDragStart?: (event: DrawerEvent) => void;

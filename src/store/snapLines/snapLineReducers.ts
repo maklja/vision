@@ -13,7 +13,12 @@ import {
 	snapLinesDistance,
 } from '../../model';
 import { RootState } from '../rootState';
-import { moveElementStateChange, selectAllElements, selectElementById } from '../elements';
+import {
+	moveSelectedElementsByDeltaStateChange,
+	selectAllElements,
+	selectElementById,
+	selectSelectedElementEntities,
+} from '../elements';
 import { ElementSizesContext, calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
 import { selectAllConnectPoints, selectConnectPointById } from '../connectPoints';
 import { moveConnectLineDrawStateChange } from '../connectLines';
@@ -175,7 +180,8 @@ export const snapLineReducers = {
 			return;
 		}
 
-		const elements = selectAllElements(slice.elements);
+		const selectedElements = selectSelectedElementEntities(slice.selectedElements);
+		const elements = selectAllElements(slice.elements).filter((el) => !selectedElements[el.id]);
 		const { horizontalSnapLines, verticalSnapLines } = createSnapLinesByElement(
 			el,
 			elements,
@@ -188,8 +194,8 @@ export const snapLineReducers = {
 		const [verticalSnapLine] = verticalSnapLines;
 		const x = verticalSnapLine ? el.x + verticalSnapLine.distance : el.x;
 		const y = horizontalSnapLine ? el.y + horizontalSnapLine.distance : el.y;
-		moveElementStateChange(slice, {
-			id: el.id,
+		moveSelectedElementsByDeltaStateChange(slice, {
+			referenceElementId: payload.referenceElementId,
 			x,
 			y,
 		});

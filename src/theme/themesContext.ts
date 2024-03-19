@@ -16,6 +16,7 @@ import { iifConnectPointsTheme } from './iifDrawerTheme';
 import { TooltipTheme, tooltipTheme } from './tooltipTheme';
 import { SnapLineTheme, snapLineDrawerTheme } from './snapLineDrawerTheme';
 import { GridTheme, gridTheme } from './gridTheme';
+import { LassoTheme, lassoTheme } from './lassoTheme';
 
 export interface Theme {
 	readonly colors: ColorTheme;
@@ -26,6 +27,7 @@ export interface Theme {
 	readonly tooltip: TooltipTheme;
 	readonly snapLine: SnapLineTheme;
 	readonly grid: GridTheme;
+	readonly lasso: LassoTheme;
 }
 
 export interface DrawerThemeOverride {
@@ -48,6 +50,7 @@ export const createThemeContext = (): ThemesContext => {
 		tooltip: tooltipTheme(defaultColorTheme),
 		snapLine: snapLineDrawerTheme(defaultColorTheme),
 		grid: gridTheme(defaultColorTheme),
+		lasso: lassoTheme(defaultColorTheme),
 	};
 	return {
 		[ElementType.IIf]: {
