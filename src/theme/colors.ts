@@ -12,6 +12,8 @@ export interface ColorTheme {
 	readonly errorSecondaryColor: string;
 	readonly successPrimaryColor: string;
 	readonly successSecondaryColor: string;
+	readonly lassoPrimaryColor: string;
+	readonly lassoSecondaryColor: string;
 }
 
 // const mainColorTheme: ColorTheme = {
@@ -44,6 +46,8 @@ const seaColorTheme: ColorTheme = {
 	errorSecondaryColor: '#ECA0A0',
 	successPrimaryColor: '#198754',
 	successSecondaryColor: '#22bb33',
+	lassoPrimaryColor: 'rgba(0, 102, 204, 1)',
+	lassoSecondaryColor: 'rgba(0, 102, 204, 0.3)',
 };
 
 export const retrieveThemeColors = (): ColorTheme => {

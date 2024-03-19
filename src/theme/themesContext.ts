@@ -50,7 +50,7 @@ export const createThemeContext = (): ThemesContext => {
 		tooltip: tooltipTheme(defaultColorTheme),
 		snapLine: snapLineDrawerTheme(defaultColorTheme),
 		grid: gridTheme(defaultColorTheme),
-		lasso: lassoTheme(),
+		lasso: lassoTheme(defaultColorTheme),
 	};
 	return {
 		[ElementType.IIf]: {

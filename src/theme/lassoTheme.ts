@@ -1,3 +1,5 @@
+import { ColorTheme } from './colors';
+
 export interface LassoTheme {
 	readonly stroke: string;
 	readonly fill: string;
@@ -5,10 +7,10 @@ export interface LassoTheme {
 	readonly cornerRadius: number;
 }
 
-export const lassoTheme = (): LassoTheme => {
+export const lassoTheme = (themeColors: ColorTheme): LassoTheme => {
 	return {
-		stroke: 'rgba(0, 102, 204, 1)',
-		fill: 'rgba(0, 102, 204, 0.3)',
+		stroke: themeColors.lassoPrimaryColor,
+		fill: themeColors.lassoSecondaryColor,
 		strokeWidth: 1,
 		cornerRadius: 2,
 	};
