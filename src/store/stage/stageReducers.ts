@@ -13,7 +13,10 @@ export enum StageState {
 }
 
 const draggingStates = [StageState.Dragging, StageState.SnapDragging];
+const draggableStates = [StageState.Select, StageState.Dragging, StageState.SnapDragging];
 export const isStageStateDragging = (state: StageState) => draggingStates.includes(state);
+
+export const isElementDragAllowed = (state: StageState) => draggableStates.includes(state);
 
 export interface ChangeStateAction {
 	type: string;

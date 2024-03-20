@@ -1,7 +1,7 @@
 import { ColorTheme } from './colors';
 import { ConnectPointsThemeOverride } from './connectPointsTheme';
 
-export const iifConnectPointsTheme = (themeColors: ColorTheme): ConnectPointsThemeOverride => {
+export function iifConnectPointsTheme(themeColors: ColorTheme): ConnectPointsThemeOverride {
 	const trueElementStyle = {
 		fill: themeColors.successPrimaryColor,
 	};
@@ -28,5 +28,5 @@ export const iifConnectPointsTheme = (themeColors: ColorTheme): ConnectPointsThe
 		top: trueConnectPointTheme,
 		bottom: falseConnectPointTheme,
 	};
-};
+}
 

@@ -22,6 +22,7 @@ export enum ElementType {
 	Buffer = 'buffer',
 	BufferCount = 'bufferCount',
 	BufferTime = 'bufferTime',
+	BufferToggle = 'bufferToggle',
 	BufferWhen = 'bufferWhen',
 	ConcatMap = 'concatMap',
 	ExhaustMap = 'exhaustMap',
@@ -62,6 +63,7 @@ export const transformationOperators: ReadonlySet<ElementType> = new Set([
 	ElementType.Buffer,
 	ElementType.BufferCount,
 	ElementType.BufferTime,
+	ElementType.BufferToggle,
 	ElementType.BufferWhen,
 	ElementType.ExhaustMap,
 	ElementType.Map,
@@ -82,6 +84,7 @@ export const pipeOperators: ReadonlySet<ElementType> = new Set([
 export const eventPipeOperators: ReadonlySet<ElementType> = new Set([
 	...errorHandlerOperators,
 	ElementType.Buffer,
+	ElementType.BufferToggle,
 	ElementType.BufferWhen,
 	ElementType.ExhaustMap,
 	ElementType.IIf,

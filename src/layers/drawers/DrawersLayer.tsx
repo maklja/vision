@@ -4,7 +4,7 @@ import { useAppSelector } from '../../store/rootState';
 import { ConnectLineDrawer, OperatorDrawer, TooltipDrawer } from '../../operatorDrawers';
 import { selectStageElementById, selectStageElements } from '../../store/elements';
 import { SimulationState, selectSimulation } from '../../store/simulation';
-import { isStageStateDragging, selectStageState } from '../../store/stage';
+import { isElementDragAllowed, isStageStateDragging, selectStageState } from '../../store/stage';
 import { selectTooltip } from '../../store/tooltip';
 import { selectElementSizeOptions, useBoundingBox, useThemeContext } from '../../store/stageSlice';
 import { selectElementErrorById } from '../../store/errors';
@@ -43,7 +43,8 @@ export const DrawersLayer = () => {
 		};
 	}, [element]);
 
-	const isDraggable = simulation.state !== SimulationState.Running;
+	const isDraggable =
+		simulation.state !== SimulationState.Running && isElementDragAllowed(stageState);
 	return (
 		<Layer>
 			{connectLines.map((cl) => (

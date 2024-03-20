@@ -33,6 +33,7 @@ import {
 	BufferCountOperatorDrawer,
 	BufferOperatorDrawer,
 	BufferTimeOperatorDrawer,
+	BufferToggleOperatorDrawer,
 	BufferWhenOperatorDrawer,
 	ConcatMapOperatorDrawer,
 	ExhaustMapOperatorDrawer,
@@ -90,6 +91,8 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 			return <BufferCountOperatorDrawer {...props} />;
 		case ElementType.BufferTime:
 			return <BufferTimeOperatorDrawer {...props} />;
+		case ElementType.BufferToggle:
+			return <BufferToggleOperatorDrawer {...props} />;
 		case ElementType.BufferWhen:
 			return <BufferWhenOperatorDrawer {...props} />;
 		case ElementType.ExhaustMap:

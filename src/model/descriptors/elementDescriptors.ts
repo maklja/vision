@@ -92,6 +92,14 @@ export const eventPipeElementDescriptor: ElementDescriptor = {
 	},
 };
 
+export const bufferToggleElementDescriptor: ElementDescriptor = {
+	...eventPipeElementDescriptor,
+	event: {
+		allowedTypes: new Set<ElementType>([...joinCreationOperators, ...creationOperators]),
+		cardinality: 2,
+	},
+};
+
 export const subscriberElementDescriptor: ElementDescriptor = {
 	input: {
 		allowedTypes: new Set<ElementType>([
@@ -103,10 +111,10 @@ export const subscriberElementDescriptor: ElementDescriptor = {
 	},
 };
 
-const findCreationElementDescriptor = (
+function findCreationElementDescriptor(
 	elementType: ElementType,
 	elementProps: ElementProps,
-): ElementDescriptor => {
+): ElementDescriptor {
 	if (elementType === ElementType.IIf) {
 		return iifElementDescriptor;
 	}
@@ -123,12 +131,20 @@ const findCreationElementDescriptor = (
 	}
 
 	return creationElementDescriptor;
-};
+}
 
-export const findElementDescriptor = (
+function findEventPipeElementDescriptor(elementType: ElementType) {
+	if (elementType === ElementType.BufferToggle) {
+		return bufferToggleElementDescriptor;
+	}
+
+	return eventPipeElementDescriptor;
+}
+
+export function findElementDescriptor(
 	elementType: ElementType,
 	elementProps: ElementProps,
-): ElementDescriptor => {
+): ElementDescriptor {
 	if (isJoinCreationOperatorType(elementType)) {
 		return joinCreationElementDescriptor;
 	}
@@ -142,7 +158,7 @@ export const findElementDescriptor = (
 	}
 
 	if (isEventPipeOperatorType(elementType)) {
-		return eventPipeElementDescriptor;
+		return findEventPipeElementDescriptor(elementType);
 	}
 
 	if (isPipeOperatorType(elementType)) {
@@ -150,9 +166,9 @@ export const findElementDescriptor = (
 	}
 
 	return {};
-};
+}
 
-export const calcConnectPointVisibility = (elType: ElementType, elementProps: ElementProps) => {
+export function calcConnectPointVisibility(elType: ElementType, elementProps: ElementProps) {
 	const { input, event, output } = findElementDescriptor(elType, elementProps);
 
 	const inputVisible = Boolean(input?.cardinality);
@@ -163,5 +179,5 @@ export const calcConnectPointVisibility = (elType: ElementType, elementProps: El
 		outputVisible,
 		eventsVisible,
 	};
-};
+}
 
