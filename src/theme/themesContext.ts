@@ -17,6 +17,7 @@ import { TooltipTheme, tooltipTheme } from './tooltipTheme';
 import { SnapLineTheme, snapLineDrawerTheme } from './snapLineDrawerTheme';
 import { GridTheme, gridTheme } from './gridTheme';
 import { LassoTheme, lassoTheme } from './lassoTheme';
+import { bufferToggleConnectPointsTheme } from './bufferToggleTheme';
 
 export interface Theme {
 	readonly colors: ColorTheme;
@@ -55,6 +56,9 @@ export const createThemeContext = (): ThemesContext => {
 	return {
 		[ElementType.IIf]: {
 			connectPoints: iifConnectPointsTheme(defaultColorTheme),
+		},
+		[ElementType.BufferToggle]: {
+			connectPoints: bufferToggleConnectPointsTheme(defaultColorTheme),
 		},
 		default: defaultTheme,
 	};

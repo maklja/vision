@@ -9,7 +9,7 @@ export interface CheckCircleIconDrawerProps {
 	highlight?: boolean;
 }
 
-const ICON_SCALE_CORRECTION = 1.6;
+const ICON_SCALE_CORRECTION = 1.75;
 
 export const CheckCircleIconDrawer = ({
 	connectPointPosition,

@@ -1,4 +1,5 @@
 -   pre code executions
+-   support canvas pan while on edge
 -   save/load
 -   copy/paste
 -   locate element by name
@@ -7,7 +8,6 @@
 -   marble diagrams
 -   DOM events
 -   form validation
--   group elements move, delete, copy paste
 -   themes
 -   multi-tabs
 -   full size editor
@@ -20,4 +20,5 @@
 -   event observable position passed
 -   key bind array observable result
 -   handle partition join creation operator
+-   improve operator bar
 

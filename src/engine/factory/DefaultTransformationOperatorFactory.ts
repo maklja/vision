@@ -4,6 +4,7 @@ import {
 	buffer,
 	bufferCount,
 	bufferTime,
+	bufferToggle,
 	bufferWhen,
 	concatMap,
 	exhaustMap,
@@ -19,6 +20,8 @@ import { FlowValue } from '../context';
 import {
 	BufferCountElement,
 	BufferTimeElement,
+	ConnectPointPosition,
+	ConnectPointType,
 	Element,
 	ElementType,
 	MapElement,
@@ -34,6 +37,7 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 			[ElementType.Buffer, this.createBufferOperator.bind(this)],
 			[ElementType.BufferCount, this.createBufferCountOperator.bind(this)],
 			[ElementType.BufferTime, this.createBufferTimeOperator.bind(this)],
+			[ElementType.BufferToggle, this.createBufferToggleOperator.bind(this)],
 			[ElementType.BufferWhen, this.createBufferWhenOperator.bind(this)],
 			[ElementType.ExhaustMap, this.createExhaustOperator.bind(this)],
 			[ElementType.Map, this.createMapOperator.bind(this)],
@@ -99,6 +103,42 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 
 		return o.pipe(
 			bufferTime(properties.bufferTimeSpan, properties.bufferCreationInterval),
+			mapFlowValuesArray(el.id),
+		);
+	}
+
+	private createBufferToggleOperator(
+		o: Observable<FlowValue>,
+		el: Element,
+		options: OperatorOptions,
+	) {
+		const sourceRefObservable = options.referenceObservables.find(
+			({ connectPoint }) =>
+				connectPoint.connectPointType === ConnectPointType.Event &&
+				connectPoint.connectPosition === ConnectPointPosition.Top,
+		);
+		if (!sourceRefObservable) {
+			throw new MissingReferenceObservableError(
+				el.id,
+				'Not found source branch observable operator',
+			);
+		}
+
+		const closingRefObservable = options.referenceObservables.find(
+			({ connectPoint }) =>
+				connectPoint.connectPointType === ConnectPointType.Event &&
+				connectPoint.connectPosition === ConnectPointPosition.Bottom,
+		);
+		if (!closingRefObservable) {
+			throw new MissingReferenceObservableError(
+				el.id,
+				'Not found closing branch observable operator',
+			);
+		}
+
+		// TODO second parameter should be configurable in the code
+		return o.pipe(
+			bufferToggle(sourceRefObservable.observable, () => closingRefObservable.observable),
 			mapFlowValuesArray(el.id),
 		);
 	}
