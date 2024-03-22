@@ -1,7 +1,11 @@
 import { Element, ElementType } from '../element';
 
+export enum IntervalElementPropertiesKeys {
+	Period = 'period',
+}
+
 export interface IntervalElementProperties extends Record<string, unknown> {
-	period: string;
+	[IntervalElementPropertiesKeys.Period]: string;
 	preInputObservableCreation: string;
 }
 

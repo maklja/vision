@@ -45,6 +45,23 @@ import {
 } from '../errors';
 import { isPropertyValueVariable, retrieveContextPropertyValue } from './utils';
 
+// function create({ element, context, options }: OperatorFactoryParams) {
+// 	const intervalEl = element as IntervalElement;
+
+// 	return (overrideProperties: ElementProps) =>
+// 		defer(() => {
+// 			if (intervalEl.properties.preInputObservableCreation) {
+// 				createContextFn(intervalEl.properties.preInputObservableCreation, context)();
+// 			}
+
+// 			const periodValue = isPropertyValueVariable(intervalEl.properties.period)
+// 				? retrieveContextPropertyValue<number>(intervalEl.properties.period, context)
+// 				: Number(intervalEl.properties.period);
+
+// 			return interval(periodValue); //.pipe(map((item) => this.createFlowValue(item, element.id)));
+// 		});
+// }
+
 export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	private readonly supportedOperators: ReadonlyMap<ElementType, CreationOperatorFunctionFactory>;
 

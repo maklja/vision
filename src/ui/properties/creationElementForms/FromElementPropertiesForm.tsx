@@ -25,7 +25,7 @@ export const FromElementPropertiesForm = ({
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<FormControlLabel
-				control={<Checkbox defaultChecked />}
+				control={<Checkbox checked={properties.enableObservableEvent} />}
 				label="Observable event"
 				onChange={handleObservableEventChange}
 			/>
@@ -50,4 +50,3 @@ export const FromElementPropertiesForm = ({
 		</Stack>
 	);
 };
-

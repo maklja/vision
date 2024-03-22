@@ -30,7 +30,7 @@ import {
 	updateManyConnectPointsStateChange,
 } from '../connectPoints';
 import { removeAllDrawerAnimationStateChange } from '../drawerAnimations';
-import { generateCreationCallbackCode } from '../../engine';
+import { generateCreationElementCode } from '../../engine';
 
 export interface DraftConnectLine {
 	id: string;
@@ -445,7 +445,7 @@ export const connectLinesAdapterReducers = {
 		const elements = selectElementsAsMapSlice(slice);
 		const connectLines = selectConnectLinesAsMapSlice(slice);
 
-		const creationCallbackCode = generateCreationCallbackCode(
+		const creationCallbackCode = generateCreationElementCode(
 			draftConnectLine.source.id,
 			elements,
 			new ConnectLineCollection(connectLines),

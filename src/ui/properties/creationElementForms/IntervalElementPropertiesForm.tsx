@@ -1,8 +1,12 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { IntervalElementProperties } from '../../../model';
-import { SimpleCodeEditor } from '../../code';
+import { CodeVariableInput, InputType, SimpleCodeEditor } from '../../code';
 import { formStyle } from '../commonStyles';
+
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import InputAdornment from '@mui/material/InputAdornment';
 
 export interface IntervalElementPropertiesFormProps {
 	id: string;
@@ -20,18 +24,20 @@ export const IntervalElementPropertiesForm = ({
 
 	return (
 		<Stack gap={formStyle.componentGap}>
-			<TextField
-				id="interval-el-period-prop"
-				label="Period"
-				value={properties.period}
-				type="text"
-				size="small"
-				InputLabelProps={{
-					shrink: true,
-				}}
-				onChange={(e) => onPropertyValueChange?.(id, 'period', e.currentTarget.value)}
-				helperText="The interval size in milliseconds (by default) or the time unit determined by the scheduler's clock."
-			/>
+			<CodeVariableInput inputType={InputType.Custom}>
+				<TextField
+					id="interval-el-period-prop"
+					label="Period"
+					value={properties.period}
+					type="text"
+					size="small"
+					InputLabelProps={{
+						shrink: true,
+					}}
+					onChange={(e) => onPropertyValueChange?.(id, 'period', e.currentTarget.value)}
+					helperText="The interval size in milliseconds (by default) or the time unit determined by the scheduler's clock."
+				/>
+			</CodeVariableInput>
 
 			<SimpleCodeEditor
 				code={properties.preInputObservableCreation}

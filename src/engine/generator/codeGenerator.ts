@@ -9,44 +9,51 @@ import {
 } from '../../model';
 import { GraphNodeType, SimulationGraph } from '../simulationGraph';
 
-interface CodeNode {
+export interface CodeNode {
 	parentNode: Element;
 	connectLine: ConnectLine | null;
 	childNodes: CodeNode[];
 }
 
+export const FUNC_PARAMS_COMMA_SEPARATOR = ', ';
+
 function createCreationCallback(node: CodeNode): string {
 	const el = node.parentNode;
-	const params = node.childNodes.map(createCreationCallback).join(', ');
+	const params = node.childNodes.map(createCreationCallback).join(FUNC_PARAMS_COMMA_SEPARATOR);
 
 	if (el.type === ElementType.Defer) {
-		const params = node.childNodes.map(createCreationCallback).join(', ');
+		const params = node.childNodes
+			.map(createCreationCallback)
+			.join(FUNC_PARAMS_COMMA_SEPARATOR);
 		return `function deferCallback() {
 			return ${params};
 		}`;
 	}
 
+	if (el.type === ElementType.Interval) {
+		const funcName = generateCreationFactoryName(el);
+		return `${funcName}()`;
+	}
+
 	if (el.type === ElementType.Merge) {
 		const mergeEl = el as MergeElement;
 		const connectLine = node.childNodes.sort((n1, n2) => {
-			const idx1 =n1.connectLine?.index ?? 0;
+			const idx1 = n1.connectLine?.index ?? 0;
 			const idx2 = n2.connectLine?.index ?? 0;
 
 			return idx1 - idx2;
 		});
 
-
-		const a = mergeEl.properties.
+		// const a = mergeEl.properties.
 	}
 
-	switch (el.type) {
-		case ElementType.Defer:
-
-		case ElementType.Merge:
-
-		default:
-			return creationFactoryName;
-	}
+	// switch (el.type) {
+	// 	// case ElementType.Defer:
+	// 	// case ElementType.Merge:
+	// 	default:
+	// 		return creationFactoryName;
+	// }
+	return '';
 }
 
 export function generateCreationFactoryName(el: Element) {
@@ -56,7 +63,7 @@ export function generateCreationFactoryName(el: Element) {
 	return `create${firstNameLetter.toUpperCase()}${otherNameLetters}`;
 }
 
-function generateCreationCallbackNodes(
+export function generateCreationCallbackNodes(
 	sourceElId: string,
 	elements: ReadonlyMap<string, Element>,
 	connectLineCollection: ConnectLineCollection,
@@ -94,7 +101,6 @@ function generateCreationCallbackNodes(
 			throw new Error(`Connect line with id ${edge.id} not found`);
 		}
 
-
 		if (isCreationOperatorType(targetEl.type)) {
 			return {
 				parentNode: targetEl,
@@ -114,14 +120,4 @@ function generateCreationCallbackNodes(
 		connectLine: null,
 		childNodes: refNodesCreationCode,
 	};
-}
-
-export function generateCreationCallbackCode(
-	sourceElId: string,
-	elements: ReadonlyMap<string, Element>,
-	connectLineCollection: ConnectLineCollection,
-): string | null {
-	const treeNodes = generateCreationCallbackNodes(sourceElId, elements, connectLineCollection);
-
-	return null;
 }
