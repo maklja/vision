@@ -1,3 +1,4 @@
+import Konva from 'konva';
 import { DrawerEvent, DrawerEvents } from '../../drawers';
 import { AppDispatch } from '../../store/rootState';
 import { StageState } from '../../store/stage';
@@ -6,46 +7,113 @@ import {
 	clearSnapLines,
 	createElementSnapLines,
 	moveSelectedElementsByDelta,
+	updateCanvasState,
 } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 
-export const drawerDragStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({
-	...drawerAnimationStateHandlers,
-	onDragEnd: (e: DrawerEvent) => {
-		const { originalEvent } = e;
-		if (!originalEvent) {
-			return;
-		}
+const AUTO_DRAG_REFRESH_INTERVAL = 300;
+const AUTO_DRAG_EDGE_OFFSET = 100;
+const AUTO_DRAG_ANIMATION_DURATION = 0.1;
+const AUTO_DRAG_MOVE_DISTANCE = 50;
 
-		changeCursorStyle('pointer', originalEvent.currentTarget.getStage());
-		originalEvent.cancelBubble = true;
-		dispatch(changeState(StageState.Select));
-		dispatch(clearSnapLines());
-	},
-	onDragMove: (e: DrawerEvent) => {
-		const { id, originalEvent } = e;
-		if (!originalEvent) {
-			return;
-		}
+function edgeAutoDrag(stage: Konva.Stage, dispatch: AppDispatch) {
+	const pos = stage.getPointerPosition();
+	if (!pos) {
+		return;
+	}
 
-		changeCursorStyle('grabbing', originalEvent.currentTarget.getStage());
-		originalEvent.cancelBubble = true;
-		const position = originalEvent.currentTarget.getPosition();
-		dispatch(
-			moveSelectedElementsByDelta({
-				referenceElementId: id,
-				x: position.x,
-				y: position.y,
-			}),
-		);
+	let newX = stage.x();
+	let newY = stage.y();
 
-		dispatch(createElementSnapLines({ referenceElementId: id }));
-		dispatch(
-			changeState(
-				e.originalEvent?.evt.shiftKey ? StageState.SnapDragging : StageState.Dragging,
-			),
-		);
-	},
-});
+	const isNearLeft = pos.x < AUTO_DRAG_EDGE_OFFSET;
+	if (isNearLeft) {
+		newX = stage.x() + AUTO_DRAG_MOVE_DISTANCE;
+	}
+
+	const isNearRight = pos.x > stage.width() - AUTO_DRAG_EDGE_OFFSET;
+	if (isNearRight) {
+		newX = stage.x() - AUTO_DRAG_MOVE_DISTANCE;
+	}
+	const isNearTop = pos.y < AUTO_DRAG_EDGE_OFFSET;
+	if (isNearTop) {
+		newY = stage.y() + AUTO_DRAG_MOVE_DISTANCE;
+	}
+	const isNearBottom = pos.y > stage.height() - AUTO_DRAG_EDGE_OFFSET;
+	if (isNearBottom) {
+		newY = stage.y() - AUTO_DRAG_MOVE_DISTANCE;
+	}
+
+	dispatch(
+		updateCanvasState({
+			x: newX,
+			y: newY,
+		}),
+	);
+
+	stage.to({
+		x: newX,
+		y: newY,
+		AUTO_DRAG_ANIMATION_DURATION,
+	});
+}
+
+export function drawerDragStateHandlers(dispatch: AppDispatch): DrawerEvents {
+	let autoDragInterval: NodeJS.Timeout | null = null;
+
+	return {
+		...drawerAnimationStateHandlers,
+		onDragEnd: (e: DrawerEvent) => {
+			if (autoDragInterval) {
+				clearInterval(autoDragInterval);
+				autoDragInterval = null;
+			}
+
+			const { originalEvent } = e;
+			if (!originalEvent) {
+				return;
+			}
+
+			changeCursorStyle('pointer', originalEvent.currentTarget.getStage());
+			originalEvent.cancelBubble = true;
+			dispatch(changeState(StageState.Select));
+			dispatch(clearSnapLines());
+		},
+		onDragMove: (e: DrawerEvent) => {
+			const { id, originalEvent } = e;
+			if (!originalEvent) {
+				return;
+			}
+
+			if (!autoDragInterval) {
+				autoDragInterval = setInterval(() => {
+					const stage = e.originalEvent?.currentTarget.getStage();
+					if (!stage) {
+						return;
+					}
+
+					edgeAutoDrag(stage, dispatch);
+				}, AUTO_DRAG_REFRESH_INTERVAL);
+			}
+
+			changeCursorStyle('grabbing', originalEvent.currentTarget.getStage());
+			originalEvent.cancelBubble = true;
+			const position = originalEvent.currentTarget.getPosition();
+			dispatch(
+				moveSelectedElementsByDelta({
+					referenceElementId: id,
+					x: position.x,
+					y: position.y,
+				}),
+			);
+
+			dispatch(createElementSnapLines({ referenceElementId: id }));
+			dispatch(
+				changeState(
+					e.originalEvent?.evt.shiftKey ? StageState.SnapDragging : StageState.Dragging,
+				),
+			);
+		},
+	};
+}
 
