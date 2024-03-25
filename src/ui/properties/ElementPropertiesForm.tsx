@@ -12,6 +12,7 @@ import {
 	ConnectLine,
 	Element,
 	ElementType,
+	ExpandElementProperties,
 	ForkJoinElementProperties,
 	FromElementProperties,
 	GenerateElementProperties,
@@ -41,6 +42,7 @@ import {
 import {
 	BufferCountElementPropertiesForm,
 	BufferTimeElementPropertiesForm,
+	ExpandElementPropertiesForm,
 } from './transformationElementForms';
 
 export type RelatedElements = { connectLine: ConnectLine; element: Element }[];
@@ -177,6 +179,14 @@ const createElementPropertiesForm = ({
 				<BufferTimeElementPropertiesForm
 					id={id}
 					properties={properties as BufferTimeElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Expand:
+			return (
+				<ExpandElementPropertiesForm
+					id={id}
+					properties={properties as ExpandElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);

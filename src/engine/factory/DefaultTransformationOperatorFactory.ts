@@ -8,6 +8,7 @@ import {
 	bufferWhen,
 	concatMap,
 	exhaustMap,
+	expand,
 	map,
 	mergeMap,
 } from 'rxjs';
@@ -24,6 +25,7 @@ import {
 	ConnectPointType,
 	Element,
 	ElementType,
+	ExpandElement,
 	MapElement,
 } from '../../model';
 import { MissingReferenceObservableError } from '../errors';
@@ -40,6 +42,7 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 			[ElementType.BufferToggle, this.createBufferToggleOperator.bind(this)],
 			[ElementType.BufferWhen, this.createBufferWhenOperator.bind(this)],
 			[ElementType.ExhaustMap, this.createExhaustOperator.bind(this)],
+			[ElementType.Expand, this.createExpandOperator.bind(this)],
 			[ElementType.Map, this.createMapOperator.bind(this)],
 			[ElementType.ConcatMap, this.createConcatMapOperator.bind(this)],
 			[ElementType.MergeMap, this.createMergeMapOperator.bind(this)],
@@ -242,6 +245,29 @@ export class DefaultTransformationOperatorFactory implements PipeOperatorFactory
 				refObservable.invokeTrigger?.(value);
 				return refObservable.observable;
 			}),
+		);
+	}
+
+	private createExpandOperator(o: Observable<FlowValue>, el: Element, options: OperatorOptions) {
+		if (options.referenceObservables.length === 0) {
+			throw new MissingReferenceObservableError(
+				el.id,
+				'Reference observable is required for expand operator',
+			);
+		}
+
+		if (options.referenceObservables.length > 1) {
+			throw new Error('Too many reference observables for expand operator');
+		}
+
+		const { properties } = el as ExpandElement;
+		const [refObservable] = options.referenceObservables;
+		// TODO first parameter should be configurable in the code
+		return o.pipe(
+			expand<FlowValue, ObservableInput<FlowValue>>((value) => {
+				refObservable.invokeTrigger?.(value);
+				return refObservable.observable;
+			}, properties.concurrent),
 		);
 	}
 }
