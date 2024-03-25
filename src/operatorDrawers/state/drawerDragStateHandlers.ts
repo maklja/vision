@@ -35,10 +35,12 @@ function edgeAutoDrag(stage: Konva.Stage, dispatch: AppDispatch) {
 	if (isNearRight) {
 		newX = stage.x() - AUTO_DRAG_MOVE_DISTANCE;
 	}
+
 	const isNearTop = pos.y < AUTO_DRAG_EDGE_OFFSET;
 	if (isNearTop) {
 		newY = stage.y() + AUTO_DRAG_MOVE_DISTANCE;
 	}
+
 	const isNearBottom = pos.y > stage.height() - AUTO_DRAG_EDGE_OFFSET;
 	if (isNearBottom) {
 		newY = stage.y() - AUTO_DRAG_MOVE_DISTANCE;

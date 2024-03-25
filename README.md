@@ -1,5 +1,4 @@
 -   pre code executions
--   support canvas pan while on edge
 -   save/load
 -   copy/paste
 -   locate element by name
