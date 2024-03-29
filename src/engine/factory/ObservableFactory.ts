@@ -227,10 +227,6 @@ export class ObservableFactory {
 			});
 	}
 
-	private createSubscriptionTrigger(cl: ConnectLine) {
-		return (value: FlowValue) => this.flowManager.handleNextEvent(value, cl);
-	}
-
 	private createControlOperator(cl: ConnectLine): PipeObservableGenerator {
 		return (o: Observable<FlowValue>) =>
 			o.pipe(tap<FlowValue>((value) => this.flowManager.handleNextEvent(value, cl)));

@@ -40,7 +40,6 @@ import {
 import {
 	CreationObservableFactory,
 	CreationOperatorFactory,
-	OperatorOptions,
 	OperatorProps,
 } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
@@ -61,12 +60,12 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	constructor() {
 		this.supportedOperators = new Map([
 			[ElementType.Of, this.createOfCreationOperator.bind(this)],
-			// [ElementType.From, this.createFromCreationOperator.bind(this)],
+			[ElementType.From, this.createFromCreationOperator.bind(this)],
 			[ElementType.Interval, this.createIntervalCreationOperator.bind(this)],
 			[ElementType.IIf, this.createIifCreationOperator.bind(this)],
 			// [ElementType.Ajax, this.createAjaxCreationOperator.bind(this)],
-			// [ElementType.Empty, this.createEmptyCreationOperator.bind(this)],
-			// [ElementType.Defer, this.createDeferCreationOperator.bind(this)],
+			[ElementType.Empty, this.createEmptyCreationOperator.bind(this)],
+			[ElementType.Defer, this.createDeferCreationOperator.bind(this)],
 			// [ElementType.Generate, this.createGenerateCreationOperator.bind(this)],
 			// [ElementType.Range, this.createRangeCreationOperator.bind(this)],
 			// [ElementType.ThrowError, this.createThrowErrorCreationOperator.bind(this)],
@@ -88,11 +87,14 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	}
 
 	private createOfCreationOperator(el: Element) {
-		return (overrideProperties?: ElementProps) => {
+		return (overrideProperties?: Partial<ElementProps>) => {
 			const ofEl = el as OfElement;
-			const ofOverrideProps = overrideProperties as OfElementProperties;
-			const items = ofOverrideProps?.items ?? ofEl.properties.items;
+			const ofElProperties: OfElementProperties = {
+				...ofEl.properties,
+				...overrideProperties,
+			};
 
+			const items = ofElProperties?.items;
 			return items
 				? of(...items).pipe(
 						map<unknown, FlowValue>((item) => this.createFlowValue(item, ofEl.id)),
@@ -101,37 +103,46 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 		};
 	}
 
-	// private createFromCreationOperator(el: Element, options: OperatorOptions) {
-	// 	const { id, properties } = el as FromElement;
+	private createFromCreationOperator(el: Element, props: OperatorProps) {
+		return (overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
+			// TODO pass function
+			const fromEl = el as FromElement;
+			const fromElProperties = {
+				...fromEl.properties,
+				...overrideProperties,
+			};
 
-	// 	if (!properties.enableObservableEvent) {
-	// 		const inputFn = new Function(`return ${properties.input}`);
-	// 		return from(inputFn()()).pipe(map((item) => this.createFlowValue(item, id)));
-	// 	}
+			if (!fromElProperties.enableObservableEvent) {
+				const inputFn = new Function(`return ${fromElProperties.input}`);
+				return from(inputFn()()).pipe(map((item) => this.createFlowValue(item, fromEl.id)));
+			}
 
-	// 	if (options.referenceObservables.length === 0) {
-	// 		throw new MissingReferenceObservableError(
-	// 			el.id,
-	// 			'Reference observable is required for from operator',
-	// 		);
-	// 	}
+			if (props.refObservableGenerators.length === 0) {
+				throw new MissingReferenceObservableError(
+					fromEl.id,
+					'Reference observable is required for from operator',
+				);
+			}
 
-	// 	if (options.referenceObservables.length > 1) {
-	// 		throw new Error('Too many reference observables for from operator');
-	// 	}
+			if (props.refObservableGenerators.length > 1) {
+				throw new Error('Too many reference observables for from operator');
+			}
 
-	// 	const [refObservable] = options.referenceObservables;
-	// 	return defer(() => {
-	// 		refObservable.invokeTrigger?.(FlowValue.createEmptyValue(id));
-	// 		return from(refObservable.observable);
-	// 	}).pipe(map((item) => this.createFlowValue(item, id)));
-	// }
+			const [refObservableGenerator] = props.refObservableGenerators;
+			return defer(() => {
+				refObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(fromEl.id));
+				return from(refObservableGenerator.observableGenerator());
+			}).pipe(map((item) => this.createFlowValue(item, fromEl.id)));
+		};
+	}
 
 	private createIntervalCreationOperator(el: Element) {
-		return (overrideProperties?: ElementProps): Observable<FlowValue> => {
+		return (overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
 			const intervalEl = el as IntervalElement;
-			const intervalElProps = (overrideProperties ??
-				intervalEl.properties) as IntervalElementProperties;
+			const intervalElProps: IntervalElementProperties = {
+				...intervalEl.properties,
+				...overrideProperties,
+			};
 
 			return interval(intervalElProps.period).pipe(
 				map((item) => this.createFlowValue(item, el.id)),
@@ -140,9 +151,12 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	}
 
 	private createIifCreationOperator(el: Element, props: OperatorProps) {
-		return (overrideProperties?: ElementProps): Observable<FlowValue> => {
+		return (overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
 			const iifEl = el as IifElement;
-			const elProps = (overrideProperties ?? iifEl.properties) as IifElementProperties;
+			const iifElProps: IifElementProperties = {
+				...iifEl.properties,
+				...overrideProperties,
+			};
 			const conditionFn = new Function(`return ${iifEl.properties.conditionExpression}`);
 
 			const trueRefObservableGenerator = props.refObservableGenerators.find(
@@ -171,11 +185,11 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 
 			const trueRefInvokerFn: () => Observable<FlowValue> = new Function(
 				NEXT_GENERATOR_NAME,
-				`return ${elProps.trueCallbackExpression}`,
+				`return ${iifElProps.trueCallbackExpression}`,
 			)(trueRefObservableGenerator.observableGenerator);
 			const falseRefInvokerFn: () => Observable<FlowValue> = new Function(
 				NEXT_GENERATOR_NAME,
-				`return ${elProps.falseCallbackExpression}`,
+				`return ${iifElProps.falseCallbackExpression}`,
 			)(falseRefObservableGenerator.observableGenerator);
 
 			return iif(
@@ -244,30 +258,35 @@ export class DefaultCreationOperatorFactory implements CreationOperatorFactory {
 	// 	}).pipe(map((item) => this.createFlowValue(item, ajaxEl.id)));
 	// }
 
-	// private createEmptyCreationOperator(el: Element) {
-	// 	const emptyEl = el as EmptyElement;
-	// 	return EMPTY.pipe(map((item) => this.createFlowValue(item, emptyEl.id)));
-	// }
+	private createEmptyCreationOperator(el: Element) {
+		return (): Observable<FlowValue> => {
+			const emptyEl = el as EmptyElement;
+			return EMPTY.pipe(map((item) => this.createFlowValue(item, emptyEl.id)));
+		};
+	}
 
-	// private createDeferCreationOperator(el: Element, options: OperatorOptions) {
-	// 	if (options.referenceObservables.length === 0) {
-	// 		throw new MissingReferenceObservableError(
-	// 			el.id,
-	// 			'Reference observable is required for defer operator',
-	// 		);
-	// 	}
+	private createDeferCreationOperator(el: Element, props: OperatorProps) {
+		return (): Observable<FlowValue> => {
+			// TODO callback pass
+			if (props.refObservableGenerators.length === 0) {
+				throw new MissingReferenceObservableError(
+					el.id,
+					'Reference observable is required for defer operator',
+				);
+			}
 
-	// 	if (options.referenceObservables.length > 1) {
-	// 		throw new Error('Too many reference observables for defer operator');
-	// 	}
+			if (props.refObservableGenerators.length > 1) {
+				throw new Error('Too many reference observables for defer operator');
+			}
 
-	// 	const deferEl = el as DeferElement;
-	// 	const [refObservable] = options.referenceObservables;
-	// 	return defer(() => {
-	// 		refObservable.invokeTrigger?.(FlowValue.createEmptyValue(deferEl.id));
-	// 		return refObservable.observable;
-	// 	});
-	// }
+			const deferEl = el as DeferElement;
+			const [refObservableGenerator] = props.refObservableGenerators;
+			return defer(() => {
+				refObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(deferEl.id));
+				return refObservableGenerator.observableGenerator();
+			});
+		};
+	}
 
 	// private createGenerateCreationOperator(el: Element) {
 	// 	const generateEl = el as GenerateElement;

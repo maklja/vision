@@ -37,7 +37,7 @@ export interface OperatorProps {
 }
 
 export type CreationObservableFactory = <T extends ElementProps = ElementProps>(
-	overrideParameters?: T,
+	overrideParameters?: Partial<T>,
 ) => Observable<FlowValue>;
 
 export type PipeObservableFactory = (o: Observable<FlowValue>) => Observable<FlowValue>;
