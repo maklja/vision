@@ -21,7 +21,7 @@ const supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory> 
 ]);
 
 export const filteringOperatorFactory: PipeOperatorFactory = {
-	create(el: Element, props?: OperatorProps | undefined): PipeObservableFactory {
+	create(el: Element, props?: OperatorProps): PipeObservableFactory {
 		const factory = supportedOperators.get(el.type);
 		if (!factory) {
 			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
@@ -33,4 +33,3 @@ export const filteringOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
-

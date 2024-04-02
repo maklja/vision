@@ -48,16 +48,13 @@ import {
 	CreationOperatorFactory,
 	OperatorProps,
 } from './OperatorFactory';
-import { FlowValue, FlowValueType } from '../context';
+import { FlowValue } from '../context';
 import {
 	InvalidElementPropertyValueError,
 	MissingReferenceObservableError,
 	UnsupportedElementTypeError,
 } from '../errors';
-
-function createFlowValue(value: unknown, elementId: string): FlowValue {
-	return new FlowValue(value, elementId, FlowValueType.Next);
-}
+import { createFlowValue } from './utils';
 
 const createFromCreationOperator =
 	(el: Element, props: OperatorProps) =>

@@ -1,16 +1,20 @@
 import { OperatorFunction, concatMap, map, of } from 'rxjs';
 import { FlowValue, FlowValueType } from '../context';
 
-export const mapOutputToFlowValue = (operatorFn: OperatorFunction<unknown, unknown>) => {
+export function createFlowValue(value: unknown, elementId: string): FlowValue {
+	return new FlowValue(value, elementId, FlowValueType.Next);
+}
+
+export function mapOutputToFlowValue(operatorFn: OperatorFunction<unknown, unknown>) {
 	return concatMap((flowValue: FlowValue) =>
 		of(flowValue.raw).pipe(
 			operatorFn,
 			map((value) => new FlowValue(value, flowValue.elementId, flowValue.type, flowValue.id)),
 		),
 	);
-};
+}
 
-export const mapArrayOutputToFlowValue = (operatorFn: OperatorFunction<unknown, unknown[]>) => {
+export function mapArrayOutputToFlowValue(operatorFn: OperatorFunction<unknown, unknown[]>) {
 	return concatMap((flowValue: FlowValue) =>
 		of(flowValue.raw).pipe(
 			operatorFn,
@@ -20,9 +24,9 @@ export const mapArrayOutputToFlowValue = (operatorFn: OperatorFunction<unknown, 
 			),
 		),
 	);
-};
+}
 
-export const mapFlowValuesArray = (elementId: string) => {
+export function mapFlowValuesArray(elementId: string) {
 	return map(
 		(flowValues: FlowValue[]) =>
 			new FlowValue(
@@ -31,5 +35,4 @@ export const mapFlowValuesArray = (elementId: string) => {
 				FlowValueType.Next,
 			),
 	);
-};
-
+}

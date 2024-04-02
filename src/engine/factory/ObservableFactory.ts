@@ -11,9 +11,9 @@ import {
 } from '../../model';
 import { FlowManager, FlowValue, FlowValueType, SimulationModel } from '../context';
 import { creationOperatorFactory } from './creationOperatorFactory';
-import { DefaultPipeOperatorFactory } from './DefaultPipeOperatorFactory';
+import { pipeOperatorFactory } from './pipeOperatorFactory';
 import { GraphBranch, GraphNode, GraphNodeType } from '../simulationGraph';
-import { DefaultJoinCreationOperatorFactory } from './joinCreationOperatorFactory';
+import { joinCreationOperatorFactory } from './joinCreationOperatorFactory';
 import {
 	CreationObservableFactory,
 	CreationObservableGenerator,
@@ -41,9 +41,6 @@ export interface CreateObservableParams {
 }
 
 export class ObservableFactory {
-	// private readonly joinCreationOperatorFactory = new DefaultJoinCreationOperatorFactory();
-	private readonly pipeOperatorFactory = new DefaultPipeOperatorFactory();
-
 	constructor(
 		private readonly simulationModel: SimulationModel,
 		private readonly flowManager: FlowManager,
@@ -177,21 +174,21 @@ export class ObservableFactory {
 
 		if (isCreationOperatorType(el.type)) {
 			return creationOperatorFactory.create(el, {
-				refObservableGenerators: refObservableGenerators,
+				refObservableGenerators,
 			});
 		}
 
-		// if (isJoinCreationOperatorType(el.type)) {
-		// 	return this.joinCreationOperatorFactory.create(el, {
-		// 		referenceObservables,
-		// 	});
-		// }
+		if (isJoinCreationOperatorType(el.type)) {
+			return joinCreationOperatorFactory.create(el, {
+				refObservableGenerators,
+			});
+		}
 
 		throw new Error(`Unsupported entry operator type ${el.type}`);
 	}
 
 	private createPipeOperator(el: Element, refObservables: RefObservable[]) {
-		return this.pipeOperatorFactory.create(el, {
+		return pipeOperatorFactory.create(el, {
 			refObservableGenerators: refObservables
 				.map((refObservable) => ({
 					connectPoint: refObservable.connectLine.source,
@@ -259,4 +256,3 @@ export class ObservableFactory {
 			);
 	}
 }
-
