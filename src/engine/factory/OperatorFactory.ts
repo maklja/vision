@@ -6,10 +6,6 @@ interface OperatorFactory {
 	isSupported(el: Element): boolean;
 }
 
-export interface JoinCreationOperatorFactory extends OperatorFactory {
-	create(el: Element): Observable<FlowValue>;
-}
-
 export interface ObservableOptions {
 	readonly observable: Observable<FlowValue>;
 	readonly invokeTrigger?: (value: FlowValue) => void;
@@ -43,6 +39,10 @@ export type CreationObservableFactory = <T extends ElementProps = ElementProps>(
 export type PipeObservableFactory = (o: Observable<FlowValue>) => Observable<FlowValue>;
 
 export interface CreationOperatorFactory extends OperatorFactory {
+	create(el: Element, props: OperatorProps): CreationObservableFactory;
+}
+
+export interface JoinCreationOperatorFactory extends OperatorFactory {
 	create(el: Element, props: OperatorProps): CreationObservableFactory;
 }
 

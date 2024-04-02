@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { Element } from '../../model';
 import { OperatorProps, PipeOperatorFactory } from './OperatorFactory';
 import { DefaultTransformationOperatorFactory } from './DefaultTransformationOperatorFactory';
-import { filteringOperatorFactory } from './DefaultFilteringOperatorFactory';
+import { filteringOperatorFactory } from './filteringOperatorFactory';
 import { DefaultErrorHandlingOperatorFactory } from './DefaultErrorHandlingOperatorFactory';
 import { FlowValue } from '../context';
 

@@ -10,10 +10,10 @@ import {
 	isSubscriberType,
 } from '../../model';
 import { FlowManager, FlowValue, FlowValueType, SimulationModel } from '../context';
-import { creationOperatorFactory } from './DefaultCreationOperatorFactory';
+import { creationOperatorFactory } from './creationOperatorFactory';
 import { DefaultPipeOperatorFactory } from './DefaultPipeOperatorFactory';
 import { GraphBranch, GraphNode, GraphNodeType } from '../simulationGraph';
-import { DefaultJoinCreationOperatorFactory } from './DefaultJoinCreationOperatorFactory';
+import { DefaultJoinCreationOperatorFactory } from './joinCreationOperatorFactory';
 import {
 	CreationObservableFactory,
 	CreationObservableGenerator,

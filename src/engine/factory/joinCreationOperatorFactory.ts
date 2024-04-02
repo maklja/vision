@@ -14,20 +14,118 @@ import {
 	CombineLatestElement,
 	Element,
 	ElementGroup,
+	ElementProps,
 	ElementType,
 	ForkJoinElement,
 	MergeElement,
+	MergeElementProperties,
 	ObservableInputsType,
 } from '../../model';
-import { JoinCreationOperatorFactory, ObservableOptions, OperatorOptions } from './OperatorFactory';
+import {
+	CreationObservableFactory,
+	JoinCreationOperatorFactory,
+	ObservableGeneratorProps,
+	ObservableOptions,
+	OperatorOptions,
+	OperatorProps,
+} from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
 import { UnsupportedElementTypeError } from '../errors';
 import { mapFlowValuesArray } from './utils';
 
 type JoinCreationOperatorFunctionFactory = (
 	el: Element,
-	options: OperatorOptions,
-) => Observable<FlowValue>;
+	props: OperatorProps,
+) => CreationObservableFactory;
+
+function createFlowValue(value: unknown, elementId: string): FlowValue {
+	return new FlowValue(value, elementId, FlowValueType.Next);
+}
+
+function createIndexedObservableInput(
+	id: string,
+	observableGeneratorProps: readonly ObservableGeneratorProps[],
+) {
+	return observableGeneratorProps.map((observableGeneratorProp) =>
+		defer(() => {
+			observableGeneratorProp.onSubscribe?.(FlowValue.createEmptyValue(id));
+			return observableGeneratorProp.observableGenerator();
+		}),
+	);
+}
+
+function createNamedObservableInput(
+	id: string,
+	observableGeneratorProps: readonly ObservableGeneratorProps[],
+): Record<string, ObservableInput<unknown>> {
+	return observableGeneratorProps.reduce(
+		(namedObservableInput, observableGeneratorProp) => ({
+			...namedObservableInput,
+			[observableGeneratorProp.connectLine.name]: defer(() => {
+				observableGeneratorProp.onSubscribe?.(FlowValue.createEmptyValue(id));
+				return observableGeneratorProp.observableGenerator();
+			}),
+		}),
+		{},
+	);
+}
+
+const createMergeOperator = (el: Element, props: OperatorProps) => {
+	return (overrideProperties?: Partial<ElementProps>) => {
+		const mergeEl = el as MergeElement;
+		const mergeElProperties: MergeElementProperties = {
+			...mergeEl.properties,
+			...overrideProperties,
+		};
+
+		return merge<FlowValue[]>(
+			...props.refObservableGenerators.map(
+				(refObservableGenerator) =>
+					defer(() => {
+						refObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(el.id));
+						return refObservableGenerator.observableGenerator();
+					}),
+				mergeElProperties.limitConcurrent > 0
+					? mergeElProperties.limitConcurrent
+					: undefined,
+			),
+		);
+	};
+};
+
+const createCombineLatestOperator = (el: Element, props: OperatorProps) => {
+	return (overrideProperties?: Partial<ElementProps>) => {
+		const combineLatestEl = el as CombineLatestElement;
+
+		if (combineLatestEl.properties.observableInputsType === ObservableInputsType.Array) {
+			return combineLatest<FlowValue[]>(
+				createIndexedObservableInput(combineLatestEl.id, props.refObservableGenerators),
+			).pipe(mapFlowValuesArray(combineLatestEl.id));
+		}
+
+		return combineLatest<Record<string, ObservableInput<unknown>>>(
+			createNamedObservableInput(combineLatestEl.id, props.refObservableGenerators),
+		).pipe(map((value) => createFlowValue(value, combineLatestEl.id)));
+	};
+};
+
+const supportedOperators: ReadonlyMap<ElementType, JoinCreationOperatorFunctionFactory> = new Map([
+	[ElementType.Merge, createMergeOperator],
+]);
+
+export const joinCreationOperatorFactory: JoinCreationOperatorFactory = {
+	create(el: Element, props: OperatorProps): CreationObservableFactory {
+		const factory = supportedOperators.get(el.type);
+		if (!factory) {
+			throw new UnsupportedElementTypeError(el.id, el.type, ElementGroup.JoinCreation);
+		}
+
+		return factory(el, props);
+	},
+	isSupported(el: Element): boolean {
+		return supportedOperators.has(el.type);
+	},
+};
 
 export class DefaultJoinCreationOperatorFactory implements JoinCreationOperatorFactory {
 	private readonly supportedOperators: ReadonlyMap<
