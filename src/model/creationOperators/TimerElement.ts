@@ -1,11 +1,11 @@
-import { Element, ElementType } from '../element';
+import { Element, ElementProps, ElementType } from '../element';
 
 export enum DueDateType {
 	Milliseconds = 0,
 	Date = 1,
 }
 
-export interface TimerElementProperties extends Record<string, unknown> {
+export interface TimerElementProperties extends ElementProps {
 	dueDateType: DueDateType;
 	startDue: number;
 	intervalDuration: number;

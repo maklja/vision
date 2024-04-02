@@ -1,3 +1,4 @@
+export * from './DeferElementPropertiesForm';
 export * from './IntervalElementPropertiesForm';
 export * from './FromElementPropertiesForm';
 export * from './RangeElementPropertiesForm';
@@ -6,3 +7,4 @@ export * from './AjaxElementPropertiesForm';
 export * from './GenerateElementPropertiesForm';
 export * from './TimerElementPropertiesForm';
 export * from './IifElementPropertiesForm';
+

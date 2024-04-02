@@ -1,4 +1,4 @@
-import { Element, ElementType } from '../element';
+import { Element, ElementProps, ElementType } from '../element';
 
 export enum HttpMethod {
 	Get = 'GET',
@@ -12,7 +12,7 @@ export enum HttpMethod {
 	Patch = 'PATCH',
 }
 
-export interface AjaxElementProperties extends Record<string, unknown> {
+export interface AjaxElementProperties extends ElementProps {
 	url: string;
 	method: HttpMethod;
 	body?: string;

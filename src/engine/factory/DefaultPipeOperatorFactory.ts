@@ -2,14 +2,14 @@ import { Observable } from 'rxjs';
 import { Element } from '../../model';
 import { OperatorProps, PipeOperatorFactory } from './OperatorFactory';
 import { DefaultTransformationOperatorFactory } from './DefaultTransformationOperatorFactory';
-import { DefaultFilteringOperatorFactory } from './DefaultFilteringOperatorFactory';
+import { filteringOperatorFactory } from './DefaultFilteringOperatorFactory';
 import { DefaultErrorHandlingOperatorFactory } from './DefaultErrorHandlingOperatorFactory';
 import { FlowValue } from '../context';
 
 export class DefaultPipeOperatorFactory implements PipeOperatorFactory {
 	private readonly supportedOperators: PipeOperatorFactory[] = [
 		// new DefaultTransformationOperatorFactory(),
-		new DefaultFilteringOperatorFactory(),
+		filteringOperatorFactory,
 		// new DefaultErrorHandlingOperatorFactory(),
 	];
 

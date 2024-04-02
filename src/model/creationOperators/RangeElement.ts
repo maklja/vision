@@ -1,6 +1,6 @@
-import { Element, ElementType } from '../element';
+import { Element, ElementProps, ElementType } from '../element';
 
-export interface RangeElementProperties extends Record<string, unknown> {
+export interface RangeElementProperties extends ElementProps {
 	start: number;
 	count?: number;
 }

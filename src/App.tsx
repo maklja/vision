@@ -2,7 +2,6 @@ import { Simulator } from './simulator';
 import {
 	ElementType,
 	FilterElement,
-	FromElement,
 	OfElement,
 	Element,
 	IntervalElement,
@@ -21,19 +20,6 @@ const e1: OfElement = {
 	type: ElementType.Of,
 	visible: true,
 	properties: { items: [4, 3, 2, 1] },
-};
-
-const e3: FromElement = {
-	id: 'fromElement',
-	name: 'fromElement',
-	x: 50,
-	y: 200,
-	type: ElementType.From,
-	visible: true,
-	properties: {
-		enableObservableEvent: true,
-		input: '() => [1, 2, 3, 4]',
-	},
 };
 
 const mapElement: MapElement = {
@@ -152,7 +138,6 @@ const App = () => {
 					subscriber2,
 					subscriber3,
 					subscriber4,
-					e3,
 					e4,
 					e5,
 					i1,
@@ -171,3 +156,4 @@ const App = () => {
 };
 
 export default App;
+

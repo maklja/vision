@@ -10,6 +10,7 @@ import {
 	BufferTimeElementProperties,
 	CombineLatestElementProperties,
 	ConnectLine,
+	DeferElementProperties,
 	Element,
 	ElementType,
 	ExpandElementProperties,
@@ -25,6 +26,7 @@ import {
 } from '../../model';
 import {
 	AjaxElementPropertiesForm,
+	DeferElementPropertiesForm,
 	FromElementPropertiesForm,
 	GenerateElementPropertiesForm,
 	IifElementPropertiesForm,
@@ -62,6 +64,14 @@ const createElementPropertiesForm = ({
 }: ElementPropertiesFormProps) => {
 	const { id, type, properties } = element;
 	switch (type) {
+		case ElementType.Defer:
+			return (
+				<DeferElementPropertiesForm
+					id={id}
+					properties={properties as DeferElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
 		case ElementType.Interval:
 			return (
 				<IntervalElementPropertiesForm

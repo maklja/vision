@@ -1,38 +1,36 @@
 import { Observable, filter } from 'rxjs';
-import { OperatorProps, PipeOperatorFactory, PipeOperatorFunctionFactory } from './OperatorFactory';
+import {
+	OperatorProps,
+	PipeObservableFactory,
+	PipeOperatorFactory,
+	PipeOperatorFunctionFactory,
+} from './OperatorFactory';
 import { FlowValue } from '../context';
 import { Element, ElementType, FilterElement } from '../../model';
 import { mapOutputToFlowValue } from './utils';
 
-export class DefaultFilteringOperatorFactory implements PipeOperatorFactory {
-	private readonly supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory>;
+const createFilterOperator = (el: Element) => (o: Observable<FlowValue>) => {
+	const filterEl = el as FilterElement;
+	const filterFn = new Function(`return ${filterEl.properties.expression}`);
 
-	constructor() {
-		this.supportedOperators = new Map([
-			[ElementType.Filter, this.createFilterOperator.bind(this)],
-		]);
-	}
+	return o.pipe(mapOutputToFlowValue(filter(filterFn())));
+};
 
-	create(el: Element, props?: OperatorProps) {
-		const factory = this.supportedOperators.get(el.type);
+const supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory> = new Map([
+	[ElementType.Filter, createFilterOperator],
+]);
+
+export const filteringOperatorFactory: PipeOperatorFactory = {
+	create(el: Element, props?: OperatorProps | undefined): PipeObservableFactory {
+		const factory = supportedOperators.get(el.type);
 		if (!factory) {
 			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
 		}
 
 		return factory(el, props);
-	}
-
+	},
 	isSupported(el: Element): boolean {
-		return this.supportedOperators.has(el.type);
-	}
-
-	private createFilterOperator(el: Element) {
-		return (o: Observable<FlowValue>) => {
-			const filterEl = el as FilterElement;
-			const filterFn = new Function(`return ${filterEl.properties.expression}`);
-
-			return o.pipe(mapOutputToFlowValue(filter(filterFn())));
-		};
-	}
-}
+		return supportedOperators.has(el.type);
+	},
+};
 

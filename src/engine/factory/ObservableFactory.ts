@@ -10,7 +10,7 @@ import {
 	isSubscriberType,
 } from '../../model';
 import { FlowManager, FlowValue, FlowValueType, SimulationModel } from '../context';
-import { DefaultCreationOperatorFactory } from './DefaultCreationOperatorFactory';
+import { creationOperatorFactory } from './DefaultCreationOperatorFactory';
 import { DefaultPipeOperatorFactory } from './DefaultPipeOperatorFactory';
 import { GraphBranch, GraphNode, GraphNodeType } from '../simulationGraph';
 import { DefaultJoinCreationOperatorFactory } from './DefaultJoinCreationOperatorFactory';
@@ -42,7 +42,6 @@ export interface CreateObservableParams {
 
 export class ObservableFactory {
 	// private readonly joinCreationOperatorFactory = new DefaultJoinCreationOperatorFactory();
-	private readonly creationOperatorFactory = new DefaultCreationOperatorFactory();
 	private readonly pipeOperatorFactory = new DefaultPipeOperatorFactory();
 
 	constructor(
@@ -177,7 +176,7 @@ export class ObservableFactory {
 			.sort((o1, o2) => o1.connectLine.index - o2.connectLine.index);
 
 		if (isCreationOperatorType(el.type)) {
-			return this.creationOperatorFactory.create(el, {
+			return creationOperatorFactory.create(el, {
 				refObservableGenerators: refObservableGenerators,
 			});
 		}

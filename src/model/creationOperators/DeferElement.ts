@@ -1,5 +1,15 @@
-import { Element, ElementType } from '../element';
+import { NEXT_GENERATOR_NAME } from '../common';
+import { Element, ElementProps, ElementType } from '../element';
 
-export interface DeferElement extends Element<never> {
+export interface DeferElementProperties extends ElementProps {
+	observableFactory: string;
+}
+
+export interface DeferElement extends Element<DeferElementProperties> {
 	type: ElementType.Defer;
 }
+
+export const deferElementPropsTemplate: DeferElementProperties = {
+	observableFactory: `function input() { return ${NEXT_GENERATOR_NAME}(); }`,
+};
+
