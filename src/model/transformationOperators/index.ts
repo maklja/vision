@@ -7,3 +7,4 @@ export * from './BufferTimeElement';
 export * from './BufferToggleElement';
 export * from './BufferWhenElement';
 export * from './ExpandElement';
+export * from './ExhaustMapElement';

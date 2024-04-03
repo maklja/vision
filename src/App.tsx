@@ -52,7 +52,7 @@ const e4: FilterElement = {
 	type: ElementType.Filter,
 	visible: true,
 	properties: {
-		expression: `(value) => {
+		predicateExpression: `(value) => {
 			return value % 2 === 0;
 		}`,
 	},
@@ -66,7 +66,7 @@ const e5: FilterElement = {
 	type: ElementType.Filter,
 	visible: true,
 	properties: {
-		expression: `function(value) {
+		predicateExpression: `function(value) {
 			if (value > 2) {
 				throw new Error('Ups');
 			}

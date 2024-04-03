@@ -1,7 +1,7 @@
-import { ElementType, Element } from '../element';
+import { ElementType, Element, ElementProps } from '../element';
 
-export interface FilterElementProperties extends Record<string, unknown> {
-	expression: string;
+export interface FilterElementProperties extends ElementProps {
+	predicateExpression: string;
 }
 
 export interface FilterElement extends Element<FilterElementProperties> {
@@ -9,6 +9,6 @@ export interface FilterElement extends Element<FilterElementProperties> {
 }
 
 export const filterElementPropsTemplate: FilterElementProperties = {
-	expression: '() => true',
+	predicateExpression: 'function predicate() { return true; }',
 };
 

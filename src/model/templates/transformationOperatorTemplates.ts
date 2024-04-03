@@ -2,7 +2,10 @@ import { ElementProps, ElementType } from '../element';
 import {
 	bufferCountElementPropsTemplate,
 	bufferTimeElementPropsTemplate,
+	bufferToggleElementPropsTemplate,
+	bufferWhenElementPropsTemplate,
 	concatMapElementPropsTemplate,
+	exhaustMapElementPropsTemplate,
 	expandElementPropsTemplate,
 	mapElementPropsTemplate,
 	mergeMapElementPropsTemplate,
@@ -14,8 +17,14 @@ export const mapTransformationOperatorTemplates = (elType: ElementType): Element
 			return bufferCountElementPropsTemplate;
 		case ElementType.BufferTime:
 			return bufferTimeElementPropsTemplate;
+		case ElementType.BufferToggle:
+			return bufferToggleElementPropsTemplate;
+		case ElementType.BufferWhen:
+			return bufferWhenElementPropsTemplate;
 		case ElementType.Expand:
 			return expandElementPropsTemplate;
+		case ElementType.ExhaustMap:
+			return exhaustMapElementPropsTemplate;
 		case ElementType.Map:
 			return mapElementPropsTemplate;
 		case ElementType.ConcatMap:

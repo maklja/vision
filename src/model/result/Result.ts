@@ -1,6 +1,6 @@
-import { Element, ElementType } from '../element';
+import { Element, ElementProps, ElementType } from '../element';
 
-export interface ResultProperties extends Record<string, unknown> {
+export interface ResultProperties extends ElementProps {
 	hash: string;
 }
 

@@ -12,7 +12,7 @@ export interface IifElement extends Element<IifElementProperties> {
 }
 
 export const iifElementPropsTemplate: IifElementProperties = {
-	conditionExpression: '() => true',
+	conditionExpression: 'function condition() { return true; }',
 	trueCallbackExpression: `function trueResult() { return ${NEXT_GENERATOR_NAME}(); }`,
 	falseCallbackExpression: `function falseResult() { return ${NEXT_GENERATOR_NAME}(); }`,
 };

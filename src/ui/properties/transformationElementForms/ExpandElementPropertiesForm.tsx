@@ -3,6 +3,7 @@ import TextField from '@mui/material/TextField';
 import { formStyle } from '../commonStyles';
 import { ExpandElementProperties } from '../../../model';
 import { handleNumberInputChanged } from '../utils';
+import { SimpleCodeEditor } from '../../code';
 
 export interface ExpandElementPropertiesFormProps {
 	id: string;
@@ -15,6 +16,9 @@ export const ExpandElementPropertiesForm = ({
 	properties,
 	onPropertyValueChange,
 }: ExpandElementPropertiesFormProps) => {
+	const handleProjectExpressionChanged = (projectExpression: string) =>
+		onPropertyValueChange?.(id, 'projectExpression', projectExpression);
+
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<TextField
@@ -36,6 +40,13 @@ export const ExpandElementPropertiesForm = ({
 					onPropertyValueChange,
 				)}
 				helperText="Maximum number of input Observables being subscribed to concurrently."
+			/>
+
+			<SimpleCodeEditor
+				code={properties.projectExpression}
+				label="Project"
+				helperText="A function that, when applied to an item emitted by the source or the output Observable, returns an Observable."
+				onCodeChange={handleProjectExpressionChanged}
 			/>
 		</Stack>
 	);

@@ -1,12 +1,16 @@
-import { ElementType, Element } from '../element';
+import { NEXT_GENERATOR_NAME } from '../common';
+import { ElementType, Element, ElementProps } from '../element';
 
-export interface ExpandElementProperties extends Record<string, unknown> {
+export interface ExpandElementProperties extends ElementProps {
 	concurrent?: number;
+	projectExpression: string;
 }
 
 export interface ExpandElement extends Element<ExpandElementProperties> {
 	type: ElementType.Expand;
 }
 
-export const expandElementPropsTemplate: ExpandElementProperties = {};
+export const expandElementPropsTemplate: ExpandElementProperties = {
+	projectExpression: `function project(value, index) { return ${NEXT_GENERATOR_NAME}(); }`,
+};
 

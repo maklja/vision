@@ -1,13 +1,16 @@
-import { ObservableInput } from 'rxjs';
-import { ElementType, Element } from '../element';
+import { NEXT_GENERATOR_NAME } from '../common';
+import { ElementType, Element, ElementProps } from '../element';
 
-export interface MergeMapElementProperties<T> extends Record<string, unknown> {
-	mapInput?: ObservableInput<T>;
+export interface MergeMapElementProperties extends ElementProps {
+	concurrent?: number;
+	projectExpression: string;
 }
 
-export interface MergeMapElement<T = unknown> extends Element<MergeMapElementProperties<T>> {
+export interface MergeMapElement extends Element<MergeMapElementProperties> {
 	type: ElementType.MergeMap;
 }
 
-export const mergeMapElementPropsTemplate: MergeMapElementProperties<unknown> = {};
+export const mergeMapElementPropsTemplate: MergeMapElementProperties = {
+	projectExpression: `function project(value, index) { return ${NEXT_GENERATOR_NAME}(); }`,
+};
 

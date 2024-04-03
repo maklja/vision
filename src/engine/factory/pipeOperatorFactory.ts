@@ -1,17 +1,17 @@
 import { Element } from '../../model';
 import { OperatorProps, PipeObservableFactory, PipeOperatorFactory } from './OperatorFactory';
-import { DefaultTransformationOperatorFactory } from './DefaultTransformationOperatorFactory';
+import { transformationOperatorFactory } from './transformationOperatorFactory';
 import { filteringOperatorFactory } from './filteringOperatorFactory';
-import { DefaultErrorHandlingOperatorFactory } from './DefaultErrorHandlingOperatorFactory';
+import { errorHandlingOperatorFactory } from './errorHandlingOperatorFactory';
 
 const supportedOperators: readonly PipeOperatorFactory[] = [
-	// new DefaultTransformationOperatorFactory(),
+	transformationOperatorFactory,
 	filteringOperatorFactory,
-	// new DefaultErrorHandlingOperatorFactory(),
+	errorHandlingOperatorFactory,
 ];
 
 export const pipeOperatorFactory: PipeOperatorFactory = {
-	create(el: Element, props?: OperatorProps): PipeObservableFactory {
+	create(el: Element, props: OperatorProps): PipeObservableFactory {
 		const factory = supportedOperators.find((factory) => factory.isSupported(el));
 		if (!factory) {
 			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
@@ -23,3 +23,4 @@ export const pipeOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.some((factory) => factory.isSupported(el));
 	},
 };
+

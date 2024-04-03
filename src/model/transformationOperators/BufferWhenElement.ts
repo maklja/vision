@@ -1,6 +1,15 @@
-import { ElementType, Element } from '../element';
+import { NEXT_GENERATOR_NAME } from '../common';
+import { ElementType, Element, ElementProps } from '../element';
+
+export interface BufferWhenElementProperties extends ElementProps {
+	closingSelectorExpression: string;
+}
 
 export interface BufferWhenElement extends Element {
 	type: ElementType.BufferWhen;
 }
+
+export const bufferWhenElementPropsTemplate: BufferWhenElementProperties = {
+	closingSelectorExpression: `function project(value, index) { return ${NEXT_GENERATOR_NAME}(); }`,
+};
 

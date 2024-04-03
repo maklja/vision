@@ -1,13 +1,15 @@
-import { ObservableInput } from 'rxjs';
-import { ElementType, Element } from '../element';
+import { NEXT_GENERATOR_NAME } from '../common';
+import { ElementType, Element, ElementProps } from '../element';
 
-export interface ConcatMapElementProperties<T> extends Record<string, unknown> {
-	mapInput?: ObservableInput<T>;
+export interface ConcatMapElementProperties extends ElementProps {
+	projectExpression: string;
 }
 
-export interface ConcatMapElement<T = unknown> extends Element<ConcatMapElementProperties<T>> {
+export interface ConcatMapElement extends Element<ConcatMapElementProperties> {
 	type: ElementType.ConcatMap;
 }
 
-export const concatMapElementPropsTemplate: ConcatMapElementProperties<unknown> = {};
+export const concatMapElementPropsTemplate: ConcatMapElementProperties = {
+	projectExpression: `function project(value, index) { return ${NEXT_GENERATOR_NAME}(); }`,
+};
 

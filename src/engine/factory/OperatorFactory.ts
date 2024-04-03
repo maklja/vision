@@ -48,10 +48,10 @@ export interface JoinCreationOperatorFactory extends OperatorFactory {
 
 export type PipeOperatorFunctionFactory = (
 	el: Element,
-	props?: OperatorProps,
+	props: OperatorProps,
 ) => PipeObservableFactory;
 
 export interface PipeOperatorFactory extends OperatorFactory {
-	create(el: Element, props?: OperatorProps): PipeObservableFactory;
+	create(el: Element, props: OperatorProps): PipeObservableFactory;
 }
 
