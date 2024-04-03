@@ -8,11 +8,15 @@ import {
 	AjaxElementProperties,
 	BufferCountElementProperties,
 	BufferTimeElementProperties,
+	BufferToggleElementProperties,
+	BufferWhenElementProperties,
 	CombineLatestElementProperties,
+	ConcatMapElementProperties,
 	ConnectLine,
 	DeferElementProperties,
 	Element,
 	ElementType,
+	ExhaustMapElementProperties,
 	ExpandElementProperties,
 	ForkJoinElementProperties,
 	FromElementProperties,
@@ -44,6 +48,10 @@ import {
 import {
 	BufferCountElementPropertiesForm,
 	BufferTimeElementPropertiesForm,
+	BufferToggleElementPropertiesForm,
+	BufferWhenElementPropertiesForm,
+	ConcatMapElementPropertiesForm,
+	ExhaustMapElementPropertiesForm,
 	ExpandElementPropertiesForm,
 } from './transformationElementForms';
 
@@ -192,11 +200,43 @@ const createElementPropertiesForm = ({
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
+		case ElementType.BufferToggle:
+			return (
+				<BufferToggleElementPropertiesForm
+					id={id}
+					properties={properties as BufferToggleElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.BufferWhen:
+			return (
+				<BufferWhenElementPropertiesForm
+					id={id}
+					properties={properties as BufferWhenElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.ConcatMap:
+			return (
+				<ConcatMapElementPropertiesForm
+					id={id}
+					properties={properties as ConcatMapElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
 		case ElementType.Expand:
 			return (
 				<ExpandElementPropertiesForm
 					id={id}
 					properties={properties as ExpandElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.ExhaustMap:
+			return (
+				<ExhaustMapElementPropertiesForm
+					id={id}
+					properties={properties as ExhaustMapElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
