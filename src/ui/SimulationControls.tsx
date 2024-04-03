@@ -57,6 +57,18 @@ export const SimulationControls = ({
 					padding: '12px 5px',
 				}}
 			>
+				<Autocomplete
+					disablePortal
+					options={entryElements}
+					getOptionLabel={(el) => `${el.type} - ${el.name}`}
+					sx={{ width: '100%' }}
+					size="small"
+					renderInput={(params) => (
+						<TextField {...params} size="small" label="Entry operator" />
+					)}
+					onChange={handleEntryElementChange}
+				/>
+
 				{!simulationRunning && (
 					<IconButton
 						aria-label="start simulation"
@@ -89,17 +101,6 @@ export const SimulationControls = ({
 				>
 					<StopIcon fontSize="large" />
 				</IconButton>
-
-				<Autocomplete
-					disablePortal
-					options={entryElements}
-					getOptionLabel={(el) => `${el.type} - ${el.name}`}
-					sx={{ width: '100%' }}
-					renderInput={(params) => (
-						<TextField {...params} size="small" label="Entry operator" />
-					)}
-					onChange={handleEntryElementChange}
-				/>
 			</Paper>
 		</Box>
 	);
