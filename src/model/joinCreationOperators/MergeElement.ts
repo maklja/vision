@@ -1,6 +1,6 @@
-import { Element, ElementType } from '../element';
+import { Element, ElementProps, ElementType } from '../element';
 
-export interface MergeElementProperties extends Record<string, unknown> {
+export interface MergeElementProperties extends ElementProps {
 	limitConcurrent: number;
 }
 

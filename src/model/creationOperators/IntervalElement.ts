@@ -1,6 +1,6 @@
-import { Element, ElementType } from '../element';
+import { Element, ElementProps, ElementType } from '../element';
 
-export interface IntervalElementProperties extends Record<string, unknown> {
+export interface IntervalElementProperties extends ElementProps {
 	period: number;
 }
 

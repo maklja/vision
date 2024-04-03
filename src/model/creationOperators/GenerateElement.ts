@@ -1,6 +1,6 @@
-import { ElementType, Element } from '../element';
+import { ElementType, Element, ElementProps } from '../element';
 
-export interface GenerateElementProperties extends Record<string, unknown> {
+export interface GenerateElementProperties extends ElementProps {
 	initialState: string;
 	condition?: string;
 	iterate: string;
