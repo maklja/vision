@@ -2,6 +2,8 @@ import Box from '@mui/material/Box';
 import Konva from 'konva';
 import { useMemo, useRef, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
+import Paper from '@mui/material/Paper';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useAppDispatch, useAppSelector } from '../store/rootState';
 import {
 	addObservableEvent,
@@ -36,6 +38,7 @@ import { OperatorPropertiesPanel } from '../ui/properties';
 import { StageState, selectStageState } from '../store/stage';
 import { ZoomType } from '../store/canvas';
 import { zoomStage } from './state';
+import { WindowShell } from '../ui/window';
 
 export const Simulator = () => {
 	const stageState = useAppSelector(selectStageState);
@@ -216,7 +219,7 @@ export const Simulator = () => {
 			<Box
 				sx={{
 					position: 'absolute',
-					top: '15px',
+					top: '5px',
 					left: 'calc(50% - 160px)',
 					width: '400px',
 					height: '40px',
@@ -261,27 +264,39 @@ export const Simulator = () => {
 				/>
 			</Box>
 
-			{stageState === StageState.Select && selectedElements.length === 1 ? (
-				<Box
+			{selectedElements.length === 1 ? (
+				<WindowShell
+					icon={<SettingsIcon color="inherit" />}
+					title={`Element details: ${selectedElements[0].name}`}
+					tooltip={selectedElements[0].name}
+					showControlButtons={true}
 					sx={{
 						position: 'absolute',
 						top: '15%',
-						right: '25px',
-						width: '400px',
+						right: '10px',
 						height: '70%',
 						maxHeight: '70%',
 					}}
 				>
-					<OperatorPropertiesPanel
-						element={selectedElements[0]}
-						elementNames={elementNames}
-						relatedElements={selectedElementConnectLines}
-						onNameChange={handleElementNameChange}
-						onPositionChange={handleElementPositionChange}
-						onPropertyValueChange={handleElementPropertyChange}
-						onConnectLineChange={handleConnectLineChanged}
-					/>
-				</Box>
+					<Paper
+						elevation={0}
+						sx={{
+							width: '100%',
+							height: '100%',
+							overflow: 'auto',
+						}}
+					>
+						<OperatorPropertiesPanel
+							element={selectedElements[0]}
+							elementNames={elementNames}
+							relatedElements={selectedElementConnectLines}
+							onNameChange={handleElementNameChange}
+							onPositionChange={handleElementPositionChange}
+							onPropertyValueChange={handleElementPropertyChange}
+							onConnectLineChange={handleConnectLineChanged}
+						/>
+					</Paper>
+				</WindowShell>
 			) : null}
 		</Box>
 	);

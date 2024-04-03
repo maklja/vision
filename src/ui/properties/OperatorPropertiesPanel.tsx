@@ -1,4 +1,5 @@
-import { Box, Paper } from '@mui/material';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
 import { ElementExplorer } from './ElementExplorer';
 import { Element, Point } from '../../model';
 import { ElementPropertiesForm, RelatedElements } from './ElementPropertiesForm';
@@ -28,12 +29,15 @@ export const OperatorPropertiesPanel = ({
 			sx={{
 				width: '100%',
 				height: '100%',
+				maxWidth: '400px',
 			}}
 		>
 			<Paper
 				sx={{
 					width: '100%',
 					height: '100%',
+					borderTopLeftRadius: '0px',
+					borderTopRightRadius: '0px',
 				}}
 				elevation={0}
 			>
@@ -43,6 +47,8 @@ export const OperatorPropertiesPanel = ({
 					onPositionChange={onPositionChange}
 					onNameChange={onNameChange}
 				/>
+
+				<Box sx={{ margin: '2px 0px' }} />
 
 				<ElementPropertiesForm
 					element={element}
@@ -54,3 +60,4 @@ export const OperatorPropertiesPanel = ({
 		</Box>
 	);
 };
+
