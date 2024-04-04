@@ -65,8 +65,8 @@ function createNamedObservableInput(
 	);
 }
 
-const createMergeOperator = (el: Element, props: OperatorProps) => {
-	return (overrideProperties?: Partial<ElementProps>) => {
+const createMergeOperator =
+	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
 		const mergeEl = el as MergeElement;
 		const mergeElProperties: MergeElementProperties = {
 			...mergeEl.properties,
@@ -86,7 +86,6 @@ const createMergeOperator = (el: Element, props: OperatorProps) => {
 			),
 		);
 	};
-};
 
 const createCombineLatestOperator =
 	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
@@ -192,3 +191,4 @@ export const joinCreationOperatorFactory: JoinCreationOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
+

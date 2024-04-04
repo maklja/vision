@@ -6,17 +6,6 @@ interface OperatorFactory {
 	isSupported(el: Element): boolean;
 }
 
-export interface ObservableOptions {
-	readonly observable: Observable<FlowValue>;
-	readonly invokeTrigger?: (value: FlowValue) => void;
-	readonly connectPoint: ConnectedElement;
-	readonly connectLine: ConnectLine;
-}
-
-export interface OperatorOptions {
-	readonly referenceObservables: readonly ObservableOptions[];
-}
-
 export type CreationObservableGenerator = (overrideProps?: ElementProps) => Observable<FlowValue>;
 
 export type PipeObservableGenerator = (observable: Observable<FlowValue>) => Observable<FlowValue>;
