@@ -12,11 +12,11 @@ export interface FromElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const FromElementPropertiesForm = ({
+export function FromElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: FromElementPropertiesFormProps) => {
+}: FromElementPropertiesFormProps) {
 	const handleInputChanged = (input: string) => onPropertyValueChange?.(id, 'input', input);
 
 	const handleObservableEventChange = (
@@ -47,5 +47,5 @@ export const FromElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

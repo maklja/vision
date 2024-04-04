@@ -21,7 +21,7 @@ export const ConcatMapElementPropertiesForm = ({
 		<Stack gap={formStyle.componentGap}>
 			<SimpleCodeEditor
 				code={properties.projectExpression}
-				label="Closing selector"
+				label="Project"
 				helperText="A function that, when applied to an item emitted by the source Observable, returns an Observable."
 				onCodeChange={handleProjectExpressionChanged}
 			/>

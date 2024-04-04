@@ -9,11 +9,11 @@ export interface GenerateElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const GenerateElementPropertiesForm = ({
+export function GenerateElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: GenerateElementPropertiesFormProps) => {
+}: GenerateElementPropertiesFormProps) {
 	const handleInitialStateChanged = (input: string) =>
 		onPropertyValueChange?.(id, 'initialState', input);
 
@@ -59,5 +59,5 @@ export const GenerateElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

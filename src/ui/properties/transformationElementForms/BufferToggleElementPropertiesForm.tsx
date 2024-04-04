@@ -9,11 +9,11 @@ export interface BufferToggleElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const BufferToggleElementPropertiesForm = ({
+export function BufferToggleElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: BufferToggleElementPropertiesFormProps) => {
+}: BufferToggleElementPropertiesFormProps) {
 	const handleClosingSelectorExpressionChanged = (closingSelectorExpression: string) =>
 		onPropertyValueChange?.(id, 'closingSelectorExpression', closingSelectorExpression);
 
@@ -27,5 +27,5 @@ export const BufferToggleElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

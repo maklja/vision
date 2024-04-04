@@ -10,11 +10,11 @@ export interface IntervalElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const IntervalElementPropertiesForm = ({
+export function IntervalElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: IntervalElementPropertiesFormProps) => {
+}: IntervalElementPropertiesFormProps) {
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<TextField
@@ -39,5 +39,5 @@ export const IntervalElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

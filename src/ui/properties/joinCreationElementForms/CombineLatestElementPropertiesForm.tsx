@@ -12,13 +12,13 @@ export interface CombineLatestElementPropertiesFormProps {
 	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
 
-export const CombineLatestElementPropertiesForm = ({
+export function CombineLatestElementPropertiesForm({
 	id,
 	properties,
 	relatedElements,
 	onPropertyValueChange,
 	onConnectLineChange,
-}: CombineLatestElementPropertiesFormProps) => {
+}: CombineLatestElementPropertiesFormProps) {
 	const handleObservableInputsTypeChanged = (observableInputsType: ObservableInputsType) =>
 		onPropertyValueChange?.(id, CommonProps.ObservableInputsType, observableInputsType);
 
@@ -33,5 +33,5 @@ export const CombineLatestElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

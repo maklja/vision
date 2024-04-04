@@ -30,7 +30,7 @@ const mapElement: MapElement = {
 	type: ElementType.Map,
 	visible: true,
 	properties: {
-		expression: '(value) => { return value; }',
+		projectExpression: '(value) => { return value; }',
 	},
 };
 

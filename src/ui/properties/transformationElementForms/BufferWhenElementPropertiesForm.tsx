@@ -9,11 +9,11 @@ export interface BufferWhenElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const BufferWhenElementPropertiesForm = ({
+export function BufferWhenElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: BufferWhenElementPropertiesFormProps) => {
+}: BufferWhenElementPropertiesFormProps) {
 	const handleClosingSelectorExpressionChanged = (closingSelectorExpression: string) =>
 		onPropertyValueChange?.(id, 'closingSelectorExpression', closingSelectorExpression);
 
@@ -27,5 +27,5 @@ export const BufferWhenElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

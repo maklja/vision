@@ -1,7 +1,7 @@
 import { ElementType, Element, ElementProps } from '../element';
 
 export interface MapElementProperties extends ElementProps {
-	expression: string;
+	projectExpression: string;
 }
 
 export interface MapElement extends Element<MapElementProperties> {
@@ -9,6 +9,6 @@ export interface MapElement extends Element<MapElementProperties> {
 }
 
 export const mapElementPropsTemplate: MapElementProperties = {
-	expression: '(value) => value',
+	projectExpression: 'function project(value, index) { return value; }',
 };
 

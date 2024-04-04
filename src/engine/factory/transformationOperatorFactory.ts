@@ -179,7 +179,7 @@ const createConcatMapOperator =
 
 const createMapOperator = (el: Element) => (o: Observable<FlowValue>) => {
 	const mapEl = el as MapElement;
-	const mapFn = new Function(`return ${mapEl.properties.expression}`);
+	const mapFn = new Function(`return ${mapEl.properties.projectExpression}`);
 
 	return o.pipe(mapOutputToFlowValue(map(mapFn())));
 };

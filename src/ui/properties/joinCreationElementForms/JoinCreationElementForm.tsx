@@ -9,10 +9,10 @@ export interface JoinCreationElementFormProps {
 	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
 
-export const JoinCreationElementForm = ({
+export function JoinCreationElementForm({
 	relatedElements,
 	onConnectLineChange,
-}: JoinCreationElementFormProps) => {
+}: JoinCreationElementFormProps) {
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<ObservableInputsOrder
@@ -21,4 +21,5 @@ export const JoinCreationElementForm = ({
 			/>
 		</Stack>
 	);
-};
+}
+

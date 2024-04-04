@@ -21,12 +21,12 @@ export interface ElementExplorerProps {
 	onPositionChange?: (id: string, position: Point) => void;
 }
 
-export const ElementExplorer = ({
+export function ElementExplorer({
 	element,
 	elementNames,
 	onNameChange,
 	onPositionChange,
-}: ElementExplorerProps) => {
+}: ElementExplorerProps) {
 	const { id, name, type, x, y } = element;
 	const operatorGroup = mapElementTypeToGroup(type);
 	const shapeSize = useShapeSize(type);
@@ -220,4 +220,5 @@ export const ElementExplorer = ({
 			</Accordion>
 		</Box>
 	);
-};
+}
+

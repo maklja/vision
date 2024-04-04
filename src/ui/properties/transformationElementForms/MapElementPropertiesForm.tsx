@@ -1,19 +1,19 @@
 import Stack from '@mui/material/Stack';
 import { formStyle } from '../commonStyles';
-import { ExhaustMapElementProperties } from '../../../model';
+import { MapElementProperties } from '../../../model';
 import { SimpleCodeEditor } from '../../code';
 
-export interface ExhaustMapElementPropertiesFormProps {
+export interface MapElementPropertiesFormProps {
 	id: string;
-	properties: ExhaustMapElementProperties;
+	properties: MapElementProperties;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export function ExhaustMapElementPropertiesForm({
+export function MapElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: ExhaustMapElementPropertiesFormProps) {
+}: MapElementPropertiesFormProps) {
 	const handleProjectExpressionChanged = (projectExpression: string) =>
 		onPropertyValueChange?.(id, 'projectExpression', projectExpression);
 
@@ -22,7 +22,7 @@ export function ExhaustMapElementPropertiesForm({
 			<SimpleCodeEditor
 				code={properties.projectExpression}
 				label="Project"
-				helperText="A function that, when applied to an item emitted by the source Observable, returns an Observable."
+				helperText="The function to apply to each value emitted by the source Observable. The index parameter is the number i for the i-th emission that has happened since the subscription, starting from the number 0."
 				onCodeChange={handleProjectExpressionChanged}
 			/>
 		</Stack>

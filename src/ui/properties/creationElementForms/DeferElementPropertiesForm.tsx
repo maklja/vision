@@ -9,11 +9,11 @@ export interface DeferElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const DeferElementPropertiesForm = ({
+export function DeferElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: DeferElementPropertiesFormProps) => {
+}: DeferElementPropertiesFormProps) {
 	const handleInputChanged = (input: string) => onPropertyValueChange?.(id, 'input', input);
 
 	return (
@@ -26,5 +26,5 @@ export const DeferElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

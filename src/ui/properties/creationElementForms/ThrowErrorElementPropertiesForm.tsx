@@ -9,11 +9,11 @@ export interface ThrowErrorElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const ThrowErrorElementPropertiesForm = ({
+export function ThrowErrorElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: ThrowErrorElementPropertiesFormProps) => {
+}: ThrowErrorElementPropertiesFormProps) {
 	const handleErrorOrErrorFactoryChanged = (input: string) =>
 		onPropertyValueChange?.(id, 'errorOrErrorFactory', input);
 
@@ -27,5 +27,5 @@ export const ThrowErrorElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

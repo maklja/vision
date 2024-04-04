@@ -10,11 +10,11 @@ export interface RangeElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const RangeElementPropertiesForm = ({
+export function RangeElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: RangeElementPropertiesFormProps) => {
+}: RangeElementPropertiesFormProps) {
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<TextField
@@ -57,5 +57,5 @@ export const RangeElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

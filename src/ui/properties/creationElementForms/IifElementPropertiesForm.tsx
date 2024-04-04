@@ -9,11 +9,11 @@ export interface IifElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const IifElementPropertiesForm = ({
+export function IifElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: IifElementPropertiesFormProps) => {
+}: IifElementPropertiesFormProps) {
 	const handleConditionExpressionChanged = (input: string) =>
 		onPropertyValueChange?.(id, 'conditionExpression', input);
 
@@ -47,5 +47,5 @@ export const IifElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 
