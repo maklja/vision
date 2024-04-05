@@ -1,4 +1,4 @@
-import { NEXT_GENERATOR_NAME } from '../common';
+import { MISSING_OBSERVABLE_COMMENT } from '../common';
 import { ElementType, Element, ElementProps } from '../element';
 
 export interface BufferToggleElementProperties extends ElementProps {
@@ -10,6 +10,6 @@ export interface BufferToggleElement extends Element {
 }
 
 export const bufferToggleElementPropsTemplate: BufferToggleElementProperties = {
-	closingSelectorExpression: `function project(value) { return ${NEXT_GENERATOR_NAME}(); }`,
+	closingSelectorExpression: MISSING_OBSERVABLE_COMMENT,
 };
 

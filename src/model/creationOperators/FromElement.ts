@@ -1,4 +1,4 @@
-import { NEXT_GENERATOR_NAME } from '../common';
+import { MISSING_OBSERVABLE_COMMENT } from '../common';
 import { Element, ElementType, CommonProps, ElementProps } from '../element';
 
 export interface FromElementProperties extends ElementProps {
@@ -13,7 +13,7 @@ export interface FromElement extends Element<FromElementProperties> {
 
 export const fromElementPropsTemplate: FromElementProperties = {
 	enableObservableEvent: true,
-	inputCallbackExpression: 'function input() { return [1, 2, 3, 4]; }',
-	observableFactory: `function input() { return ${NEXT_GENERATOR_NAME}(); }`,
+	inputCallbackExpression: '',
+	observableFactory: MISSING_OBSERVABLE_COMMENT,
 };
 

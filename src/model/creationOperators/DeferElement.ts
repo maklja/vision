@@ -1,4 +1,4 @@
-import { NEXT_GENERATOR_NAME } from '../common';
+import { MISSING_OBSERVABLE_COMMENT } from '../common';
 import { Element, ElementProps, ElementType } from '../element';
 
 export interface DeferElementProperties extends ElementProps {
@@ -10,6 +10,6 @@ export interface DeferElement extends Element<DeferElementProperties> {
 }
 
 export const deferElementPropsTemplate: DeferElementProperties = {
-	observableFactory: `function input() { return ${NEXT_GENERATOR_NAME}(); }`,
+	observableFactory: MISSING_OBSERVABLE_COMMENT,
 };
 

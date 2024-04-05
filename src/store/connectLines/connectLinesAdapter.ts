@@ -15,6 +15,8 @@ import { RootState } from '../rootState';
 import { v1 } from 'uuid';
 import {
 	SelectedElement,
+	cleanGeneratedElementCodeStateChange,
+	generateElementCodeStateChange,
 	selectAllElements,
 	selectElementById,
 	selectElementsStateChange,
@@ -181,11 +183,24 @@ export const removeConnectLinesStateChange = (
 		return;
 	}
 
+	const cls = payload.connectLineIds.map((clId) => {
+		const cl = selectConnectLineEntities(slice.connectLines)[clId];
+		if (!cl) {
+			throw new Error(`Connect line with id ${clId} was not found`);
+		}
+
+		return cl;
+	});
+
+	cls.forEach((cl) => cleanGeneratedElementCodeStateChange(slice, { sourceElement: cl.source }));
 	slice.connectLines = connectLinesAdapter.removeMany(slice.connectLines, payload.connectLineIds);
 };
 
-export const { selectAll: selectAllConnectLines, selectById: selectConnectLineById } =
-	connectLinesAdapter.getSelectors();
+export const {
+	selectAll: selectAllConnectLines,
+	selectById: selectConnectLineById,
+	selectEntities: selectConnectLineEntities,
+} = connectLinesAdapter.getSelectors();
 
 export const createConnectLinesAdapterInitialState = () => connectLinesAdapter.getInitialState();
 
@@ -419,6 +434,11 @@ export const connectLinesAdapterReducers = {
 			return;
 		}
 
+		const connectElTarget = {
+			id: el.id,
+			connectPointType: payload.targetConnectPointType,
+			connectPosition: payload.targetConnectPointPosition,
+		};
 		slice.connectLines = connectLinesAdapter.addOne(slice.connectLines, {
 			id: v1(),
 			index: draftConnectLine.index,
@@ -427,13 +447,13 @@ export const connectLinesAdapterReducers = {
 			select: false,
 			points: [...draftConnectLine.points, action.payload.targetPoint],
 			source: draftConnectLine.source,
-			target: {
-				id: el.id,
-				connectPointType: payload.targetConnectPointType,
-				connectPosition: payload.targetConnectPointPosition,
-			},
+			target: connectElTarget,
 		});
 		removeAllDrawerAnimationStateChange(slice, { drawerId: payload.connectPointId });
+		generateElementCodeStateChange(slice, {
+			sourceElement: draftConnectLine.source,
+			targetElement: connectElTarget,
+		});
 	},
 	moveConnectLinePointsByDelta: (
 		slice: Draft<StageSlice>,

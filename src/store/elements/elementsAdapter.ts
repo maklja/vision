@@ -2,7 +2,13 @@ import { v1 } from 'uuid';
 import { current } from 'immer';
 import { Draft, Update, createEntityAdapter } from '@reduxjs/toolkit';
 import { StageSlice } from '../stageSlice';
-import { Element, ElementProps, ElementType, mapToOperatorPropsTemplate } from '../../model';
+import {
+	ConnectedElement,
+	Element,
+	ElementProps,
+	ElementType,
+	mapToOperatorPropsTemplate,
+} from '../../model';
 import { RootState } from '../rootState';
 import { moveConnectLinePointsByDeltaStateChange, selectAllConnectLines } from '../connectLines';
 import { StageState, updateStateChange } from '../stage';
@@ -13,6 +19,7 @@ import {
 	selectConnectPointStateChange,
 } from '../connectPoints';
 import { selectAllSelectedElements } from './selectedElementsAdapter';
+import { clearRefElementCode, createRefElementCode } from '../../engine';
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
@@ -93,6 +100,20 @@ export interface LoadElementsAction {
 	};
 }
 
+export interface GenerateCodePayload {
+	sourceElement: ConnectedElement;
+	targetElement: ConnectedElement;
+}
+
+export interface GenerateCodeAction {
+	type: string;
+	payload: GenerateCodePayload;
+}
+
+export interface CleanGeneratedCodePayload {
+	sourceElement: ConnectedElement;
+}
+
 const elementsAdapter = createEntityAdapter<Element>({
 	selectId: (el) => el.id,
 });
@@ -115,17 +136,14 @@ export const {
 	selectEntities: selectElementEntities,
 } = elementsAdapter.getSelectors();
 
-export const updateElementStateChange = (
-	slice: Draft<StageSlice>,
-	payload: UpdateElementPayload,
-) => {
+export function updateElementStateChange(slice: Draft<StageSlice>, payload: UpdateElementPayload) {
 	slice.elements = elementsAdapter.updateOne(slice.elements, {
 		id: payload.id,
 		changes: payload,
 	});
-};
+}
 
-export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveElementPayload) => {
+export function moveElementStateChange(slice: Draft<StageSlice>, payload: MoveElementPayload) {
 	const el = selectElementById(slice.elements, payload.id);
 	if (!el) {
 		return;
@@ -168,7 +186,7 @@ export const moveElementStateChange = (slice: Draft<StageSlice>, payload: MoveEl
 			});
 		}
 	});
-};
+}
 
 export function moveSelectedElementsByDeltaStateChange(
 	slice: Draft<StageSlice>,
@@ -225,21 +243,21 @@ export function moveSelectedElementsByDeltaStateChange(
 	});
 }
 
-export const removeElementsStateChange = (
+export function removeElementsStateChange(
 	slice: Draft<StageSlice>,
 	payload: RemoveElementsPayload,
-) => {
+) {
 	if (payload.elementIds.length === 0) {
 		return;
 	}
 
 	slice.elements = elementsAdapter.removeMany(slice.elements, payload.elementIds);
-};
+}
 
-export const updateElementPropertyStateChange = (
+export function updateElementPropertyStateChange(
 	slice: Draft<StageSlice>,
 	payload: UpdateElementPropertyPayload,
-) => {
+) {
 	const element = selectElementById(slice.elements, payload.id);
 	if (!element) {
 		return;
@@ -256,7 +274,52 @@ export const updateElementPropertyStateChange = (
 	});
 
 	selectConnectPointStateChange(slice, { elementId: payload.id });
-};
+}
+
+export function generateElementCodeStateChange(
+	slice: Draft<StageSlice>,
+	payload: GenerateCodePayload,
+) {
+	const sourceEl = selectElementById(slice.elements, payload.sourceElement.id);
+	const targetEl = selectElementById(slice.elements, payload.targetElement.id);
+	if (!sourceEl || !targetEl) {
+		return;
+	}
+
+	const elPropertiesWithCode = createRefElementCode({
+		element: sourceEl,
+		connectPointType: payload.sourceElement.connectPointType,
+		connectPosition: payload.sourceElement.connectPosition,
+	});
+	slice.elements = elementsAdapter.updateOne(slice.elements, {
+		id: sourceEl.id,
+		changes: {
+			properties: elPropertiesWithCode,
+		},
+	});
+}
+
+export function cleanGeneratedElementCodeStateChange(
+	slice: Draft<StageSlice>,
+	payload: CleanGeneratedCodePayload,
+) {
+	const sourceEl = selectElementById(slice.elements, payload.sourceElement.id);
+	if (!sourceEl) {
+		return;
+	}
+
+	const elPropertiesWithCode = clearRefElementCode({
+		element: sourceEl,
+		connectPointType: payload.sourceElement.connectPointType,
+		connectPosition: payload.sourceElement.connectPosition,
+	});
+	slice.elements = elementsAdapter.updateOne(slice.elements, {
+		id: sourceEl.id,
+		changes: {
+			properties: elPropertiesWithCode,
+		},
+	});
+}
 
 export const elementsAdapterReducers = {
 	updateElement: (slice: Draft<StageSlice>, action: UpdateElementAction) =>
@@ -316,6 +379,8 @@ export const elementsAdapterReducers = {
 		slice.elements = elementsAdapter.addMany(slice.elements, action.payload.elements);
 		createElementsConnectPointsStateChange(slice, action.payload.elements);
 	},
+	generateElementCode: (slice: Draft<StageSlice>, action: GenerateCodeAction) =>
+		generateElementCodeStateChange(slice, action.payload),
 };
 
 const globalElementsSelector = elementsAdapter.getSelectors<RootState>(
@@ -328,3 +393,4 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
+

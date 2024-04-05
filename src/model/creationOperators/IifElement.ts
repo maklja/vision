@@ -1,4 +1,4 @@
-import { NEXT_GENERATOR_NAME } from '../common';
+import { MISSING_OBSERVABLE_COMMENT } from '../common';
 import { Element, ElementProps, ElementType } from '../element';
 
 export interface IifElementProperties extends ElementProps {
@@ -13,7 +13,7 @@ export interface IifElement extends Element<IifElementProperties> {
 
 export const iifElementPropsTemplate: IifElementProperties = {
 	conditionExpression: 'function condition() { return true; }',
-	trueCallbackExpression: `function trueResult() { return ${NEXT_GENERATOR_NAME}(); }`,
-	falseCallbackExpression: `function falseResult() { return ${NEXT_GENERATOR_NAME}(); }`,
+	trueCallbackExpression: MISSING_OBSERVABLE_COMMENT,
+	falseCallbackExpression: MISSING_OBSERVABLE_COMMENT,
 };
 
