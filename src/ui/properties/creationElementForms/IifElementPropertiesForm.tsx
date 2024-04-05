@@ -40,7 +40,7 @@ export function IifElementPropertiesForm({
 			/>
 
 			<SimpleCodeEditor
-				code={properties.trueCallbackExpression}
+				code={properties.falseCallbackExpression}
 				label="False result"
 				helperText="An Observable that will be subscribed if condition is false."
 				onCodeChange={handleFalseCallbackExpressionChanged}
