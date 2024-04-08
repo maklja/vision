@@ -1,3 +1,4 @@
+import dedent from 'dedent';
 import { ElementType, Element, ElementProps } from '../element';
 
 export interface MapElementProperties extends ElementProps {
@@ -9,6 +10,8 @@ export interface MapElement extends Element<MapElementProperties> {
 }
 
 export const mapElementPropsTemplate: MapElementProperties = {
-	projectExpression: 'function project(value, index) { return value; }',
+	projectExpression: dedent`function project(value, index) { 
+		return value;
+	}`,
 };
 

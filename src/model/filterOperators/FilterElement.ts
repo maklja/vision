@@ -1,3 +1,4 @@
+import dedent from 'dedent';
 import { ElementType, Element, ElementProps } from '../element';
 
 export interface FilterElementProperties extends ElementProps {
@@ -9,6 +10,8 @@ export interface FilterElement extends Element<FilterElementProperties> {
 }
 
 export const filterElementPropsTemplate: FilterElementProperties = {
-	predicateExpression: 'function predicate() { return true; }',
+	predicateExpression: dedent`function predicate() { 
+		return true;
+	}`,
 };
 

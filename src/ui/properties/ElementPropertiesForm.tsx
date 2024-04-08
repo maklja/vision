@@ -10,6 +10,7 @@ import {
 	BufferTimeElementProperties,
 	BufferToggleElementProperties,
 	BufferWhenElementProperties,
+	CatchErrorElementProperties,
 	CombineLatestElementProperties,
 	ConcatMapElementProperties,
 	ConnectLine,
@@ -58,6 +59,7 @@ import {
 	MapElementPropertiesForm,
 	MergeMapElementPropertiesForm,
 } from './transformationElementForms';
+import { CatchErrorElementPropertiesForm } from './errorHandlerElementForms';
 
 export type RelatedElements = { connectLine: ConnectLine; element: Element }[];
 
@@ -257,6 +259,14 @@ function createElementPropertiesForm({
 				<MergeMapElementPropertiesForm
 					id={id}
 					properties={properties as MergeMapElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.CatchError:
+			return (
+				<CatchErrorElementPropertiesForm
+					id={id}
+					properties={properties as CatchErrorElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);

@@ -1,3 +1,4 @@
+import dedent from 'dedent';
 import { NEXT_GENERATOR_NAME } from '../common';
 import { Element, ElementProps, ElementType } from '../element';
 
@@ -10,6 +11,8 @@ export interface DeferElement extends Element<DeferElementProperties> {
 }
 
 export const deferElementPropsTemplate: DeferElementProperties = {
-	observableFactory: `function input() { return ${NEXT_GENERATOR_NAME}(); }`,
+	observableFactory: dedent`function input() { 
+		return ${NEXT_GENERATOR_NAME}();
+	}`,
 };
 

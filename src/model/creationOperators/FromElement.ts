@@ -1,3 +1,4 @@
+import dedent from 'dedent';
 import { NEXT_GENERATOR_NAME } from '../common';
 import { Element, ElementType, CommonProps, ElementProps } from '../element';
 
@@ -13,7 +14,11 @@ export interface FromElement extends Element<FromElementProperties> {
 
 export const fromElementPropsTemplate: FromElementProperties = {
 	enableObservableEvent: true,
-	inputCallbackExpression: 'function input() { return [1, 2, 3, 4]; }',
-	observableFactory: `function input() { return ${NEXT_GENERATOR_NAME}(); }`,
+	inputCallbackExpression: dedent`function input() { 
+		return [1, 2, 3, 4];
+	}`,
+	observableFactory: dedent`function input() { 
+		return ${NEXT_GENERATOR_NAME}();
+	}`,
 };
 

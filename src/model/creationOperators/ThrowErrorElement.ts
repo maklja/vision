@@ -1,3 +1,4 @@
+import dedent from 'dedent';
 import { Element, ElementProps, ElementType } from '../element';
 
 export interface ThrowErrorElementProperties extends ElementProps {
@@ -9,6 +10,8 @@ export interface ThrowErrorElement extends Element<ThrowErrorElementProperties> 
 }
 
 export const throwErrorElementPropsTemplate: ThrowErrorElementProperties = {
-	errorOrErrorFactory: "() => new Error('Unexpected error!')",
+	errorOrErrorFactory: dedent`function errorFactory() { 
+		return new Error('Unexpected error!');
+	}`,
 };
 

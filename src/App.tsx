@@ -5,7 +5,6 @@ import {
 	OfElement,
 	Element,
 	IntervalElement,
-	CatchErrorElement,
 	MapElement,
 } from './model';
 import { useEffect } from 'react';
@@ -76,16 +75,6 @@ const e5: FilterElement = {
 	},
 };
 
-const ce1: CatchErrorElement = {
-	id: 'catchError_1',
-	name: 'catchError_1',
-	x: 82.5,
-	y: 80,
-	type: ElementType.CatchError,
-	visible: true,
-	properties: {},
-};
-
 const subscriber1: Element = {
 	id: 'subscriber_0',
 	name: 'subscriber_0',
@@ -141,7 +130,6 @@ const App = () => {
 					e4,
 					e5,
 					i1,
-					ce1,
 					mapElement,
 				],
 			}),

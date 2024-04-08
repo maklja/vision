@@ -1,3 +1,4 @@
+import dedent from 'dedent';
 import { NEXT_GENERATOR_NAME } from '../common';
 import { ElementType, Element, ElementProps } from '../element';
 
@@ -10,6 +11,8 @@ export interface BufferToggleElement extends Element {
 }
 
 export const bufferToggleElementPropsTemplate: BufferToggleElementProperties = {
-	closingSelectorExpression: `function project(value) { return ${NEXT_GENERATOR_NAME}(); }`,
+	closingSelectorExpression: dedent`function project(value) { 
+		return ${NEXT_GENERATOR_NAME}();
+	}`,
 };
 

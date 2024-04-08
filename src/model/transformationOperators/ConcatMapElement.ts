@@ -1,3 +1,4 @@
+import dedent from 'dedent';
 import { NEXT_GENERATOR_NAME } from '../common';
 import { ElementType, Element, ElementProps } from '../element';
 
@@ -10,6 +11,8 @@ export interface ConcatMapElement extends Element<ConcatMapElementProperties> {
 }
 
 export const concatMapElementPropsTemplate: ConcatMapElementProperties = {
-	projectExpression: `function project(value, index) { return ${NEXT_GENERATOR_NAME}(); }`,
+	projectExpression: dedent`function project(value, index) { 
+		return ${NEXT_GENERATOR_NAME}();
+	}`,
 };
 
