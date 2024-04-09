@@ -1,2 +1,2 @@
-export const NEXT_GENERATOR_NAME = 'next';
+export const OBSERVABLE_GENERATOR_NAME = 'createObservable';
 

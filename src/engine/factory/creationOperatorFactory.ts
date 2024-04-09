@@ -33,7 +33,7 @@ import {
 	IifElementProperties,
 	IntervalElement,
 	IntervalElementProperties,
-	NEXT_GENERATOR_NAME,
+	OBSERVABLE_GENERATOR_NAME,
 	OfElement,
 	OfElementProperties,
 	RangeElement,
@@ -83,7 +83,7 @@ const createFromCreationOperator =
 
 		const [refObservableGenerator] = props.refObservableGenerators;
 		const observableRefInvokerFn: () => Observable<FlowValue> = new Function(
-			NEXT_GENERATOR_NAME,
+			OBSERVABLE_GENERATOR_NAME,
 			`return ${fromElProperties.observableFactory}`,
 		)(refObservableGenerator.observableGenerator);
 		return defer(() => {
@@ -152,11 +152,11 @@ const createIifCreationOperator =
 		}
 
 		const trueRefInvokerFn: () => Observable<FlowValue> = new Function(
-			NEXT_GENERATOR_NAME,
+			OBSERVABLE_GENERATOR_NAME,
 			`return ${iifElProps.trueCallbackExpression}`,
 		)(trueRefObservableGenerator.observableGenerator);
 		const falseRefInvokerFn: () => Observable<FlowValue> = new Function(
-			NEXT_GENERATOR_NAME,
+			OBSERVABLE_GENERATOR_NAME,
 			`return ${iifElProps.falseCallbackExpression}`,
 		)(falseRefObservableGenerator.observableGenerator);
 
@@ -251,7 +251,7 @@ const createDeferCreationOperator =
 		const deferEl = el as DeferElement;
 		const [refObservableGenerator] = props.refObservableGenerators;
 		const observableRefInvokerFn: () => Observable<FlowValue> = new Function(
-			NEXT_GENERATOR_NAME,
+			OBSERVABLE_GENERATOR_NAME,
 			`return ${el.properties.observableFactory}`,
 		)(refObservableGenerator.observableGenerator);
 		return defer(() => {
@@ -361,3 +361,4 @@ export const creationOperatorFactory: CreationOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
+

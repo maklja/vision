@@ -11,7 +11,7 @@ import {
 	mergeMapElementPropsTemplate,
 } from '../transformationOperators';
 
-export const mapTransformationOperatorTemplates = (elType: ElementType): ElementProps => {
+export function mapTransformationOperatorTemplates(elType: ElementType): ElementProps {
 	switch (elType) {
 		case ElementType.BufferCount:
 			return bufferCountElementPropsTemplate;
@@ -34,5 +34,5 @@ export const mapTransformationOperatorTemplates = (elType: ElementType): Element
 		default:
 			return {};
 	}
-};
+}
 

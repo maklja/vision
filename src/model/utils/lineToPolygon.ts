@@ -1,10 +1,6 @@
 import { Point } from '../common';
 
-export const lineToPolygon = (
-	p0: Point,
-	p1: Point,
-	thickness = 15,
-): [Point, Point, Point, Point] => {
+export function lineToPolygon(p0: Point, p1: Point, thickness = 15): [Point, Point, Point, Point] {
 	const dx = p1.x - p0.x;
 	const dy = p1.y - p0.y;
 	const lineLength = Math.sqrt(dx * dx + dy * dy);
@@ -55,5 +51,5 @@ export const lineToPolygon = (
 			y: p0.y - py,
 		},
 	];
-};
+}
 

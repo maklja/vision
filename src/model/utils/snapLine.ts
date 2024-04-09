@@ -13,44 +13,43 @@ export interface SnapLine {
 	orientation: SnapLineOrientation;
 }
 
-const createHorizontalSnapLine = (
-	x1: number,
-	x2: number,
-	y: number,
-	distance: number,
-): SnapLine => ({
-	points: [
-		{
-			x: x1,
-			y,
-		},
-		{
-			x: x2,
-			y,
-		},
-	],
-	distance,
-	length: Math.abs(x1 - x2),
-	orientation: SnapLineOrientation.Horizontal,
-});
+function createHorizontalSnapLine(x1: number, x2: number, y: number, distance: number): SnapLine {
+	return {
+		points: [
+			{
+				x: x1,
+				y,
+			},
+			{
+				x: x2,
+				y,
+			},
+		],
+		distance,
+		length: Math.abs(x1 - x2),
+		orientation: SnapLineOrientation.Horizontal,
+	};
+}
 
-const createVerticalSnapLine = (y1: number, y2: number, x: number, distance: number): SnapLine => ({
-	points: [
-		{
-			x,
-			y: y1,
-		},
-		{
-			x,
-			y: y2,
-		},
-	],
-	distance,
-	length: Math.abs(y1 - y2),
-	orientation: SnapLineOrientation.Vertical,
-});
+function createVerticalSnapLine(y1: number, y2: number, x: number, distance: number): SnapLine {
+	return {
+		points: [
+			{
+				x,
+				y: y1,
+			},
+			{
+				x,
+				y: y2,
+			},
+		],
+		distance,
+		length: Math.abs(y1 - y2),
+		orientation: SnapLineOrientation.Vertical,
+	};
+}
 
-export const createHorizontalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): SnapLine[] => {
+export function createHorizontalSnapLines(bb1: BoundingBox, bb2: BoundingBox): SnapLine[] {
 	const {
 		topLeft: bb1TopLeft,
 		center: bb1Center,
@@ -135,9 +134,9 @@ export const createHorizontalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): S
 		centerToCenter,
 		centerToBottom,
 	];
-};
+}
 
-export const createVerticalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): SnapLine[] => {
+export function createVerticalSnapLines(bb1: BoundingBox, bb2: BoundingBox): SnapLine[] {
 	const {
 		topLeft: bb1TopLeft,
 		center: bb1Center,
@@ -222,14 +221,13 @@ export const createVerticalSnapLines = (bb1: BoundingBox, bb2: BoundingBox): Sna
 		centerToCenter,
 		centerToRight,
 	];
-};
+}
 
-export const createBoundingBoxSnapLines = (bb1: BoundingBox, bb2: BoundingBox): SnapLine[] => [
-	...createHorizontalSnapLines(bb1, bb2),
-	...createVerticalSnapLines(bb1, bb2),
-];
+export function createBoundingBoxSnapLines(bb1: BoundingBox, bb2: BoundingBox): SnapLine[] {
+	return [...createHorizontalSnapLines(bb1, bb2), ...createVerticalSnapLines(bb1, bb2)];
+}
 
-export const createPointSnapLines = (p1: Point, p2: Point) => {
+export function createPointSnapLines(p1: Point, p2: Point) {
 	const xMinHorizontal = Math.min(p1.x, p2.x);
 	const xMaxHorizontal = Math.max(p1.x, p2.x);
 
@@ -251,9 +249,9 @@ export const createPointSnapLines = (p1: Point, p2: Point) => {
 	);
 
 	return [horizontalSnapLine, verticalSnapLine];
-};
+}
 
-export const boundingBoxTouch = (bb1: BoundingBox, bb2: BoundingBox): boolean => {
+export function boundingBoxTouch(bb1: BoundingBox, bb2: BoundingBox): boolean {
 	const { topLeft: bb1TopLeft, bottomRight: bb1BottomRight } = bb1;
 	const { topLeft: bb2TopLeft, bottomRight: bb2BottomRight } = bb2;
 
@@ -262,9 +260,9 @@ export const boundingBoxTouch = (bb1: BoundingBox, bb2: BoundingBox): boolean =>
 	const verticalTouchExist = bb1TopLeft.x <= bb2.topRight.x && bb1BottomRight.x >= bb2TopLeft.x;
 
 	return verticalTouchExist || horizontalTouchExist;
-};
+}
 
-export const snapLinesDistance = (snapLine1: SnapLine, snapLine2: SnapLine) => {
+export function snapLinesDistance(snapLine1: SnapLine, snapLine2: SnapLine) {
 	if (snapLine1.orientation !== snapLine2.orientation) {
 		return Infinity;
 	}
@@ -272,5 +270,5 @@ export const snapLinesDistance = (snapLine1: SnapLine, snapLine2: SnapLine) => {
 	return snapLine1.orientation === SnapLineOrientation.Horizontal
 		? Math.abs(snapLine1.points[0].y - snapLine2.points[0].y)
 		: Math.abs(snapLine1.points[0].x - snapLine2.points[0].x);
-};
+}
 

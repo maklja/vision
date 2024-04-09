@@ -12,7 +12,7 @@ import {
 } from '../creationOperators';
 import { ElementProps, ElementType } from '../element';
 
-export const mapToCreationOperatorPropsTemplates = (elType: ElementType): ElementProps => {
+export function mapToCreationOperatorPropsTemplates(elType: ElementType): ElementProps {
 	switch (elType) {
 		case ElementType.Ajax:
 			return ajaxElementPropsTemplate;

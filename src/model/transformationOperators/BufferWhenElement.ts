@@ -1,5 +1,5 @@
 import dedent from 'dedent';
-import { NEXT_GENERATOR_NAME } from '../common';
+import { OBSERVABLE_GENERATOR_NAME } from '../common';
 import { ElementType, Element, ElementProps } from '../element';
 
 export interface BufferWhenElementProperties extends ElementProps {
@@ -12,7 +12,7 @@ export interface BufferWhenElement extends Element {
 
 export const bufferWhenElementPropsTemplate: BufferWhenElementProperties = {
 	closingSelectorExpression: dedent`function project(value, index) { 
-		return ${NEXT_GENERATOR_NAME}();
+		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
 

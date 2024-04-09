@@ -33,7 +33,7 @@ import {
 	ExpandElement,
 	MapElement,
 	MergeMapElement,
-	NEXT_GENERATOR_NAME,
+	OBSERVABLE_GENERATOR_NAME,
 } from '../../model';
 import { MissingReferenceObservableError } from '../errors';
 import { mapFlowValuesArray, mapOutputToFlowValue } from './utils';
@@ -110,7 +110,7 @@ const createBufferToggleOperator =
 
 		const { properties } = el as BufferToggleElement;
 		const closingNotifierRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> =
-			new Function(NEXT_GENERATOR_NAME, `return ${properties.projectExpression}`)(
+			new Function(OBSERVABLE_GENERATOR_NAME, `return ${properties.projectExpression}`)(
 				closingRefObservable.observableGenerator,
 			);
 		return o.pipe(
@@ -138,7 +138,7 @@ const createBufferWhenOperator =
 		const { id, properties } = el as BufferWhenElement;
 		const [refObservable] = props.refObservableGenerators;
 		const closingSelectorRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> =
-			new Function(NEXT_GENERATOR_NAME, `return ${properties.projectExpression}`)(
+			new Function(OBSERVABLE_GENERATOR_NAME, `return ${properties.projectExpression}`)(
 				refObservable.observableGenerator,
 			);
 		return o.pipe(
@@ -166,7 +166,7 @@ const createConcatMapOperator =
 		const { properties } = el as ConcatElement;
 		const [refObservable] = props.refObservableGenerators;
 		const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> = new Function(
-			NEXT_GENERATOR_NAME,
+			OBSERVABLE_GENERATOR_NAME,
 			`return ${properties.projectExpression}`,
 		)(refObservable.observableGenerator);
 		return o.pipe(
@@ -200,7 +200,7 @@ const createMergeMapOperator =
 		const [refObservableGenerator] = props.refObservableGenerators;
 		const { properties } = el as MergeMapElement;
 		const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> = new Function(
-			NEXT_GENERATOR_NAME,
+			OBSERVABLE_GENERATOR_NAME,
 			`return ${properties.projectExpression}`,
 		)(refObservableGenerator.observableGenerator);
 		return o.pipe(
@@ -226,7 +226,7 @@ const createExhaustOperator = (el: Element, props: OperatorProps) => (o: Observa
 	const { properties } = el as ExhaustMapElement;
 	const [refObservableGenerator] = props.refObservableGenerators;
 	const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> = new Function(
-		NEXT_GENERATOR_NAME,
+		OBSERVABLE_GENERATOR_NAME,
 		`return ${properties.projectExpression}`,
 	)(refObservableGenerator.observableGenerator);
 	return o.pipe(
@@ -252,7 +252,7 @@ const createExpandOperator = (el: Element, props: OperatorProps) => (o: Observab
 	const { properties } = el as ExpandElement;
 	const [refObservableGenerator] = props.refObservableGenerators;
 	const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> = new Function(
-		NEXT_GENERATOR_NAME,
+		OBSERVABLE_GENERATOR_NAME,
 		`return ${properties.projectExpression}`,
 	)(refObservableGenerator.observableGenerator);
 	return o.pipe(

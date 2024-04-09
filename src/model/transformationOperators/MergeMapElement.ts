@@ -1,5 +1,5 @@
 import dedent from 'dedent';
-import { NEXT_GENERATOR_NAME } from '../common';
+import { OBSERVABLE_GENERATOR_NAME } from '../common';
 import { ElementType, Element, ElementProps } from '../element';
 
 export interface MergeMapElementProperties extends ElementProps {
@@ -13,7 +13,7 @@ export interface MergeMapElement extends Element<MergeMapElementProperties> {
 
 export const mergeMapElementPropsTemplate: MergeMapElementProperties = {
 	projectExpression: dedent`function project(value, index) { 
-		return ${NEXT_GENERATOR_NAME}();
+		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
 
