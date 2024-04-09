@@ -12,35 +12,44 @@ export interface FromElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const FromElementPropertiesForm = ({
+export function FromElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: FromElementPropertiesFormProps) => {
-	const handleInputChanged = (input: string) => onPropertyValueChange?.(id, 'input', input);
+}: FromElementPropertiesFormProps) {
+	const handleInputChanged = (input: string) =>
+		onPropertyValueChange?.(
+			id,
+			properties.enableObservableEvent ? 'observableFactory' : 'inputCallbackExpression',
+			input,
+		);
 
 	const handleObservableEventChange = (
 		_event: SyntheticEvent<Element, Event>,
 		checked: boolean,
 	) => onPropertyValueChange?.(id, 'enableObservableEvent', checked);
 
+	// TODO you have bug here that code doesn't switch
+	const helperText = properties.enableObservableEvent
+		? 'Creation of the observable.'
+		: 'A subscription object, a Promise, an Observable-like, an Array, an iterable, or an array-like object to be converted.';
+	const code = properties.enableObservableEvent
+		? properties.observableFactory
+		: properties.inputCallbackExpression;
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<FormControlLabel
-				control={<Checkbox defaultChecked />}
+				control={<Checkbox checked={properties.enableObservableEvent} />}
 				label="Observable event"
 				onChange={handleObservableEventChange}
 			/>
 
-			{properties.enableObservableEvent ? null : (
-				<SimpleCodeEditor
-					code={properties.input}
-					label="Input"
-					helperText="A subscription object, a Promise, an Observable-like, an Array, an iterable, or an array-like object to be converted."
-					onCodeChange={handleInputChanged}
-				/>
-			)}
+			<SimpleCodeEditor
+				code={code}
+				label="Input"
+				helperText={helperText}
+				onCodeChange={handleInputChanged}
+			/>
 		</Stack>
 	);
-};
-
+}

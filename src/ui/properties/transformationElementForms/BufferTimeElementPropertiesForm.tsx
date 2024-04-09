@@ -10,11 +10,11 @@ export interface BufferTimeElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const BufferTimeElementPropertiesForm = ({
+export function BufferTimeElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: BufferTimeElementPropertiesFormProps) => {
+}: BufferTimeElementPropertiesFormProps) {
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<TextField
@@ -83,5 +83,5 @@ export const BufferTimeElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

@@ -14,7 +14,7 @@ export interface OperatorPropertiesPanelProps {
 	onNameChange?: (id: string, name: string) => void;
 }
 
-export const OperatorPropertiesPanel = ({
+export function OperatorPropertiesPanel({
 	element,
 	elementNames,
 	relatedElements,
@@ -22,7 +22,7 @@ export const OperatorPropertiesPanel = ({
 	onPropertyValueChange,
 	onConnectLineChange,
 	onNameChange,
-}: OperatorPropertiesPanelProps) => {
+}: OperatorPropertiesPanelProps) {
 	return (
 		<Box
 			key={element.id}
@@ -59,5 +59,5 @@ export const OperatorPropertiesPanel = ({
 			</Paper>
 		</Box>
 	);
-};
+}
 

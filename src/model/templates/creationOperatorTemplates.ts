@@ -1,5 +1,6 @@
 import {
 	ajaxElementPropsTemplate,
+	deferElementPropsTemplate,
 	fromElementPropsTemplate,
 	generateElementPropsTemplate,
 	iifElementPropsTemplate,
@@ -11,8 +12,12 @@ import {
 } from '../creationOperators';
 import { ElementProps, ElementType } from '../element';
 
-export const mapToCreationOperatorPropsTemplates = (elType: ElementType): ElementProps => {
+export function mapToCreationOperatorPropsTemplates(elType: ElementType): ElementProps {
 	switch (elType) {
+		case ElementType.Ajax:
+			return ajaxElementPropsTemplate;
+		case ElementType.Defer:
+			return deferElementPropsTemplate;
 		case ElementType.From:
 			return fromElementPropsTemplate;
 		case ElementType.IIf:
@@ -21,8 +26,6 @@ export const mapToCreationOperatorPropsTemplates = (elType: ElementType): Elemen
 			return intervalElementPropsTemplate;
 		case ElementType.Of:
 			return ofElementPropsTemplate;
-		case ElementType.Ajax:
-			return ajaxElementPropsTemplate;
 		case ElementType.Generate:
 			return generateElementPropsTemplate;
 		case ElementType.Range:
@@ -35,3 +38,4 @@ export const mapToCreationOperatorPropsTemplates = (elType: ElementType): Elemen
 			return {};
 	}
 };
+

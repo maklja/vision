@@ -1,6 +1,6 @@
-import { ElementType, Element } from '../element';
+import { ElementType, Element, ElementProps } from '../element';
 
-export interface BufferTimeElementProperties extends Record<string, unknown> {
+export interface BufferTimeElementProperties extends ElementProps {
 	bufferTimeSpan: number;
 	bufferCreationInterval?: number;
 	maxBufferSize?: number;

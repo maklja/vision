@@ -87,7 +87,7 @@ export const pipeElementDescriptor: ElementDescriptor = {
 export const eventPipeElementDescriptor: ElementDescriptor = {
 	...pipeElementDescriptor,
 	event: {
-		allowedTypes: new Set<ElementType>([...creationOperators]),
+		allowedTypes: new Set<ElementType>([...creationOperators, ...joinCreationOperators]),
 		cardinality: 1,
 	},
 };

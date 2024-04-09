@@ -12,13 +12,13 @@ export interface ForkJoinElementPropertiesFormProps {
 	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
 
-export const ForkJoinElementPropertiesForm = ({
+export function ForkJoinElementPropertiesForm({
 	id,
 	properties,
 	relatedElements,
 	onPropertyValueChange,
 	onConnectLineChange,
-}: ForkJoinElementPropertiesFormProps) => {
+}: ForkJoinElementPropertiesFormProps) {
 	const handleObservableInputsTypeChanged = (observableInputsType: ObservableInputsType) =>
 		onPropertyValueChange?.(id, CommonProps.ObservableInputsType, observableInputsType);
 
@@ -33,5 +33,5 @@ export const ForkJoinElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

@@ -1,8 +1,11 @@
-import { Element, ElementType, CommonProps } from '../element';
+import dedent from 'dedent';
+import { OBSERVABLE_GENERATOR_NAME } from '../common';
+import { Element, ElementType, CommonProps, ElementProps } from '../element';
 
-export interface FromElementProperties extends Record<string, unknown> {
+export interface FromElementProperties extends ElementProps {
 	[CommonProps.EnableObservableEvent]: boolean;
-	input: string;
+	inputCallbackExpression: string;
+	observableFactory: string;
 }
 
 export interface FromElement extends Element<FromElementProperties> {
@@ -11,6 +14,11 @@ export interface FromElement extends Element<FromElementProperties> {
 
 export const fromElementPropsTemplate: FromElementProperties = {
 	enableObservableEvent: true,
-	input: '() => [1, 2, 3, 4]',
+	inputCallbackExpression: dedent`function input() {
+		return [1, 2, 3, 4];
+	}`,
+	observableFactory: dedent`function input() {
+		return ${OBSERVABLE_GENERATOR_NAME}();
+	}`,
 };
 

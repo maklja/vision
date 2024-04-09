@@ -1,6 +1,6 @@
-import { ElementType, Element } from '../element';
+import { ElementType, Element, ElementProps } from '../element';
 
-export interface BufferCountElementProperties extends Record<string, unknown> {
+export interface BufferCountElementProperties extends ElementProps {
 	bufferSize: number;
 	startBufferEvery: number;
 }

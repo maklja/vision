@@ -2,20 +2,29 @@ import { ElementProps, ElementType } from '../element';
 import {
 	bufferCountElementPropsTemplate,
 	bufferTimeElementPropsTemplate,
+	bufferToggleElementPropsTemplate,
+	bufferWhenElementPropsTemplate,
 	concatMapElementPropsTemplate,
+	exhaustMapElementPropsTemplate,
 	expandElementPropsTemplate,
 	mapElementPropsTemplate,
 	mergeMapElementPropsTemplate,
 } from '../transformationOperators';
 
-export const mapTransformationOperatorTemplates = (elType: ElementType): ElementProps => {
+export function mapTransformationOperatorTemplates(elType: ElementType): ElementProps {
 	switch (elType) {
 		case ElementType.BufferCount:
 			return bufferCountElementPropsTemplate;
 		case ElementType.BufferTime:
 			return bufferTimeElementPropsTemplate;
+		case ElementType.BufferToggle:
+			return bufferToggleElementPropsTemplate;
+		case ElementType.BufferWhen:
+			return bufferWhenElementPropsTemplate;
 		case ElementType.Expand:
 			return expandElementPropsTemplate;
+		case ElementType.ExhaustMap:
+			return exhaustMapElementPropsTemplate;
 		case ElementType.Map:
 			return mapElementPropsTemplate;
 		case ElementType.ConcatMap:
@@ -25,5 +34,5 @@ export const mapTransformationOperatorTemplates = (elType: ElementType): Element
 		default:
 			return {};
 	}
-};
+}
 

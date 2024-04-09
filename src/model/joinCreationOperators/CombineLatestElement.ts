@@ -1,6 +1,6 @@
-import { CommonProps, Element, ElementType, ObservableInputsType } from '../element';
+import { CommonProps, Element, ElementProps, ElementType, ObservableInputsType } from '../element';
 
-export interface CombineLatestElementProperties extends Record<string, unknown> {
+export interface CombineLatestElementProperties extends ElementProps {
 	[CommonProps.ObservableInputsType]: ObservableInputsType;
 }
 

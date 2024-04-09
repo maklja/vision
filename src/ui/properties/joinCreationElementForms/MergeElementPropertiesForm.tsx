@@ -14,13 +14,13 @@ export interface MergeElementPropertiesFormProps {
 	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
 
-export const MergeElementPropertiesForm = ({
+export function MergeElementPropertiesForm({
 	id,
 	properties,
 	relatedElements,
 	onPropertyValueChange,
 	onConnectLineChange,
-}: MergeElementPropertiesFormProps) => {
+}: MergeElementPropertiesFormProps) {
 	return (
 		<Stack gap={formStyle.componentGap}>
 			<TextField
@@ -47,5 +47,5 @@ export const MergeElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

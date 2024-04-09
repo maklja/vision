@@ -8,27 +8,38 @@ import {
 	AjaxElementProperties,
 	BufferCountElementProperties,
 	BufferTimeElementProperties,
+	BufferToggleElementProperties,
+	BufferWhenElementProperties,
+	CatchErrorElementProperties,
 	CombineLatestElementProperties,
+	ConcatMapElementProperties,
 	ConnectLine,
+	DeferElementProperties,
 	Element,
 	ElementType,
+	ExhaustMapElementProperties,
 	ExpandElementProperties,
 	ForkJoinElementProperties,
 	FromElementProperties,
 	GenerateElementProperties,
 	IifElementProperties,
 	IntervalElementProperties,
+	MapElementProperties,
 	MergeElementProperties,
+	MergeMapElementProperties,
+	OfElementProperties,
 	RangeElementProperties,
 	ThrowErrorElementProperties,
 	TimerElementProperties,
 } from '../../model';
 import {
 	AjaxElementPropertiesForm,
+	DeferElementPropertiesForm,
 	FromElementPropertiesForm,
 	GenerateElementPropertiesForm,
 	IifElementPropertiesForm,
 	IntervalElementPropertiesForm,
+	OfElementPropertiesForm,
 	RangeElementPropertiesForm,
 	ThrowErrorElementPropertiesForm,
 	TimerElementPropertiesForm,
@@ -42,8 +53,15 @@ import {
 import {
 	BufferCountElementPropertiesForm,
 	BufferTimeElementPropertiesForm,
+	BufferToggleElementPropertiesForm,
+	BufferWhenElementPropertiesForm,
+	ConcatMapElementPropertiesForm,
+	ExhaustMapElementPropertiesForm,
 	ExpandElementPropertiesForm,
+	MapElementPropertiesForm,
+	MergeMapElementPropertiesForm,
 } from './transformationElementForms';
+import { CatchErrorElementPropertiesForm } from './errorHandlerElementForms';
 
 export type RelatedElements = { connectLine: ConnectLine; element: Element }[];
 
@@ -54,14 +72,22 @@ export interface ElementPropertiesFormProps {
 	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
 
-const createElementPropertiesForm = ({
+function createElementPropertiesForm({
 	element,
 	relatedElements,
 	onPropertyValueChange,
 	onConnectLineChange,
-}: ElementPropertiesFormProps) => {
+}: ElementPropertiesFormProps) {
 	const { id, type, properties } = element;
 	switch (type) {
+		case ElementType.Defer:
+			return (
+				<DeferElementPropertiesForm
+					id={id}
+					properties={properties as DeferElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
 		case ElementType.Interval:
 			return (
 				<IntervalElementPropertiesForm
@@ -182,6 +208,30 @@ const createElementPropertiesForm = ({
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
+		case ElementType.BufferToggle:
+			return (
+				<BufferToggleElementPropertiesForm
+					id={id}
+					properties={properties as BufferToggleElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.BufferWhen:
+			return (
+				<BufferWhenElementPropertiesForm
+					id={id}
+					properties={properties as BufferWhenElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.ConcatMap:
+			return (
+				<ConcatMapElementPropertiesForm
+					id={id}
+					properties={properties as ConcatMapElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
 		case ElementType.Expand:
 			return (
 				<ExpandElementPropertiesForm
@@ -190,17 +240,57 @@ const createElementPropertiesForm = ({
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
+		case ElementType.ExhaustMap:
+			return (
+				<ExhaustMapElementPropertiesForm
+					id={id}
+					properties={properties as ExhaustMapElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Map:
+			return (
+				<MapElementPropertiesForm
+					id={id}
+					properties={properties as MapElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.MergeMap:
+			return (
+				<MergeMapElementPropertiesForm
+					id={id}
+					properties={properties as MergeMapElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.CatchError:
+			return (
+				<CatchErrorElementPropertiesForm
+					id={id}
+					properties={properties as CatchErrorElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Of:
+			return (
+				<OfElementPropertiesForm
+					id={id}
+					properties={properties as OfElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
 		default:
 			return null;
 	}
-};
+}
 
-export const ElementPropertiesForm = ({
+export function ElementPropertiesForm({
 	element,
 	relatedElements,
 	onPropertyValueChange,
 	onConnectLineChange,
-}: ElementPropertiesFormProps) => {
+}: ElementPropertiesFormProps) {
 	const elementForm = createElementPropertiesForm({
 		element,
 		relatedElements,
@@ -217,5 +307,5 @@ export const ElementPropertiesForm = ({
 			</Accordion>
 		</Box>
 	) : null;
-};
+}
 

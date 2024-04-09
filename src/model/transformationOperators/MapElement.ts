@@ -1,7 +1,8 @@
-import { ElementType, Element } from '../element';
+import dedent from 'dedent';
+import { ElementType, Element, ElementProps } from '../element';
 
-export interface MapElementProperties extends Record<string, unknown> {
-	expression: string;
+export interface MapElementProperties extends ElementProps {
+	projectExpression: string;
 }
 
 export interface MapElement extends Element<MapElementProperties> {
@@ -9,6 +10,8 @@ export interface MapElement extends Element<MapElementProperties> {
 }
 
 export const mapElementPropsTemplate: MapElementProperties = {
-	expression: '(value) => value',
+	projectExpression: dedent`function project(value, index) { 
+		return value;
+	}`,
 };
 

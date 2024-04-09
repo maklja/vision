@@ -80,7 +80,6 @@ export const errorHandlerOperators: ReadonlySet<ElementType> = new Set([ElementT
 export const pipeOperators: ReadonlySet<ElementType> = new Set([
 	...transformationOperators,
 	...filteringOperators,
-	...errorHandlerOperators,
 ]);
 
 export const eventPipeOperators: ReadonlySet<ElementType> = new Set([

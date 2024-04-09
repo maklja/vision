@@ -1,6 +1,7 @@
-import { ElementType, Element } from '../element';
+import dedent from 'dedent';
+import { ElementType, Element, ElementProps } from '../element';
 
-export interface GenerateElementProperties extends Record<string, unknown> {
+export interface GenerateElementProperties extends ElementProps {
 	initialState: string;
 	condition?: string;
 	iterate: string;
@@ -13,8 +14,14 @@ export interface GenerateElement extends Element<GenerateElementProperties> {
 
 export const generateElementPropsTemplate: GenerateElementProperties = {
 	initialState: '0',
-	condition: '(value) => value < 3',
-	iterate: '(value) => value + 1',
-	resultSelector: '(value) => value * 1000',
+	condition: dedent`function condition(value) {
+		return value < 3;
+	}`,
+	iterate: dedent`function iterate(value) {
+		return value + 1;
+	}`,
+	resultSelector: dedent`function resultSelector(value) {
+		return value * 1000;
+	}`,
 };
 

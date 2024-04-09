@@ -5,7 +5,7 @@ import {
 	mergeElementPropsTemplate,
 } from '../joinCreationOperators';
 
-export const mapToJoinCreationOperatorPropsTemplates = (elType: ElementType): ElementProps => {
+export function mapToJoinCreationOperatorPropsTemplates(elType: ElementType): ElementProps {
 	switch (elType) {
 		case ElementType.Merge:
 			return mergeElementPropsTemplate;
@@ -16,5 +16,5 @@ export const mapToJoinCreationOperatorPropsTemplates = (elType: ElementType): El
 		default:
 			return {};
 	}
-};
+}
 

@@ -287,12 +287,6 @@ export function selectConnectPointStateChange(
 	payload: SelectConnectPointPayload,
 ) {
 	const { elementId } = payload;
-	const elementSelection = selectSelectedElementById(slice.selectedElements, elementId);
-	// check if element that contains connect points is already selected
-	if (elementSelection) {
-		return;
-	}
-
 	const el = selectElementById(slice.elements, elementId);
 	if (!el) {
 		throw new Error(`Element with id ${elementId} was not found`);
@@ -542,4 +536,3 @@ const selectElementConnectPoints = createSelector(selectConnectPointsById, (conn
 
 export const selectElementConnectPointsById = (id: string) => (state: RootState) =>
 	selectElementConnectPoints(state, id);
-

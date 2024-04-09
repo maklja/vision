@@ -20,11 +20,11 @@ export interface TimerElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const TimerElementPropertiesForm = ({
+export function TimerElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: TimerElementPropertiesFormProps) => {
+}: TimerElementPropertiesFormProps) {
 	const handleDueDateChanged = (e: dayjs.Dayjs | null) => {
 		if (!e) {
 			return;
@@ -116,5 +116,5 @@ export const TimerElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

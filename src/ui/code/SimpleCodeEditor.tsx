@@ -11,6 +11,7 @@ export interface SimpleCodeEditorProps {
 	helperText?: string;
 	language?: string;
 	height?: number | string;
+	options?: { readOnly?: boolean };
 	onCodeChange?: (newCodeValue: string) => void;
 }
 
@@ -92,6 +93,7 @@ export const SimpleCodeEditor = ({
 	onCodeChange,
 	height = '400px',
 	language = 'javascript',
+	options = {},
 }: SimpleCodeEditorProps) => {
 	const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
@@ -174,7 +176,10 @@ export const SimpleCodeEditor = ({
 				>
 					<Editor
 						onMount={handleEditorMount}
-						options={editorOptions}
+						options={{
+							...editorOptions,
+							...options,
+						}}
 						height={height}
 						defaultLanguage={language}
 						defaultValue={code}

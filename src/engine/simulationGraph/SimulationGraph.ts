@@ -1,4 +1,10 @@
-import { ConnectLine, Element, isCreationOperatorType, isSubscriberType } from '../../model';
+import {
+	ConnectLine,
+	Element,
+	ElementType,
+	isEntryOperatorType,
+	isSubscriberType,
+} from '../../model';
 import { MissingNextElementError } from '../errors';
 
 export enum GraphNodeType {
@@ -88,7 +94,7 @@ export class SimulationGraph {
 				id: cl.id,
 				sourceNodeId: el.id,
 				targetNodeId: nextEl.id,
-				type: isCreationOperatorType(nextEl.type)
+				type: this.isReferenceElementType(nextEl.type)
 					? GraphNodeType.Reference
 					: GraphNodeType.Direct,
 			};
@@ -107,4 +113,9 @@ export class SimulationGraph {
 			...this.createGraphBranch(directEdges[0].targetNodeId),
 		];
 	}
+
+	private isReferenceElementType(elType: ElementType) {
+		return isEntryOperatorType(elType);
+	}
 }
+

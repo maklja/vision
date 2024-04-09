@@ -41,11 +41,11 @@ export interface AjaxElementPropertiesFormProps {
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
-export const AjaxElementPropertiesForm = ({
+export function AjaxElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
-}: AjaxElementPropertiesFormProps) => {
+}: AjaxElementPropertiesFormProps) {
 	const handleUrlChanged: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) =>
 		onPropertyValueChange?.(id, 'url', e.target.value ? e.target.value : properties.url);
 
@@ -165,5 +165,5 @@ export const AjaxElementPropertiesForm = ({
 			/>
 		</Stack>
 	);
-};
+}
 

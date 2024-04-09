@@ -10,6 +10,7 @@ import {
 	createElementConnectPointsStateChange,
 	createElementsConnectPointsStateChange,
 	moveConnectPointsByDeltaStateChange,
+	selectConnectPointStateChange,
 } from '../connectPoints';
 import { selectAllSelectedElements } from './selectedElementsAdapter';
 
@@ -253,6 +254,8 @@ export const updateElementPropertyStateChange = (
 			},
 		},
 	});
+
+	selectConnectPointStateChange(slice, { elementId: payload.id });
 };
 
 export const elementsAdapterReducers = {
@@ -325,4 +328,3 @@ export const selectStageElementById = (id: string | null) => (state: RootState) 
 	!id ? null : globalElementsSelector.selectById(state, id) ?? null;
 
 export const selectStageDraftElement = (state: RootState) => state.stage.draftElement;
-
