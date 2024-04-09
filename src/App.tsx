@@ -1,25 +1,8 @@
 import { Simulator } from './simulator';
-import {
-	ElementType,
-	FilterElement,
-	OfElement,
-	Element,
-	IntervalElement,
-	MapElement,
-} from './model';
+import { ElementType, FilterElement, Element, IntervalElement, MapElement } from './model';
 import { useEffect } from 'react';
 import { loadElements } from './store/stageSlice';
 import { useAppDispatch } from './store/rootState';
-
-const e1: OfElement = {
-	id: 'ofElement',
-	name: 'ofElement',
-	x: 50,
-	y: 50,
-	type: ElementType.Of,
-	visible: true,
-	properties: { items: [4, 3, 2, 1] },
-};
 
 const mapElement: MapElement = {
 	id: 'mapElement',
@@ -95,43 +78,13 @@ const subscriber2: Element = {
 	properties: {},
 };
 
-const subscriber3: Element = {
-	id: 'subscriber_2',
-	name: 'subscriber_2',
-	x: 780,
-	y: 125,
-	type: ElementType.Subscriber,
-	visible: true,
-	properties: {},
-};
-
-const subscriber4: Element = {
-	id: 'subscriber_3',
-	name: 'subscriber_3',
-	x: 780,
-	y: 325,
-	type: ElementType.Subscriber,
-	visible: true,
-	properties: {},
-};
-
 const App = () => {
 	const appDispatch = useAppDispatch();
 
 	useEffect(() => {
 		appDispatch(
 			loadElements({
-				elements: [
-					e1,
-					subscriber1,
-					subscriber2,
-					subscriber3,
-					subscriber4,
-					e4,
-					e5,
-					i1,
-					mapElement,
-				],
+				elements: [subscriber1, subscriber2, e4, e5, i1, mapElement],
 			}),
 		);
 	}, []);

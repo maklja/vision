@@ -99,10 +99,10 @@ const createOfCreationOperator = (el: Element) => (overrideProperties?: Partial<
 		...overrideProperties,
 	};
 
-	const items = ofElProperties?.items;
-	return items
-		? of(...items).pipe(map<unknown, FlowValue>((item) => createFlowValue(item, ofEl.id)))
-		: of(createFlowValue(null, ofEl.id));
+	const argsFn = new Function(`return ${ofElProperties.argsFactoryExpression}`)();
+	const args = argsFn();
+	const observable = Array.isArray(args) ? of(...args) : of(args);
+	return observable.pipe(map<unknown, FlowValue>((item) => createFlowValue(item, ofEl.id)));
 };
 
 const createIntervalCreationOperator =

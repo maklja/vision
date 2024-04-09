@@ -27,6 +27,7 @@ import {
 	MapElementProperties,
 	MergeElementProperties,
 	MergeMapElementProperties,
+	OfElementProperties,
 	RangeElementProperties,
 	ThrowErrorElementProperties,
 	TimerElementProperties,
@@ -38,6 +39,7 @@ import {
 	GenerateElementPropertiesForm,
 	IifElementPropertiesForm,
 	IntervalElementPropertiesForm,
+	OfElementPropertiesForm,
 	RangeElementPropertiesForm,
 	ThrowErrorElementPropertiesForm,
 	TimerElementPropertiesForm,
@@ -267,6 +269,14 @@ function createElementPropertiesForm({
 				<CatchErrorElementPropertiesForm
 					id={id}
 					properties={properties as CatchErrorElementProperties}
+					onPropertyValueChange={onPropertyValueChange}
+				/>
+			);
+		case ElementType.Of:
+			return (
+				<OfElementPropertiesForm
+					id={id}
+					properties={properties as OfElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
 				/>
 			);
