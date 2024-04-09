@@ -14,11 +14,10 @@ export interface FromElement extends Element<FromElementProperties> {
 
 export const fromElementPropsTemplate: FromElementProperties = {
 	enableObservableEvent: true,
-	inputCallbackExpression: dedent`function input() { 
+	inputCallbackExpression: dedent`function input() {
 		return [1, 2, 3, 4];
 	}`,
-	observableFactory: dedent`function input() { 
+	observableFactory: dedent`function input() {
 		return ${NEXT_GENERATOR_NAME}();
 	}`,
 };
-

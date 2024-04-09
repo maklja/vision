@@ -10,7 +10,7 @@ export interface FilterElement extends Element<FilterElementProperties> {
 }
 
 export const filterElementPropsTemplate: FilterElementProperties = {
-	predicateExpression: dedent`function predicate() { 
+	predicateExpression: dedent`function predicate() {
 		return true;
 	}`,
 };

@@ -11,8 +11,7 @@ export interface DeferElement extends Element<DeferElementProperties> {
 }
 
 export const deferElementPropsTemplate: DeferElementProperties = {
-	observableFactory: dedent`function input() { 
+	observableFactory: dedent`function input() {
 		return ${NEXT_GENERATOR_NAME}();
 	}`,
 };
-

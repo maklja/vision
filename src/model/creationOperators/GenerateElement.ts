@@ -14,10 +14,10 @@ export interface GenerateElement extends Element<GenerateElementProperties> {
 
 export const generateElementPropsTemplate: GenerateElementProperties = {
 	initialState: '0',
-	condition: dedent`function condition(value) { 
+	condition: dedent`function condition(value) {
 		return value < 3;
 	}`,
-	iterate: dedent`function iterate(value) { 
+	iterate: dedent`function iterate(value) {
 		return value + 1;
 	}`,
 	resultSelector: dedent`function resultSelector(value) {

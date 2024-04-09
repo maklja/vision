@@ -13,13 +13,13 @@ export interface IifElement extends Element<IifElementProperties> {
 }
 
 export const iifElementPropsTemplate: IifElementProperties = {
-	conditionExpression: dedent`function condition() { 
+	conditionExpression: dedent`function condition() {
 		return true;
 	}`,
-	trueCallbackExpression: dedent`function trueResult() { 
+	trueCallbackExpression: dedent`function trueResult() {
 		return ${NEXT_GENERATOR_NAME}();
 	}`,
-	falseCallbackExpression: dedent`function falseResult() { 
+	falseCallbackExpression: dedent`function falseResult() {
 		return ${NEXT_GENERATOR_NAME}();
 	}`,
 };

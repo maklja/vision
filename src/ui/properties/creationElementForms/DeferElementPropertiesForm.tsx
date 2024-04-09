@@ -14,7 +14,8 @@ export function DeferElementPropertiesForm({
 	properties,
 	onPropertyValueChange,
 }: DeferElementPropertiesFormProps) {
-	const handleInputChanged = (input: string) => onPropertyValueChange?.(id, 'input', input);
+	const handleObservableFactoryChanged = (observableFactory: string) =>
+		onPropertyValueChange?.(id, 'observableFactory', observableFactory);
 
 	return (
 		<Stack gap={formStyle.componentGap}>
@@ -22,9 +23,8 @@ export function DeferElementPropertiesForm({
 				code={properties.observableFactory}
 				label="Observable factory"
 				helperText="The Observable factory function to invoke for each Observer that subscribes to the output Observable. May also return any ObservableInput, which will be converted on the fly to an Observable."
-				onCodeChange={handleInputChanged}
+				onCodeChange={handleObservableFactoryChanged}
 			/>
 		</Stack>
 	);
 }
-

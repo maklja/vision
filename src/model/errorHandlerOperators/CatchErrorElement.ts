@@ -11,7 +11,7 @@ export interface CatchErrorElement extends Element<CatchErrorElementProperties> 
 }
 
 export const catchErrorElementPropsTemplate: CatchErrorElementProperties = {
-	selectorExpression: dedent`function selector(err, caught) { 
+	selectorExpression: dedent`function selector(err, caught) {
 		return ${NEXT_GENERATOR_NAME}();
 	}`,
 };

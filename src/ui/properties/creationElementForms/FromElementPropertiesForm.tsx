@@ -17,7 +17,12 @@ export function FromElementPropertiesForm({
 	properties,
 	onPropertyValueChange,
 }: FromElementPropertiesFormProps) {
-	const handleInputChanged = (input: string) => onPropertyValueChange?.(id, 'input', input);
+	const handleInputChanged = (input: string) =>
+		onPropertyValueChange?.(
+			id,
+			properties.enableObservableEvent ? 'observableFactory' : 'inputCallbackExpression',
+			input,
+		);
 
 	const handleObservableEventChange = (
 		_event: SyntheticEvent<Element, Event>,
@@ -48,4 +53,3 @@ export function FromElementPropertiesForm({
 		</Stack>
 	);
 }
-

@@ -10,7 +10,7 @@ export interface ThrowErrorElement extends Element<ThrowErrorElementProperties> 
 }
 
 export const throwErrorElementPropsTemplate: ThrowErrorElementProperties = {
-	errorOrErrorFactory: dedent`function errorFactory() { 
+	errorOrErrorFactory: dedent`function errorFactory() {
 		return new Error('Unexpected error!');
 	}`,
 };
