@@ -21,3 +21,14 @@ export interface Element<P extends ElementProps = Record<string, unknown>> {
 	visible: boolean;
 	properties: P;
 }
+
+export const EMPTY_ELEMENT: Element = {
+	id: '',
+	name: '',
+	type: ElementType.Empty,
+	visible: false,
+	x: 0,
+	y: 0,
+	properties: {},
+};
+
