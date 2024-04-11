@@ -8,16 +8,17 @@ import { selectStageElementById } from '../../store/elements';
 import { useMemo } from 'react';
 import { useLineSize } from '../../theme';
 import { selectLasso } from '../../store/stage';
+import { useRootStore } from '../../store/rootStateNew';
 
 export const DraftLayer = () => {
 	const theme = useThemeContext();
 	const lineSize = useLineSize();
-	const draftConnectLine = useAppSelector(selectStageDraftConnectLine);
+	const draftConnectLine = useRootStore(selectStageDraftConnectLine());
 	const snapLines = useAppSelector(selectSnapLines);
-	const sourceElement = useAppSelector(
+	const sourceElement = useRootStore(
 		selectStageElementById(draftConnectLine?.source.id ?? null),
 	);
-	const lassoBoundingBox = useAppSelector(selectLasso);
+	const lassoBoundingBox = useRootStore(selectLasso());
 
 	const elBoundingBox = useBoundingBox(sourceElement?.type ?? null, {
 		x: sourceElement?.x ?? 0,
