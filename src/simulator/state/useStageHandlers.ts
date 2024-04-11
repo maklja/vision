@@ -1,20 +1,20 @@
 import { useMemo } from 'react';
-import { useAppDispatch, useAppSelector } from '../../store/rootState';
 import { stageSelectStateHandlers } from './stageSelectStateHandlers';
 import { stageDrawConnectLineStateHandlers } from './stageDrawConnectLineStateHandlers';
 import { StageState, selectStageState } from '../../store/stage';
+import { useRootStore } from '../../store/rootStateNew';
 
 export const useStageHandlers = () => {
-	const stageState = useAppSelector(selectStageState);
-	const appDispatch = useAppDispatch();
+	const stageState = useRootStore(selectStageState());
+	const state = useRootStore();
 
 	return useMemo(() => {
 		if (stageState === StageState.Select || stageState === StageState.LassoSelect) {
-			return stageSelectStateHandlers(appDispatch);
+			return stageSelectStateHandlers(state);
 		}
 
 		if (stageState === StageState.DrawConnectLine) {
-			return stageDrawConnectLineStateHandlers(appDispatch);
+			return stageDrawConnectLineStateHandlers(state);
 		}
 
 		return {};
