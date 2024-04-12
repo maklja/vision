@@ -7,6 +7,9 @@ import { ConnectLineSlice, createConnectLineSlice } from './connectLines';
 import { createSnapLineSlice, SnapLineSlice } from './snapLines';
 import { createErrorSlice, ErrorSlice } from './errors/errorSlice';
 import { AnimationSlice, createAnimationSlice } from './drawerAnimations';
+import { createSimulationSlice, SimulationSlice } from './simulation';
+
+export * from './hooks/theme';
 
 export type RootState = ElementSlice &
 	StageSlice &
@@ -15,7 +18,8 @@ export type RootState = ElementSlice &
 	ConnectLineSlice &
 	SnapLineSlice &
 	ErrorSlice &
-	AnimationSlice;
+	AnimationSlice &
+	SimulationSlice;
 
 export const useRootStore = create<RootState>()((...a) => ({
 	...createElementSlice(...a),
@@ -26,5 +30,6 @@ export const useRootStore = create<RootState>()((...a) => ({
 	...createSnapLineSlice(...a),
 	...createErrorSlice(...a),
 	...createAnimationSlice(...a),
+	...createSimulationSlice(...a),
 }));
 

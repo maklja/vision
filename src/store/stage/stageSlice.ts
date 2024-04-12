@@ -23,6 +23,8 @@ import { CreateElementPayload, MoveElementPayload } from '../elements';
 import { LinkConnectLineDrawPayload } from '../connectLines';
 import { createSnapLinesByConnectPoint, createSnapLinesByElement } from '../snapLines';
 import { AnimationKey } from '../../animation';
+import { ObservableEvent } from '../simulation';
+import { FlowValueType } from '../../engine';
 
 export interface StartConnectLineDrawPayload {
 	sourceId: string;
@@ -140,6 +142,7 @@ export interface StageSlice {
 	updateCanvasState: (canvasUpdate: Partial<CanvasState>) => void;
 	pinConnectLine: (payload: PinConnectLinePayload) => void;
 	unpinConnectLine: (payload: UnpinConnectLinePayload) => void;
+	removeSimulationAnimation: (animationId: string) => void;
 }
 
 export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (set, get) => ({
@@ -559,6 +562,30 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			drawerId: payload.drawerId,
 			animationId: payload.animationId,
 		});
+	},
+	removeSimulationAnimation: (animationId: string) => {
+		const state = get();
+		const animationIndex = state.simulation.animationsQueue.findIndex(
+			(a) => a.id === animationId,
+		);
+
+		if (animationIndex === -1) {
+			return;
+		}
+
+		const animation = state.simulation.animationsQueue[animationIndex];
+		const event = animation.data as ObservableEvent;
+		if (event?.type === FlowValueType.Error) {
+			state.createElementError({
+				elementId: event.sourceElementId,
+				errorId: event.id,
+				errorMessage: event.value,
+			});
+		} else {
+			state.clearErrors();
+		}
+
+		state.removeSimulationAnimationAtIndex(animationIndex);
 	},
 });
 

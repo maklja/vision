@@ -3,13 +3,12 @@ import { useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { Layer, Stage } from 'react-konva';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { useShapeSize, useThemeContext } from '../../store/stageSlice';
 import { ElementType } from '../../model';
 import { DragNDropType } from '../../dragNDrop';
 import { calculateShapeSizeBoundingBox, scaleShapeSize } from '../../theme';
 import { createOperatorDrawer } from '../../operatorDrawers';
 import { DragNDropItem } from '../../layers/creation';
-import { useRootStore } from '../../store/rootStateNew';
+import { useRootStore, useShapeSize, useThemeContext } from '../../store/rootStateNew';
 
 export interface OperatorButtonProps {
 	elementType: ElementType;

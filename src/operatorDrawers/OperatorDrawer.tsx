@@ -24,7 +24,6 @@ import {
 	RaceOperatorDrawer,
 	ZipOperatorDrawer,
 } from './joinCreationOperators';
-import { selectElementSizeOptions, useThemeContext } from '../store/stageSlice';
 import { useElementDrawerHandlers } from './state';
 import { ElementDrawerProps } from './ElementDrawerProps';
 import { animationRegistry } from '../animation';
@@ -43,7 +42,7 @@ import {
 import { isSelectedElement } from '../store/elements';
 import { selectElementErrorById } from '../store/errors';
 import { StageState, isHighlighted, selectStageState } from '../store/stage';
-import { useRootStore } from '../store/rootStateNew';
+import { selectElementSizeOptions, useRootStore, useThemeContext } from '../store/rootStateNew';
 import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
 
 export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {

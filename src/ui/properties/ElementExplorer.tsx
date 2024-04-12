@@ -10,9 +10,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import { Element, Point, mapElementTypeToGroup } from '../../model';
-import { useShapeSize } from '../../store/stageSlice';
 import { ElementShape } from '../../theme';
 import { formStyle } from './commonStyles';
+import { useShapeSize } from '../../store/rootStateNew';
 
 export interface ElementExplorerProps {
 	element: Element;

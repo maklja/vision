@@ -5,12 +5,11 @@ import { useDrop } from 'react-dnd';
 import { AnimationsLayer } from '../layers/animations';
 import { DraftLayer, DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DrawersLayer } from '../layers/drawers';
-import { useThemeContext } from '../store/stageSlice';
 import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
 import { GridLayer } from '../layers/grid';
 import { StageState, selectStageState } from '../store/stage';
-import { useRootStore } from '../store/rootStateNew';
+import { useRootStore, useThemeContext } from '../store/rootStateNew';
 
 Konva.hitOnDragEnabled = true;
 

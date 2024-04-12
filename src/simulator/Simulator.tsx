@@ -4,13 +4,6 @@ import { useMemo, useRef, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import Paper from '@mui/material/Paper';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { useAppDispatch, useAppSelector } from '../store/rootState';
-import {
-	addObservableEvent,
-	completeSimulation,
-	resetSimulation,
-	startSimulation,
-} from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
 import { CommonProps, ConnectPointType, Point, isEntryOperatorType } from '../model';
 import { OperatorsPanel, SimulationControls, ZoomControls } from '../ui';
@@ -34,7 +27,7 @@ import { selectElementsInSelection } from '../store/select/selectSlice';
 
 export const Simulator = () => {
 	const stageState = useRootStore(selectStageState());
-	const simulation = useAppSelector(selectSimulation);
+	const simulation = useRootStore(selectSimulation);
 	const elements = useRootStore(selectStageElements());
 	const moveElement = useRootStore((state) => state.moveElement);
 	const updateElement = useRootStore((state) => state.updateElement);
@@ -45,6 +38,10 @@ export const Simulator = () => {
 	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
 	const createElementError = useRootStore((state) => state.createElementError);
 	const clearErrors = useRootStore((state) => state.clearErrors);
+	const startSimulation = useRootStore((state) => state.startSimulation);
+	const resetSimulation = useRootStore((state) => state.resetSimulation);
+	const completeSimulation = useRootStore((state) => state.completeSimulation);
+	const addObservableEvent = useRootStore((state) => state.addObservableEvent);
 	const connectLines = useRootStore(selectStageConnectLines());
 	const selectedElements = useRootStore(selectElementsInSelection());
 	const selectedElementConnectLines = useRootStore(
@@ -60,28 +57,23 @@ export const Simulator = () => {
 		[elements, selectedElements],
 	);
 
-	const appDispatch = useAppDispatch();
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
 	);
 
 	const dispatchObservableEvent = (event: FlowValueEvent<unknown>) =>
-		appDispatch(
-			addObservableEvent({
-				event: {
-					id: event.id,
-					hash: event.hash,
-					index: event.index,
-					connectLinesId: event.connectLinesId,
-					sourceElementId: event.sourceElementId,
-					targetElementId: event.targetElementId,
-					type: event.value.type,
-					value: `${event.value.raw}`,
-				},
-			}),
-		);
+		addObservableEvent({
+			id: event.id,
+			hash: event.hash,
+			index: event.index,
+			connectLinesId: event.connectLinesId,
+			sourceElementId: event.sourceElementId,
+			targetElementId: event.targetElementId,
+			type: event.value.type,
+			value: `${event.value.raw}`,
+		});
 
-	const dispatchCompleteEvent = () => appDispatch(completeSimulation());
+	const dispatchCompleteEvent = () => completeSimulation();
 
 	const handleSimulationStart = (entryElementId: string) => {
 		if (!entryElementId) {
@@ -90,7 +82,7 @@ export const Simulator = () => {
 
 		try {
 			clearErrors();
-			appDispatch(startSimulation());
+			startSimulation();
 			clearAllSelectedElements();
 			const subscription = createObservableSimulation(
 				entryElementId,
@@ -109,7 +101,7 @@ export const Simulator = () => {
 				e instanceof UnsupportedElementTypeError ||
 				e instanceof InvalidElementPropertyValueError
 			) {
-				appDispatch(resetSimulation());
+				resetSimulation();
 				createElementError({
 					elementId: e.elementId,
 					errorMessage: e.message,
@@ -126,15 +118,14 @@ export const Simulator = () => {
 	const handleSimulationStop = () => {
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
-
-		appDispatch(resetSimulation());
+		resetSimulation();
 	};
 
 	const handleSimulationReset = (entryElementId: string) => {
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
 
-		appDispatch(resetSimulation());
+		resetSimulation();
 		handleSimulationStart(entryElementId);
 	};
 

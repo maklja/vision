@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { ConnectPointPosition, ConnectPoints, ElementType } from '../model';
 import { useConnectPointHandlers } from './state';
-import { useCircleShapeSize, useThemeContext } from '../store/stageSlice';
 import {
 	CircleConnectPointsDrawer,
 	ConnectPointIconDrawerProps,
@@ -21,7 +20,7 @@ import {
 import { DrawerAnimationTemplate, animationRegistry } from '../animation';
 import { selectElementConnectPointsById } from '../store/connectPoints';
 import { DrawerAnimation, selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
-import { useRootStore } from '../store/rootStateNew';
+import { useCircleShapeSize, useRootStore, useThemeContext } from '../store/rootStateNew';
 
 export type ConnectPointsDrawerIconsProps = {
 	[key in ConnectPointPosition]?: (props: ConnectPointIconDrawerProps) => ReactNode;

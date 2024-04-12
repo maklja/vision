@@ -1,9 +1,9 @@
 import { Group } from 'react-konva';
 import { ElementType } from '../../model';
-import { useRectangleShapeSize } from '../../store/stageSlice';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { RollerOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
+import { useRectangleShapeSize } from '../../store/rootStateNew';
 
 export interface TransformationOperatorDrawerProps extends ElementDrawerProps {
 	elementType: ElementType;

@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 import { Layer } from 'react-konva';
-import { useAppDispatch, useAppSelector } from '../../store/rootState';
-import { removeSimulationAnimation } from '../../store/stageSlice';
 import { ElementType } from '../../model';
 import { OperatorDrawer } from '../../operatorDrawers';
 import { AnimationKey } from '../../animation';
@@ -14,9 +12,9 @@ import { selectDrawerAnimationById } from '../../store/drawerAnimations';
 import { useRootStore } from '../../store/rootStateNew';
 
 export const AnimationsLayer = () => {
-	const appDispatch = useAppDispatch();
-	const simulation = useAppSelector(selectSimulation);
-	const nextAnimation = useAppSelector(selectSimulationNextAnimation);
+	const simulation = useRootStore(selectSimulation);
+	const nextAnimation = useRootStore(selectSimulationNextAnimation);
+	const removeSimulationAnimation = useRootStore((state) => state.removeSimulationAnimation);
 	const drawerAnimation = useRootStore(
 		selectDrawerAnimationById(nextAnimation?.drawerId, nextAnimation?.id),
 	);
@@ -28,7 +26,7 @@ export const AnimationsLayer = () => {
 			return;
 		}
 
-		appDispatch(removeSimulationAnimation({ animationId: drawerAnimation.id }));
+		removeSimulationAnimation(drawerAnimation.id);
 	}, [drawerAnimation?.dispose]);
 
 	useEffect(() => {

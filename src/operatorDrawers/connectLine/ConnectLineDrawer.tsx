@@ -1,8 +1,7 @@
 import { LineDrawer } from '../../drawers';
 import { ConnectLine } from '../../model';
-import { useRootStore } from '../../store/rootStateNew';
+import { useRootStore, useThemeContext } from '../../store/rootStateNew';
 import { isHighlighted } from '../../store/stage';
-import { useThemeContext } from '../../store/stageSlice';
 import { useLineSize } from '../../theme';
 import { useLineDrawerHandlers } from '../state';
 

@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useAppSelector } from '../../store/rootState';
 import { drawerDragStateHandlers } from './drawerDragStateHandlers';
 import { drawerSelectStateHandlers } from './drawerSelectStateHandlers';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
@@ -8,7 +7,7 @@ import { StageState, isStageStateDragging, selectStageState } from '../../store/
 import { useRootStore } from '../../store/rootStateNew';
 
 export const useElementDrawerHandlers = () => {
-	const simulation = useAppSelector(selectSimulation);
+	const simulation = useRootStore(selectSimulation);
 	const stageState = useRootStore(selectStageState());
 	const state = useRootStore();
 

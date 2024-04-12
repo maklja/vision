@@ -1,6 +1,5 @@
 import { Layer } from 'react-konva';
 import { useEffect, useState } from 'react';
-import { useAppSelector } from '../../store/rootState';
 import { ConnectLineDrawer, OperatorDrawer, TooltipDrawer } from '../../operatorDrawers';
 import { selectStageElements, selectStageElementById } from '../../store/elements';
 import { SimulationState, selectSimulation } from '../../store/simulation';
@@ -19,7 +18,7 @@ const TOOLTIP_SHOW_TIME = 1_000;
 
 export const DrawersLayer = () => {
 	const theme = useThemeContext();
-	const simulation = useAppSelector(selectSimulation);
+	const simulation = useRootStore(selectSimulation);
 	const elements = useRootStore(selectStageElements());
 	const connectLines = useRootStore(selectStageConnectLines());
 	const selectedConnectLines = useRootStore((state) => state.selectedConnectLines);

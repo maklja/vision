@@ -1,39 +1,18 @@
-import { createSlice, EntityState } from '@reduxjs/toolkit';
-import {
-	ConnectLineEntity,
-	connectLinesAdapterReducers,
-	createConnectLinesAdapterInitialState,
-} from './connectLines';
-import { createSimulationInitialState, Simulation, simulationReducers } from './simulation';
-
-export * from './hooks/theme';
+import { createSlice } from '@reduxjs/toolkit';
 
 export interface StageSlice {
-	connectLines: EntityState<ConnectLineEntity>;
-	simulation: Simulation;
+	a: number;
 }
 
 export const createStageInitialState = (): StageSlice => ({
-	connectLines: createConnectLinesAdapterInitialState(),
-	simulation: createSimulationInitialState(),
+	a: 1,
 });
 
 export const stageSlice = createSlice({
 	name: 'stage',
 	initialState: createStageInitialState(),
-	reducers: {
-		...connectLinesAdapterReducers,
-		...simulationReducers,
-	},
+	reducers: {},
 });
-
-export const {
-	startSimulation,
-	resetSimulation,
-	completeSimulation,
-	addObservableEvent,
-	removeSimulationAnimation,
-} = stageSlice.actions;
 
 export default stageSlice.reducer;
 

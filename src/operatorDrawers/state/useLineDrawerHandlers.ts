@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useAppSelector } from '../../store/rootState';
 import { connectLineSelectStateHandlers } from './connectLineSelectStateHandlers';
 import { connectLineDragStateHandlers } from './connectLineDragStateHandlers';
 import { SimulationState, selectSimulation } from '../../store/simulation';
@@ -7,7 +6,7 @@ import { StageState, isStageStateDragging, selectStageState } from '../../store/
 import { useRootStore } from '../../store/rootStateNew';
 
 export const useLineDrawerHandlers = () => {
-	const simulation = useAppSelector(selectSimulation);
+	const simulation = useRootStore(selectSimulation);
 	const stageState = useRootStore(selectStageState());
 	const state = useRootStore();
 
