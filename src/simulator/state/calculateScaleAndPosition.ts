@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { Point } from '../../model';
-import { ZoomType } from '../../store/canvas';
+import { ZoomType } from '../../store/stage';
 
 export enum ZoomTo {
 	Pointer = 'pointer',

@@ -1,21 +1,22 @@
 import { LineDrawer } from '../../drawers';
-import { ConnectLineEntity } from '../../store/connectLines';
-import { isHighlighted } from '../../store/highlight';
-import { useAppSelector } from '../../store/rootState';
+import { ConnectLine } from '../../model';
+import { useRootStore } from '../../store/rootStateNew';
+import { isHighlighted } from '../../store/stage';
 import { useThemeContext } from '../../store/stageSlice';
 import { useLineSize } from '../../theme';
 import { useLineDrawerHandlers } from '../state';
 
 export interface ConnectLineDrawerProps {
-	connectLine: ConnectLineEntity;
+	connectLine: ConnectLine;
+	select: boolean;
 	draggable: boolean;
 }
 
-export const ConnectLineDrawer = ({ connectLine, draggable }: ConnectLineDrawerProps) => {
+export const ConnectLineDrawer = ({ connectLine, select, draggable }: ConnectLineDrawerProps) => {
 	const theme = useThemeContext();
 	const lineSize = useLineSize();
 	const connectLineHandlers = useLineDrawerHandlers();
-	const highlight = useAppSelector(isHighlighted(connectLine.id));
+	const highlight = useRootStore(isHighlighted(connectLine.id));
 
 	return (
 		<LineDrawer
@@ -24,7 +25,7 @@ export const ConnectLineDrawer = ({ connectLine, draggable }: ConnectLineDrawerP
 			points={connectLine.points}
 			size={lineSize}
 			theme={theme}
-			select={connectLine.select}
+			select={select}
 			highlight={highlight}
 			draggable={draggable}
 		/>

@@ -1,28 +1,23 @@
 import { LineDotEvent, LineDrawerEvents, LineEvent } from '../../drawers';
-import { AppDispatch } from '../../store/rootState';
+import { RootState } from '../../store/rootStateNew';
 import { StageState } from '../../store/stage';
-import { changeState, clearSelected, highlight, selectConnectLines } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 
-export const connectLineSelectStateHandlers = (dispatch: AppDispatch): LineDrawerEvents => ({
+export const connectLineSelectStateHandlers = (state: RootState): LineDrawerEvents => ({
 	onMouseDown: (e: LineEvent) => {
 		if (e.originalEvent) {
 			e.originalEvent.cancelBubble = true;
 		}
 
-		dispatch(clearSelected());
-		dispatch(
-			selectConnectLines({
-				connectLineIds: [e.id],
-			}),
-		);
+		state.clearAllSelectedElements();
+		state.selectConnectLines([e.id]);
 	},
 	onMouseOver: (e: LineEvent) => {
 		const { id, originalEvent } = e;
 		if (originalEvent) {
 			originalEvent.cancelBubble = true;
 			changeCursorStyle('pointer', originalEvent.currentTarget.getStage());
-			dispatch(highlight([{ id }]));
+			state.setHighlighted([id]);
 		}
 	},
 	onMouseOut: (e: LineEvent) => {
@@ -30,7 +25,7 @@ export const connectLineSelectStateHandlers = (dispatch: AppDispatch): LineDrawe
 		if (originalEvent) {
 			originalEvent.cancelBubble = true;
 			changeCursorStyle('default', originalEvent.currentTarget.getStage());
-			dispatch(highlight([]));
+			state.setHighlighted([]);
 		}
 	},
 	onDotMouseDown: (e: LineDotEvent) => {
@@ -45,7 +40,7 @@ export const connectLineSelectStateHandlers = (dispatch: AppDispatch): LineDrawe
 			e.originalEvent.cancelBubble = true;
 		}
 
-		dispatch(changeState(StageState.Dragging));
+		state.changeState(StageState.Dragging);
 	},
 });
 

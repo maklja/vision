@@ -2,7 +2,12 @@ import { StateCreator } from 'zustand';
 import { RootState } from '../rootStateNew';
 import { useShallow } from 'zustand/react/shallow';
 import { produce } from 'immer';
-import { createElementSizesContext, createThemeContext, ElementSizesContext, ThemesContext } from '../../theme';
+import {
+	createElementSizesContext,
+	createThemeContext,
+	ElementSizesContext,
+	ThemesContext,
+} from '../../theme';
 import {
 	BoundingBox,
 	ConnectLine,
@@ -31,6 +36,16 @@ export interface MoveByDeltaElementPayload {
 	y: number;
 }
 
+export interface ShowTooltipPayload {
+	elementId: string;
+	text?: string;
+}
+
+export interface ElementTooltip {
+	elementId: string;
+	text: string | null;
+}
+
 export enum StageState {
 	Select = 'select',
 	LassoSelect = 'lassoSelect',
@@ -38,6 +53,20 @@ export enum StageState {
 	Dragging = 'dragging',
 	SnapDragging = 'snapDragging',
 	DrawElement = 'drawElement',
+}
+
+export enum ZoomType {
+	In = 1,
+	Out = -1,
+}
+
+export interface CanvasState {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	scaleX: number;
+	scaleY: number;
 }
 
 const draggingStates = [StageState.Dragging, StageState.SnapDragging];
@@ -74,6 +103,9 @@ export interface StageSlice {
 	elementSizes: ElementSizesContext;
 	lassoSelection: IBoundingBox | null;
 	themes: ThemesContext;
+	tooltip: ElementTooltip | null;
+	highlighted: string[];
+	canvasState: CanvasState;
 	changeState: (newState: StageState) => void;
 	load: (elements: Element[]) => void;
 	startLassoSelection: (startPoint: Point | null) => void;
@@ -90,6 +122,10 @@ export interface StageSlice {
 	createDraftElementSnapLines: () => void;
 	createConnectPointSnapLines: () => void;
 	createElementSnapLines: (referenceElementId: string) => void;
+	showTooltip: (payload: ShowTooltipPayload) => void;
+	hideTooltip: () => void;
+	setHighlighted: (highlightElements: string[]) => void;
+	updateCanvasState: (canvasUpdate: Partial<CanvasState>) => void;
 }
 
 export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (set, get) => ({
@@ -97,6 +133,46 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 	elementSizes: createElementSizesContext(),
 	lassoSelection: null,
 	themes: createThemeContext(),
+	tooltip: null,
+	highlighted: [],
+	canvasState: {
+		x: 0,
+		y: 0,
+		width: 0,
+		height: 0,
+		scaleX: 0,
+		scaleY: 0,
+	},
+	updateCanvasState: (canvasUpdate: Partial<CanvasState>) =>
+		set(
+			produce<RootState>((state) => {
+				state.canvasState = {
+					...state.canvasState,
+					...canvasUpdate,
+				};
+			}),
+		),
+	setHighlighted: (highlightElements: string[]) =>
+		set(
+			produce<RootState>((state) => {
+				state.highlighted = highlightElements;
+			}),
+		),
+	showTooltip: (payload: ShowTooltipPayload) =>
+		set(
+			produce<RootState>((state) => {
+				state.tooltip = {
+					elementId: payload.elementId,
+					text: payload.text ?? null,
+				};
+			}),
+		),
+	hideTooltip: () =>
+		set(
+			produce<RootState>((state) => {
+				state.tooltip = null;
+			}),
+		),
 	changeState: (newState: StageState) =>
 		set(
 			produce<RootState>((state) => {
@@ -472,4 +548,11 @@ export const selectLasso = () =>
 			height,
 		};
 	});
+
+export const selectTooltip = (state: RootState) => state.tooltip;
+
+export const isHighlighted = (elementId: string) =>
+	useShallow((state: RootState) => state.highlighted.includes(elementId));
+
+export const selectCanvasState = (state: RootState) => state.canvasState;
 

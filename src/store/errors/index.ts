@@ -1,1 +1,2 @@
-export * from './errorsAdapter';
+export * from './errorSlice';
+

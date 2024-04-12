@@ -1,23 +1,16 @@
 import Konva from 'konva';
 import { DrawerEvent, DrawerEvents } from '../../drawers';
-import { AppDispatch } from '../../store/rootState';
 import { StageState } from '../../store/stage';
-import {
-	changeState,
-	clearSnapLines,
-	createElementSnapLines,
-	moveSelectedElementsByDelta,
-	updateCanvasState,
-} from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
+import { RootState } from '../../store/rootStateNew';
 
 const AUTO_DRAG_REFRESH_INTERVAL = 300;
 const AUTO_DRAG_EDGE_OFFSET = 100;
 const AUTO_DRAG_ANIMATION_DURATION = 0.1;
 const AUTO_DRAG_MOVE_DISTANCE = 50;
 
-function edgeAutoDrag(stage: Konva.Stage, dispatch: AppDispatch) {
+function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 	const pos = stage.getPointerPosition();
 	if (!pos) {
 		return;
@@ -46,12 +39,10 @@ function edgeAutoDrag(stage: Konva.Stage, dispatch: AppDispatch) {
 		newY = stage.y() - AUTO_DRAG_MOVE_DISTANCE;
 	}
 
-	dispatch(
-		updateCanvasState({
-			x: newX,
-			y: newY,
-		}),
-	);
+	state.updateCanvasState({
+		x: newX,
+		y: newY,
+	});
 
 	stage.to({
 		x: newX,
@@ -60,7 +51,7 @@ function edgeAutoDrag(stage: Konva.Stage, dispatch: AppDispatch) {
 	});
 }
 
-export function drawerDragStateHandlers(dispatch: AppDispatch): DrawerEvents {
+export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 	let autoDragInterval: NodeJS.Timeout | null = null;
 
 	return {
@@ -78,8 +69,8 @@ export function drawerDragStateHandlers(dispatch: AppDispatch): DrawerEvents {
 
 			changeCursorStyle('pointer', originalEvent.currentTarget.getStage());
 			originalEvent.cancelBubble = true;
-			dispatch(changeState(StageState.Select));
-			dispatch(clearSnapLines());
+			state.changeState(StageState.Select);
+			state.clearSnapLines();
 		},
 		onDragMove: (e: DrawerEvent) => {
 			const { id, originalEvent } = e;
@@ -94,26 +85,22 @@ export function drawerDragStateHandlers(dispatch: AppDispatch): DrawerEvents {
 						return;
 					}
 
-					edgeAutoDrag(stage, dispatch);
+					edgeAutoDrag(stage, state);
 				}, AUTO_DRAG_REFRESH_INTERVAL);
 			}
 
 			changeCursorStyle('grabbing', originalEvent.currentTarget.getStage());
 			originalEvent.cancelBubble = true;
 			const position = originalEvent.currentTarget.getPosition();
-			dispatch(
-				moveSelectedElementsByDelta({
-					referenceElementId: id,
-					x: position.x,
-					y: position.y,
-				}),
-			);
+			state.moveSelectedElementsByDelta({
+				referenceElementId: id,
+				x: position.x,
+				y: position.y,
+			});
 
-			dispatch(createElementSnapLines({ referenceElementId: id }));
-			dispatch(
-				changeState(
-					e.originalEvent?.evt.shiftKey ? StageState.SnapDragging : StageState.Dragging,
-				),
+			state.createElementSnapLines(id);
+			state.changeState(
+				e.originalEvent?.evt.shiftKey ? StageState.SnapDragging : StageState.Dragging,
 			);
 		},
 	};
