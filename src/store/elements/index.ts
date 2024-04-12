@@ -1,2 +1,2 @@
-export * from './elementsAdapter';
-export * from './selectedElementsAdapter';
+export * from './elementSlice';
+

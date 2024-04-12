@@ -1,6 +1,5 @@
 import { Layer } from 'react-konva';
 import { DraftLineDrawer, SnapLineDrawer, LassoSelection } from '../../drawers';
-import { useAppSelector } from '../../store/rootState';
 import { useBoundingBox, useThemeContext } from '../../store/stageSlice';
 import { selectStageDraftConnectLine } from '../../store/connectLines';
 import { selectSnapLines } from '../../store/snapLines';
@@ -14,10 +13,8 @@ export const DraftLayer = () => {
 	const theme = useThemeContext();
 	const lineSize = useLineSize();
 	const draftConnectLine = useRootStore(selectStageDraftConnectLine());
-	const snapLines = useAppSelector(selectSnapLines);
-	const sourceElement = useRootStore(
-		selectStageElementById(draftConnectLine?.source.id ?? null),
-	);
+	const snapLines = useRootStore(selectSnapLines());
+	const sourceElement = useRootStore(selectStageElementById(draftConnectLine?.source.id ?? null));
 	const lassoBoundingBox = useRootStore(selectLasso());
 
 	const elBoundingBox = useBoundingBox(sourceElement?.type ?? null, {
