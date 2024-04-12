@@ -42,8 +42,9 @@ import {
 import { isSelectedElement } from '../store/elements';
 import { selectElementErrorById } from '../store/errors';
 import { StageState, isHighlighted, selectStageState } from '../store/stage';
-import { selectElementSizeOptions, useRootStore, useThemeContext } from '../store/rootStateNew';
+import { useStore } from '../store/rootState';
 import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
+import { selectElementSizeOptions, useThemeContext } from '../store/hooks';
 
 export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {
 	switch (elType) {
@@ -128,13 +129,13 @@ export const OperatorDrawer = ({
 	draggable,
 }: OperatorDrawerProps) => {
 	const theme = useThemeContext(element.type);
-	const animation = useRootStore(selectDrawerAnimationByDrawerId(element.id));
+	const animation = useStore(selectDrawerAnimationByDrawerId(element.id));
 	const drawerHandlers = useElementDrawerHandlers();
-	const select = useRootStore(isSelectedElement(element.id));
-	const highlight = useRootStore(isHighlighted(element.id));
-	const error = useRootStore(selectElementErrorById(element.id));
-	const elementSizeOptions = useRootStore(selectElementSizeOptions);
-	const stageState = useRootStore(selectStageState());
+	const select = useStore(isSelectedElement(element.id));
+	const highlight = useStore(isHighlighted(element.id));
+	const error = useStore(selectElementErrorById(element.id));
+	const elementSizeOptions = useStore(selectElementSizeOptions);
+	const stageState = useStore(selectStageState());
 
 	const animationConfig = animation
 		? {
@@ -183,4 +184,3 @@ export const OperatorDrawer = ({
 			});
 	}
 };
-

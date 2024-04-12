@@ -2,7 +2,7 @@ import { produce } from 'immer';
 import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { AnimationKey } from '../../animation';
-import { RootState } from '../rootStateNew';
+import { RootState } from '../rootState';
 
 export interface AddDrawerAnimationActionPayload {
 	drawerId: string;
@@ -172,4 +172,3 @@ export const selectDrawerAnimationById =
 
 		return state.animations[drawerId]?.find((a) => a.id === animationId) ?? null;
 	};
-

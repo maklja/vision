@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootStateNew';
+import { RootState } from '../rootState';
 import { useShallow } from 'zustand/react/shallow';
 import { normalizeBoundingBox } from '../../model';
 import { calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
@@ -80,4 +80,3 @@ export const selectElementsInSelection = () =>
 	useShallow((state: RootState) =>
 		Object.values(state.elements).filter((el) => state.selectedElements.includes(el.id)),
 	);
-

@@ -3,7 +3,7 @@ import { ElementType } from '../../model';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { HexagonOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
-import { useCircleShapeSize } from '../../store/rootStateNew';
+import { useCircleShapeSize } from '../../store/hooks';
 
 export interface JoinCreationOperatorDrawerProps extends ElementDrawerProps {
 	elementType: ElementType;
@@ -78,4 +78,3 @@ export const JoinCreationOperatorDrawer = ({
 		</Group>
 	);
 };
-

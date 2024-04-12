@@ -1,5 +1,5 @@
 import { LineDotEvent, LineDrawerEvents, LineEvent } from '../../drawers';
-import { RootState } from '../../store/rootStateNew';
+import { RootState } from '../../store/rootState';
 import { StageState } from '../../store/stage';
 import { changeCursorStyle } from '../utils';
 
@@ -43,4 +43,3 @@ export const connectLineSelectStateHandlers = (state: RootState): LineDrawerEven
 		state.changeState(StageState.Dragging);
 	},
 });
-

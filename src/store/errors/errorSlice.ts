@@ -1,6 +1,6 @@
 import { produce } from 'immer';
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootStateNew';
+import { RootState } from '../rootState';
 import { useShallow } from 'zustand/react/shallow';
 
 export interface CreateElementErrorPayload {
@@ -47,4 +47,3 @@ export const selectElementErrorById = (elementId: string | null) =>
 
 		return state.errors[elementId];
 	});
-

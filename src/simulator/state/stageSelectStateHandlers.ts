@@ -2,7 +2,7 @@ import Konva from 'konva';
 import { StageEvents } from '../SimulatorStage';
 import { changeCursorStyle } from '../../operatorDrawers/utils';
 import { ZoomTo, zoomStage } from './calculateScaleAndPosition';
-import { RootState } from '../../store/rootStateNew';
+import { RootState } from '../../store/rootState';
 import { ZoomType } from '../../store/stage';
 
 const LEFT_MOUSE_BUTTON = 0;
@@ -127,4 +127,3 @@ export const stageSelectStateHandlers = (state: RootState): StageEvents => ({
 		state.clearAllSelectedElements();
 	},
 });
-

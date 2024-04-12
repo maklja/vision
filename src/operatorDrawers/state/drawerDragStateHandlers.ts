@@ -3,7 +3,7 @@ import { DrawerEvent, DrawerEvents } from '../../drawers';
 import { StageState } from '../../store/stage';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
-import { RootState } from '../../store/rootStateNew';
+import { RootState } from '../../store/rootState';
 
 const AUTO_DRAG_REFRESH_INTERVAL = 300;
 const AUTO_DRAG_EDGE_OFFSET = 100;
@@ -105,4 +105,3 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 		},
 	};
 }
-

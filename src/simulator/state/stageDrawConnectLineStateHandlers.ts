@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { StageEvents } from '../SimulatorStage';
-import { RootState } from '../../store/rootStateNew';
+import { RootState } from '../../store/rootState';
 
 export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents => ({
 	onMouseMove: (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -39,4 +39,3 @@ export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents
 		state.clearSnapLines();
 	},
 });
-

@@ -12,7 +12,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import { Element, Point, mapElementTypeToGroup } from '../../model';
 import { ElementShape } from '../../theme';
 import { formStyle } from './commonStyles';
-import { useShapeSize } from '../../store/rootStateNew';
+import { useShapeSize } from '../../store/hooks';
 
 export interface ElementExplorerProps {
 	element: Element;
@@ -221,4 +221,3 @@ export function ElementExplorer({
 		</Box>
 	);
 }
-

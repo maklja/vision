@@ -9,7 +9,8 @@ import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
 import { GridLayer } from '../layers/grid';
 import { StageState, selectStageState } from '../store/stage';
-import { useRootStore, useThemeContext } from '../store/rootStateNew';
+import { useStore } from '../store/rootState';
+import { useThemeContext } from '../store/hooks';
 
 Konva.hitOnDragEnabled = true;
 
@@ -33,11 +34,11 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 	parentStageRef,
 ) {
 	const theme = useThemeContext();
-	const addDraftElement = useRootStore((state) => state.addDraftElement);
-	const stopElementDraw = useRootStore((state) => state.stopElementDraw);
-	const clearSnapLines = useRootStore((state) => state.clearSnapLines);
-	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
-	const stageState = useRootStore(selectStageState());
+	const addDraftElement = useStore((state) => state.addDraftElement);
+	const stopElementDraw = useStore((state) => state.stopElementDraw);
+	const clearSnapLines = useStore((state) => state.clearSnapLines);
+	const updateCanvasState = useStore((state) => state.updateCanvasState);
+	const stageState = useStore(selectStageState());
 	const stageHandlers = useStageHandlers();
 	const stageRef = useRef<Konva.Stage | null>(null);
 	// small workaround because react=dnd doesn't support key events
@@ -127,4 +128,3 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 		</div>
 	);
 });
-

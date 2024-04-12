@@ -1,21 +1,32 @@
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import { combineReducers, configureStore, PreloadedState } from '@reduxjs/toolkit';
-import stageReducer from './stageSlice';
+import { create } from 'zustand';
+import { createElementSlice, ElementSlice } from './elements';
+import { createStageSlice, StageSlice } from './stage';
+import { ConnectPointSlice, createConnectPointSlice } from './connectPoints';
+import { createSelectSlice, SelectSlice } from './select';
+import { ConnectLineSlice, createConnectLineSlice } from './connectLines';
+import { createSnapLineSlice, SnapLineSlice } from './snapLines';
+import { createErrorSlice, ErrorSlice } from './errors/errorSlice';
+import { AnimationSlice, createAnimationSlice } from './drawerAnimations';
+import { createSimulationSlice, SimulationSlice } from './simulation';
 
-const rootReducer = combineReducers({
-	stage: stageReducer,
-});
+export type RootState = ElementSlice &
+	StageSlice &
+	ConnectPointSlice &
+	SelectSlice &
+	ConnectLineSlice &
+	SnapLineSlice &
+	ErrorSlice &
+	AnimationSlice &
+	SimulationSlice;
 
-export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
-	return configureStore({
-		preloadedState,
-		reducer: rootReducer,
-	});
-};
-
-export const useAppDispatch: () => AppDispatch = useDispatch;
-
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-export type RootState = ReturnType<typeof rootReducer>;
-export type AppStore = ReturnType<typeof setupStore>;
-export type AppDispatch = AppStore['dispatch'];
+export const useStore = create<RootState>()((...a) => ({
+	...createElementSlice(...a),
+	...createStageSlice(...a),
+	...createConnectPointSlice(...a),
+	...createSelectSlice(...a),
+	...createConnectLineSlice(...a),
+	...createSnapLineSlice(...a),
+	...createErrorSlice(...a),
+	...createAnimationSlice(...a),
+	...createSimulationSlice(...a),
+}));

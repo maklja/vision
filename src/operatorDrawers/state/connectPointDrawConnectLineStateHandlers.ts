@@ -1,5 +1,5 @@
 import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../drawers';
-import { RootState } from '../../store/rootStateNew';
+import { RootState } from '../../store/rootState';
 
 const CANCEL_MOUSE_BUTTON_KEY = 2;
 
@@ -73,4 +73,3 @@ export const connectPointDrawConnectLineStateHandlers = (
 		});
 	},
 });
-

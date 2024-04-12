@@ -3,7 +3,7 @@ import { ElementType } from '../../model';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { CheckCircleIconDrawer, CircleOperatorDrawer, CloseCircleIconDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
-import { useCircleShapeSize } from '../../store/rootStateNew';
+import { useCircleShapeSize } from '../../store/hooks';
 
 export const IifOperatorDrawer = ({
 	x,
@@ -91,4 +91,3 @@ export const IifOperatorDrawer = ({
 		</Group>
 	);
 };
-

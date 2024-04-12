@@ -9,28 +9,28 @@ import {
 	selectStageState,
 	selectTooltip,
 } from '../../store/stage';
-import { selectElementSizeOptions, useBoundingBox, useThemeContext } from '../../store/stageSlice';
 import { selectElementErrorById } from '../../store/errors';
 import { selectStageConnectLines } from '../../store/connectLines';
-import { useRootStore } from '../../store/rootStateNew';
+import { selectElementSizeOptions, useBoundingBox, useThemeContext } from '../../store/hooks';
+import { useStore } from '../../store/rootState';
 
 const TOOLTIP_SHOW_TIME = 1_000;
 
 export const DrawersLayer = () => {
 	const theme = useThemeContext();
-	const simulation = useRootStore(selectSimulation);
-	const elements = useRootStore(selectStageElements());
-	const connectLines = useRootStore(selectStageConnectLines());
-	const selectedConnectLines = useRootStore((state) => state.selectedConnectLines);
+	const simulation = useStore(selectSimulation);
+	const elements = useStore(selectStageElements());
+	const connectLines = useStore(selectStageConnectLines());
+	const selectedConnectLines = useStore((state) => state.selectedConnectLines);
 
-	const stageState = useRootStore(selectStageState());
+	const stageState = useStore(selectStageState());
 	const dragging = isStageStateDragging(stageState);
 
-	const tooltip = useRootStore(selectTooltip);
-	const element = useRootStore(selectStageElementById(tooltip?.elementId ?? null));
-	const elementSizeOptions = useRootStore(selectElementSizeOptions);
+	const tooltip = useStore(selectTooltip);
+	const element = useStore(selectStageElementById(tooltip?.elementId ?? null));
+	const elementSizeOptions = useStore(selectElementSizeOptions);
 	const bb = useBoundingBox(element?.type ?? null, { x: element?.x ?? 0, y: element?.y ?? 0 });
-	const error = useRootStore(selectElementErrorById(element?.id ?? null));
+	const error = useStore(selectElementErrorById(element?.id ?? null));
 	const text = error?.errorMessage ?? tooltip?.text ?? element?.name;
 
 	const [tooltipVisible, setTooltipVisible] = useState(false);
@@ -85,4 +85,3 @@ export const DrawersLayer = () => {
 		</Layer>
 	);
 };
-

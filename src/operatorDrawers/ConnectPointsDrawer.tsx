@@ -20,7 +20,8 @@ import {
 import { DrawerAnimationTemplate, animationRegistry } from '../animation';
 import { selectElementConnectPointsById } from '../store/connectPoints';
 import { DrawerAnimation, selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
-import { useCircleShapeSize, useRootStore, useThemeContext } from '../store/rootStateNew';
+import { useCircleShapeSize, useThemeContext } from '../store/hooks';
+import { useStore } from '../store/rootState';
 
 export type ConnectPointsDrawerIconsProps = {
 	[key in ConnectPointPosition]?: (props: ConnectPointIconDrawerProps) => ReactNode;
@@ -151,10 +152,10 @@ const createConnectPointsOptions = (
 	const topAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Top);
 	const bottomAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Bottom);
 
-	const leftAnimation = useRootStore(selectDrawerAnimationByDrawerId(leftAnimationId));
-	const rightAnimation = useRootStore(selectDrawerAnimationByDrawerId(rightAnimationId));
-	const topAnimation = useRootStore(selectDrawerAnimationByDrawerId(topAnimationId));
-	const bottomAnimation = useRootStore(selectDrawerAnimationByDrawerId(bottomAnimationId));
+	const leftAnimation = useStore(selectDrawerAnimationByDrawerId(leftAnimationId));
+	const rightAnimation = useStore(selectDrawerAnimationByDrawerId(rightAnimationId));
+	const topAnimation = useStore(selectDrawerAnimationByDrawerId(topAnimationId));
+	const bottomAnimation = useStore(selectDrawerAnimationByDrawerId(bottomAnimationId));
 
 	return {
 		...defaultCPOptions,
@@ -200,7 +201,7 @@ export const ConnectPointsDrawer = ({
 }: ConnectPointsDrawerProps) => {
 	const theme = useThemeContext(type);
 	const connectPointsHandlers = useConnectPointHandlers();
-	const connectPoints = useRootStore(selectElementConnectPointsById(id));
+	const connectPoints = useStore(selectElementConnectPointsById(id));
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
 	const connectPointsOptions = createDefaultElementProps(connectPoints, circleCPSize, icons);
 	const mergedCPOptions = createConnectPointsOptions(id, theme, connectPointsOptions);
@@ -223,4 +224,3 @@ export const ConnectPointsDrawer = ({
 		/>
 	);
 };
-

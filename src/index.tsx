@@ -1,26 +1,17 @@
 import { StrictMode } from 'react';
-import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { setupStore } from './store/rootState';
-import { createStageInitialState } from './store/stageSlice';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
 	<StrictMode>
-		<Provider
-			store={setupStore({
-				stage: createStageInitialState(),
-			})}
-		>
-			<DndProvider backend={HTML5Backend}>
-				<App />
-			</DndProvider>
-		</Provider>
+		<DndProvider backend={HTML5Backend}>
+			<App />
+		</DndProvider>
 	</StrictMode>,
 );
 
@@ -28,4 +19,3 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
-

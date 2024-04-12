@@ -3,7 +3,7 @@ import { DotCircleOperatorDrawer } from '../../drawers';
 import { ElementType } from '../../model';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { ElementDrawerProps } from '../ElementDrawerProps';
-import { useCircleShapeSize } from '../../store/rootStateNew';
+import { useCircleShapeSize } from '../../store/hooks';
 
 export const SubscriberDrawer = ({
 	x,
@@ -71,4 +71,3 @@ export const SubscriberDrawer = ({
 		</Group>
 	);
 };
-

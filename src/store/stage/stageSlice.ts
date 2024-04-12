@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootStateNew';
+import { RootState } from '../rootState';
 import { useShallow } from 'zustand/react/shallow';
 import { produce } from 'immer';
 import {
@@ -620,4 +620,3 @@ export const isHighlighted = (elementId: string) =>
 	useShallow((state: RootState) => state.highlighted.includes(elementId));
 
 export const selectCanvasState = (state: RootState) => state.canvasState;
-

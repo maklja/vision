@@ -13,7 +13,7 @@ import {
 	ElementType,
 	createPointSnapLines,
 } from '../../model';
-import { RootState } from '../rootStateNew';
+import { RootState } from '../rootState';
 import { calculateShapeSizeBoundingBox, ElementSizesContext, findElementSize } from '../../theme';
 
 const SNAP_DISTANCE = 4;
@@ -172,4 +172,3 @@ export const createSnapLineSlice: StateCreator<RootState, [], [], SnapLineSlice>
 });
 
 export const selectSnapLines = () => useShallow((state: RootState) => state.snapLines);
-

@@ -7,7 +7,7 @@ import {
 	ConnectPointsOptions,
 } from '../DrawerProps';
 import { CircleConnectPointDrawer } from './CircleConnectPointDrawer';
-import { useBoundingBox } from '../../store/stageSlice';
+import { useBoundingBox } from '../../store/hooks';
 
 export interface CircleConnectPointsDrawerProps extends ConnectPointsDrawerEvents {
 	id: string;
@@ -238,4 +238,3 @@ export const CircleConnectPointsDrawer = ({
 		</Group>
 	);
 };
-

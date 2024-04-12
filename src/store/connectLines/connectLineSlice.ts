@@ -1,6 +1,6 @@
 import { produce } from 'immer';
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootStateNew';
+import { RootState } from '../rootState';
 import {
 	ConnectedElement,
 	ConnectLine,
@@ -348,4 +348,3 @@ export const selectRelatedElementElements = (elementId: string) => (state: RootS
 		};
 	});
 };
-

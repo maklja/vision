@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootStateNew';
+import { RootState } from '../rootState';
 import {
 	calcConnectPointVisibility,
 	ConnectPoint,
@@ -366,4 +366,3 @@ export const selectElementConnectPointsById = (id: string) =>
 			{},
 		);
 	});
-

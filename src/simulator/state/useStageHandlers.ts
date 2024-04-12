@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { stageSelectStateHandlers } from './stageSelectStateHandlers';
 import { stageDrawConnectLineStateHandlers } from './stageDrawConnectLineStateHandlers';
 import { StageState, selectStageState } from '../../store/stage';
-import { useRootStore } from '../../store/rootStateNew';
+import { useStore } from '../../store/rootState';
 
 export const useStageHandlers = () => {
-	const stageState = useRootStore(selectStageState());
-	const state = useRootStore();
+	const stageState = useStore(selectStageState());
+	const state = useStore();
 
 	return useMemo(() => {
 		if (stageState === StageState.Select || stageState === StageState.LassoSelect) {
@@ -20,4 +20,3 @@ export const useStageHandlers = () => {
 		return {};
 	}, [stageState]);
 };
-

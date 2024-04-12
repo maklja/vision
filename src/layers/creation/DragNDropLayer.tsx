@@ -3,13 +3,13 @@ import Konva from 'konva';
 import { Layer } from 'react-konva';
 import { XYCoord, useDragLayer } from 'react-dnd';
 import { ElementType } from '../../model';
-import { selectElementSizeOptions, useThemeContext } from '../../store/stageSlice';
 import { DragNDropType } from '../../dragNDrop';
 import { createOperatorDrawer } from '../../operatorDrawers';
 import { ShapeSize, calculateShapeSizeBoundingBox, useGridTheme } from '../../theme';
 import { selectStageDraftElement } from '../../store/elements';
 import { calcSnapPosition } from '../../drawers';
-import { useRootStore } from '../../store/rootStateNew';
+import { selectElementSizeOptions, useThemeContext } from '../../store/hooks';
+import { useStore } from '../../store/rootState';
 
 export interface DragNDropItem {
 	elementType: ElementType;
@@ -30,10 +30,10 @@ export interface DragNDropLayerProps {
 export const DragNDropLayer = ({ snapToGrid }: DragNDropLayerProps) => {
 	const theme = useThemeContext();
 	const gridTheme = useGridTheme(theme);
-	const elementSizeOptions = useRootStore(selectElementSizeOptions);
-	const draftElement = useRootStore(selectStageDraftElement());
-	const updateDraftElementPosition = useRootStore((state) => state.updateDraftElementPosition);
-	const createDraftElementSnapLines = useRootStore((state) => state.createDraftElementSnapLines);
+	const elementSizeOptions = useStore(selectElementSizeOptions);
+	const draftElement = useStore(selectStageDraftElement());
+	const updateDraftElementPosition = useStore((state) => state.updateDraftElementPosition);
+	const createDraftElementSnapLines = useStore((state) => state.createDraftElementSnapLines);
 	const layerRef = useRef<Konva.Layer | null>(null);
 
 	const { itemType, isDragging, item, clientOffset } = useDragLayer<DragCollectedProps>(
@@ -81,4 +81,3 @@ export const DragNDropLayer = ({ snapToGrid }: DragNDropLayerProps) => {
 
 	return <Layer ref={layerRef}>{drawer}</Layer>;
 };
-

@@ -3,7 +3,7 @@ import { ElementType } from '../../model';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { RectangleOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
-import { useRectangleShapeSize } from '../../store/rootStateNew';
+import { useRectangleShapeSize } from '../../store/hooks';
 
 export const CatchErrorOperatorDrawer = ({
 	x,
@@ -72,4 +72,3 @@ export const CatchErrorOperatorDrawer = ({
 		</Group>
 	);
 };
-

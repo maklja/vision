@@ -3,7 +3,7 @@ import { ElementType } from '../../model';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { CheckCircleIconDrawer, CloseCircleIconDrawer, RollerOperatorDrawer } from '../../drawers';
-import { useCircleShapeSize, useRectangleShapeSize } from '../../store/rootStateNew';
+import { useCircleShapeSize, useRectangleShapeSize } from '../../store/hooks';
 
 export function BufferToggleOperatorDrawer({
 	x,
@@ -91,4 +91,3 @@ export function BufferToggleOperatorDrawer({
 		</Group>
 	);
 }
-

@@ -10,7 +10,7 @@ import {
 	mapToOperatorPropsTemplate,
 	Point,
 } from '../../model';
-import { RootState } from '../rootStateNew';
+import { RootState } from '../rootState';
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
@@ -189,7 +189,6 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				}
 
 				element.properties[payload.propertyName] = payload.propertyValue;
-				// TODO refactor selectConnectPointStateChange(slice, { elementId: payload.id });
 			}),
 		),
 	moveElementToPosition: (payload: MoveElementPayload) =>
@@ -217,4 +216,3 @@ export const isSelectedElement = (elementId: string) =>
 
 export const selectStageElementById = (id: string | null) =>
 	useShallow((state: RootState) => (!id ? null : state.elements[id] ?? null));
-
