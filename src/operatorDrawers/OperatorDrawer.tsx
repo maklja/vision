@@ -25,7 +25,6 @@ import {
 	ZipOperatorDrawer,
 } from './joinCreationOperators';
 import { selectElementSizeOptions, useThemeContext } from '../store/stageSlice';
-import { useAppSelector } from '../store/rootState';
 import { useElementDrawerHandlers } from './state';
 import { ElementDrawerProps } from './ElementDrawerProps';
 import { animationRegistry } from '../animation';
@@ -42,10 +41,10 @@ import {
 	MergeMapOperatorDrawer,
 } from './transformationOperators';
 import { isSelectedElement } from '../store/elements';
-import { isHighlighted } from '../store/highlight';
 import { selectElementErrorById } from '../store/errors';
+import { StageState, isHighlighted, selectStageState } from '../store/stage';
+import { useRootStore } from '../store/rootStateNew';
 import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
-import { StageState, selectStageState } from '../store/stage';
 
 export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {
 	switch (elType) {
@@ -130,13 +129,13 @@ export const OperatorDrawer = ({
 	draggable,
 }: OperatorDrawerProps) => {
 	const theme = useThemeContext(element.type);
-	const animation = useAppSelector(selectDrawerAnimationByDrawerId(element.id));
+	const animation = useRootStore(selectDrawerAnimationByDrawerId(element.id));
 	const drawerHandlers = useElementDrawerHandlers();
-	const select = useAppSelector(isSelectedElement(element.id));
-	const highlight = useAppSelector(isHighlighted(element.id));
-	const error = useAppSelector(selectElementErrorById(element.id));
-	const elementSizeOptions = useAppSelector(selectElementSizeOptions);
-	const stageState = useAppSelector(selectStageState);
+	const select = useRootStore(isSelectedElement(element.id));
+	const highlight = useRootStore(isHighlighted(element.id));
+	const error = useRootStore(selectElementErrorById(element.id));
+	const elementSizeOptions = useRootStore(selectElementSizeOptions);
+	const stageState = useRootStore(selectStageState());
 
 	const animationConfig = animation
 		? {

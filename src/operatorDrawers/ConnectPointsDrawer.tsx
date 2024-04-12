@@ -1,6 +1,6 @@
+import { ReactNode } from 'react';
 import { ConnectPointPosition, ConnectPoints, ElementType } from '../model';
 import { useConnectPointHandlers } from './state';
-import { useAppSelector } from '../store/rootState';
 import { useCircleShapeSize, useThemeContext } from '../store/stageSlice';
 import {
 	CircleConnectPointsDrawer,
@@ -21,7 +21,7 @@ import {
 import { DrawerAnimationTemplate, animationRegistry } from '../animation';
 import { selectElementConnectPointsById } from '../store/connectPoints';
 import { DrawerAnimation, selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
-import { ReactNode } from 'react';
+import { useRootStore } from '../store/rootStateNew';
 
 export type ConnectPointsDrawerIconsProps = {
 	[key in ConnectPointPosition]?: (props: ConnectPointIconDrawerProps) => ReactNode;
@@ -152,10 +152,10 @@ const createConnectPointsOptions = (
 	const topAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Top);
 	const bottomAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Bottom);
 
-	const leftAnimation = useAppSelector(selectDrawerAnimationByDrawerId(leftAnimationId));
-	const rightAnimation = useAppSelector(selectDrawerAnimationByDrawerId(rightAnimationId));
-	const topAnimation = useAppSelector(selectDrawerAnimationByDrawerId(topAnimationId));
-	const bottomAnimation = useAppSelector(selectDrawerAnimationByDrawerId(bottomAnimationId));
+	const leftAnimation = useRootStore(selectDrawerAnimationByDrawerId(leftAnimationId));
+	const rightAnimation = useRootStore(selectDrawerAnimationByDrawerId(rightAnimationId));
+	const topAnimation = useRootStore(selectDrawerAnimationByDrawerId(topAnimationId));
+	const bottomAnimation = useRootStore(selectDrawerAnimationByDrawerId(bottomAnimationId));
 
 	return {
 		...defaultCPOptions,
@@ -201,7 +201,7 @@ export const ConnectPointsDrawer = ({
 }: ConnectPointsDrawerProps) => {
 	const theme = useThemeContext(type);
 	const connectPointsHandlers = useConnectPointHandlers();
-	const connectPoints = useAppSelector(selectElementConnectPointsById(id));
+	const connectPoints = useRootStore(selectElementConnectPointsById(id));
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
 	const connectPointsOptions = createDefaultElementProps(connectPoints, circleCPSize, icons);
 	const mergedCPOptions = createConnectPointsOptions(id, theme, connectPointsOptions);

@@ -1,27 +1,28 @@
 import { useMemo } from 'react';
-import { useAppDispatch, useAppSelector } from '../../store/rootState';
+import { useAppSelector } from '../../store/rootState';
 import { drawerDragStateHandlers } from './drawerDragStateHandlers';
 import { drawerSelectStateHandlers } from './drawerSelectStateHandlers';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 import { SimulationState, selectSimulation } from '../../store/simulation';
 import { StageState, isStageStateDragging, selectStageState } from '../../store/stage';
+import { useRootStore } from '../../store/rootStateNew';
 
 export const useElementDrawerHandlers = () => {
 	const simulation = useAppSelector(selectSimulation);
-	const stageState = useAppSelector(selectStageState);
-	const appDispatch = useAppDispatch();
+	const stageState = useRootStore(selectStageState());
+	const state = useRootStore();
 
 	return useMemo(() => {
 		if (simulation.state === SimulationState.Running) {
-			return drawerAnimationStateHandlers(appDispatch);
+			return drawerAnimationStateHandlers(state);
 		}
 
 		if (stageState === StageState.Select) {
-			return drawerSelectStateHandlers(appDispatch);
+			return drawerSelectStateHandlers(state);
 		}
 
 		if (isStageStateDragging(stageState)) {
-			return drawerDragStateHandlers(appDispatch);
+			return drawerDragStateHandlers(state);
 		}
 
 		return {};

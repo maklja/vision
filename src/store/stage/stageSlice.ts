@@ -22,6 +22,7 @@ import {
 import { CreateElementPayload, MoveElementPayload } from '../elements';
 import { LinkConnectLineDrawPayload } from '../connectLines';
 import { createSnapLinesByConnectPoint, createSnapLinesByElement } from '../snapLines';
+import { AnimationKey } from '../../animation';
 
 export interface StartConnectLineDrawPayload {
 	sourceId: string;
@@ -44,6 +45,17 @@ export interface ShowTooltipPayload {
 export interface ElementTooltip {
 	elementId: string;
 	text: string | null;
+}
+
+export interface PinConnectLinePayload {
+	elementId: string;
+	connectPointId: string;
+	connectPointBoundingBox: IBoundingBox;
+}
+
+export interface UnpinConnectLinePayload {
+	drawerId: string;
+	animationId: string | null;
 }
 
 export enum StageState {
@@ -126,6 +138,8 @@ export interface StageSlice {
 	hideTooltip: () => void;
 	setHighlighted: (highlightElements: string[]) => void;
 	updateCanvasState: (canvasUpdate: Partial<CanvasState>) => void;
+	pinConnectLine: (payload: PinConnectLinePayload) => void;
+	unpinConnectLine: (payload: UnpinConnectLinePayload) => void;
 }
 
 export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (set, get) => ({
@@ -323,8 +337,7 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 		currentState.clearAllSelectedElements();
 		currentState.clearHighlightConnectPoints();
 		currentState.markElementAsSelected(draftConnectLine.source.id);
-
-		// TODO refactor removeAllDrawerAnimationStateChange(slice, { drawerId: payload.connectPointId });
+		currentState.removeAllDrawerAnimations(payload.connectPointId);
 	},
 	moveElement: (payload: MoveElementPayload) => {
 		const state = get();
@@ -520,6 +533,31 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			referenceElementId,
 			x,
 			y,
+		});
+	},
+	pinConnectLine: (payload: PinConnectLinePayload) => {
+		const state = get();
+		if (!state.draftConnectLine) {
+			return;
+		}
+
+		state.lockConnectLine(payload.connectPointBoundingBox);
+		state.refreshDrawerAnimation({
+			drawerId: payload.connectPointId,
+			key: AnimationKey.SnapConnectPoint,
+		});
+	},
+	unpinConnectLine: (payload: UnpinConnectLinePayload) => {
+		const state = get();
+		state.unlockDraftConnectLine();
+
+		if (!payload.animationId) {
+			return;
+		}
+
+		state.disposeDrawerAnimation({
+			drawerId: payload.drawerId,
+			animationId: payload.animationId,
 		});
 	},
 });

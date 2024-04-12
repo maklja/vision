@@ -26,17 +26,6 @@ export interface MoveConnectPointsByDeltaPayload {
 	dy: number;
 }
 
-export interface PinConnectLinePayload {
-	elementId: string;
-	connectPointId: string;
-	connectPointBoundingBox: IBoundingBox;
-}
-
-export interface UnpinConnectLinePayload {
-	drawerId: string;
-	animationId: string | null;
-}
-
 export type ConnectPointTypeOption = {
 	[key in ConnectPointType]?: boolean;
 };
@@ -66,8 +55,8 @@ export interface ConnectPointSlice {
 	markConnectionPointsAsConnectable: (elementIds: string[]) => void;
 	clearHighlightConnectPoints: () => void;
 	moveConnectPointsByDelta: (payload: MoveConnectPointsByDeltaPayload) => void;
-	pinConnectLine: (payload: PinConnectLinePayload) => void;
-	unpinConnectLine: (payload: UnpinConnectLinePayload) => void;
+	lockConnectLine: (connectPointBoundingBox: IBoundingBox) => void;
+	unlockDraftConnectLine: () => void;
 	updateConnectPoints: (payload: UpdateConnectPointsPayload) => void;
 }
 
@@ -313,7 +302,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 				});
 			}),
 		),
-	pinConnectLine: (payload: PinConnectLinePayload) =>
+	lockConnectLine: (connectPointBoundingBox: IBoundingBox) =>
 		set(
 			produce<RootState>((state) => {
 				if (!state.draftConnectLine) {
@@ -325,7 +314,6 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 					return;
 				}
 
-				const { connectPointBoundingBox } = payload;
 				const hasOverlap = pointOverlapBoundingBox(lastPoint, connectPointBoundingBox);
 
 				if (!hasOverlap) {
@@ -335,14 +323,9 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 				lastPoint.x = connectPointBoundingBox.x + connectPointBoundingBox.width / 2;
 				lastPoint.y = connectPointBoundingBox.y + connectPointBoundingBox.height / 2;
 				state.draftConnectLine.locked = true;
-
-				// TODO refactor refreshDrawerAnimationStateChange(slice, {
-				// 	drawerId: action.payload.connectPointId,
-				// 	key: AnimationKey.SnapConnectPoint,
-				// });
 			}),
 		),
-	unpinConnectLine: (payload: UnpinConnectLinePayload) =>
+	unlockDraftConnectLine: () =>
 		set(
 			produce<RootState>((state) => {
 				if (!state.draftConnectLine) {
@@ -350,15 +333,6 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 				}
 
 				state.draftConnectLine.locked = false;
-
-				if (!payload.animationId) {
-					return;
-				}
-
-				// TODO refactor disposeDrawerAnimationStateChange(slice, {
-				// 	drawerId: action.payload.drawerId,
-				// 	animationId: action.payload.animationId,
-				// });
 			}),
 		),
 	updateConnectPoints: (payload: UpdateConnectPointsPayload) =>

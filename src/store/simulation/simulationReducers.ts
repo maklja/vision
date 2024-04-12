@@ -6,7 +6,6 @@ import { StageSlice } from '../stageSlice';
 import { selectAllConnectLines } from '../connectLines';
 import { ConnectLine, Point } from '../../model';
 import { RootState } from '../rootState';
-import { clearErrorsStateChange, createElementErrorStateChange } from '../errors';
 import { DrawerAnimation } from '../drawerAnimations';
 
 export interface SimulationAnimation<D = unknown> extends DrawerAnimation<D> {
@@ -124,9 +123,9 @@ const createAnimations = (
 	};
 
 	// if not equals do not show previous drawer animation otherwise do show it
-	const showSameElementANimation =
+	const showSameElementAnimation =
 		prevEvent?.targetElementId !== sourceElementId || prevEvent?.type !== type;
-	return showSameElementANimation
+	return showSameElementAnimation
 		? [
 				{
 					id: v1(),
@@ -205,15 +204,15 @@ export const simulationReducers = {
 		const animation = simulation.animationsQueue[animationIndex];
 		const event = animation.data as ObservableEvent;
 
-		if (event?.type === FlowValueType.Error) {
-			createElementErrorStateChange(slice, {
-				elementId: event.sourceElementId,
-				errorId: event.id,
-				errorMessage: event.value,
-			});
-		} else {
-			clearErrorsStateChange(slice);
-		}
+		// TODO refactor if (event?.type === FlowValueType.Error) {
+		// 	createElementErrorStateChange(slice, {
+		// 		elementId: event.sourceElementId,
+		// 		errorId: event.id,
+		// 		errorMessage: event.value,
+		// 	});
+		// } else {
+		// 	clearErrorsStateChange(slice);
+		// }
 
 		const updatedAnimationQueue = [
 			...simulation.animationsQueue.slice(0, animationIndex),
@@ -230,3 +229,4 @@ export const selectSimulation = (state: RootState) => state.stage.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.stage.simulation.animationsQueue.at(0) ?? null;
+

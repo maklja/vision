@@ -2,30 +2,36 @@ import { Layer } from 'react-konva';
 import { useEffect, useState } from 'react';
 import { useAppSelector } from '../../store/rootState';
 import { ConnectLineDrawer, OperatorDrawer, TooltipDrawer } from '../../operatorDrawers';
-import { selectStageElementById, selectStageElements } from '../../store/elements';
+import { selectStageElements, selectStageElementById } from '../../store/elements';
 import { SimulationState, selectSimulation } from '../../store/simulation';
-import { isElementDragAllowed, isStageStateDragging, selectStageState } from '../../store/stage';
-import { selectTooltip } from '../../store/tooltip';
+import {
+	isElementDragAllowed,
+	isStageStateDragging,
+	selectStageState,
+	selectTooltip,
+} from '../../store/stage';
 import { selectElementSizeOptions, useBoundingBox, useThemeContext } from '../../store/stageSlice';
 import { selectElementErrorById } from '../../store/errors';
 import { selectStageConnectLines } from '../../store/connectLines';
+import { useRootStore } from '../../store/rootStateNew';
 
 const TOOLTIP_SHOW_TIME = 1_000;
 
 export const DrawersLayer = () => {
 	const theme = useThemeContext();
 	const simulation = useAppSelector(selectSimulation);
-	const elements = useAppSelector(selectStageElements);
-	const connectLines = useAppSelector(selectStageConnectLines);
+	const elements = useRootStore(selectStageElements());
+	const connectLines = useRootStore(selectStageConnectLines());
+	const selectedConnectLines = useRootStore((state) => state.selectedConnectLines);
 
-	const stageState = useAppSelector(selectStageState);
+	const stageState = useRootStore(selectStageState());
 	const dragging = isStageStateDragging(stageState);
 
-	const tooltip = useAppSelector(selectTooltip);
-	const element = useAppSelector(selectStageElementById(tooltip?.elementId ?? null));
-	const elementSizeOptions = useAppSelector(selectElementSizeOptions);
+	const tooltip = useRootStore(selectTooltip);
+	const element = useRootStore(selectStageElementById(tooltip?.elementId ?? null));
+	const elementSizeOptions = useRootStore(selectElementSizeOptions);
 	const bb = useBoundingBox(element?.type ?? null, { x: element?.x ?? 0, y: element?.y ?? 0 });
-	const error = useAppSelector(selectElementErrorById(element?.id ?? null));
+	const error = useRootStore(selectElementErrorById(element?.id ?? null));
 	const text = error?.errorMessage ?? tooltip?.text ?? element?.name;
 
 	const [tooltipVisible, setTooltipVisible] = useState(false);
@@ -48,7 +54,12 @@ export const DrawersLayer = () => {
 	return (
 		<Layer>
 			{connectLines.map((cl) => (
-				<ConnectLineDrawer key={cl.id} connectLine={cl} draggable={isDraggable} />
+				<ConnectLineDrawer
+					key={cl.id}
+					connectLine={cl}
+					select={selectedConnectLines.includes(cl.id)}
+					draggable={isDraggable}
+				/>
 			))}
 
 			{elements.map((el) => (
