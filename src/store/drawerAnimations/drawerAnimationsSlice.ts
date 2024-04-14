@@ -86,6 +86,7 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 				const updatedQueue = drawerAnimations.filter((a) => a !== removedAnimation);
 				if (updatedQueue.length === 0) {
 					delete state.animations[drawerId];
+					return;
 				}
 
 				state.animations[drawerId] = updatedQueue;
@@ -124,10 +125,9 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 				const { drawerId, key } = payload;
 				const drawerAnimations = state.animations[drawerId];
 				if (!drawerAnimations) {
-					const animationId = v1();
 					state.animations[drawerId] = [
 						{
-							id: animationId,
+							id: v1(),
 							key,
 							dispose: false,
 						},
@@ -145,11 +145,10 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 					return;
 				}
 
-				const animationId = v1();
 				state.animations[drawerId] = [
 					...drawerAnimations,
 					{
-						id: animationId,
+						id: v1(),
 						key,
 						dispose: false,
 					},
