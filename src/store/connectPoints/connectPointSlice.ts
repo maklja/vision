@@ -11,7 +11,6 @@ import {
 	IBoundingBox,
 	pointOverlapBoundingBox,
 } from '../../model';
-import { produce } from 'immer';
 import {
 	calculateShapeSizeBoundingBox,
 	ElementSizesContext,
@@ -163,196 +162,189 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 ) => ({
 	connectPoints: {},
 	createElementConnectPoints: (element: Element) =>
-		set(
-			produce<RootState>((state) => {
-				const connectPoints = createConnectPoints(element, state.elementSizes);
-				state.connectPoints[element.id] = connectPoints;
-			}),
-		),
+		set((state) => {
+			const connectPoints = createConnectPoints(element, state.elementSizes);
+			state.connectPoints[element.id] = connectPoints;
+
+			return state;
+		}),
 	removeElementsConnectPoints: (elementIds: string[]) =>
-		set(
-			produce<RootState>((state) => {
-				if (elementIds.length === 0) {
-					return;
-				}
+		set((state) => {
+			if (elementIds.length === 0) {
+				return state;
+			}
 
-				elementIds.forEach((elId) => {
-					delete state.connectPoints[elId];
-				});
-			}),
-		),
+			elementIds.forEach((elId) => {
+				delete state.connectPoints[elId];
+			});
+
+			return state;
+		}),
 	setSelectElementConnectPoint: (elementId: string) =>
-		set(
-			produce<RootState>((state) => {
-				const el = state.elements[elementId];
-				if (!el) {
-					throw new Error(`Element with id ${elementId} was not found`);
-				}
+		set((state) => {
+			const el = state.elements[elementId];
+			if (!el) {
+				throw new Error(`Element with id ${elementId} was not found`);
+			}
 
-				Object.keys(state.connectPoints).forEach((elId) => {
-					const connectPoints = state.connectPoints[elId];
-					state.connectPoints[elId] =
-						elId !== elementId
-							? hideElementConnectPointsVisibility(connectPoints)
-							: calcElementConnectPointsVisibility(el, connectPoints);
-				});
-			}),
-		),
+			Object.keys(state.connectPoints).forEach((elId) => {
+				const connectPoints = state.connectPoints[elId];
+				state.connectPoints[elId] =
+					elId !== elementId
+						? hideElementConnectPointsVisibility(connectPoints)
+						: calcElementConnectPointsVisibility(el, connectPoints);
+			});
+
+			return state;
+		}),
 	loadConnectPoints: (elements: Element[]) =>
-		set(
-			produce<RootState>((state) => {
-				elements.forEach((element) => {
-					state.connectPoints[element.id] = createConnectPoints(
-						element,
-						state.elementSizes,
-					);
-				});
-			}),
-		),
+		set((state) => {
+			elements.forEach((element) => {
+				state.connectPoints[element.id] = createConnectPoints(element, state.elementSizes);
+			});
+
+			return state;
+		}),
 	clearSelectedConnectPoints: () =>
-		set(
-			produce<RootState>((state) => {
-				Object.keys(state.connectPoints).forEach((elId) => {
-					state.connectPoints[elId] = hideElementConnectPointsVisibility(
-						state.connectPoints[elId],
-					);
-				});
-			}),
-		),
+		set((state) => {
+			Object.keys(state.connectPoints).forEach((elId) => {
+				state.connectPoints[elId] = hideElementConnectPointsVisibility(
+					state.connectPoints[elId],
+				);
+			});
+
+			return state;
+		}),
 	setSelectElementsConnectPoints: (elementIds: string[]) =>
-		set(
-			produce<RootState>((state) => {
-				Object.keys(state.connectPoints).forEach((elId) => {
-					const connectPoints = state.connectPoints[elId];
-					if (!elementIds.includes(elId)) {
-						state.connectPoints[elId] =
-							hideElementConnectPointsVisibility(connectPoints);
-						return;
-					}
+		set((state) => {
+			Object.keys(state.connectPoints).forEach((elId) => {
+				const connectPoints = state.connectPoints[elId];
+				if (!elementIds.includes(elId)) {
+					state.connectPoints[elId] = hideElementConnectPointsVisibility(connectPoints);
+					return;
+				}
 
-					const el = state.elements[elId];
-					if (!el) {
-						throw new Error(`Element with id ${elId} was not found`);
-					}
-
-					state.connectPoints[elId] = calcElementConnectPointsVisibility(
-						el,
-						connectPoints,
-					);
-				});
-			}),
-		),
-	markConnectionPointsAsConnectable: (elementIds: string[]) =>
-		set(
-			produce<RootState>((state) => {
-				Object.keys(state.connectPoints).forEach((elId) => {
-					state.connectPoints[elId] = elementIds.includes(elId)
-						? elementConnectPointsAsConnectable(state.connectPoints[elId])
-						: hideElementConnectPointsVisibility(state.connectPoints[elId]);
-				});
-			}),
-		),
-	selectConnectPoints: (elementId: string) =>
-		set(
-			produce<RootState>((state) => {
-				const el = state.elements[elementId];
+				const el = state.elements[elId];
 				if (!el) {
-					throw new Error(`Element with id ${elementId} was not found`);
+					throw new Error(`Element with id ${elId} was not found`);
 				}
 
-				state.connectPoints[elementId] = calcElementConnectPointsVisibility(
-					el,
-					state.connectPoints[elementId],
-				);
-			}),
-		),
+				state.connectPoints[elId] = calcElementConnectPointsVisibility(el, connectPoints);
+			});
+
+			return state;
+		}),
+	markConnectionPointsAsConnectable: (elementIds: string[]) =>
+		set((state) => {
+			Object.keys(state.connectPoints).forEach((elId) => {
+				state.connectPoints[elId] = elementIds.includes(elId)
+					? elementConnectPointsAsConnectable(state.connectPoints[elId])
+					: hideElementConnectPointsVisibility(state.connectPoints[elId]);
+			});
+
+			return state;
+		}),
+	selectConnectPoints: (elementId: string) =>
+		set((state) => {
+			const el = state.elements[elementId];
+			if (!el) {
+				throw new Error(`Element with id ${elementId} was not found`);
+			}
+
+			state.connectPoints[elementId] = calcElementConnectPointsVisibility(
+				el,
+				state.connectPoints[elementId],
+			);
+
+			return state;
+		}),
 	deselectConnectPoints: (elementId: string) =>
-		set(
-			produce<RootState>((state) => {
-				state.connectPoints[elementId] = hideElementConnectPointsVisibility(
-					state.connectPoints[elementId],
-				);
-			}),
-		),
+		set((state) => {
+			state.connectPoints[elementId] = hideElementConnectPointsVisibility(
+				state.connectPoints[elementId],
+			);
+
+			return state;
+		}),
 	clearHighlightConnectPoints: () =>
-		set(
-			produce<RootState>((state) => {
-				Object.keys(state.connectPoints).forEach((elId) => {
-					state.connectPoints[elId] = state.connectPoints[elId].map((cp) => ({
-						...cp,
-						highlight: false,
-					}));
-				});
-			}),
-		),
+		set((state) => {
+			Object.keys(state.connectPoints).forEach((elId) => {
+				state.connectPoints[elId] = state.connectPoints[elId].map((cp) => ({
+					...cp,
+					highlight: false,
+				}));
+			});
+
+			return state;
+		}),
 	moveConnectPointsByDelta: (payload: MoveConnectPointsByDeltaPayload) =>
-		set(
-			produce<RootState>((state) => {
-				payload.ids.forEach((elId) => {
-					const elementConnectPoints = state.connectPoints[elId];
-					if (!elementConnectPoints) {
-						throw new Error(`Connect points not found for element ${elId}`);
-					}
+		set((state) => {
+			payload.ids.forEach((elId) => {
+				const elementConnectPoints = state.connectPoints[elId];
+				if (!elementConnectPoints) {
+					throw new Error(`Connect points not found for element ${elId}`);
+				}
 
-					state.connectPoints[elId] = elementConnectPoints.map((cp) => ({
-						...cp,
-						x: cp.x + payload.dx,
-						y: cp.y + payload.dy,
-					}));
-				});
-			}),
-		),
+				state.connectPoints[elId] = elementConnectPoints.map((cp) => ({
+					...cp,
+					x: cp.x + payload.dx,
+					y: cp.y + payload.dy,
+				}));
+			});
+
+			return state;
+		}),
 	lockConnectLine: (connectPointBoundingBox: IBoundingBox) =>
-		set(
-			produce<RootState>((state) => {
-				if (!state.draftConnectLine) {
-					return;
-				}
+		set((state) => {
+			if (!state.draftConnectLine) {
+				return state;
+			}
 
-				const lastPoint = state.draftConnectLine.points.at(-1);
-				if (!lastPoint) {
-					return;
-				}
+			const lastPoint = state.draftConnectLine.points.at(-1);
+			if (!lastPoint) {
+				return state;
+			}
 
-				const hasOverlap = pointOverlapBoundingBox(lastPoint, connectPointBoundingBox);
+			const hasOverlap = pointOverlapBoundingBox(lastPoint, connectPointBoundingBox);
 
-				if (!hasOverlap) {
-					return;
-				}
+			if (!hasOverlap) {
+				return state;
+			}
 
-				lastPoint.x = connectPointBoundingBox.x + connectPointBoundingBox.width / 2;
-				lastPoint.y = connectPointBoundingBox.y + connectPointBoundingBox.height / 2;
-				state.draftConnectLine.locked = true;
-			}),
-		),
+			lastPoint.x = connectPointBoundingBox.x + connectPointBoundingBox.width / 2;
+			lastPoint.y = connectPointBoundingBox.y + connectPointBoundingBox.height / 2;
+			state.draftConnectLine.locked = true;
+
+			return state;
+		}),
 	unlockDraftConnectLine: () =>
-		set(
-			produce<RootState>((state) => {
-				if (!state.draftConnectLine) {
-					return;
+		set((state) => {
+			if (!state.draftConnectLine) {
+				return state;
+			}
+
+			state.draftConnectLine.locked = false;
+
+			return state;
+		}),
+	updateConnectPoints: (payload: UpdateConnectPointsPayload) =>
+		set((state) => {
+			payload.connectPointUpdates.forEach((updatePayload) => {
+				const elementConnectPoints = state.connectPoints[updatePayload.id];
+				if (!elementConnectPoints) {
+					throw new Error(
+						`Failed to find connect points for element ${updatePayload.id}`,
+					);
 				}
 
-				state.draftConnectLine.locked = false;
-			}),
-		),
-	updateConnectPoints: (payload: UpdateConnectPointsPayload) =>
-		set(
-			produce<RootState>((state) => {
-				payload.connectPointUpdates.forEach((updatePayload) => {
-					const elementConnectPoints = state.connectPoints[updatePayload.id];
-					if (!elementConnectPoints) {
-						throw new Error(
-							`Failed to find connect points for element ${updatePayload.id}`,
-						);
-					}
-
-					elementConnectPoints.forEach((cp) => {
-						cp.visible = updatePayload.visibility?.[cp.type] ?? cp.visible;
-						cp.highlight = updatePayload.highlight?.[cp.position] ?? cp.highlight;
-					});
+				elementConnectPoints.forEach((cp) => {
+					cp.visible = updatePayload.visibility?.[cp.type] ?? cp.visible;
+					cp.highlight = updatePayload.highlight?.[cp.position] ?? cp.highlight;
 				});
-			}),
-		),
+			});
+
+			return state;
+		}),
 });
 
 export const selectElementConnectPointsById = (id: string) =>
@@ -366,3 +358,4 @@ export const selectElementConnectPointsById = (id: string) =>
 			{},
 		);
 	});
+

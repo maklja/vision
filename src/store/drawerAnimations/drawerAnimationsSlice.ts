@@ -1,4 +1,3 @@
-import { produce } from 'immer';
 import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { AnimationKey } from '../../animation';
@@ -45,116 +44,115 @@ export interface AnimationSlice {
 export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlice> = (set) => ({
 	animations: {},
 	addDrawerAnimation: (payload: AddDrawerAnimationActionPayload) =>
-		set(
-			produce<RootState>((state) => {
-				const { drawerId, key, animationId = v1(), data } = payload;
-				const drawerAnimations = state.animations[drawerId];
+		set((state) => {
+			const { drawerId, key, animationId = v1(), data } = payload;
+			const drawerAnimations = state.animations[drawerId];
 
-				const newAnimation = {
-					id: animationId,
-					key,
-					dispose: false,
-					data,
-				};
+			const newAnimation = {
+				id: animationId,
+				key,
+				dispose: false,
+				data,
+			};
 
-				if (!drawerAnimations) {
-					state.animations[drawerId] = [newAnimation];
-					return;
-				}
+			if (!drawerAnimations) {
+				state.animations[drawerId] = [newAnimation];
+				return state;
+			}
 
-				const animationExists = drawerAnimations.some((a) => a.id === newAnimation.id);
-				if (animationExists) {
-					return;
-				}
+			const animationExists = drawerAnimations.some((a) => a.id === newAnimation.id);
+			if (animationExists) {
+				return state;
+			}
 
-				state.animations[drawerId] = [...drawerAnimations, newAnimation];
-			}),
-		),
+			state.animations[drawerId] = [...drawerAnimations, newAnimation];
+
+			return state;
+		}),
 	removeDrawerAnimation: (payload: RemoveDrawerAnimationPayload) =>
-		set(
-			produce<RootState>((state) => {
-				const { animationId, drawerId } = payload;
-				const drawerAnimations = state.animations[drawerId];
-				if (!drawerAnimations) {
-					return;
-				}
+		set((state) => {
+			const { animationId, drawerId } = payload;
+			const drawerAnimations = state.animations[drawerId];
+			if (!drawerAnimations) {
+				return state;
+			}
 
-				const removedAnimation = drawerAnimations.find((a) => a.id === animationId);
-				if (!removedAnimation) {
-					return;
-				}
-				const updatedQueue = drawerAnimations.filter((a) => a !== removedAnimation);
-				if (updatedQueue.length === 0) {
-					delete state.animations[drawerId];
-					return;
-				}
-
-				state.animations[drawerId] = updatedQueue;
-			}),
-		),
-	removeAllDrawerAnimations: (drawerId: string) =>
-		set(
-			produce<RootState>((state) => {
+			const removedAnimation = drawerAnimations.find((a) => a.id === animationId);
+			if (!removedAnimation) {
+				return state;
+			}
+			const updatedQueue = drawerAnimations.filter((a) => a !== removedAnimation);
+			if (updatedQueue.length === 0) {
 				delete state.animations[drawerId];
-			}),
-		),
+				return state;
+			}
+
+			state.animations[drawerId] = updatedQueue;
+
+			return state;
+		}),
+	removeAllDrawerAnimations: (drawerId: string) =>
+		set((state) => {
+			delete state.animations[drawerId];
+
+			return state;
+		}),
 	disposeDrawerAnimation: (payload: DisposeDrawerAnimationPayload) =>
-		set(
-			produce<RootState>((state) => {
-				const { drawerId, animationId } = payload;
-				const drawerAnimations = state.animations[drawerId];
-				if (!drawerAnimations) {
-					return;
-				}
+		set((state) => {
+			const { drawerId, animationId } = payload;
+			const drawerAnimations = state.animations[drawerId];
+			if (!drawerAnimations) {
+				return state;
+			}
 
-				const updatedQueue = drawerAnimations.map((a) =>
-					a.id === animationId
-						? {
-								...a,
-								dispose: true,
-						  }
-						: a,
-				);
+			const updatedQueue = drawerAnimations.map((a) =>
+				a.id === animationId
+					? {
+							...a,
+							dispose: true,
+					  }
+					: a,
+			);
+			state.animations[drawerId] = updatedQueue;
 
-				state.animations[drawerId] = updatedQueue;
-			}),
-		),
+			return state;
+		}),
 	refreshDrawerAnimation: (payload: RefreshDrawerAnimationPayload) =>
-		set(
-			produce<RootState>((state) => {
-				const { drawerId, key } = payload;
-				const drawerAnimations = state.animations[drawerId];
-				if (!drawerAnimations) {
-					state.animations[drawerId] = [
-						{
-							id: v1(),
-							key,
-							dispose: false,
-						},
-					];
-					return;
-				}
-
-				const [currentAnimation] = drawerAnimations;
-				if (currentAnimation.key === key) {
-					const [, ...otherAnimations] = drawerAnimations;
-					state.animations[drawerId] = [
-						{ ...currentAnimation, dispose: false },
-						...otherAnimations,
-					];
-					return;
-				}
-
+		set((state) => {
+			const { drawerId, key } = payload;
+			const drawerAnimations = state.animations[drawerId];
+			if (!drawerAnimations) {
 				state.animations[drawerId] = [
-					...drawerAnimations,
 					{
 						id: v1(),
 						key,
 						dispose: false,
 					},
 				];
-			}),
-		),
+				return state;
+			}
+
+			const [currentAnimation] = drawerAnimations;
+			if (currentAnimation.key === key) {
+				const [, ...otherAnimations] = drawerAnimations;
+				state.animations[drawerId] = [
+					{ ...currentAnimation, dispose: false },
+					...otherAnimations,
+				];
+				return state;
+			}
+
+			state.animations[drawerId] = [
+				...drawerAnimations,
+				{
+					id: v1(),
+					key,
+					dispose: false,
+				},
+			];
+
+			return state;
+		}),
 });
 
 export const selectDrawerAnimationByDrawerId =
@@ -171,3 +169,4 @@ export const selectDrawerAnimationById =
 
 		return state.animations[drawerId]?.find((a) => a.id === animationId) ?? null;
 	};
+

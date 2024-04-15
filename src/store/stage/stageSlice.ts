@@ -1,7 +1,6 @@
 import { StateCreator } from 'zustand';
 import { RootState } from '../rootState';
 import { useShallow } from 'zustand/react/shallow';
-import { produce } from 'immer';
 import {
 	createElementSizesContext,
 	createThemeContext,
@@ -161,41 +160,41 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 		scaleY: 0,
 	},
 	updateCanvasState: (canvasUpdate: Partial<CanvasState>) =>
-		set(
-			produce<RootState>((state) => {
-				state.canvasState = {
-					...state.canvasState,
-					...canvasUpdate,
-				};
-			}),
-		),
+		set((state) => {
+			state.canvasState = {
+				...state.canvasState,
+				...canvasUpdate,
+			};
+
+			return state;
+		}),
 	setHighlighted: (highlightElements: string[]) =>
-		set(
-			produce<RootState>((state) => {
-				state.highlighted = highlightElements;
-			}),
-		),
+		set((state) => {
+			state.highlighted = highlightElements;
+
+			return state;
+		}),
 	showTooltip: (payload: ShowTooltipPayload) =>
-		set(
-			produce<RootState>((state) => {
-				state.tooltip = {
-					elementId: payload.elementId,
-					text: payload.text ?? null,
-				};
-			}),
-		),
+		set((state) => {
+			state.tooltip = {
+				elementId: payload.elementId,
+				text: payload.text ?? null,
+			};
+
+			return state;
+		}),
 	hideTooltip: () =>
-		set(
-			produce<RootState>((state) => {
-				state.tooltip = null;
-			}),
-		),
+		set((state) => {
+			state.tooltip = null;
+
+			return state;
+		}),
 	changeState: (newState: StageState) =>
-		set(
-			produce<RootState>((state) => {
-				state.state = newState;
-			}),
-		),
+		set((state) => {
+			state.state = newState;
+
+			return state;
+		}),
 	load: (elements: Element[]) => {
 		const state = get();
 		state.loadElements(elements);
@@ -267,46 +266,46 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 		get().markElementAsSelected(sourceElId);
 	},
 	startLassoSelection: (startPoint: Point | null) =>
-		set(
-			produce<RootState>((state) => {
-				if (!startPoint) {
-					return;
-				}
+		set((state) => {
+			if (!startPoint) {
+				return state;
+			}
 
-				state.state = StageState.LassoSelect;
-				state.lassoSelection = {
-					x: startPoint.x,
-					y: startPoint.y,
-					width: 0,
-					height: 0,
-				};
-			}),
-		),
+			state.state = StageState.LassoSelect;
+			state.lassoSelection = {
+				x: startPoint.x,
+				y: startPoint.y,
+				width: 0,
+				height: 0,
+			};
+
+			return state;
+		}),
 	updateLassoSelection: (point: Point | null) =>
-		set(
-			produce<RootState>((state) => {
-				if (!point || !state.lassoSelection) {
-					return;
-				}
+		set((state) => {
+			if (!point || !state.lassoSelection) {
+				return state;
+			}
 
-				const { x, y } = state.lassoSelection;
-				const width = point.x - x;
-				const height = point.y - y;
-				state.lassoSelection = {
-					x,
-					y,
-					width,
-					height,
-				};
-			}),
-		),
+			const { x, y } = state.lassoSelection;
+			const width = point.x - x;
+			const height = point.y - y;
+			state.lassoSelection = {
+				x,
+				y,
+				width,
+				height,
+			};
+
+			return state;
+		}),
 	stopLassoSelection: () =>
-		set(
-			produce<RootState>((state) => {
-				state.lassoSelection = null;
-				state.state = StageState.Select;
-			}),
-		),
+		set((state) => {
+			state.lassoSelection = null;
+			state.state = StageState.Select;
+
+			return state;
+		}),
 	addDraftElement: () => {
 		const state = get();
 
@@ -616,7 +615,8 @@ export const selectLasso = () =>
 
 export const selectTooltip = (state: RootState) => state.tooltip;
 
-export const isHighlighted = (elementId: string) =>
-	(state: RootState) => state.highlighted.includes(elementId);
+export const isHighlighted = (elementId: string) => (state: RootState) =>
+	state.highlighted.includes(elementId);
 
 export const selectCanvasState = (state: RootState) => state.canvasState;
+

@@ -1,4 +1,3 @@
-import { produce } from 'immer';
 import { StateCreator } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 import {
@@ -158,17 +157,18 @@ export interface SnapLineSlice {
 export const createSnapLineSlice: StateCreator<RootState, [], [], SnapLineSlice> = (set) => ({
 	snapLines: [],
 	setSnapLines: (snapLines: SnapLine[]) =>
-		set(
-			produce<RootState>((state) => {
-				state.snapLines = snapLines;
-			}),
-		),
+		set((state) => {
+			state.snapLines = snapLines;
+
+			return state;
+		}),
 	clearSnapLines: () =>
-		set(
-			produce<RootState>((state) => {
-				state.snapLines = [];
-			}),
-		),
+		set((state) => {
+			state.snapLines = [];
+
+			return state;
+		}),
 });
 
 export const selectSnapLines = () => useShallow((state: RootState) => state.snapLines);
+

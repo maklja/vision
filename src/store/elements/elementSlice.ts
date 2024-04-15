@@ -1,4 +1,3 @@
-import { produce } from 'immer';
 import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
@@ -70,139 +69,129 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 	selectedElements: [],
 	draftElement: null,
 	createDraftElement: (payload: CreateElementPayload) =>
-		set(
-			produce<RootState>((state) => {
-				const allElementNames = Object.values(state.elements).map((el) => el.name);
-				const elName = createElementName(allElementNames, payload.type);
-				state.draftElement = {
-					...payload,
-					visible: true,
-					name: elName,
-					id: v1(),
-					properties: mapToOperatorPropsTemplate(payload.type),
-				};
-			}),
-		),
+		set((state) => {
+			console.log(state);
+			const allElementNames = Object.values(state.elements).map((el) => el.name);
+			const elName = createElementName(allElementNames, payload.type);
+			state.draftElement = {
+				...payload,
+				visible: true,
+				name: elName,
+				id: v1(),
+				properties: mapToOperatorPropsTemplate(payload.type),
+			};
+			return state;
+		}),
 	updateDraftElementPosition: (payload: Point) =>
-		set(
-			produce<RootState>((state) => {
-				if (!state.draftElement) {
-					return;
-				}
+		set((state) => {
+			if (!state.draftElement) {
+				return state;
+			}
 
-				state.draftElement = {
-					...state.draftElement,
-					x: payload.x,
-					y: payload.y,
-				};
-			}),
-		),
+			state.draftElement = {
+				...state.draftElement,
+				x: payload.x,
+				y: payload.y,
+			};
+			return state;
+		}),
 	clearDraftElement: () =>
-		set(
-			produce<RootState>((state) => {
-				state.draftElement = null;
-			}),
-		),
+		set((state) => {
+			state.draftElement = null;
+			return state;
+		}),
 	addElement: (newElement: Element) =>
-		set(
-			produce<RootState>((state) => {
-				state.elements[newElement.id] = newElement;
-			}),
-		),
+		set((state) => {
+			state.elements[newElement.id] = newElement;
+			return state;
+		}),
 	updateElement: (payload: UpdateElementPayload) =>
-		set(
-			produce<RootState>((state) => {
-				const el = state.elements[payload.id];
-				if (!el) {
-					return;
-				}
+		set((state) => {
+			const el = state.elements[payload.id];
+			if (!el) {
+				return state;
+			}
 
-				el.name = payload.name ?? el.name;
-				el.visible = payload.visible ?? el.visible;
-				el.properties = {
-					...el.properties,
-					...payload.properties,
-				};
-			}),
-		),
+			el.name = payload.name ?? el.name;
+			el.visible = payload.visible ?? el.visible;
+			el.properties = {
+				...el.properties,
+				...payload.properties,
+			};
+			return state;
+		}),
 	removeElements: (elementIds: string[]) =>
-		set(
-			produce<RootState>((state) => {
-				if (elementIds.length === 0) {
-					return;
-				}
+		set((state) => {
+			if (elementIds.length === 0) {
+				return state;
+			}
 
-				elementIds.forEach((elId) => {
-					delete state.elements[elId];
-				});
-			}),
-		),
+			elementIds.forEach((elId) => {
+				delete state.elements[elId];
+			});
+			return state;
+		}),
 	loadElements: (elements: Element[]) =>
-		set(
-			produce<RootState>((state) => {
-				state.elements = elements.reduce(
-					(elementsDict, el) => ({
-						...elementsDict,
-						[el.id]: el,
-					}),
-					{},
-				);
-			}),
-		),
+		set((state) => {
+			state.elements = elements.reduce(
+				(elementsDict, el) => ({
+					...elementsDict,
+					[el.id]: el,
+				}),
+				{},
+			);
+			return state;
+		}),
 	setSelectElements: (elementIds: string[]) =>
-		set(
-			produce<RootState>((state) => {
-				if (state.selectedElements.length === 0 && elementIds.length === 0) {
-					return;
-				}
+		set((state) => {
+			if (state.selectedElements.length === 0 && elementIds.length === 0) {
+				return state;
+			}
 
-				state.selectedElements = elementIds;
-			}),
-		),
+			state.selectedElements = elementIds;
+			return state;
+		}),
 	selectElement: (elementId: string) =>
-		set(
-			produce<RootState>((state) => {
-				if (state.selectedElements.includes(elementId)) {
-					return;
-				}
+		set((state) => {
+			if (state.selectedElements.includes(elementId)) {
+				return state;
+			}
 
-				state.selectedElements.push(elementId);
-			}),
-		),
+			state.selectedElements.push(elementId);
+			return state;
+		}),
 	deselectElement: (elementId: string) =>
-		set(
-			produce<RootState>((state) => {
-				const idx = state.selectedElements.indexOf(elementId);
-				if (idx === -1) {
-					return;
-				}
+		set((state) => {
+			const idx = state.selectedElements.indexOf(elementId);
+			if (idx === -1) {
+				return state;
+			}
 
-				state.selectedElements.splice(idx, 1);
-			}),
-		),
+			state.selectedElements.splice(idx, 1);
+			return state;
+		}),
 	updateElementProperty: (payload: UpdateElementPropertyPayload) =>
-		set(
-			produce<RootState>((state) => {
-				const element = state.elements[payload.id];
-				if (!element) {
-					return;
-				}
+		set((state) => {
+			const element = state.elements[payload.id];
+			if (!element) {
+				return state;
+			}
 
-				element.properties[payload.propertyName] = payload.propertyValue;
-			}),
-		),
+			element.properties[payload.propertyName] = payload.propertyValue;
+			return state;
+		}),
 	moveElementToPosition: (payload: MoveElementPayload) =>
-		set(
-			produce<RootState>((state) => {
-				const el = state.elements[payload.id];
-				if (!el) {
-					return;
-				}
+		set((state) => {
+			const el = state.elements[payload.id];
+			if (!el) {
+				return state;
+			}
 
-				el.x = payload.x;
-				el.y = payload.y;
-			}),
-		),
+			el.x = payload.x;
+			el.y = payload.y;
+
+			return state;
+		}),
 });
 
 export const selectStageElements = () =>
@@ -214,6 +203,6 @@ export const selectStageDraftElement = () => (state: RootState) =>
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
 	state.selectedElements.includes(elementId);
 
-export const selectStageElementById = (id: string | null) =>
-	(state: RootState) => (!id ? null : state.elements[id] ?? null);
+export const selectStageElementById = (id: string | null) => (state: RootState) =>
+	!id ? null : state.elements[id] ?? null;
 

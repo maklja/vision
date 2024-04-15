@@ -1,4 +1,3 @@
-import { produce } from 'immer';
 import { StateCreator } from 'zustand';
 import { RootState } from '../rootState';
 
@@ -22,20 +21,20 @@ export interface ErrorSlice {
 export const createErrorSlice: StateCreator<RootState, [], [], ErrorSlice> = (set) => ({
 	errors: {},
 	createElementError: (payload: CreateElementErrorPayload) =>
-		set(
-			produce<RootState>((state) => {
-				state.errors[payload.elementId] = {
-					errorId: payload.errorId,
-					errorMessage: payload.errorMessage,
-				};
-			}),
-		),
+		set((state) => {
+			state.errors[payload.elementId] = {
+				errorId: payload.errorId,
+				errorMessage: payload.errorMessage,
+			};
+
+			return state;
+		}),
 	clearErrors: () =>
-		set(
-			produce<RootState>((state) => {
-				state.errors = {};
-			}),
-		),
+		set((state) => {
+			state.errors = {};
+
+			return state;
+		}),
 });
 
 export const selectElementErrorById =
