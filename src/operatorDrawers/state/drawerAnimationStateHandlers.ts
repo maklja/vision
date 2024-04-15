@@ -1,19 +1,17 @@
 import { DrawerEvents } from '../../drawers';
-import { AppDispatch } from '../../store/rootState';
-import { disposeDrawerAnimation, removeDrawerAnimation } from '../../store/stageSlice';
+import { RootState } from '../../store/rootState';
 
-export const drawerAnimationStateHandlers = (dispatch: AppDispatch): DrawerEvents => ({
+export const drawerAnimationStateHandlers = (state: RootState): DrawerEvents => ({
 	onAnimationComplete: (aEvent) => {
-		dispatch(
-			disposeDrawerAnimation({ drawerId: aEvent.drawerId, animationId: aEvent.animationId }),
-		);
+		state.disposeDrawerAnimation({
+			drawerId: aEvent.drawerId,
+			animationId: aEvent.animationId,
+		});
 	},
 	onAnimationDestroy: (aEvent) => {
-		dispatch(
-			removeDrawerAnimation({
-				drawerId: aEvent.drawerId,
-				animationId: aEvent.animationId,
-			}),
-		);
+		state.removeDrawerAnimation({
+			drawerId: aEvent.drawerId,
+			animationId: aEvent.animationId,
+		});
 	},
 });

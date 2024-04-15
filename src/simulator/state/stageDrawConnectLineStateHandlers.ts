@@ -1,15 +1,8 @@
 import Konva from 'konva';
-import { AppDispatch } from '../../store/rootState';
 import { StageEvents } from '../SimulatorStage';
-import {
-	addNextPointConnectLineDraw,
-	clearSnapLines,
-	createConnectPointSnapLines,
-	deleteConnectLineDraw,
-	moveConnectLineDraw,
-} from '../../store/stageSlice';
+import { RootState } from '../../store/rootState';
 
-export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageEvents => ({
+export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents => ({
 	onMouseMove: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		const stage = e.target.getStage();
@@ -18,16 +11,14 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 		}
 
 		const { x, y } = stage.getRelativePointerPosition() ?? { x: 0, y: 0 };
-		dispatch(
-			moveConnectLineDraw({
-				position: {
-					x,
-					y,
-				},
-				normalizePosition: e.evt.shiftKey,
-			}),
-		);
-		dispatch(createConnectPointSnapLines());
+		state.moveConnectLineDraw({
+			position: {
+				x,
+				y,
+			},
+			normalizePosition: e.evt.shiftKey,
+		});
+		state.createConnectPointSnapLines();
 	},
 	onMouseDown: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
@@ -37,20 +28,14 @@ export const stageDrawConnectLineStateHandlers = (dispatch: AppDispatch): StageE
 			return;
 		}
 
-		const { x, y } = stage.getRelativePointerPosition() ?? { x: 0, y: 0 };
-		dispatch(
-			addNextPointConnectLineDraw({
-				x,
-				y,
-			}),
-		);
+		const point = stage.getRelativePointerPosition() ?? { x: 0, y: 0 };
+		state.addNextPointToConnectLineDraw(point);
 	},
 	onContextMenu: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		e.evt.preventDefault();
 
-		dispatch(deleteConnectLineDraw());
-		dispatch(clearSnapLines());
+		state.stopConnectPointDraw();
+		state.clearSnapLines();
 	},
 });
-

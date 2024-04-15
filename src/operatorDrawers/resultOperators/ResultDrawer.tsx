@@ -1,7 +1,7 @@
 import { ElementType } from '../../model';
-import { useCircleShapeSize } from '../../store/stageSlice';
 import { CircleResultDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
+import { useCircleShapeSize } from '../../store/hooks';
 
 export interface ResultDrawerProps extends ElementDrawerProps {
 	hash: string;
@@ -62,4 +62,3 @@ export const ResultDrawer = ({
 		/>
 	);
 };
-

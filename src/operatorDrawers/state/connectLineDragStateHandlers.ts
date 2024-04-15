@@ -1,10 +1,9 @@
 import { LineDotEvent, LineDrawerEvents } from '../../drawers';
-import { AppDispatch } from '../../store/rootState';
+import { RootState } from '../../store/rootState';
 import { StageState } from '../../store/stage';
-import { changeState, movePointConnectLine } from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 
-export const connectLineDragStateHandlers = (dispatch: AppDispatch): LineDrawerEvents => ({
+export const connectLineDragStateHandlers = (state: RootState): LineDrawerEvents => ({
 	onDotMouseDown: (e: LineDotEvent) => {
 		const { originalEvent } = e;
 		if (!originalEvent) {
@@ -20,7 +19,7 @@ export const connectLineDragStateHandlers = (dispatch: AppDispatch): LineDrawerE
 
 		changeCursorStyle('pointer', originalEvent.currentTarget.getStage());
 		originalEvent.cancelBubble = true;
-		dispatch(changeState(StageState.Select));
+		state.changeState(StageState.Select);
 	},
 	onDotDragMove: (e: LineDotEvent<DragEvent>) => {
 		const { id, originalEvent, index } = e;
@@ -31,14 +30,12 @@ export const connectLineDragStateHandlers = (dispatch: AppDispatch): LineDrawerE
 		changeCursorStyle('grabbing', originalEvent.currentTarget.getStage());
 		originalEvent.cancelBubble = true;
 		const position = originalEvent.currentTarget.getPosition();
-		dispatch(
-			movePointConnectLine({
-				id,
-				index,
-				x: position.x,
-				y: position.y,
-				normalizePosition: originalEvent.evt.shiftKey,
-			}),
-		);
+		state.movePointConnectLine({
+			id,
+			index,
+			x: position.x,
+			y: position.y,
+			normalizePosition: originalEvent.evt.shiftKey,
+		});
 	},
 });

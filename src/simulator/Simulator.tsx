@@ -4,22 +4,6 @@ import { useMemo, useRef, useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import Paper from '@mui/material/Paper';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { useAppDispatch, useAppSelector } from '../store/rootState';
-import {
-	addObservableEvent,
-	clearErrors,
-	clearSelected,
-	completeSimulation,
-	createElementError,
-	moveElement,
-	removeElementConnectLines,
-	resetSimulation,
-	startSimulation,
-	updateCanvasState,
-	updateConnectLine,
-	updateElement,
-	updateElementProperty,
-} from '../store/stageSlice';
 import { SimulatorStage } from './SimulatorStage';
 import { CommonProps, ConnectPointType, Point, isEntryOperatorType } from '../model';
 import { OperatorsPanel, SimulationControls, ZoomControls } from '../ui';
@@ -31,22 +15,36 @@ import {
 	UnsupportedElementTypeError,
 	createObservableSimulation,
 } from '../engine';
-import { selectElementsInSelection, selectStageElements } from '../store/elements';
+import { selectStageElements } from '../store/elements';
 import { selectRelatedElementElements, selectStageConnectLines } from '../store/connectLines';
 import { SimulationState, selectSimulation } from '../store/simulation';
 import { OperatorPropertiesPanel } from '../ui/properties';
-import { StageState, selectStageState } from '../store/stage';
-import { ZoomType } from '../store/canvas';
+import { StageState, ZoomType, selectStageState } from '../store/stage';
 import { zoomStage } from './state';
 import { WindowShell } from '../ui/window';
+import { useStore } from '../store/rootState';
+import { selectElementsInSelection } from '../store/select/selectSlice';
 
 export const Simulator = () => {
-	const stageState = useAppSelector(selectStageState);
-	const simulation = useAppSelector(selectSimulation);
-	const elements = useAppSelector(selectStageElements);
-	const connectLines = useAppSelector(selectStageConnectLines);
-	const selectedElements = useAppSelector(selectElementsInSelection);
-	const selectedElementConnectLines = useAppSelector(
+	const stageState = useStore(selectStageState());
+	const simulation = useStore(selectSimulation);
+	const elements = useStore(selectStageElements());
+	const moveElement = useStore((state) => state.moveElement);
+	const updateElement = useStore((state) => state.updateElement);
+	const updateElementProperty = useStore((state) => state.updateElementProperty);
+	const clearAllSelectedElements = useStore((state) => state.clearAllSelectedElements);
+	const removeElementConnectLines = useStore((state) => state.removeElementConnectLines);
+	const updateConnectLine = useStore((state) => state.updateConnectLine);
+	const updateCanvasState = useStore((state) => state.updateCanvasState);
+	const createElementError = useStore((state) => state.createElementError);
+	const clearErrors = useStore((state) => state.clearErrors);
+	const startSimulation = useStore((state) => state.startSimulation);
+	const resetSimulation = useStore((state) => state.resetSimulation);
+	const completeSimulation = useStore((state) => state.completeSimulation);
+	const addObservableEvent = useStore((state) => state.addObservableEvent);
+	const connectLines = useStore(selectStageConnectLines());
+	const selectedElements = useStore(selectElementsInSelection());
+	const selectedElementConnectLines = useStore(
 		selectRelatedElementElements(selectedElements[0]?.id),
 	);
 	const stageRef = useRef<Konva.Stage | null>(null);
@@ -59,28 +57,23 @@ export const Simulator = () => {
 		[elements, selectedElements],
 	);
 
-	const appDispatch = useAppDispatch();
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
 	);
 
 	const dispatchObservableEvent = (event: FlowValueEvent<unknown>) =>
-		appDispatch(
-			addObservableEvent({
-				event: {
-					id: event.id,
-					hash: event.hash,
-					index: event.index,
-					connectLinesId: event.connectLinesId,
-					sourceElementId: event.sourceElementId,
-					targetElementId: event.targetElementId,
-					type: event.value.type,
-					value: `${event.value.raw}`,
-				},
-			}),
-		);
+		addObservableEvent({
+			id: event.id,
+			hash: event.hash,
+			index: event.index,
+			connectLinesId: event.connectLinesId,
+			sourceElementId: event.sourceElementId,
+			targetElementId: event.targetElementId,
+			type: event.value.type,
+			value: `${event.value.raw}`,
+		});
 
-	const dispatchCompleteEvent = () => appDispatch(completeSimulation());
+	const dispatchCompleteEvent = () => completeSimulation();
 
 	const handleSimulationStart = (entryElementId: string) => {
 		if (!entryElementId) {
@@ -88,9 +81,9 @@ export const Simulator = () => {
 		}
 
 		try {
-			appDispatch(clearErrors());
-			appDispatch(startSimulation());
-			appDispatch(clearSelected());
+			clearErrors();
+			startSimulation();
+			clearAllSelectedElements();
 			const subscription = createObservableSimulation(
 				entryElementId,
 				elements,
@@ -108,14 +101,13 @@ export const Simulator = () => {
 				e instanceof UnsupportedElementTypeError ||
 				e instanceof InvalidElementPropertyValueError
 			) {
-				appDispatch(resetSimulation());
-				appDispatch(
-					createElementError({
-						elementId: e.elementId,
-						errorMessage: e.message,
-						errorId: e.id,
-					}),
-				);
+				resetSimulation();
+				createElementError({
+					elementId: e.elementId,
+					errorMessage: e.message,
+					errorId: e.id,
+				});
+
 				return;
 			}
 
@@ -126,65 +118,54 @@ export const Simulator = () => {
 	const handleSimulationStop = () => {
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
-
-		appDispatch(resetSimulation());
+		resetSimulation();
 	};
 
 	const handleSimulationReset = (entryElementId: string) => {
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
 
-		appDispatch(resetSimulation());
+		resetSimulation();
 		handleSimulationStart(entryElementId);
 	};
 
 	const handleElementPositionChange = (id: string, position: Point) =>
-		appDispatch(
-			moveElement({
-				id,
-				x: position.x,
-				y: position.y,
-			}),
-		);
+		moveElement({
+			id,
+			x: position.x,
+			y: position.y,
+		});
 
 	const handleElementNameChange = (id: string, name: string) =>
-		appDispatch(
-			updateElement({
-				id,
-				name,
-			}),
-		);
+		updateElement({
+			id,
+			name,
+		});
 
 	const handleElementPropertyChange = (
 		id: string,
 		propertyName: string,
 		propertyValue: unknown,
 	) => {
-		appDispatch(
-			updateElementProperty({
-				id,
-				propertyName,
-				propertyValue,
-			}),
-		);
+		updateElementProperty({
+			id,
+			propertyName,
+			propertyValue,
+		});
 
 		if (propertyName === CommonProps.EnableObservableEvent && !propertyValue) {
-			appDispatch(
-				removeElementConnectLines({
-					elementId: id,
-					connectPointType: ConnectPointType.Event,
-				}),
-			);
+			removeElementConnectLines({
+				elementId: id,
+				connectPointType: ConnectPointType.Event,
+			});
 		}
 	};
 
 	const handleConnectLineChanged = (id: string, changes: { index?: number; name?: string }) => {
-		appDispatch(
-			updateConnectLine({
-				id,
-				...changes,
-			}),
-		);
+		updateConnectLine({
+			id,
+			...changes,
+		});
 	};
 
 	function handleZoom(zoomType: ZoomType) {
@@ -194,16 +175,15 @@ export const Simulator = () => {
 		}
 
 		zoomStage(stage, zoomType);
-		appDispatch(
-			updateCanvasState({
-				x: stage.position().x,
-				y: stage.position().y,
-				width: stage.width(),
-				height: stage.height(),
-				scaleX: stage.scaleX(),
-				scaleY: stage.scaleY(),
-			}),
-		);
+
+		updateCanvasState({
+			x: stage.position().x,
+			y: stage.position().y,
+			width: stage.width(),
+			height: stage.height(),
+			scaleX: stage.scaleX(),
+			scaleY: stage.scaleY(),
+		});
 	}
 
 	if (!simulation) {
@@ -301,4 +281,3 @@ export const Simulator = () => {
 		</Box>
 	);
 };
-

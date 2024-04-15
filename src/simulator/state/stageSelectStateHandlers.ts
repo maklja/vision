@@ -1,24 +1,15 @@
 import Konva from 'konva';
-import { AppDispatch } from '../../store/rootState';
 import { StageEvents } from '../SimulatorStage';
-import {
-	removeSelected,
-	clearSelected,
-	updateCanvasState,
-	startLassoSelection,
-	updateLassoSelection,
-	stopLassoSelection,
-	selectElementInLassoBoundingBox,
-} from '../../store/stageSlice';
 import { changeCursorStyle } from '../../operatorDrawers/utils';
 import { ZoomTo, zoomStage } from './calculateScaleAndPosition';
-import { ZoomType } from '../../store/canvas';
+import { RootState } from '../../store/rootState';
+import { ZoomType } from '../../store/stage';
 
 const LEFT_MOUSE_BUTTON = 0;
 const PAN_MOUSE_BUTTON_KEY = 1;
 const CANCEL_MOUSE_BUTTON_KEY = 2;
 
-export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => ({
+export const stageSelectStateHandlers = (state: RootState): StageEvents => ({
 	onMouseDown: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		const stage = e.currentTarget.getStage();
 		if (!stage) {
@@ -35,7 +26,7 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 			return;
 		}
 
-		dispatch(startLassoSelection(mousePosition));
+		state.startLassoSelection(mousePosition);
 	},
 	onMouseMove: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		const stage = e.currentTarget.getStage();
@@ -54,14 +45,14 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 		}
 
 		if (e.evt.ctrlKey) {
-			dispatch(updateLassoSelection(mousePosition));
+			state.updateLassoSelection(mousePosition);
 		} else {
-			dispatch(stopLassoSelection());
+			state.stopLassoSelection();
 		}
 	},
 	onMouseUp: () => {
-		dispatch(selectElementInLassoBoundingBox());
-		dispatch(stopLassoSelection());
+		state.selectElementsInLassoBoundingBox();
+		state.stopLassoSelection();
 	},
 	onDragStart: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		const stage = e.currentTarget.getStage();
@@ -86,16 +77,14 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 			return;
 		}
 
-		dispatch(
-			updateCanvasState({
-				x: stage.position().x,
-				y: stage.position().y,
-				width: stage.width(),
-				height: stage.height(),
-				scaleX: stage.scaleX(),
-				scaleY: stage.scaleY(),
-			}),
-		);
+		state.updateCanvasState({
+			x: stage.position().x,
+			y: stage.position().y,
+			width: stage.width(),
+			height: stage.height(),
+			scaleX: stage.scaleX(),
+			scaleY: stage.scaleY(),
+		});
 	},
 	onWheel: (e: Konva.KonvaEventObject<WheelEvent>) => {
 		e.evt.preventDefault();
@@ -111,20 +100,18 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 		}
 
 		zoomStage(stage, zoomType, ZoomTo.Pointer);
-		dispatch(
-			updateCanvasState({
-				x: stage.position().x,
-				y: stage.position().y,
-				width: stage.width(),
-				height: stage.height(),
-				scaleX: stage.scaleX(),
-				scaleY: stage.scaleY(),
-			}),
-		);
+		state.updateCanvasState({
+			x: stage.position().x,
+			y: stage.position().y,
+			width: stage.width(),
+			height: stage.height(),
+			scaleX: stage.scaleX(),
+			scaleY: stage.scaleY(),
+		});
 	},
 	onKeyUp: (e: KeyboardEvent, stage: Konva.Stage | null) => {
 		if (e.key === 'Delete') {
-			dispatch(removeSelected());
+			state.removeSelectedElements();
 			changeCursorStyle('default', stage);
 		}
 	},
@@ -137,7 +124,6 @@ export const stageSelectStateHandlers = (dispatch: AppDispatch): StageEvents => 
 			return;
 		}
 
-		dispatch(clearSelected());
+		state.clearAllSelectedElements();
 	},
 });
-

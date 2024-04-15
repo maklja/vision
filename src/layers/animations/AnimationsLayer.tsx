@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 import { Layer } from 'react-konva';
-import { useAppDispatch, useAppSelector } from '../../store/rootState';
-import { addDrawerAnimation, removeSimulationAnimation } from '../../store/stageSlice';
 import { ElementType } from '../../model';
 import { OperatorDrawer } from '../../operatorDrawers';
 import { AnimationKey } from '../../animation';
@@ -11,14 +9,16 @@ import {
 	selectSimulationNextAnimation,
 } from '../../store/simulation';
 import { selectDrawerAnimationById } from '../../store/drawerAnimations';
+import { useStore } from '../../store/rootState';
 
 export const AnimationsLayer = () => {
-	const appDispatch = useAppDispatch();
-	const simulation = useAppSelector(selectSimulation);
-	const nextAnimation = useAppSelector(selectSimulationNextAnimation);
-	const drawerAnimation = useAppSelector(
+	const simulation = useStore(selectSimulation);
+	const nextAnimation = useStore(selectSimulationNextAnimation);
+	const removeSimulationAnimation = useStore((state) => state.removeSimulationAnimation);
+	const drawerAnimation = useStore(
 		selectDrawerAnimationById(nextAnimation?.drawerId, nextAnimation?.id),
 	);
+	const addDrawerAnimation = useStore((store) => store.addDrawerAnimation);
 
 	// track when current drawer animation is disposed in order to dequeue it
 	useEffect(() => {
@@ -26,7 +26,7 @@ export const AnimationsLayer = () => {
 			return;
 		}
 
-		appDispatch(removeSimulationAnimation({ animationId: drawerAnimation.id }));
+		removeSimulationAnimation(drawerAnimation.id);
 	}, [drawerAnimation?.dispose]);
 
 	useEffect(() => {
@@ -36,14 +36,12 @@ export const AnimationsLayer = () => {
 
 		const { drawerId, key, id, data } = nextAnimation;
 		// start drawer animation
-		appDispatch(
-			addDrawerAnimation({
-				animationId: id,
-				drawerId,
-				key,
-				data,
-			}),
-		);
+		addDrawerAnimation({
+			animationId: id,
+			drawerId,
+			key,
+			data,
+		});
 	}, [simulation.animationsQueue, nextAnimation?.id]);
 
 	const moveAnimation =

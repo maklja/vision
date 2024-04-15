@@ -3,13 +3,13 @@ import { useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { Layer, Stage } from 'react-konva';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { createDraftElement, useShapeSize, useThemeContext } from '../../store/stageSlice';
 import { ElementType } from '../../model';
 import { DragNDropType } from '../../dragNDrop';
-import { useAppDispatch } from '../../store/rootState';
 import { calculateShapeSizeBoundingBox, scaleShapeSize } from '../../theme';
 import { createOperatorDrawer } from '../../operatorDrawers';
 import { DragNDropItem } from '../../layers/creation';
+import { useShapeSize, useThemeContext } from '../../store/hooks';
+import { useStore } from '../../store/rootState';
 
 export interface OperatorButtonProps {
 	elementType: ElementType;
@@ -18,7 +18,7 @@ export interface OperatorButtonProps {
 }
 
 export const OperatorButton = ({ elementType, padding = 4, scale = 0.65 }: OperatorButtonProps) => {
-	const appDispatch = useAppDispatch();
+	const startElementDraw = useStore((state) => state.startElementDraw);
 	const theme = useThemeContext(elementType);
 	const shapeSize = useShapeSize(elementType);
 	const buttonShapeSize = scaleShapeSize(shapeSize, scale);
@@ -41,13 +41,11 @@ export const OperatorButton = ({ elementType, padding = 4, scale = 0.65 }: Opera
 				const xPosition = (clientOffset?.x ?? 0) - bb.width / 2;
 				const yPosition = (clientOffset?.y ?? 0) - bb.height / 2;
 
-				appDispatch(
-					createDraftElement({
-						x: xPosition,
-						y: yPosition,
-						type: elementType,
-					}),
-				);
+				startElementDraw({
+					x: xPosition,
+					y: yPosition,
+					type: elementType,
+				});
 
 				return {
 					elementType,

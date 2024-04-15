@@ -1,1 +1,1 @@
-export * from './selectReducers';
+export * from './selectSlice';

@@ -5,18 +5,12 @@ import { useDrop } from 'react-dnd';
 import { AnimationsLayer } from '../layers/animations';
 import { DraftLayer, DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DrawersLayer } from '../layers/drawers';
-import { useAppDispatch, useAppSelector } from '../store/rootState';
-import {
-	addDraftElement,
-	clearDraftElement,
-	clearSnapLines,
-	updateCanvasState,
-	useThemeContext,
-} from '../store/stageSlice';
 import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
 import { GridLayer } from '../layers/grid';
 import { StageState, selectStageState } from '../store/stage';
+import { useStore } from '../store/rootState';
+import { useThemeContext } from '../store/hooks';
 
 Konva.hitOnDragEnabled = true;
 
@@ -40,9 +34,12 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 	parentStageRef,
 ) {
 	const theme = useThemeContext();
-	const stageState = useAppSelector(selectStageState);
+	const addDraftElement = useStore((state) => state.addDraftElement);
+	const stopElementDraw = useStore((state) => state.stopElementDraw);
+	const clearSnapLines = useStore((state) => state.clearSnapLines);
+	const updateCanvasState = useStore((state) => state.updateCanvasState);
+	const stageState = useStore(selectStageState());
 	const stageHandlers = useStageHandlers();
-	const appDispatch = useAppDispatch();
 	const stageRef = useRef<Konva.Stage | null>(null);
 	// small workaround because react=dnd doesn't support key events
 	const [snapToGrid, setSnapToGrid] = useState(false);
@@ -52,8 +49,8 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 			accept: DragNDropType.CreateElement,
 			drop(_data, monitor) {
 				if (!monitor.isOver()) {
-					appDispatch(clearDraftElement());
-					appDispatch(clearSnapLines());
+					stopElementDraw();
+					clearSnapLines();
 					return;
 				}
 
@@ -61,8 +58,8 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 					return;
 				}
 
-				appDispatch(addDraftElement());
-				appDispatch(clearSnapLines());
+				addDraftElement();
+				clearSnapLines();
 			},
 		}),
 		[],
@@ -89,16 +86,14 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 			return;
 		}
 
-		appDispatch(
-			updateCanvasState({
-				x: stageRef.current.position().x,
-				y: stageRef.current.position().y,
-				width: stageRef.current.width(),
-				height: stageRef.current.height(),
-				scaleX: stageRef.current.scaleX(),
-				scaleY: stageRef.current.scaleY(),
-			}),
-		);
+		updateCanvasState({
+			x: stageRef.current.position().x,
+			y: stageRef.current.position().y,
+			width: stageRef.current.width(),
+			height: stageRef.current.height(),
+			scaleX: stageRef.current.scaleX(),
+			scaleY: stageRef.current.scaleY(),
+		});
 	}, [stageRef.current]);
 
 	function handleStageRef(stage: Konva.Stage) {
@@ -133,4 +128,3 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 		</div>
 	);
 });
-

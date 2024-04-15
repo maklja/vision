@@ -1,9 +1,9 @@
 import { Group } from 'react-konva';
 import { ElementType } from '../../model';
-import { useCircleShapeSize } from '../../store/stageSlice';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { CheckCircleIconDrawer, CircleOperatorDrawer, CloseCircleIconDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
+import { useCircleShapeSize } from '../../store/hooks';
 
 export const IifOperatorDrawer = ({
 	x,
@@ -91,4 +91,3 @@ export const IifOperatorDrawer = ({
 		</Group>
 	);
 };
-

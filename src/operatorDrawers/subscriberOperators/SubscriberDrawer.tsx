@@ -1,9 +1,9 @@
 import { Group } from 'react-konva';
 import { DotCircleOperatorDrawer } from '../../drawers';
 import { ElementType } from '../../model';
-import { useCircleShapeSize } from '../../store/stageSlice';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { ElementDrawerProps } from '../ElementDrawerProps';
+import { useCircleShapeSize } from '../../store/hooks';
 
 export const SubscriberDrawer = ({
 	x,
@@ -71,4 +71,3 @@ export const SubscriberDrawer = ({
 		</Group>
 	);
 };
-

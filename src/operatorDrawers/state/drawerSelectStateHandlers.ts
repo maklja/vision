@@ -1,23 +1,10 @@
 import { DrawerEvent, DrawerEvents } from '../../drawers';
-import { AppDispatch } from '../../store/rootState';
+import { RootState } from '../../store/rootState';
 import { StageState } from '../../store/stage';
-import {
-	changeState,
-	clearSelected,
-	hideTooltip,
-	highlight,
-	selectConnectPoint,
-	selectElement,
-	selectElements,
-	setSelectionConnectPoints,
-	showTooltip,
-	toggleSelectElement,
-	toggleSelectionConnectPoint,
-} from '../../store/stageSlice';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 
-export function drawerSelectStateHandlers(dispatch: AppDispatch): DrawerEvents {
+export function drawerSelectStateHandlers(state: RootState): DrawerEvents {
 	return {
 		...drawerAnimationStateHandlers,
 		onMouseDown: (e: DrawerEvent) => {
@@ -26,13 +13,9 @@ export function drawerSelectStateHandlers(dispatch: AppDispatch): DrawerEvents {
 			}
 
 			if (e.originalEvent?.evt.ctrlKey) {
-				dispatch(toggleSelectElement({ id: e.id }));
-				dispatch(toggleSelectionConnectPoint({ elementId: e.id }));
+				state.toggleElementSelection(e.id);
 			} else {
-				// here order matters so be aware that connect points are checking if
-				// element that they belong to is selected as well
-				dispatch(selectConnectPoint({ elementId: e.id }));
-				dispatch(selectElement({ id: e.id }));
+				state.markElementAsSelected(e.id);
 			}
 		},
 		onMouseUp: (e: DrawerEvent) => {
@@ -40,21 +23,18 @@ export function drawerSelectStateHandlers(dispatch: AppDispatch): DrawerEvents {
 				return;
 			}
 
-			dispatch(clearSelected());
-			dispatch(selectElements([{ id: e.id }]));
-			dispatch(setSelectionConnectPoints({ elementIds: [e.id] }));
+			state.clearAllSelectedElements();
+			state.markElementAsSelected(e.id);
 		},
 		onMouseOver: (e: DrawerEvent) => {
 			const { id, originalEvent } = e;
 			if (originalEvent) {
 				originalEvent.cancelBubble = true;
 				changeCursorStyle('pointer', originalEvent.currentTarget.getStage());
-				dispatch(highlight([{ id }]));
-				dispatch(
-					showTooltip({
-						elementId: id,
-					}),
-				);
+				state.setHighlighted([id]);
+				state.showTooltip({
+					elementId: id,
+				});
 			}
 		},
 		onMouseOut: (e: DrawerEvent) => {
@@ -62,16 +42,16 @@ export function drawerSelectStateHandlers(dispatch: AppDispatch): DrawerEvents {
 			if (originalEvent) {
 				originalEvent.cancelBubble = true;
 				changeCursorStyle('default', originalEvent.currentTarget.getStage());
-				dispatch(highlight([]));
-				dispatch(hideTooltip());
+				state.setHighlighted([]);
+				state.hideTooltip();
 			}
 		},
 		onDragStart: (e: DrawerEvent) => {
 			if (e.originalEvent) {
 				e.originalEvent.cancelBubble = true;
 			}
-			dispatch(changeState(StageState.Dragging));
+
+			state.changeState(StageState.Dragging);
 		},
 	};
 }
-

@@ -1,21 +1,51 @@
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import { combineReducers, configureStore, PreloadedState } from '@reduxjs/toolkit';
-import stageReducer from './stageSlice';
+import { create, StateCreator, StoreMutatorIdentifier } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import { createElementSlice, ElementSlice } from './elements';
+import { createStageSlice, StageSlice } from './stage';
+import { ConnectPointSlice, createConnectPointSlice } from './connectPoints';
+import { createSelectSlice, SelectSlice } from './select';
+import { ConnectLineSlice, createConnectLineSlice } from './connectLines';
+import { createSnapLineSlice, SnapLineSlice } from './snapLines';
+import { createErrorSlice, ErrorSlice } from './errors/errorSlice';
+import { AnimationSlice, createAnimationSlice } from './drawerAnimations';
+import { createSimulationSlice, SimulationSlice } from './simulation';
 
-const rootReducer = combineReducers({
-	stage: stageReducer,
-});
+export type RootState = ElementSlice &
+	StageSlice &
+	ConnectPointSlice &
+	SelectSlice &
+	ConnectLineSlice &
+	SnapLineSlice &
+	ErrorSlice &
+	AnimationSlice &
+	SimulationSlice;
 
-export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
-	return configureStore({
-		preloadedState,
-		reducer: rootReducer,
-	});
-};
+export type ImmerStateCreator<
+	T,
+	Mps extends [StoreMutatorIdentifier, unknown][] = [],
+	Mcs extends [StoreMutatorIdentifier, unknown][] = [],
+> = StateCreator<T, [...Mps, ['zustand/immer', never]], Mcs>;
 
-export const useAppDispatch: () => AppDispatch = useDispatch;
+export type MyAppStateCreator = ImmerStateCreator<RootState>;
 
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-export type RootState = ReturnType<typeof rootReducer>;
-export type AppStore = ReturnType<typeof setupStore>;
-export type AppDispatch = AppStore['dispatch'];
+// Defines the type of a function used to create a slice of the store. The
+// slice has access to all the store's actions and state, but only returns
+// the actions and state necessary for the slice.
+export type SliceCreator<TSlice extends keyof RootState> = (
+	...params: Parameters<MyAppStateCreator>
+) => Pick<ReturnType<MyAppStateCreator>, TSlice>;
+
+export const useStore = create<RootState>()(
+	immer((...args) => ({
+		...createElementSlice(...args),
+		...createStageSlice(...args),
+		...createConnectPointSlice(...args),
+		...createSelectSlice(...args),
+		...createConnectLineSlice(...args),
+		...createSnapLineSlice(...args),
+		...createErrorSlice(...args),
+		...createAnimationSlice(...args),
+		...createSimulationSlice(...args),
+	})),
+);
+

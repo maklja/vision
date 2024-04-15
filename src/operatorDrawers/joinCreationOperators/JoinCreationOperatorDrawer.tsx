@@ -1,9 +1,9 @@
 import { Group } from 'react-konva';
 import { ElementType } from '../../model';
-import { useCircleShapeSize } from '../../store/stageSlice';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { HexagonOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
+import { useCircleShapeSize } from '../../store/hooks';
 
 export interface JoinCreationOperatorDrawerProps extends ElementDrawerProps {
 	elementType: ElementType;
@@ -78,4 +78,3 @@ export const JoinCreationOperatorDrawer = ({
 		</Group>
 	);
 };
-
