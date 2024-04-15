@@ -59,7 +59,7 @@ export interface ConnectPointSlice {
 	updateConnectPoints: (payload: UpdateConnectPointsPayload) => void;
 }
 
-function createConnectPoints(
+export function createConnectPoints(
 	element: Element,
 	elSizesContext: ElementSizesContext,
 ): ConnectPoint[] {

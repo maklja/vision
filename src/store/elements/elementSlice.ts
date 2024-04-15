@@ -70,7 +70,6 @@ export const createElementSlice: StateCreator<RootStore, [], [], ElementSlice> =
 	draftElement: null,
 	createDraftElement: (payload: CreateElementPayload) =>
 		set((state) => {
-			console.log(state);
 			const allElementNames = Object.values(state.elements).map((el) => el.name);
 			const elName = createElementName(allElementNames, payload.type);
 			state.draftElement = {
