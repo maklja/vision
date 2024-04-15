@@ -9,7 +9,7 @@ import { ShapeSize, calculateShapeSizeBoundingBox, useGridTheme } from '../../th
 import { selectStageDraftElement } from '../../store/elements';
 import { calcSnapPosition } from '../../drawers';
 import { selectElementSizeOptions, useThemeContext } from '../../store/hooks';
-import { useStore } from '../../store/rootState';
+import { useStore } from '../../store/rootStore';
 
 export interface DragNDropItem {
 	elementType: ElementType;
@@ -81,3 +81,4 @@ export const DragNDropLayer = ({ snapToGrid }: DragNDropLayerProps) => {
 
 	return <Layer ref={layerRef}>{drawer}</Layer>;
 };
+

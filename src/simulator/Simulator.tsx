@@ -22,7 +22,7 @@ import { OperatorPropertiesPanel } from '../ui/properties';
 import { StageState, ZoomType, selectStageState } from '../store/stage';
 import { zoomStage } from './state';
 import { WindowShell } from '../ui/window';
-import { useStore } from '../store/rootState';
+import { useStore } from '../store/rootStore';
 import { selectElementsInSelection } from '../store/select/selectSlice';
 
 export const Simulator = () => {
@@ -281,3 +281,4 @@ export const Simulator = () => {
 		</Box>
 	);
 };
+

@@ -42,7 +42,7 @@ import {
 import { isSelectedElement } from '../store/elements';
 import { selectElementErrorById } from '../store/errors';
 import { StageState, isHighlighted, selectStageState } from '../store/stage';
-import { useStore } from '../store/rootState';
+import { useStore } from '../store/rootStore';
 import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
 import { selectElementSizeOptions, useThemeContext } from '../store/hooks';
 
@@ -184,3 +184,4 @@ export const OperatorDrawer = ({
 			});
 	}
 };
+

@@ -1,9 +1,9 @@
 import { LineDotEvent, LineDrawerEvents } from '../../drawers';
-import { RootState } from '../../store/rootState';
+import { RootStore } from '../../store/rootStore';
 import { StageState } from '../../store/stage';
 import { changeCursorStyle } from '../utils';
 
-export const connectLineDragStateHandlers = (state: RootState): LineDrawerEvents => ({
+export const connectLineDragStateHandlers = (state: RootStore): LineDrawerEvents => ({
 	onDotMouseDown: (e: LineDotEvent) => {
 		const { originalEvent } = e;
 		if (!originalEvent) {
@@ -39,3 +39,4 @@ export const connectLineDragStateHandlers = (state: RootState): LineDrawerEvents
 		});
 	},
 });
+

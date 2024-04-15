@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { useLineSize } from '../../theme';
 import { selectLasso } from '../../store/stage';
 import { useBoundingBox, useThemeContext } from '../../store/hooks';
-import { useStore } from '../../store/rootState';
+import { useStore } from '../../store/rootStore';
 
 export const DraftLayer = () => {
 	const theme = useThemeContext();
@@ -75,3 +75,4 @@ export const DraftLayer = () => {
 		</Layer>
 	);
 };
+

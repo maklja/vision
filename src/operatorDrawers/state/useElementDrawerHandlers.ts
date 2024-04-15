@@ -4,7 +4,7 @@ import { drawerSelectStateHandlers } from './drawerSelectStateHandlers';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 import { SimulationState, selectSimulation } from '../../store/simulation';
 import { StageState, isStageStateDragging, selectStageState } from '../../store/stage';
-import { useStore } from '../../store/rootState';
+import { useStore } from '../../store/rootStore';
 
 export function useElementDrawerHandlers() {
 	const simulation = useStore(selectSimulation);
@@ -26,4 +26,5 @@ export function useElementDrawerHandlers() {
 
 		return {};
 	}, [stageState, simulation.state]);
-};
+}
+

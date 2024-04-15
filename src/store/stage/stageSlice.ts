@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootState';
+import { RootStore } from '../rootStore';
 import { useShallow } from 'zustand/react/shallow';
 import {
 	createElementSizesContext,
@@ -144,7 +144,7 @@ export interface StageSlice {
 	removeSimulationAnimation: (animationId: string) => void;
 }
 
-export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (set, get) => ({
+export const createStageSlice: StateCreator<RootStore, [], [], StageSlice> = (set, get) => ({
 	state: StageState.Select,
 	elementSizes: createElementSizesContext(),
 	lassoSelection: null,
@@ -588,10 +588,10 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 	},
 });
 
-export const selectStageState = () => (state: RootState) => state.state;
+export const selectStageState = () => (state: RootStore) => state.state;
 
 export const selectLasso = () =>
-	useShallow((state: RootState) => {
+	useShallow((state: RootStore) => {
 		if (!state.lassoSelection) {
 			return null;
 		}
@@ -613,10 +613,10 @@ export const selectLasso = () =>
 		};
 	});
 
-export const selectTooltip = (state: RootState) => state.tooltip;
+export const selectTooltip = (state: RootStore) => state.tooltip;
 
-export const isHighlighted = (elementId: string) => (state: RootState) =>
+export const isHighlighted = (elementId: string) => (state: RootStore) =>
 	state.highlighted.includes(elementId);
 
-export const selectCanvasState = (state: RootState) => state.canvasState;
+export const selectCanvasState = (state: RootStore) => state.canvasState;
 

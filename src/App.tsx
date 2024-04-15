@@ -1,7 +1,7 @@
 import { Simulator } from './simulator';
 import { ElementType, FilterElement, Element, IntervalElement, MapElement } from './model';
 import { useEffect } from 'react';
-import { useStore } from './store/rootState';
+import { useStore } from './store/rootStore';
 
 const mapElement: MapElement = {
 	id: 'mapElement',
@@ -81,7 +81,7 @@ const App = () => {
 	const load = useStore((state) => state.load);
 
 	useEffect(() => {
-		load([subscriber1, subscriber2, e4, e5, i1, mapElement]);
+		load([]);
 	}, []);
 
 	return (
@@ -92,3 +92,4 @@ const App = () => {
 };
 
 export default App;
+

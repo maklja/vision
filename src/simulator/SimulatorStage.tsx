@@ -9,7 +9,7 @@ import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
 import { GridLayer } from '../layers/grid';
 import { StageState, selectStageState } from '../store/stage';
-import { useStore } from '../store/rootState';
+import { useStore } from '../store/rootStore';
 import { useThemeContext } from '../store/hooks';
 
 Konva.hitOnDragEnabled = true;
@@ -128,3 +128,4 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 		</div>
 	);
 });
+

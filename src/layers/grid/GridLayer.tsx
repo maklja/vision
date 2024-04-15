@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Layer, Line } from 'react-konva';
 import { useGridTheme } from '../../theme';
-import { useStore } from '../../store/rootState';
+import { useStore } from '../../store/rootStore';
 import { selectCanvasState } from '../../store/stage';
 import { useThemeContext } from '../../store/hooks';
 
@@ -112,3 +112,4 @@ export const GridLayer = () => {
 		</Layer>
 	);
 };
+

@@ -9,7 +9,7 @@ import {
 	selectSimulationNextAnimation,
 } from '../../store/simulation';
 import { selectDrawerAnimationById } from '../../store/drawerAnimations';
-import { useStore } from '../../store/rootState';
+import { useStore } from '../../store/rootStore';
 
 export const AnimationsLayer = () => {
 	const simulation = useStore(selectSimulation);
@@ -70,3 +70,4 @@ export const AnimationsLayer = () => {
 		</Layer>
 	);
 };
+

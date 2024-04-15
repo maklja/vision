@@ -1,10 +1,10 @@
 import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../drawers';
-import { RootState } from '../../store/rootState';
+import { RootStore } from '../../store/rootStore';
 
 const CANCEL_MOUSE_BUTTON_KEY = 2;
 
 export const connectPointDrawConnectLineStateHandlers = (
-	state: RootState,
+	state: RootStore,
 ): ConnectPointsDrawerEvents => ({
 	onMouseDown: (cEvent: ConnectPointsDrawerEvent) => {
 		cEvent.connectPoint.originalEvent.cancelBubble = true;
@@ -73,3 +73,4 @@ export const connectPointDrawConnectLineStateHandlers = (
 		});
 	},
 });
+

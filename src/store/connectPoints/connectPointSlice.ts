@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootState';
+import { RootStore } from '../rootStore';
 import {
 	calcConnectPointVisibility,
 	ConnectPoint,
@@ -157,7 +157,7 @@ function elementConnectPointsAsConnectable(connectPoints: ConnectPoint[]) {
 	});
 }
 
-export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPointSlice> = (
+export const createConnectPointSlice: StateCreator<RootStore, [], [], ConnectPointSlice> = (
 	set,
 ) => ({
 	connectPoints: {},
@@ -348,7 +348,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 });
 
 export const selectElementConnectPointsById = (id: string) =>
-	useShallow((state: RootState) => {
+	useShallow((state: RootStore) => {
 		const connectPoints = state.connectPoints[id] ?? [];
 		return connectPoints.reduce<ConnectPoints>(
 			(connectPoints, cp) => ({

@@ -1,7 +1,7 @@
 import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { AnimationKey } from '../../animation';
-import { RootState } from '../rootState';
+import { RootStore } from '../rootStore';
 
 export interface AddDrawerAnimationActionPayload {
 	drawerId: string;
@@ -41,7 +41,7 @@ export interface AnimationSlice {
 	refreshDrawerAnimation: (payload: RefreshDrawerAnimationPayload) => void;
 }
 
-export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlice> = (set) => ({
+export const createAnimationSlice: StateCreator<RootStore, [], [], AnimationSlice> = (set) => ({
 	animations: {},
 	addDrawerAnimation: (payload: AddDrawerAnimationActionPayload) =>
 		set((state) => {
@@ -157,12 +157,12 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 
 export const selectDrawerAnimationByDrawerId =
 	(drawerId: string) =>
-	(state: RootState): DrawerAnimation | null =>
+	(state: RootStore): DrawerAnimation | null =>
 		state.animations[drawerId]?.at(0) ?? null;
 
 export const selectDrawerAnimationById =
 	(drawerId?: string, animationId?: string) =>
-	(state: RootState): DrawerAnimation | null => {
+	(state: RootStore): DrawerAnimation | null => {
 		if (!drawerId || !animationId) {
 			return null;
 		}

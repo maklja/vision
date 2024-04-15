@@ -9,7 +9,7 @@ import {
 	mapToOperatorPropsTemplate,
 	Point,
 } from '../../model';
-import { RootState } from '../rootState';
+import { RootStore } from '../rootStore';
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
@@ -64,7 +64,7 @@ function createElementName(takenElNames: string[], elType: ElementType) {
 	return newElName;
 }
 
-export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> = (set) => ({
+export const createElementSlice: StateCreator<RootStore, [], [], ElementSlice> = (set) => ({
 	elements: {},
 	selectedElements: [],
 	draftElement: null,
@@ -195,14 +195,14 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 });
 
 export const selectStageElements = () =>
-	useShallow((state: RootState) => Object.values(state.elements));
+	useShallow((state: RootStore) => Object.values(state.elements));
 
-export const selectStageDraftElement = () => (state: RootState) =>
+export const selectStageDraftElement = () => (state: RootStore) =>
 	state.draftElement ?? EMPTY_ELEMENT;
 
-export const isSelectedElement = (elementId: string) => (state: RootState) =>
+export const isSelectedElement = (elementId: string) => (state: RootStore) =>
 	state.selectedElements.includes(elementId);
 
-export const selectStageElementById = (id: string | null) => (state: RootState) =>
+export const selectStageElementById = (id: string | null) => (state: RootStore) =>
 	!id ? null : state.elements[id] ?? null;
 

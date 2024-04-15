@@ -3,7 +3,7 @@ import { connectLineSelectStateHandlers } from './connectLineSelectStateHandlers
 import { connectLineDragStateHandlers } from './connectLineDragStateHandlers';
 import { SimulationState, selectSimulation } from '../../store/simulation';
 import { StageState, isStageStateDragging, selectStageState } from '../../store/stage';
-import { useStore } from '../../store/rootState';
+import { useStore } from '../../store/rootStore';
 
 export function useLineDrawerHandlers() {
 	const simulation = useStore(selectSimulation);

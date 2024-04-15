@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootState';
+import { RootStore } from '../rootStore';
 
 export interface CreateElementErrorPayload {
 	elementId: string;
@@ -18,7 +18,7 @@ export interface ErrorSlice {
 	clearErrors: () => void;
 }
 
-export const createErrorSlice: StateCreator<RootState, [], [], ErrorSlice> = (set) => ({
+export const createErrorSlice: StateCreator<RootStore, [], [], ErrorSlice> = (set) => ({
 	errors: {},
 	createElementError: (payload: CreateElementErrorPayload) =>
 		set((state) => {
@@ -39,7 +39,7 @@ export const createErrorSlice: StateCreator<RootState, [], [], ErrorSlice> = (se
 
 export const selectElementErrorById =
 	(elementId: string | null) =>
-	(state: RootState): ElementError | null => {
+	(state: RootStore): ElementError | null => {
 		if (!elementId) {
 			return null;
 		}

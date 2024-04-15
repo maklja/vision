@@ -9,7 +9,7 @@ import { calculateShapeSizeBoundingBox, scaleShapeSize } from '../../theme';
 import { createOperatorDrawer } from '../../operatorDrawers';
 import { DragNDropItem } from '../../layers/creation';
 import { useShapeSize, useThemeContext } from '../../store/hooks';
-import { useStore } from '../../store/rootState';
+import { useStore } from '../../store/rootStore';
 
 export interface OperatorButtonProps {
 	elementType: ElementType;
@@ -88,3 +88,4 @@ export const OperatorButton = ({ elementType, padding = 4, scale = 0.65 }: Opera
 		</Box>
 	);
 };
+

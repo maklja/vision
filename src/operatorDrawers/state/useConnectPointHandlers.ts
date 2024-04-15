@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { connectPointDrawConnectLineStateHandlers } from './connectPointDrawConnectLineStateHandlers';
 import { connectPointSelectStateHandlers } from './connectPointSelectStateHandlers';
 import { StageState, selectStageState } from '../../store/stage';
-import { useStore } from '../../store/rootState';
+import { useStore } from '../../store/rootStore';
 
 export function useConnectPointHandlers() {
 	const stageState = useStore(selectStageState());

@@ -12,7 +12,7 @@ import {
 import { selectElementErrorById } from '../../store/errors';
 import { selectStageConnectLines } from '../../store/connectLines';
 import { selectElementSizeOptions, useBoundingBox, useThemeContext } from '../../store/hooks';
-import { useStore } from '../../store/rootState';
+import { useStore } from '../../store/rootStore';
 
 const TOOLTIP_SHOW_TIME = 1_000;
 
@@ -85,3 +85,4 @@ export const DrawersLayer = () => {
 		</Layer>
 	);
 };
+
