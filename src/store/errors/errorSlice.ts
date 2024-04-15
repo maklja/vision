@@ -1,7 +1,6 @@
 import { produce } from 'immer';
 import { StateCreator } from 'zustand';
 import { RootState } from '../rootState';
-import { useShallow } from 'zustand/react/shallow';
 
 export interface CreateElementErrorPayload {
 	elementId: string;
@@ -39,11 +38,13 @@ export const createErrorSlice: StateCreator<RootState, [], [], ErrorSlice> = (se
 		),
 });
 
-export const selectElementErrorById = (elementId: string | null) =>
-	useShallow((state: RootState): ElementError | null => {
+export const selectElementErrorById =
+	(elementId: string | null) =>
+	(state: RootState): ElementError | null => {
 		if (!elementId) {
 			return null;
 		}
 
 		return state.errors[elementId];
-	});
+	};
+

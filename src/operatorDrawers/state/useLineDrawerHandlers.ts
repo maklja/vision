@@ -5,7 +5,7 @@ import { SimulationState, selectSimulation } from '../../store/simulation';
 import { StageState, isStageStateDragging, selectStageState } from '../../store/stage';
 import { useStore } from '../../store/rootState';
 
-export const useLineDrawerHandlers = () => {
+export function useLineDrawerHandlers() {
 	const simulation = useStore(selectSimulation);
 	const stageState = useStore(selectStageState());
 	const state = useStore();
@@ -25,4 +25,5 @@ export const useLineDrawerHandlers = () => {
 
 		return {};
 	}, [stageState, simulation.state]);
-};
+}
+

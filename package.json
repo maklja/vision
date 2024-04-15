@@ -39,7 +39,8 @@
 	"scripts": {
 		"start": "vite",
 		"build": "vite build",
-		"serve": "vite preview"
+		"serve": "vite preview",
+		"eslint": "eslint './src/**/*.{js,ts,tsx}'"
 	},
 	"eslintConfig": {
 		"extends": [
@@ -71,3 +72,4 @@
 		"vite-plugin-checker": "^0.6.4"
 	}
 }
+

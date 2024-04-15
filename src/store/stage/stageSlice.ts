@@ -589,7 +589,7 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 	},
 });
 
-export const selectStageState = () => useShallow((state: RootState) => state.state);
+export const selectStageState = () => (state: RootState) => state.state;
 
 export const selectLasso = () =>
 	useShallow((state: RootState) => {
@@ -617,6 +617,6 @@ export const selectLasso = () =>
 export const selectTooltip = (state: RootState) => state.tooltip;
 
 export const isHighlighted = (elementId: string) =>
-	useShallow((state: RootState) => state.highlighted.includes(elementId));
+	(state: RootState) => state.highlighted.includes(elementId);
 
 export const selectCanvasState = (state: RootState) => state.canvasState;

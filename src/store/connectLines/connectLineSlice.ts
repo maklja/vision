@@ -325,8 +325,7 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 		),
 });
 
-export const selectStageDraftConnectLine = () =>
-	useShallow((state: RootState) => state.draftConnectLine);
+export const selectStageDraftConnectLine = () => (state: RootState) => state.draftConnectLine;
 
 export const selectStageConnectLines = () =>
 	useShallow((state: RootState) => Object.values(state.connectLines));
@@ -348,3 +347,4 @@ export const selectRelatedElementElements = (elementId: string) => (state: RootS
 		};
 	});
 };
+

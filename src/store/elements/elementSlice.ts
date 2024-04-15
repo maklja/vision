@@ -208,11 +208,12 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 export const selectStageElements = () =>
 	useShallow((state: RootState) => Object.values(state.elements));
 
-export const selectStageDraftElement = () =>
-	useShallow((state: RootState) => state.draftElement ?? EMPTY_ELEMENT);
+export const selectStageDraftElement = () => (state: RootState) =>
+	state.draftElement ?? EMPTY_ELEMENT;
 
-export const isSelectedElement = (elementId: string) =>
-	useShallow((state: RootState) => state.selectedElements.includes(elementId));
+export const isSelectedElement = (elementId: string) => (state: RootState) =>
+	state.selectedElements.includes(elementId);
 
 export const selectStageElementById = (id: string | null) =>
-	useShallow((state: RootState) => (!id ? null : state.elements[id] ?? null));
+	(state: RootState) => (!id ? null : state.elements[id] ?? null);
+

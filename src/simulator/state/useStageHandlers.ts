@@ -4,7 +4,7 @@ import { stageDrawConnectLineStateHandlers } from './stageDrawConnectLineStateHa
 import { StageState, selectStageState } from '../../store/stage';
 import { useStore } from '../../store/rootState';
 
-export const useStageHandlers = () => {
+export function useStageHandlers() {
 	const stageState = useStore(selectStageState());
 	const state = useStore();
 
@@ -19,4 +19,5 @@ export const useStageHandlers = () => {
 
 		return {};
 	}, [stageState]);
-};
+}
+

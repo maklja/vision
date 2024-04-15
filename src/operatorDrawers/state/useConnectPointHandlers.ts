@@ -4,7 +4,7 @@ import { connectPointSelectStateHandlers } from './connectPointSelectStateHandle
 import { StageState, selectStageState } from '../../store/stage';
 import { useStore } from '../../store/rootState';
 
-export const useConnectPointHandlers = () => {
+export function useConnectPointHandlers() {
 	const stageState = useStore(selectStageState());
 	const state = useStore();
 
@@ -19,4 +19,5 @@ export const useConnectPointHandlers = () => {
 
 		return {};
 	}, [stageState]);
-};
+}
+

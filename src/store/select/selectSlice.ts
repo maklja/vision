@@ -22,9 +22,10 @@ export const createSelectSlice: StateCreator<RootState, [], [], SelectSlice> = (
 		elementIds.forEach((elementId) => state.removeElementConnectLines({ elementId }));
 	},
 	clearAllSelectedElements: () => {
-		get().setSelectElements([]);
-		get().deselectAllConnectLines();
-		get().clearSelectedConnectPoints();
+		const state = get();
+		state.setSelectElements([]);
+		state.deselectAllConnectLines();
+		state.clearSelectedConnectPoints();
 	},
 	markElementAsSelected: (elId: string) => {
 		const state = get();
@@ -80,3 +81,4 @@ export const selectElementsInSelection = () =>
 	useShallow((state: RootState) =>
 		Object.values(state.elements).filter((el) => state.selectedElements.includes(el.id)),
 	);
+
