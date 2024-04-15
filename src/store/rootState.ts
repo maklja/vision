@@ -19,14 +19,14 @@ export type RootState = ElementSlice &
 	AnimationSlice &
 	SimulationSlice;
 
-export const useStore = create<RootState>()((...a) => ({
-	...createElementSlice(...a),
-	...createStageSlice(...a),
-	...createConnectPointSlice(...a),
-	...createSelectSlice(...a),
-	...createConnectLineSlice(...a),
-	...createSnapLineSlice(...a),
-	...createErrorSlice(...a),
-	...createAnimationSlice(...a),
-	...createSimulationSlice(...a),
+export const useStore = create<RootState>()((...rootState) => ({
+	...createElementSlice(...rootState),
+	...createStageSlice(...rootState),
+	...createConnectPointSlice(...rootState),
+	...createSelectSlice(...rootState),
+	...createConnectLineSlice(...rootState),
+	...createSnapLineSlice(...rootState),
+	...createErrorSlice(...rootState),
+	...createAnimationSlice(...rootState),
+	...createSimulationSlice(...rootState),
 }));
