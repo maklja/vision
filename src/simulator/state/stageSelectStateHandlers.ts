@@ -3,7 +3,7 @@ import { StageEvents } from '../SimulatorStage';
 import { changeCursorStyle } from '../../operatorDrawers/utils';
 import { ZoomTo, zoomStage } from './calculateScaleAndPosition';
 import { RootState } from '../../store/rootStore';
-import { ZoomType } from '../../store/stage';
+import { StageState, ZoomType } from '../../store/stage';
 
 const LEFT_MOUSE_BUTTON = 0;
 const PAN_MOUSE_BUTTON_KEY = 1;
@@ -46,7 +46,7 @@ export const stageSelectStateHandlers = (state: RootState): StageEvents => ({
 
 		if (e.evt.ctrlKey) {
 			state.updateLassoSelection(mousePosition);
-		} else {
+		} else if (state.state === StageState.LassoSelect) {
 			state.stopLassoSelection();
 		}
 	},
