@@ -39,15 +39,16 @@ function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 		newY = stage.y() - AUTO_DRAG_MOVE_DISTANCE;
 	}
 
-	state.updateCanvasState({
-		x: newX,
-		y: newY,
-	});
-
 	stage.to({
 		x: newX,
 		y: newY,
-		AUTO_DRAG_ANIMATION_DURATION,
+		duration: AUTO_DRAG_ANIMATION_DURATION,
+		onFinish: () => {
+			state.updateCanvasState({
+				x: newX,
+				y: newY,
+			});
+		},
 	});
 }
 
@@ -109,4 +110,3 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 		},
 	};
 }
-
