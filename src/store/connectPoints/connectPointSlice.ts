@@ -59,7 +59,7 @@ export interface ConnectPointSlice {
 	updateConnectPoints: (payload: UpdateConnectPointsPayload) => void;
 }
 
-export function createConnectPoints(
+function createConnectPoints(
 	element: Element,
 	elSizesContext: ElementSizesContext,
 ): ConnectPoint[] {
@@ -358,3 +358,4 @@ export const selectElementConnectPointsById = (id: string) =>
 			{},
 		);
 	});
+
