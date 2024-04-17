@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootStore } from '../rootStore';
+import { RootState } from '../rootStore';
 import {
 	ConnectedElement,
 	ConnectLine,
@@ -89,7 +89,7 @@ function generateUniqueName(name: string, takenNames: string[]) {
 	return uniqueName;
 }
 
-export const createConnectLineSlice: StateCreator<RootStore, [], [], ConnectLineSlice> = (set) => ({
+export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLineSlice> = (set) => ({
 	connectLines: {},
 	selectedConnectLines: [],
 	draftConnectLine: null,
@@ -319,12 +319,12 @@ export const createConnectLineSlice: StateCreator<RootStore, [], [], ConnectLine
 		}),
 });
 
-export const selectStageDraftConnectLine = () => (state: RootStore) => state.draftConnectLine;
+export const selectStageDraftConnectLine = () => (state: RootState) => state.draftConnectLine;
 
 export const selectStageConnectLines = () =>
-	useShallow((state: RootStore) => Object.values(state.connectLines));
+	useShallow((state: RootState) => Object.values(state.connectLines));
 
-export const selectRelatedElementElements = (elementId: string) => (state: RootStore) => {
+export const selectRelatedElementElements = (elementId: string) => (state: RootState) => {
 	const sourceConnectLines = Object.values(state.connectLines).filter(
 		(cl) => cl.source.id === elementId,
 	);
@@ -341,4 +341,3 @@ export const selectRelatedElementElements = (elementId: string) => (state: RootS
 		};
 	});
 };
-

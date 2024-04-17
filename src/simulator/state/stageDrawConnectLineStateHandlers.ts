@@ -1,8 +1,8 @@
 import Konva from 'konva';
 import { StageEvents } from '../SimulatorStage';
-import { RootStore } from '../../store/rootStore';
+import { RootState } from '../../store/rootStore';
 
-export const stageDrawConnectLineStateHandlers = (state: RootStore): StageEvents => ({
+export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents => ({
 	onMouseMove: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
 		const stage = e.target.getStage();
@@ -39,4 +39,3 @@ export const stageDrawConnectLineStateHandlers = (state: RootStore): StageEvents
 		state.clearSnapLines();
 	},
 });
-

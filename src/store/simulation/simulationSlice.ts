@@ -2,7 +2,7 @@ import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { FlowValueType } from '../../engine';
 import { DrawerAnimation } from '../drawerAnimations';
-import { RootStore } from '../rootStore';
+import { RootState } from '../rootStore';
 import { ConnectLine, Point } from '../../model';
 import { AnimationKey, MoveAnimation } from '../../animation';
 
@@ -125,7 +125,7 @@ function createAnimations(
 		: [...resultAnimations, targetAnimation];
 }
 
-export const createSimulationSlice: StateCreator<RootStore, [], [], SimulationSlice> = (set) => ({
+export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSlice> = (set) => ({
 	simulation: {
 		id: v1(),
 		state: SimulationState.Stopped,
@@ -203,8 +203,7 @@ export const createSimulationSlice: StateCreator<RootStore, [], [], SimulationSl
 		}),
 });
 
-export const selectSimulation = (state: RootStore) => state.simulation;
+export const selectSimulation = (state: RootState) => state.simulation;
 
-export const selectSimulationNextAnimation = (state: RootStore): SimulationAnimation | null =>
+export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.simulation.animationsQueue.at(0) ?? null;
-

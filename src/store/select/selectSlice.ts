@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootStore } from '../rootStore';
+import { RootState } from '../rootStore';
 import { useShallow } from 'zustand/react/shallow';
 import { normalizeBoundingBox } from '../../model';
 import { calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
@@ -12,7 +12,7 @@ export interface SelectSlice {
 	selectElementsInLassoBoundingBox: () => void;
 }
 
-export const createSelectSlice: StateCreator<RootStore, [], [], SelectSlice> = (set, get) => ({
+export const createSelectSlice: StateCreator<RootState, [], [], SelectSlice> = (set, get) => ({
 	removeSelectedElements: () => {
 		const state = get();
 		const elementIds = get().selectedElements;
@@ -78,7 +78,6 @@ export const createSelectSlice: StateCreator<RootStore, [], [], SelectSlice> = (
 });
 
 export const selectElementsInSelection = () =>
-	useShallow((state: RootStore) =>
+	useShallow((state: RootState) =>
 		Object.values(state.elements).filter((el) => state.selectedElements.includes(el.id)),
 	);
-

@@ -1,9 +1,9 @@
 import { LineDotEvent, LineDrawerEvents, LineEvent } from '../../drawers';
-import { RootStore } from '../../store/rootStore';
+import { RootState } from '../../store/rootStore';
 import { StageState } from '../../store/stage';
 import { changeCursorStyle } from '../utils';
 
-export const connectLineSelectStateHandlers = (state: RootStore): LineDrawerEvents => ({
+export const connectLineSelectStateHandlers = (state: RootState): LineDrawerEvents => ({
 	onMouseDown: (e: LineEvent) => {
 		if (e.originalEvent) {
 			e.originalEvent.cancelBubble = true;
@@ -43,4 +43,3 @@ export const connectLineSelectStateHandlers = (state: RootStore): LineDrawerEven
 		state.changeState(StageState.Dragging);
 	},
 });
-

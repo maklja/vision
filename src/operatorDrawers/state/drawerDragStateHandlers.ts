@@ -3,14 +3,14 @@ import { DrawerEvent, DrawerEvents } from '../../drawers';
 import { StageState } from '../../store/stage';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
-import { RootStore } from '../../store/rootStore';
+import { RootState } from '../../store/rootStore';
 
 const AUTO_DRAG_REFRESH_INTERVAL = 300;
 const AUTO_DRAG_EDGE_OFFSET = 100;
 const AUTO_DRAG_ANIMATION_DURATION = 0.1;
 const AUTO_DRAG_MOVE_DISTANCE = 50;
 
-function edgeAutoDrag(stage: Konva.Stage, state: RootStore) {
+function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 	const pos = stage.getPointerPosition();
 	if (!pos) {
 		return;
@@ -51,7 +51,7 @@ function edgeAutoDrag(stage: Konva.Stage, state: RootStore) {
 	});
 }
 
-export function drawerDragStateHandlers(state: RootStore): DrawerEvents {
+export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 	let autoDragInterval: NodeJS.Timeout | null = null;
 
 	return {
@@ -105,4 +105,3 @@ export function drawerDragStateHandlers(state: RootStore): DrawerEvents {
 		},
 	};
 }
-

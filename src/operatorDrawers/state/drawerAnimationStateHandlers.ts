@@ -1,7 +1,7 @@
 import { DrawerEvents } from '../../drawers';
-import { RootStore } from '../../store/rootStore';
+import { RootState } from '../../store/rootStore';
 
-export const drawerAnimationStateHandlers = (state: RootStore): DrawerEvents => ({
+export const drawerAnimationStateHandlers = (state: RootState): DrawerEvents => ({
 	onAnimationComplete: (aEvent) => {
 		state.disposeDrawerAnimation({
 			drawerId: aEvent.drawerId,
@@ -15,4 +15,3 @@ export const drawerAnimationStateHandlers = (state: RootStore): DrawerEvents => 
 		});
 	},
 });
-

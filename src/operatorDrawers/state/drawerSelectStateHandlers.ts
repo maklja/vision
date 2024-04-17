@@ -1,10 +1,10 @@
 import { DrawerEvent, DrawerEvents } from '../../drawers';
-import { RootStore } from '../../store/rootStore';
+import { RootState } from '../../store/rootStore';
 import { StageState } from '../../store/stage';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 
-export function drawerSelectStateHandlers(state: RootStore): DrawerEvents {
+export function drawerSelectStateHandlers(state: RootState): DrawerEvents {
 	return {
 		...drawerAnimationStateHandlers,
 		onMouseDown: (e: DrawerEvent) => {
@@ -55,4 +55,3 @@ export function drawerSelectStateHandlers(state: RootStore): DrawerEvents {
 		},
 	};
 }
-

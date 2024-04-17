@@ -1,10 +1,10 @@
-import { create } from 'zustand';
+import { createContext, useContext } from 'react';
+import { createStore, useStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import { ConnectLine, Element } from '../model';
 import { createElementSlice, ElementSlice } from './elements';
 import { createStageSlice, StageSlice } from './stage';
-import { ConnectPointSlice, createConnectPoints, createConnectPointSlice } from './connectPoints';
+import { ConnectPointSlice, createConnectPointSlice } from './connectPoints';
 import { createSelectSlice, SelectSlice } from './select';
 import { ConnectLineSlice, createConnectLineSlice } from './connectLines';
 import { createSnapLineSlice, SnapLineSlice } from './snapLines';
@@ -12,7 +12,7 @@ import { createErrorSlice, ErrorSlice } from './errors/errorSlice';
 import { AnimationSlice, createAnimationSlice } from './drawerAnimations';
 import { createSimulationSlice, SimulationSlice } from './simulation';
 
-export type RootStore = ElementSlice &
+export type RootState = ElementSlice &
 	StageSlice &
 	ConnectPointSlice &
 	SelectSlice &
@@ -22,25 +22,17 @@ export type RootStore = ElementSlice &
 	AnimationSlice &
 	SimulationSlice;
 
+export type RootStore = ReturnType<typeof createRootStore>;
+
 export interface StorageBlob {
 	elements: Element[];
 	connectLines: ConnectLine[];
 }
 
-function loadStorageData(persistedState: StorageBlob, currentState: RootStore) {
-	persistedState.elements.forEach((el) => {
-		currentState.elements[el.id] = el;
-		currentState.connectPoints[el.id] = createConnectPoints(el, currentState.elementSizes);
-	});
-	persistedState.connectLines.forEach((cl) => {
-		currentState.connectLines[cl.id] = cl;
-	});
+export const StoreContext = createContext<RootStore | null>(null);
 
-	return currentState;
-}
-
-export const useStore = create<RootStore>()(
-	persist<RootStore, [], [['zustand/immer', never]], StorageBlob>(
+export const createRootStore = (initProps?: Partial<RootState>) =>
+	createStore<RootState>()(
 		immer((...args) => ({
 			...createElementSlice(...args),
 			...createStageSlice(...args),
@@ -51,17 +43,16 @@ export const useStore = create<RootStore>()(
 			...createErrorSlice(...args),
 			...createAnimationSlice(...args),
 			...createSimulationSlice(...args),
+			...initProps,
 		})),
-		{
-			name: 'elements-storage',
-			storage: createJSONStorage(() => sessionStorage),
-			partialize: (state) => ({
-				elements: Object.values(state.elements),
-				connectLines: Object.values(state.connectLines),
-			}),
-			merge: (persistedState, currentState) =>
-				loadStorageData(persistedState as StorageBlob, currentState),
-		},
-	),
-);
+	);
 
+export function useRootStore<T = RootState>(selector: (state: RootState) => T) {
+	const store = useContext(StoreContext);
+
+	if (!store) {
+		throw new Error('Missing StoreContext.Provider in the tree.');
+	}
+
+	return useStore(store, selector);
+}

@@ -1,7 +1,7 @@
 import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../drawers';
-import { RootStore } from '../../store/rootStore';
+import { RootState } from '../../store/rootStore';
 
-export const connectPointSelectStateHandlers = (state: RootStore): ConnectPointsDrawerEvents => ({
+export const connectPointSelectStateHandlers = (state: RootState): ConnectPointsDrawerEvents => ({
 	onMouseDown: (cEvent: ConnectPointsDrawerEvent) => {
 		const { connectPoint, element, id } = cEvent;
 		connectPoint.originalEvent.cancelBubble = true;
@@ -39,4 +39,3 @@ export const connectPointSelectStateHandlers = (state: RootStore): ConnectPoints
 		state.clearHighlightConnectPoints();
 	},
 });
-
