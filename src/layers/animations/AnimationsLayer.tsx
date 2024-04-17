@@ -9,16 +9,16 @@ import {
 	selectSimulationNextAnimation,
 } from '../../store/simulation';
 import { selectDrawerAnimationById } from '../../store/drawerAnimations';
-import { useStore } from '../../store/rootStore';
+import { useRootStore } from '../../store/rootStore';
 
 export const AnimationsLayer = () => {
-	const simulation = useStore(selectSimulation);
-	const nextAnimation = useStore(selectSimulationNextAnimation);
-	const removeSimulationAnimation = useStore((state) => state.removeSimulationAnimation);
-	const drawerAnimation = useStore(
+	const simulation = useRootStore(selectSimulation);
+	const nextAnimation = useRootStore(selectSimulationNextAnimation);
+	const removeSimulationAnimation = useRootStore((state) => state.removeSimulationAnimation);
+	const drawerAnimation = useRootStore(
 		selectDrawerAnimationById(nextAnimation?.drawerId, nextAnimation?.id),
 	);
-	const addDrawerAnimation = useStore((store) => store.addDrawerAnimation);
+	const addDrawerAnimation = useRootStore((store) => store.addDrawerAnimation);
 
 	// track when current drawer animation is disposed in order to dequeue it
 	useEffect(() => {

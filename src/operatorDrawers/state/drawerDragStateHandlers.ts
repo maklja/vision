@@ -51,17 +51,21 @@ function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 	});
 }
 
-export function drawerDragStateHandlers(state: RootState): DrawerEvents {
-	let autoDragInterval: NodeJS.Timeout | null = null;
+let autoDragInterval: NodeJS.Timeout | null = null;
 
+function clearAutoDragInterval() {
+	if (autoDragInterval) {
+		clearInterval(autoDragInterval);
+		autoDragInterval = null;
+	}
+}
+
+export function drawerDragStateHandlers(state: RootState): DrawerEvents {
+	clearAutoDragInterval();
 	return {
 		...drawerAnimationStateHandlers,
 		onDragEnd: (e: DrawerEvent) => {
-			if (autoDragInterval) {
-				clearInterval(autoDragInterval);
-				autoDragInterval = null;
-			}
-
+			clearAutoDragInterval();
 			const { originalEvent } = e;
 			if (!originalEvent) {
 				return;
@@ -105,3 +109,4 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 		},
 	};
 }
+

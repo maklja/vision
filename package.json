@@ -22,6 +22,7 @@
 		"dayjs": "^1.11.9",
 		"dedent": "^1.5.1",
 		"deepmerge": "^4.3.1",
+		"idb-keyval": "^6.2.1",
 		"immer": "^10.0.4",
 		"konva": "^9.3.5",
 		"object-hash": "^3.0.0",
@@ -72,4 +73,3 @@
 		"vite-plugin-checker": "^0.6.4"
 	}
 }
-

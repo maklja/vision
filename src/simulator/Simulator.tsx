@@ -22,29 +22,29 @@ import { OperatorPropertiesPanel } from '../ui/properties';
 import { StageState, ZoomType, selectStageState } from '../store/stage';
 import { zoomStage } from './state';
 import { WindowShell } from '../ui/window';
-import { useStore } from '../store/rootStore';
+import { useRootStore } from '../store/rootStore';
 import { selectElementsInSelection } from '../store/select/selectSlice';
 
 export const Simulator = () => {
-	const stageState = useStore(selectStageState());
-	const simulation = useStore(selectSimulation);
-	const elements = useStore(selectStageElements());
-	const moveElement = useStore((state) => state.moveElement);
-	const updateElement = useStore((state) => state.updateElement);
-	const updateElementProperty = useStore((state) => state.updateElementProperty);
-	const clearAllSelectedElements = useStore((state) => state.clearAllSelectedElements);
-	const removeElementConnectLines = useStore((state) => state.removeElementConnectLines);
-	const updateConnectLine = useStore((state) => state.updateConnectLine);
-	const updateCanvasState = useStore((state) => state.updateCanvasState);
-	const createElementError = useStore((state) => state.createElementError);
-	const clearErrors = useStore((state) => state.clearErrors);
-	const startSimulation = useStore((state) => state.startSimulation);
-	const resetSimulation = useStore((state) => state.resetSimulation);
-	const completeSimulation = useStore((state) => state.completeSimulation);
-	const addObservableEvent = useStore((state) => state.addObservableEvent);
-	const connectLines = useStore(selectStageConnectLines());
-	const selectedElements = useStore(selectElementsInSelection());
-	const selectedElementConnectLines = useStore(
+	const stageState = useRootStore(selectStageState());
+	const simulation = useRootStore(selectSimulation);
+	const elements = useRootStore(selectStageElements());
+	const moveElement = useRootStore((state) => state.moveElement);
+	const updateElement = useRootStore((state) => state.updateElement);
+	const updateElementProperty = useRootStore((state) => state.updateElementProperty);
+	const clearAllSelectedElements = useRootStore((state) => state.clearAllSelectedElements);
+	const removeElementConnectLines = useRootStore((state) => state.removeElementConnectLines);
+	const updateConnectLine = useRootStore((state) => state.updateConnectLine);
+	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
+	const createElementError = useRootStore((state) => state.createElementError);
+	const clearErrors = useRootStore((state) => state.clearErrors);
+	const startSimulation = useRootStore((state) => state.startSimulation);
+	const resetSimulation = useRootStore((state) => state.resetSimulation);
+	const completeSimulation = useRootStore((state) => state.completeSimulation);
+	const addObservableEvent = useRootStore((state) => state.addObservableEvent);
+	const connectLines = useRootStore(selectStageConnectLines());
+	const selectedElements = useRootStore(selectElementsInSelection());
+	const selectedElementConnectLines = useRootStore(
 		selectRelatedElementElements(selectedElements[0]?.id),
 	);
 	const stageRef = useRef<Konva.Stage | null>(null);

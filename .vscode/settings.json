@@ -1,4 +1,12 @@
 {
-	"cSpell.words": ["immer", "konva", "partialize", "reduxjs", "Unsubscribable", "zustand"]
+	"cSpell.words": [
+		"immer",
+		"keyval",
+		"konva",
+		"partialize",
+		"reduxjs",
+		"Unsubscribable",
+		"zustand"
+	]
 }
 

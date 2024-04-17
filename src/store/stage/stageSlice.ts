@@ -120,7 +120,7 @@ export interface StageSlice {
 	highlighted: string[];
 	canvasState: CanvasState;
 	changeState: (newState: StageState) => void;
-	load: (elements: Element[]) => void;
+	load: (elements: Element[], connectLines: ConnectLine[]) => void;
 	startLassoSelection: (startPoint: Point | null) => void;
 	stopLassoSelection: () => void;
 	updateLassoSelection: (point: Point | null) => void;
@@ -195,10 +195,11 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 
 			return state;
 		}),
-	load: (elements: Element[]) => {
+	load: (elements: Element[], connectLines: ConnectLine[]) => {
 		const state = get();
 		state.loadElements(elements);
 		state.loadConnectPoints(elements);
+		state.loadConnectLines(connectLines);
 	},
 	startConnectLineDraw: (payload: StartConnectLineDrawPayload) => {
 		const state = get();
@@ -619,3 +620,4 @@ export const isHighlighted = (elementId: string) => (state: RootState) =>
 	state.highlighted.includes(elementId);
 
 export const selectCanvasState = (state: RootState) => state.canvasState;
+
