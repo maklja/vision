@@ -20,4 +20,3 @@
 -   improve operator bar
 -   milion https://www.youtube.com/watch?v=fcY9TthQnI4
 -   join creation operators pass arguments to creation operators
--   advance save/load
