@@ -54,10 +54,12 @@ function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 let autoDragInterval: NodeJS.Timeout | null = null;
 
 function clearAutoDragInterval() {
-	if (autoDragInterval) {
-		clearInterval(autoDragInterval);
-		autoDragInterval = null;
+	if (!autoDragInterval) {
+		return;
 	}
+
+	clearInterval(autoDragInterval);
+	autoDragInterval = null;
 }
 
 export function drawerDragStateHandlers(state: RootState): DrawerEvents {
