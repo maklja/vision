@@ -1,5 +1,5 @@
 import { DrawerEvent, DrawerEvents } from '../../drawers';
-import { RootState } from '../../store/rootState';
+import { RootState } from '../../store/rootStore';
 import { StageState } from '../../store/stage';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';

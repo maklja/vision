@@ -3,7 +3,7 @@ import { DrawerEvent, DrawerEvents } from '../../drawers';
 import { StageState } from '../../store/stage';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
-import { RootState } from '../../store/rootState';
+import { RootState } from '../../store/rootStore';
 
 const AUTO_DRAG_REFRESH_INTERVAL = 300;
 const AUTO_DRAG_EDGE_OFFSET = 100;
@@ -39,29 +39,36 @@ function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 		newY = stage.y() - AUTO_DRAG_MOVE_DISTANCE;
 	}
 
-	state.updateCanvasState({
-		x: newX,
-		y: newY,
-	});
-
 	stage.to({
 		x: newX,
 		y: newY,
-		AUTO_DRAG_ANIMATION_DURATION,
+		duration: AUTO_DRAG_ANIMATION_DURATION,
+		onFinish: () => {
+			state.updateCanvasState({
+				x: newX,
+				y: newY,
+			});
+		},
 	});
 }
 
-export function drawerDragStateHandlers(state: RootState): DrawerEvents {
-	let autoDragInterval: NodeJS.Timeout | null = null;
+let autoDragInterval: NodeJS.Timeout | null = null;
 
+function clearAutoDragInterval() {
+	if (!autoDragInterval) {
+		return;
+	}
+
+	clearInterval(autoDragInterval);
+	autoDragInterval = null;
+}
+
+export function drawerDragStateHandlers(state: RootState): DrawerEvents {
+	clearAutoDragInterval();
 	return {
 		...drawerAnimationStateHandlers,
 		onDragEnd: (e: DrawerEvent) => {
-			if (autoDragInterval) {
-				clearInterval(autoDragInterval);
-				autoDragInterval = null;
-			}
-
+			clearAutoDragInterval();
 			const { originalEvent } = e;
 			if (!originalEvent) {
 				return;

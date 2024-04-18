@@ -1,5 +1,5 @@
 import { DrawerEvents } from '../../drawers';
-import { RootState } from '../../store/rootState';
+import { RootState } from '../../store/rootStore';
 
 export const drawerAnimationStateHandlers = (state: RootState): DrawerEvents => ({
 	onAnimationComplete: (aEvent) => {

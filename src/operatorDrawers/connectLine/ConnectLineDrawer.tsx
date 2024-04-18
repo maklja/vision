@@ -1,7 +1,7 @@
 import { LineDrawer } from '../../drawers';
 import { ConnectLine } from '../../model';
 import { useThemeContext } from '../../store/hooks';
-import { useStore } from '../../store/rootState';
+import { useRootStore } from '../../store/rootStore';
 import { isHighlighted } from '../../store/stage';
 import { useLineSize } from '../../theme';
 import { useLineDrawerHandlers } from '../state';
@@ -16,7 +16,7 @@ export const ConnectLineDrawer = ({ connectLine, select, draggable }: ConnectLin
 	const theme = useThemeContext();
 	const lineSize = useLineSize();
 	const connectLineHandlers = useLineDrawerHandlers();
-	const highlight = useStore(isHighlighted(connectLine.id));
+	const highlight = useRootStore(isHighlighted(connectLine.id));
 
 	return (
 		<LineDrawer
@@ -31,3 +31,4 @@ export const ConnectLineDrawer = ({ connectLine, select, draggable }: ConnectLin
 		/>
 	);
 };
+

@@ -1,4 +1,3 @@
--   save/load
 -   copy/paste
 -   locate element by name
 -   scheduler, multi result animations

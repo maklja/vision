@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootState';
+import { RootState } from '../rootStore';
 import {
 	calcConnectPointVisibility,
 	ConnectPoint,

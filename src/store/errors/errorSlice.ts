@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootState';
+import { RootState } from '../rootStore';
 
 export interface CreateElementErrorPayload {
 	elementId: string;
@@ -46,4 +46,3 @@ export const selectElementErrorById =
 
 		return state.errors[elementId];
 	};
-

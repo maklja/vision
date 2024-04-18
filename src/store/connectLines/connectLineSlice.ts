@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootState';
+import { RootState } from '../rootStore';
 import {
 	ConnectedElement,
 	ConnectLine,
@@ -76,6 +76,7 @@ export interface ConnectLineSlice {
 	moveConnectLinePointsByDelta: (payload: MoveConnectLinePointsByDeltaPayload) => void;
 	removeElementConnectLines: (payload: RemoveElementConnectLinesPayload) => void;
 	updateConnectLine: (payload: UpdateConnectLinePayload) => void;
+	loadConnectLines: (connectLInes: ConnectLine[]) => void;
 }
 
 function generateUniqueName(name: string, takenNames: string[]) {
@@ -291,22 +292,29 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 				return state;
 			}
 
-			const changes = Object.entries({
-				index: payload.index,
-				name: payload.name,
-			})
-				.filter(([, value]) => value !== undefined)
-				.reduce(
-					(changeObj, [key, value]) => ({
-						...changeObj,
-						[key]: value,
-					}),
-					{},
-				);
+			const changes = Object.fromEntries(
+				Object.entries({
+					index: payload.index,
+					name: payload.name,
+				}).filter(([, value]) => value !== undefined),
+			);
+
 			state.connectLines[payload.id] = {
 				...cl,
 				...changes,
 			};
+			return state;
+		}),
+	loadConnectLines: (connectLines: ConnectLine[]) =>
+		set((state) => {
+			state.connectLines = connectLines.reduce(
+				(connectLinesStore, cl) => ({
+					...connectLinesStore,
+					[cl.id]: cl,
+				}),
+				{},
+			);
+
 			return state;
 		}),
 });
@@ -333,4 +341,3 @@ export const selectRelatedElementElements = (elementId: string) => (state: RootS
 		};
 	});
 };
-

@@ -3,12 +3,12 @@ import { connectLineSelectStateHandlers } from './connectLineSelectStateHandlers
 import { connectLineDragStateHandlers } from './connectLineDragStateHandlers';
 import { SimulationState, selectSimulation } from '../../store/simulation';
 import { StageState, isStageStateDragging, selectStageState } from '../../store/stage';
-import { useStore } from '../../store/rootState';
+import { useRootStore } from '../../store/rootStore';
 
 export function useLineDrawerHandlers() {
-	const simulation = useStore(selectSimulation);
-	const stageState = useStore(selectStageState());
-	const state = useStore();
+	const simulation = useRootStore(selectSimulation);
+	const stageState = useRootStore(selectStageState());
+	const state = useRootStore();
 
 	return useMemo(() => {
 		if (simulation.state === SimulationState.Running) {

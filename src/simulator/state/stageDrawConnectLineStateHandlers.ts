@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { StageEvents } from '../SimulatorStage';
-import { RootState } from '../../store/rootState';
+import { RootState } from '../../store/rootStore';
 
 export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents => ({
 	onMouseMove: (e: Konva.KonvaEventObject<MouseEvent>) => {

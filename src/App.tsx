@@ -1,94 +1,47 @@
+import { get, set } from 'idb-keyval';
+import { useEffect, useRef } from 'react';
+import { shallow } from 'zustand/shallow';
 import { Simulator } from './simulator';
-import { ElementType, FilterElement, Element, IntervalElement, MapElement } from './model';
-import { useEffect } from 'react';
-import { useStore } from './store/rootState';
+import { createRootStore, StateProps, StoreContext } from './store/rootStore';
 
-const mapElement: MapElement = {
-	id: 'mapElement',
-	name: 'mapElement',
-	x: 80,
-	y: 400,
-	type: ElementType.Map,
-	visible: true,
-	properties: {
-		projectExpression: '(value) => { return value; }',
-	},
-};
+const diagramId = 'test'; // TODO temp solution until multiple tabs are added
+const storeData = await get<StateProps>(diagramId);
+const rootStore = createRootStore(storeData);
 
-const i1: IntervalElement = {
-	id: 'intervalElement',
-	name: 'intervalElement',
-	x: 50,
-	y: 300,
-	type: ElementType.Interval,
-	visible: true,
-	properties: { period: 2_000 },
-};
-
-const e4: FilterElement = {
-	id: 'filterElement',
-	name: 'filterElement',
-	x: 200,
-	y: 125,
-	type: ElementType.Filter,
-	visible: true,
-	properties: {
-		predicateExpression: `(value) => {
-			return value % 2 === 0;
-		}`,
-	},
-};
-
-const e5: FilterElement = {
-	id: 'filterElement_1',
-	name: 'filterElement_1',
-	x: 500,
-	y: 125,
-	type: ElementType.Filter,
-	visible: true,
-	properties: {
-		predicateExpression: `function(value) {
-			if (value > 2) {
-				throw new Error('Ups');
-			}
-	
-			return value % 2 === 0; 
-		}`,
-	},
-};
-
-const subscriber1: Element = {
-	id: 'subscriber_0',
-	name: 'subscriber_0',
-	x: 680,
-	y: 125,
-	type: ElementType.Subscriber,
-	visible: true,
-	properties: {},
-};
-
-const subscriber2: Element = {
-	id: 'subscriber_1',
-	name: 'subscriber_1',
-	x: 680,
-	y: 325,
-	type: ElementType.Subscriber,
-	visible: true,
-	properties: {},
-};
-
-const App = () => {
-	const load = useStore((state) => state.load);
+function App() {
+	const store = useRef(rootStore);
 
 	useEffect(() => {
-		load([subscriber1, subscriber2, e4, e5, i1, mapElement]);
-	}, []);
+		const unsubscribe = store.current.subscribe(
+			(state) => [state.elements, state.connectLines, state.canvasState],
+			async (state) => {
+				const [elements, connectLines, canvasState] = state;
+				await set(diagramId, {
+					elements: Object.values(elements),
+					connectLines: Object.values(connectLines),
+					canvasState: {
+						x: canvasState.x,
+						y: canvasState.y,
+						scaleX: canvasState.scaleX,
+						scaleY: canvasState.scaleY,
+					},
+				});
+			},
+			{
+				equalityFn: shallow,
+			},
+		);
+		return unsubscribe;
+	}, [store.current]);
 
 	return (
 		<div>
-			<Simulator />
+			<StoreContext.Provider value={store.current}>
+				<Simulator />
+			</StoreContext.Provider>
 		</div>
 	);
-};
+}
 
 export default App;
+

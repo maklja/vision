@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 import { Layer, Line } from 'react-konva';
 import { useGridTheme } from '../../theme';
-import { useStore } from '../../store/rootState';
+import { useRootStore } from '../../store/rootStore';
 import { selectCanvasState } from '../../store/stage';
 import { useThemeContext } from '../../store/hooks';
 
 export const GridLayer = () => {
 	const theme = useThemeContext();
 	const gridTheme = useGridTheme(theme);
-	const { x, y, width, height, scaleX } = useStore(selectCanvasState);
+	const { x, y, width, height, scaleX } = useRootStore(selectCanvasState);
 
 	const { viewRect, gridLines } = useMemo(() => {
 		if (scaleX === 0) {
@@ -112,3 +112,4 @@ export const GridLayer = () => {
 		</Layer>
 	);
 };
+

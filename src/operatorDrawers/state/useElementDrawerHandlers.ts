@@ -4,12 +4,12 @@ import { drawerSelectStateHandlers } from './drawerSelectStateHandlers';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 import { SimulationState, selectSimulation } from '../../store/simulation';
 import { StageState, isStageStateDragging, selectStageState } from '../../store/stage';
-import { useStore } from '../../store/rootState';
+import { useRootStore } from '../../store/rootStore';
 
 export function useElementDrawerHandlers() {
-	const simulation = useStore(selectSimulation);
-	const stageState = useStore(selectStageState());
-	const state = useStore();
+	const simulation = useRootStore(selectSimulation);
+	const stageState = useRootStore(selectStageState());
+	const state = useRootStore();
 
 	return useMemo(() => {
 		if (simulation.state === SimulationState.Running) {
@@ -26,4 +26,5 @@ export function useElementDrawerHandlers() {
 
 		return {};
 	}, [stageState, simulation.state]);
-};
+}
+

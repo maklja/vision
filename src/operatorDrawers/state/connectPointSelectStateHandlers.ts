@@ -1,5 +1,5 @@
 import { ConnectPointsDrawerEvent, ConnectPointsDrawerEvents } from '../../drawers';
-import { RootState } from '../../store/rootState';
+import { RootState } from '../../store/rootStore';
 
 export const connectPointSelectStateHandlers = (state: RootState): ConnectPointsDrawerEvents => ({
 	onMouseDown: (cEvent: ConnectPointsDrawerEvent) => {

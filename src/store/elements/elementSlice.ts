@@ -9,7 +9,7 @@ import {
 	mapToOperatorPropsTemplate,
 	Point,
 } from '../../model';
-import { RootState } from '../rootState';
+import { RootState } from '../rootStore';
 
 export interface UpdateElementPayload<P = ElementProps> {
 	id: string;
@@ -70,7 +70,6 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 	draftElement: null,
 	createDraftElement: (payload: CreateElementPayload) =>
 		set((state) => {
-			console.log(state);
 			const allElementNames = Object.values(state.elements).map((el) => el.name);
 			const elName = createElementName(allElementNames, payload.type);
 			state.draftElement = {
@@ -205,4 +204,3 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 
 export const selectStageElementById = (id: string | null) => (state: RootState) =>
 	!id ? null : state.elements[id] ?? null;
-

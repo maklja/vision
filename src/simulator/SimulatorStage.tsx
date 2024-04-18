@@ -9,7 +9,7 @@ import { useStageHandlers } from './state';
 import { DragNDropType } from '../dragNDrop';
 import { GridLayer } from '../layers/grid';
 import { StageState, selectStageState } from '../store/stage';
-import { useStore } from '../store/rootState';
+import { useRootStore } from '../store/rootStore';
 import { useThemeContext } from '../store/hooks';
 
 Konva.hitOnDragEnabled = true;
@@ -34,11 +34,12 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 	parentStageRef,
 ) {
 	const theme = useThemeContext();
-	const addDraftElement = useStore((state) => state.addDraftElement);
-	const stopElementDraw = useStore((state) => state.stopElementDraw);
-	const clearSnapLines = useStore((state) => state.clearSnapLines);
-	const updateCanvasState = useStore((state) => state.updateCanvasState);
-	const stageState = useStore(selectStageState());
+	const addDraftElement = useRootStore((state) => state.addDraftElement);
+	const stopElementDraw = useRootStore((state) => state.stopElementDraw);
+	const clearSnapLines = useRootStore((state) => state.clearSnapLines);
+	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
+	const canvasState = useRootStore((state) => state.canvasState);
+	const stageState = useRootStore(selectStageState());
 	const stageHandlers = useStageHandlers();
 	const stageRef = useRef<Konva.Stage | null>(null);
 	// small workaround because react=dnd doesn't support key events
@@ -69,15 +70,22 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 		const keyDownHandler = (e: KeyboardEvent) => stageHandlers.onKeyDown?.(e, stageRef.current);
 		const keyUpHandler = (e: KeyboardEvent) => stageHandlers.onKeyUp?.(e, stageRef.current);
 		const dragHandler = (e: DragEvent) => setSnapToGrid(e.shiftKey);
+		const resizeHandler = () =>
+			updateCanvasState({
+				width: window.innerWidth,
+				height: window.innerHeight,
+			});
 
 		window.addEventListener('keydown', keyDownHandler, false);
 		window.addEventListener('keyup', keyUpHandler, false);
 		window.addEventListener('drag', dragHandler, false);
+		window.addEventListener('resize', resizeHandler, false);
 
 		return () => {
 			window.removeEventListener('keydown', keyDownHandler, false);
 			window.removeEventListener('keyup', keyUpHandler, false);
 			window.removeEventListener('drag', dragHandler, false);
+			window.removeEventListener('resize', resizeHandler, false);
 		};
 	}, []);
 
@@ -118,6 +126,10 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 				height={window.innerHeight}
 				draggable={stageState === StageState.Select}
 				ref={handleStageRef}
+				x={canvasState.x}
+				y={canvasState.y}
+				scaleX={canvasState.scaleX}
+				scaleY={canvasState.scaleY}
 			>
 				<GridLayer />
 				<DrawersLayer />
