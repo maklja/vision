@@ -70,15 +70,22 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 		const keyDownHandler = (e: KeyboardEvent) => stageHandlers.onKeyDown?.(e, stageRef.current);
 		const keyUpHandler = (e: KeyboardEvent) => stageHandlers.onKeyUp?.(e, stageRef.current);
 		const dragHandler = (e: DragEvent) => setSnapToGrid(e.shiftKey);
+		const resizeHandler = () =>
+			updateCanvasState({
+				width: window.innerWidth,
+				height: window.innerHeight,
+			});
 
 		window.addEventListener('keydown', keyDownHandler, false);
 		window.addEventListener('keyup', keyUpHandler, false);
 		window.addEventListener('drag', dragHandler, false);
+		window.addEventListener('resize', resizeHandler, false);
 
 		return () => {
 			window.removeEventListener('keydown', keyDownHandler, false);
 			window.removeEventListener('keyup', keyUpHandler, false);
 			window.removeEventListener('drag', dragHandler, false);
+			window.removeEventListener('resize', resizeHandler, false);
 		};
 	}, []);
 
@@ -133,4 +140,3 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 		</div>
 	);
 });
-
