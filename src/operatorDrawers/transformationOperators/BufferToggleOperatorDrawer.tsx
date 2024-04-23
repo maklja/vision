@@ -16,7 +16,6 @@ export function BufferToggleOperatorDrawer({
 	visible = true,
 	animation,
 	draggable = false,
-	draggableSnap = false,
 	hasError = false,
 	visibleConnectPoints,
 	onMouseOver,
@@ -72,7 +71,6 @@ export function BufferToggleOperatorDrawer({
 				y={y}
 				animation={animation}
 				draggable={draggable}
-				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}
@@ -91,3 +89,4 @@ export function BufferToggleOperatorDrawer({
 		</Group>
 	);
 }
+

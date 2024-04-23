@@ -5,7 +5,7 @@ import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { useCircleShapeSize } from '../../store/hooks';
 
-export const SubscriberDrawer = ({
+export function SubscriberDrawer({
 	x,
 	y,
 	scale = 1,
@@ -13,7 +13,6 @@ export const SubscriberDrawer = ({
 	theme,
 	animation,
 	draggable,
-	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -29,7 +28,7 @@ export const SubscriberDrawer = ({
 	onMouseUp,
 	onMouseOut,
 	onMouseOver,
-}: ElementDrawerProps) => {
+}: ElementDrawerProps) {
 	const elType = ElementType.Subscriber;
 	const circleShapeSize = useCircleShapeSize(elType, scale);
 
@@ -52,7 +51,6 @@ export const SubscriberDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
-				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}
@@ -70,4 +68,5 @@ export const SubscriberDrawer = ({
 			/>
 		</Group>
 	);
-};
+}
+

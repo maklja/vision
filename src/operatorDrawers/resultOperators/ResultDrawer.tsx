@@ -8,7 +8,7 @@ export interface ResultDrawerProps extends ElementDrawerProps {
 	visibleConnectPoints?: never;
 }
 
-export const ResultDrawer = ({
+export function ResultDrawer({
 	x,
 	y,
 	scale = 1,
@@ -16,7 +16,6 @@ export const ResultDrawer = ({
 	theme,
 	animation,
 	draggable,
-	draggableSnap,
 	highlight,
 	select,
 	visible,
@@ -31,7 +30,7 @@ export const ResultDrawer = ({
 	onMouseUp,
 	onMouseOut,
 	onMouseOver,
-}: ResultDrawerProps) => {
+}: ResultDrawerProps) {
 	const elType = ElementType.Result;
 	const circleShapeSize = useCircleShapeSize(elType, scale);
 
@@ -44,7 +43,6 @@ export const ResultDrawer = ({
 			y={y}
 			animation={animation}
 			draggable={draggable}
-			draggableSnap={draggableSnap}
 			highlight={highlight}
 			select={select}
 			visible={visible}
@@ -61,4 +59,5 @@ export const ResultDrawer = ({
 			onMouseOut={onMouseOut}
 		/>
 	);
-};
+}
+

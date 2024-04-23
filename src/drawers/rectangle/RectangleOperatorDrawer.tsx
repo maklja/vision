@@ -5,14 +5,13 @@ import { useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import { useAnimationGroups } from '../../animation';
 import { RectangleDrawerProps } from '../DrawerProps';
-import { useElementDrawerTheme, useGridTheme } from '../../theme';
-import { dragBoundFuncHandler } from '../utils';
+import { useElementDrawerTheme } from '../../theme';
 
 export interface RectangleOperatorDrawerProps extends RectangleDrawerProps {
 	title: string;
 }
 
-export const RectangleOperatorDrawer = ({
+export function RectangleOperatorDrawer({
 	x,
 	y,
 	size,
@@ -24,7 +23,6 @@ export const RectangleOperatorDrawer = ({
 	title,
 	animation,
 	draggable = false,
-	draggableSnap = false,
 	hasError = false,
 	onMouseOver,
 	onMouseOut,
@@ -33,16 +31,16 @@ export const RectangleOperatorDrawer = ({
 	onDragMove,
 	onDragStart,
 	onDragEnd,
+	onDragBound,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
-}: RectangleOperatorDrawerProps) => {
+}: RectangleOperatorDrawerProps) {
 	const drawerStyle = useElementDrawerTheme(theme, {
 		highlight,
 		select,
 		hasError,
 	});
-	const gridTheme = useGridTheme(theme);
 	const { width, height, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
@@ -109,12 +107,16 @@ export const RectangleOperatorDrawer = ({
 			originalEvent: e,
 		});
 
-	const handleDragBoundFunc = function (this: Node, pos: Vector2d) {
-		if (!draggableSnap) {
-			return pos;
+	const handleDragBoundFunc = function (this: Node, position: Vector2d) {
+		if (!onDragBound) {
+			return position;
 		}
 
-		return dragBoundFuncHandler(this, pos, gridTheme.size);
+		return onDragBound({
+			id,
+			node: this,
+			position,
+		});
 	};
 
 	const textX = (mainTextRef?.width() ?? 0) / -2 + width / 2;
@@ -155,5 +157,5 @@ export const RectangleOperatorDrawer = ({
 			/>
 		</Group>
 	);
-};
+}
 

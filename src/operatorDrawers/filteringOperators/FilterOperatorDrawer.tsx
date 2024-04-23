@@ -5,7 +5,7 @@ import { RectangleOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { useRectangleShapeSize } from '../../store/hooks';
 
-export const FilterOperatorDrawer = ({
+export function FilterOperatorDrawer({
 	x,
 	y,
 	scale = 1,
@@ -13,7 +13,6 @@ export const FilterOperatorDrawer = ({
 	theme,
 	animation,
 	draggable,
-	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -29,7 +28,7 @@ export const FilterOperatorDrawer = ({
 	onMouseUp,
 	onMouseOut,
 	onMouseOver,
-}: ElementDrawerProps) => {
+}: ElementDrawerProps) {
 	const elType = ElementType.Filter;
 	const rectangleShapeSize = useRectangleShapeSize(elType, scale);
 
@@ -53,7 +52,6 @@ export const FilterOperatorDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
-				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}
@@ -71,4 +69,5 @@ export const FilterOperatorDrawer = ({
 			/>
 		</Group>
 	);
-};
+}
+

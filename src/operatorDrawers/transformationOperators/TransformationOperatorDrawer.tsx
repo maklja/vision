@@ -10,7 +10,7 @@ export interface TransformationOperatorDrawerProps extends ElementDrawerProps {
 	title: string;
 }
 
-export const TransformationOperatorDrawer = ({
+export function TransformationOperatorDrawer({
 	x,
 	y,
 	scale = 1,
@@ -18,7 +18,6 @@ export const TransformationOperatorDrawer = ({
 	theme,
 	animation,
 	draggable,
-	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -36,7 +35,7 @@ export const TransformationOperatorDrawer = ({
 	onMouseUp,
 	onMouseOut,
 	onMouseOver,
-}: TransformationOperatorDrawerProps) => {
+}: TransformationOperatorDrawerProps) {
 	const rectangleShapeSize = useRectangleShapeSize(elementType, scale);
 
 	return (
@@ -59,7 +58,6 @@ export const TransformationOperatorDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
-				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}
@@ -77,4 +75,5 @@ export const TransformationOperatorDrawer = ({
 			/>
 		</Group>
 	);
-};
+}
+
