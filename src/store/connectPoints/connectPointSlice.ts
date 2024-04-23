@@ -278,22 +278,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			return state;
 		}),
 	moveConnectPointsByDelta: (payload: MoveConnectPointsByDeltaPayload) =>
-		set((state) => {
-			payload.ids.forEach((elId) => {
-				const elementConnectPoints = state.connectPoints[elId];
-				if (!elementConnectPoints) {
-					throw new Error(`Connect points not found for element ${elId}`);
-				}
-
-				state.connectPoints[elId] = elementConnectPoints.map((cp) => ({
-					...cp,
-					x: cp.x + payload.dx,
-					y: cp.y + payload.dy,
-				}));
-			});
-
-			return state;
-		}),
+		set((state) => moveConnectPointsByDelta(state, payload), true),
 	lockConnectLine: (connectPointBoundingBox: IBoundingBox) =>
 		set((state) => {
 			if (!state.draftConnectLine) {
@@ -346,6 +331,26 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			return state;
 		}),
 });
+
+export function moveConnectPointsByDelta(
+	state: RootState,
+	payload: MoveConnectPointsByDeltaPayload,
+) {
+	payload.ids.forEach((elId) => {
+		const elementConnectPoints = state.connectPoints[elId];
+		if (!elementConnectPoints) {
+			throw new Error(`Connect points not found for element ${elId}`);
+		}
+
+		state.connectPoints[elId] = elementConnectPoints.map((cp) => ({
+			...cp,
+			x: cp.x + payload.dx,
+			y: cp.y + payload.dy,
+		}));
+	});
+
+	return state;
+}
 
 export const selectElementConnectPointsById = (id: string) =>
 	useShallow((state: RootState) => {

@@ -36,6 +36,12 @@ export interface MoveElementPayload {
 	y: number;
 }
 
+export interface MoveElementByDeltaPayload {
+	id: string;
+	dx: number;
+	dy: number;
+}
+
 export interface ElementSlice {
 	elements: Record<string, Element>;
 	selectedElements: string[];
@@ -52,6 +58,7 @@ export interface ElementSlice {
 	setSelectElements: (elementIds: string[]) => void;
 	updateElementProperty: (payload: UpdateElementPropertyPayload) => void;
 	moveElementToPosition: (payload: MoveElementPayload) => void;
+	moveElementByDelta: (payload: MoveElementByDeltaPayload) => void;
 }
 
 function createElementName(takenElNames: string[], elType: ElementType) {
@@ -180,18 +187,34 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 			return state;
 		}),
 	moveElementToPosition: (payload: MoveElementPayload) =>
-		set((state) => {
-			const el = state.elements[payload.id];
-			if (!el) {
-				return state;
-			}
-
-			el.x = payload.x;
-			el.y = payload.y;
-
-			return state;
-		}),
+		set((state) => moveElementToPosition(state, payload), true),
+	moveElementByDelta: (payload: MoveElementByDeltaPayload) =>
+		set((state) => moveElementByDelta(state, payload), true),
 });
+
+export function moveElementToPosition(state: RootState, payload: MoveElementPayload) {
+	const el = state.elements[payload.id];
+	if (!el) {
+		return state;
+	}
+
+	el.x = payload.x;
+	el.y = payload.y;
+
+	return state;
+}
+
+export function moveElementByDelta(state: RootState, payload: MoveElementByDeltaPayload) {
+	const el = state.elements[payload.id];
+	if (!el) {
+		return state;
+	}
+
+	el.x += payload.dx;
+	el.y += payload.dy;
+
+	return state;
+}
 
 export const selectStageElements = () =>
 	useShallow((state: RootState) => Object.values(state.elements));
@@ -204,3 +227,4 @@ export const isSelectedElement = (elementId: string) => (state: RootState) =>
 
 export const selectStageElementById = (id: string | null) => (state: RootState) =>
 	!id ? null : state.elements[id] ?? null;
+

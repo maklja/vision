@@ -156,12 +156,7 @@ export interface SnapLineSlice {
 
 export const createSnapLineSlice: StateCreator<RootState, [], [], SnapLineSlice> = (set) => ({
 	snapLines: [],
-	setSnapLines: (snapLines: SnapLine[]) =>
-		set((state) => {
-			state.snapLines = snapLines;
-
-			return state;
-		}),
+	setSnapLines: (snapLines: SnapLine[]) => set((state) => setSnapLines(state, snapLines), true),
 	clearSnapLines: () =>
 		set((state) => {
 			state.snapLines = [];
@@ -170,4 +165,11 @@ export const createSnapLineSlice: StateCreator<RootState, [], [], SnapLineSlice>
 		}),
 });
 
+export function setSnapLines(state: RootState, snapLines: SnapLine[]) {
+	state.snapLines = snapLines;
+
+	return state;
+}
+
 export const selectSnapLines = () => useShallow((state: RootState) => state.snapLines);
+

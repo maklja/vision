@@ -39,6 +39,11 @@ function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 		newY = stage.y() - AUTO_DRAG_MOVE_DISTANCE;
 	}
 
+	const isNearEdge = isNearLeft || isNearRight || isNearTop || isNearBottom;
+	if (!isNearEdge) {
+		return;
+	}
+
 	stage.to({
 		x: newX,
 		y: newY,

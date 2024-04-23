@@ -237,28 +237,7 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 			return state;
 		}),
 	moveConnectLinePointsByDelta: (payload: MoveConnectLinePointsByDeltaPayload) =>
-		set((state) => {
-			const cl = state.connectLines[payload.id];
-			if (!cl) {
-				return state;
-			}
-
-			cl.points = payload.pointIndexes
-				.filter((index) => index < cl.points.length)
-				.reduce(
-					(points, index) =>
-						points.map((p, i) =>
-							i !== index
-								? p
-								: {
-										x: p.x + payload.dx,
-										y: p.y + payload.dy,
-								  },
-						),
-					cl.points,
-				);
-			return state;
-		}),
+		set((state) => moveConnectLinePointsByDelta(state, payload), true),
 	removeElementConnectLines: (payload: RemoveElementConnectLinesPayload) =>
 		set((state) => {
 			const { elementId, connectPointType } = payload;
@@ -319,6 +298,26 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 		}),
 });
 
+export function moveConnectLinePointsByDelta(
+	state: RootState,
+	payload: MoveConnectLinePointsByDeltaPayload,
+) {
+	const cl = state.connectLines[payload.id];
+	if (!cl) {
+		return state;
+	}
+
+	payload.pointIndexes
+		.filter((index) => index >= 0 && index < cl.points.length)
+		.forEach((pointIndex) => {
+			const p = cl.points[pointIndex];
+			p.x += payload.dx;
+			p.y += payload.dy;
+		});
+
+	return state;
+}
+
 export const selectStageDraftConnectLine = () => (state: RootState) => state.draftConnectLine;
 
 export const selectStageConnectLines = () =>
@@ -341,3 +340,4 @@ export const selectRelatedElementElements = (elementId: string) => (state: RootS
 		};
 	});
 };
+
