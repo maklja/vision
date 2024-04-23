@@ -24,6 +24,7 @@ export function FilterOperatorDrawer({
 	onDragEnd,
 	onDragMove,
 	onDragStart,
+	onDragBound,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
@@ -62,6 +63,7 @@ export function FilterOperatorDrawer({
 				onDragStart={onDragStart}
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
+				onDragBound={onDragBound}
 				onMouseDown={onMouseDown}
 				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}

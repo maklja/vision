@@ -24,6 +24,7 @@ export function SubscriberDrawer({
 	onDragEnd,
 	onDragMove,
 	onDragStart,
+	onDragBound,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
@@ -61,6 +62,7 @@ export function SubscriberDrawer({
 				onDragStart={onDragStart}
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
+				onDragBound={onDragBound}
 				onMouseDown={onMouseDown}
 				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}

@@ -25,6 +25,7 @@ export function BufferToggleOperatorDrawer({
 	onDragMove,
 	onDragStart,
 	onDragEnd,
+	onDragBound,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -81,6 +82,7 @@ export function BufferToggleOperatorDrawer({
 				onDragStart={onDragStart}
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
+				onDragBound={onDragBound}
 				onMouseDown={onMouseDown}
 				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}

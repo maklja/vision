@@ -24,6 +24,7 @@ export function IifOperatorDrawer({
 	onDragEnd,
 	onDragMove,
 	onDragStart,
+	onDragBound,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
@@ -81,6 +82,7 @@ export function IifOperatorDrawer({
 				onDragStart={onDragStart}
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
+				onDragBound={onDragBound}
 				onMouseDown={onMouseDown}
 				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}

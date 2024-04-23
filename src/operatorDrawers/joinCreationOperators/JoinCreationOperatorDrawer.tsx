@@ -31,6 +31,7 @@ export function JoinCreationOperatorDrawer({
 	onDragEnd,
 	onDragMove,
 	onDragStart,
+	onDragBound,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
@@ -68,6 +69,7 @@ export function JoinCreationOperatorDrawer({
 				onDragStart={onDragStart}
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
+				onDragBound={onDragBound}
 				onMouseDown={onMouseDown}
 				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}

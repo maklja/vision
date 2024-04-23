@@ -26,6 +26,7 @@ export function ResultDrawer({
 	onDragEnd,
 	onDragMove,
 	onDragStart,
+	onDragBound,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
@@ -53,6 +54,7 @@ export function ResultDrawer({
 			onDragStart={onDragStart}
 			onDragMove={onDragMove}
 			onDragEnd={onDragEnd}
+			onDragBound={onDragBound}
 			onMouseDown={onMouseDown}
 			onMouseUp={onMouseUp}
 			onMouseOver={onMouseOver}
