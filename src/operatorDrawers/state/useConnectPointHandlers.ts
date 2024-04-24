@@ -1,23 +1,23 @@
-import { useMemo } from 'react';
 import { connectPointDrawConnectLineStateHandlers } from './connectPointDrawConnectLineStateHandlers';
 import { connectPointSelectStateHandlers } from './connectPointSelectStateHandlers';
-import { StageState, selectStageState } from '../../store/stage';
+import { StageState } from '../../store/stage';
 import { useRootStore } from '../../store/rootStore';
+import { ConnectPointsDrawerEvents } from '../../drawers';
 
-export function useConnectPointHandlers() {
-	const stageState = useRootStore(selectStageState());
-	const state = useRootStore();
+export const useConnectPointHandlers = (): [ConnectPointsDrawerEvents, StageState] =>
+	useRootStore(
+		(storeState) => {
+			let handler: ConnectPointsDrawerEvents = {};
+			if (storeState.state === StageState.Select) {
+				handler = connectPointSelectStateHandlers(storeState);
+			}
 
-	return useMemo(() => {
-		if (stageState === StageState.Select) {
-			return connectPointSelectStateHandlers(state);
-		}
+			if (storeState.state === StageState.DrawConnectLine) {
+				handler = connectPointDrawConnectLineStateHandlers(storeState);
+			}
 
-		if (stageState === StageState.DrawConnectLine) {
-			return connectPointDrawConnectLineStateHandlers(state);
-		}
-
-		return {};
-	}, [stageState]);
-}
+			return [handler, storeState.state];
+		},
+		(prevHandlers, handlers) => prevHandlers[1] === handlers[1],
+	);
 

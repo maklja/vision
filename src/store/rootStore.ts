@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import { createStore, useStore } from 'zustand';
+import { useStoreWithEqualityFn } from 'zustand/traditional';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { ConnectLine, Element } from '../model';
@@ -63,6 +64,7 @@ export const createRootStore = (initProps?: Partial<StateProps>) => {
 					...createSimulationSlice(...args),
 				})),
 			),
+			{ name: 'SimulatorStore' },
 		),
 	);
 	store.getState().load(elements, connectLInes);
@@ -72,7 +74,14 @@ export const createRootStore = (initProps?: Partial<StateProps>) => {
 
 export function useRootStore(): RootState;
 export function useRootStore<T = RootState>(selector?: (state: RootState) => T): T;
-export function useRootStore<T = RootState>(selector?: (state: RootState) => T): T {
+export function useRootStore<T = RootState>(
+	selector?: (state: RootState) => T,
+	qualityFn?: (state: T, prevState: T) => boolean,
+): T;
+export function useRootStore<T = RootState>(
+	selector?: (state: RootState) => T,
+	qualityFn?: (state: T, prevState: T) => boolean,
+): T {
 	const store = useContext(StoreContext);
 
 	if (!store) {
@@ -83,6 +92,6 @@ export function useRootStore<T = RootState>(selector?: (state: RootState) => T):
 		return useStore(store, (state) => state as T);
 	}
 
-	return useStore(store, selector);
+	return useStoreWithEqualityFn(store, selector, qualityFn);
 }
 

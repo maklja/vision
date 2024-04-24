@@ -89,6 +89,7 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 			state.clearSnapLines();
 		},
 		onDragMove: (e: DrawerEvent) => {
+			console.time('onDragMove');
 			const { id, originalEvent } = e;
 			if (!originalEvent) {
 				return;
@@ -140,6 +141,7 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 
 			shiftKeyDown = Boolean(e.originalEvent?.evt.shiftKey);
 			state.changeState(StageState.Dragging);
+			console.timeEnd('onDragMove');
 		},
 		onDragBound: (e: DrawerDragBoundEvent) => {
 			if (!shiftKeyDown) {

@@ -29,7 +29,7 @@ export const DrawersLayer = () => {
 	const tooltip = useRootStore(selectTooltip);
 	const element = useRootStore(selectStageElementById(tooltip?.elementId ?? null));
 	const elementSizeOptions = useRootStore(selectElementSizeOptions);
-	const bb = useBoundingBox(element?.type ?? null, { x: element?.x ?? 0, y: element?.y ?? 0 });
+	const bb = useBoundingBox(tooltip?.elementId ?? null);
 	const error = useRootStore(selectElementErrorById(element?.id ?? null));
 	const text = error?.errorMessage ?? tooltip?.text ?? element?.name;
 

@@ -1,29 +1,30 @@
-import { useMemo } from 'react';
 import { connectLineSelectStateHandlers } from './connectLineSelectStateHandlers';
 import { connectLineDragStateHandlers } from './connectLineDragStateHandlers';
-import { SimulationState, selectSimulation } from '../../store/simulation';
-import { StageState, isStageStateDragging, selectStageState } from '../../store/stage';
+import { SimulationState } from '../../store/simulation';
+import { StageState, isStageStateDragging } from '../../store/stage';
 import { useRootStore } from '../../store/rootStore';
+import { LineDrawerEvents } from '../../drawers';
 
-export function useLineDrawerHandlers() {
-	const simulation = useRootStore(selectSimulation);
-	const stageState = useRootStore(selectStageState());
-	const state = useRootStore();
+export const useLineDrawerHandlers = (): [LineDrawerEvents, StageState, SimulationState] =>
+	useRootStore(
+		(stageStore) => {
+			let handler: LineDrawerEvents = {};
 
-	return useMemo(() => {
-		if (simulation.state === SimulationState.Running) {
-			return {};
-		}
+			if (stageStore.simulation.state === SimulationState.Running) {
+				handler = {};
+			} else if (stageStore.state === StageState.Select) {
+				handler = connectLineSelectStateHandlers(stageStore);
+			} else if (isStageStateDragging(stageStore.state)) {
+				handler = connectLineDragStateHandlers(stageStore);
+			}
 
-		if (stageState === StageState.Select) {
-			return connectLineSelectStateHandlers(state);
-		}
+			return [handler, stageStore.state, stageStore.simulation.state];
+		},
+		(prevHandler, handler) => {
+			const [, prevState, prevSimState] = prevHandler;
+			const [, state, simState] = handler;
 
-		if (isStageStateDragging(stageState)) {
-			return connectLineDragStateHandlers(state);
-		}
-
-		return {};
-	}, [stageState, simulation.state]);
-}
+			return prevState === state && prevSimState === simState;
+		},
+	);
 

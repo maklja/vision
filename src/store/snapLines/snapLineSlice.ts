@@ -1,5 +1,4 @@
 import { StateCreator } from 'zustand';
-import { useShallow } from 'zustand/react/shallow';
 import {
 	boundingBoxTouch,
 	createBoundingBoxSnapLines,
@@ -174,5 +173,5 @@ export function setSnapLines(state: RootState, snapLines: SnapLine[]) {
 	return state;
 }
 
-export const selectSnapLines = () => useShallow((state: RootState) => state.snapLines);
+export const selectSnapLines = (state: RootState) => state.snapLines;
 

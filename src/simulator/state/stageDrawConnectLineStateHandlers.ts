@@ -4,6 +4,7 @@ import { RootState } from '../../store/rootStore';
 
 export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents => ({
 	onMouseMove: (e: Konva.KonvaEventObject<MouseEvent>) => {
+		console.time('time');
 		e.cancelBubble = true;
 		const stage = e.target.getStage();
 		if (!stage) {
@@ -19,6 +20,7 @@ export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents
 			normalizePosition: e.evt.shiftKey,
 		});
 		state.createConnectPointSnapLines();
+		console.timeEnd('time');
 	},
 	onMouseDown: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
@@ -39,3 +41,4 @@ export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents
 		state.clearSnapLines();
 	},
 });
+

@@ -1,9 +1,8 @@
-import deepMerge from 'deepmerge';
+import { useShallow } from 'zustand/react/shallow';
 import { RootState, useRootStore } from '../rootStore';
 import { BoundingBox, ElementType, Point } from '../../model';
 import {
 	Theme,
-	DrawerThemeOverride,
 	findCircleShapeSize,
 	findRectangleShapeSize,
 	findElementSize,
@@ -14,14 +13,16 @@ import {
 
 export const selectElementSizeOptions = (state: RootState) => state.elementSizes.options;
 
-export const useThemeContext = (elType?: ElementType) =>
-	useRootStore((state: RootState) => {
-		const elTheme = elType ? state.themes[elType] ?? {} : {};
+export const useThemeContext = (elType?: ElementType): Theme =>
+	useRootStore(
+		useShallow((state: RootState) => {
+			if (!elType) {
+				return state.themes.default;
+			}
 
-		return deepMerge<Theme, DrawerThemeOverride>(state.themes.default, elTheme, {
-			arrayMerge: (_destinationArray, sourceArray) => sourceArray,
-		});
-	});
+			return state.themes[elType] ?? state.themes.default;
+		}),
+	);
 
 export const useShapeSize = (type: ElementType) =>
 	useRootStore((state: RootState) => findElementSize(state.elementSizes, type));
@@ -36,13 +37,28 @@ export const useRectangleShapeSize = (type: ElementType, scale = 1) =>
 		scaleRectangleShape(findRectangleShapeSize(state.elementSizes, type), scale),
 	);
 
-export const useBoundingBox = (type: ElementType | null, position: Point) =>
-	useRootStore((state: RootState) => {
-		if (!type) {
-			return BoundingBox.empty(position.x, position.y);
-		}
+export const useBoundingBox = (elementId: string | null) =>
+	useRootStore(
+		useShallow((state: RootState) => {
+			if (elementId == null) {
+				return BoundingBox.empty();
+			}
 
-		const shapeSize = findElementSize(state.elementSizes, type);
-		return calculateShapeSizeBoundingBox(position, shapeSize);
-	});
+			const el = state.elements[elementId];
+			if (!el) {
+				return BoundingBox.empty();
+			}
+
+			const shapeSize = findElementSize(state.elementSizes, el.type);
+			return calculateShapeSizeBoundingBox(el, shapeSize);
+		}),
+	);
+
+export const useConnectPointBoundingBox = (position: Point = { x: 0, y: 0 }) =>
+	useRootStore(
+		useShallow((state: RootState) => {
+			const shapeSize = findElementSize(state.elementSizes, ElementType.ConnectPoint);
+			return calculateShapeSizeBoundingBox(position, shapeSize);
+		}),
+	);
 

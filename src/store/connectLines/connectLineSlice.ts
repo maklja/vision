@@ -145,7 +145,7 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 
 			draftConnectLine.points.splice(-1, 1, newPosition);
 			return state;
-		}),
+		}, true),
 	addNextPointToConnectLineDraw: (point: Point) =>
 		set((state) => {
 			if (!state.draftConnectLine) {
