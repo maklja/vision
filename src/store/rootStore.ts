@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 import { createStore, useStore } from 'zustand';
-import { subscribeWithSelector } from 'zustand/middleware';
+import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { ConnectLine, Element } from '../model';
 import { createElementSlice, ElementSlice } from './elements';
@@ -49,18 +49,20 @@ export const createRootStore = (initProps?: Partial<StateProps>) => {
 	const canvasState = initProps?.canvasState ?? { x: 0, y: 0, scaleX: 1, scaleY: 1 };
 
 	const store = createStore<RootState>()(
-		immer(
-			subscribeWithSelector((...args) => ({
-				...createElementSlice(...args),
-				...createConnectLineSlice(...args),
-				...createConnectPointSlice(...args),
-				...createStageSlice(...args),
-				...createSelectSlice(...args),
-				...createSnapLineSlice(...args),
-				...createErrorSlice(...args),
-				...createAnimationSlice(...args),
-				...createSimulationSlice(...args),
-			})),
+		devtools(
+			immer(
+				subscribeWithSelector((...args) => ({
+					...createElementSlice(...args),
+					...createConnectLineSlice(...args),
+					...createConnectPointSlice(...args),
+					...createStageSlice(...args),
+					...createSelectSlice(...args),
+					...createSnapLineSlice(...args),
+					...createErrorSlice(...args),
+					...createAnimationSlice(...args),
+					...createSimulationSlice(...args),
+				})),
+			),
 		),
 	);
 	store.getState().load(elements, connectLInes);

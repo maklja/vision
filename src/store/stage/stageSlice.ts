@@ -17,13 +17,15 @@ import {
 	findElementDescriptor,
 	IBoundingBox,
 	Point,
+	SnapLine,
 } from '../../model';
-import { CreateElementPayload, MoveElementPayload } from '../elements';
-import { LinkConnectLineDrawPayload } from '../connectLines';
+import { CreateElementPayload, moveElementByDelta, MoveElementPayload } from '../elements';
+import { LinkConnectLineDrawPayload, moveConnectLinePointsByDelta } from '../connectLines';
 import { createSnapLinesByConnectPoint, createSnapLinesByElement } from '../snapLines';
 import { AnimationKey } from '../../animation';
 import { ObservableEvent } from '../simulation';
 import { FlowValueType } from '../../engine';
+import { moveConnectPointsByDelta } from '../connectPoints';
 
 export interface StartConnectLineDrawPayload {
 	sourceId: string;
@@ -54,6 +56,12 @@ export interface PinConnectLinePayload {
 	connectPointBoundingBox: IBoundingBox;
 }
 
+export interface CreateElementSnapLinesPayload {
+	elementId: string;
+	x: number;
+	y: number;
+}
+
 export interface UnpinConnectLinePayload {
 	drawerId: string;
 	animationId: string | null;
@@ -64,7 +72,6 @@ export enum StageState {
 	LassoSelect = 'lassoSelect',
 	DrawConnectLine = 'drawConnectLine',
 	Dragging = 'dragging',
-	SnapDragging = 'snapDragging',
 	DrawElement = 'drawElement',
 }
 
@@ -82,10 +89,9 @@ export interface CanvasState {
 	scaleY: number;
 }
 
-const draggingStates = [StageState.Dragging, StageState.SnapDragging];
-const draggableStates = [StageState.Select, StageState.Dragging, StageState.SnapDragging];
+const draggableStates = [StageState.Select, StageState.Dragging];
 
-export const isStageStateDragging = (state: StageState) => draggingStates.includes(state);
+export const isStageStateDragging = (state: StageState) => state === StageState.Dragging;
 
 export const isElementDragAllowed = (state: StageState) => draggableStates.includes(state);
 
@@ -134,7 +140,6 @@ export interface StageSlice {
 	moveSelectedElementsByDelta: (payload: MoveByDeltaElementPayload) => void;
 	createDraftElementSnapLines: () => void;
 	createConnectPointSnapLines: () => void;
-	createElementSnapLines: (referenceElementId: string) => void;
 	showTooltip: (payload: ShowTooltipPayload) => void;
 	hideTooltip: () => void;
 	setHighlighted: (highlightElements: string[]) => void;
@@ -142,6 +147,7 @@ export interface StageSlice {
 	pinConnectLine: (payload: PinConnectLinePayload) => void;
 	unpinConnectLine: (payload: UnpinConnectLinePayload) => void;
 	removeSimulationAnimation: (animationId: string) => void;
+	createElementSnapLines: (payload: CreateElementSnapLinesPayload) => SnapLine[];
 }
 
 export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (set, get) => ({
@@ -185,7 +191,9 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 		}),
 	hideTooltip: () =>
 		set((state) => {
-			state.tooltip = null;
+			if (state.tooltip) {
+				state.tooltip = null;
+			}
 
 			return state;
 		}),
@@ -194,7 +202,7 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			state.state = newState;
 
 			return state;
-		}),
+		}, true),
 	load: (elements: Element[], connectLines: ConnectLine[]) => {
 		const state = get();
 		state.loadElements(elements);
@@ -382,61 +390,53 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			}
 		});
 	},
-	moveSelectedElementsByDelta: (payload: MoveByDeltaElementPayload) => {
-		const state = get();
-		const selectedElements = state.selectedElements;
-		if (selectedElements.length === 0) {
-			return;
-		}
+	moveSelectedElementsByDelta: (payload: MoveByDeltaElementPayload) =>
+		set((state) => {
+			const selectedElements = state.selectedElements;
+			if (selectedElements.length === 0) {
+				return state;
+			}
 
-		const el = state.elements[payload.referenceElementId];
-		if (!el) {
-			return;
-		}
-
-		const dx = payload.x - el.x;
-		const dy = payload.y - el.y;
-
-		selectedElements.forEach((elId) => {
-			const el = state.elements[elId];
+			const el = state.elements[payload.referenceElementId];
 			if (!el) {
-				return;
+				return state;
 			}
 
-			state.moveElementToPosition({
-				id: el.id,
-				x: el.x + dx,
-				y: el.y + dy,
+			const dx = payload.x - el.x;
+			const dy = payload.y - el.y;
+			selectedElements.forEach((elId) => {
+				moveElementByDelta(state, { id: elId, dx, dy });
 			});
-		});
 
-		state.moveConnectPointsByDelta({
-			ids: selectedElements,
-			dx,
-			dy,
-		});
+			moveConnectPointsByDelta(state, {
+				ids: selectedElements,
+				dx,
+				dy,
+			});
 
-		const connectLines = Object.values(state.connectLines);
-		connectLines.forEach((cl) => {
-			if (cl.source.id === el.id) {
-				state.moveConnectLinePointsByDelta({
-					id: cl.id,
-					pointIndexes: [0, 1],
-					dx,
-					dy,
-				});
-			}
+			const connectLines = Object.values(state.connectLines);
+			connectLines.forEach((cl) => {
+				if (selectedElements.includes(cl.source.id)) {
+					moveConnectLinePointsByDelta(state, {
+						id: cl.id,
+						pointIndexes: [0, 1],
+						dx,
+						dy,
+					});
+				}
 
-			if (cl.target.id === el.id) {
-				state.moveConnectLinePointsByDelta({
-					id: cl.id,
-					pointIndexes: [cl.points.length - 2, cl.points.length - 1],
-					dx,
-					dy,
-				});
-			}
-		});
-	},
+				if (selectedElements.includes(cl.target.id)) {
+					moveConnectLinePointsByDelta(state, {
+						id: cl.id,
+						pointIndexes: [cl.points.length - 2, cl.points.length - 1],
+						dx,
+						dy,
+					});
+				}
+			});
+
+			return state;
+		}, true),
 	createDraftElementSnapLines: () => {
 		const state = get();
 		if (!state.draftElement) {
@@ -508,11 +508,11 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			normalizePosition: false,
 		});
 	},
-	createElementSnapLines: (referenceElementId: string) => {
+	createElementSnapLines: (payload: CreateElementSnapLinesPayload) => {
 		const state = get();
-		const el = state.elements[referenceElementId];
+		const el = state.elements[payload.elementId];
 		if (!el) {
-			return;
+			return [];
 		}
 
 		const elements = Object.values(state.elements).filter(
@@ -520,23 +520,18 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 		);
 
 		const { horizontalSnapLines, verticalSnapLines } = createSnapLinesByElement(
-			el,
+			{
+				...el,
+				x: payload.x,
+				y: payload.y,
+			},
 			elements,
 			state.elementSizes,
 		);
 
-		state.setSnapLines([...horizontalSnapLines, ...verticalSnapLines]);
-
-		const [horizontalSnapLine] = horizontalSnapLines;
-		const [verticalSnapLine] = verticalSnapLines;
-		const x = verticalSnapLine ? el.x + verticalSnapLine.distance : el.x;
-		const y = horizontalSnapLine ? el.y + horizontalSnapLine.distance : el.y;
-
-		state.moveSelectedElementsByDelta({
-			referenceElementId,
-			x,
-			y,
-		});
+		const snapLines = [...horizontalSnapLines, ...verticalSnapLines];
+		state.setSnapLines(snapLines);
+		return snapLines;
 	},
 	pinConnectLine: (payload: PinConnectLinePayload) => {
 		const state = get();

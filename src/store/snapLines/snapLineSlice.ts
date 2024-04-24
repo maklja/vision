@@ -15,7 +15,7 @@ import {
 import { RootState } from '../rootStore';
 import { calculateShapeSizeBoundingBox, ElementSizesContext, findElementSize } from '../../theme';
 
-const SNAP_DISTANCE = 4;
+export const SNAP_DISTANCE = 6;
 
 export function mergeSnapLines(snapLinesMap: Map<string, SnapLine>, snapLine: SnapLine) {
 	const isHorizontal = snapLine.orientation === SnapLineOrientation.Horizontal;
@@ -159,6 +159,9 @@ export const createSnapLineSlice: StateCreator<RootState, [], [], SnapLineSlice>
 	setSnapLines: (snapLines: SnapLine[]) => set((state) => setSnapLines(state, snapLines), true),
 	clearSnapLines: () =>
 		set((state) => {
+			if (state.snapLines.length === 0) {
+				return state;
+			}
 			state.snapLines = [];
 
 			return state;
