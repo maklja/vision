@@ -126,7 +126,7 @@ export interface OperatorDrawerProps {
 export function OperatorDrawer({ element, visibleConnectPoints, draggable }: OperatorDrawerProps) {
 	const theme = useThemeContext(element.type);
 	const animation = useRootStore(selectDrawerAnimationByDrawerId(element.id));
-	const [drawerHandlers] = useElementDrawerHandlers();
+	const drawerHandlers = useElementDrawerHandlers();
 	const select = useRootStore(isSelectedElement(element.id));
 	const highlight = useRootStore(isHighlighted(element.id));
 	const error = useRootStore(selectElementErrorById(element.id));
@@ -178,4 +178,3 @@ export function OperatorDrawer({ element, visibleConnectPoints, draggable }: Ope
 			});
 	}
 }
-

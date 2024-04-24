@@ -1,11 +1,10 @@
 import Konva from 'konva';
-import { Vector2d } from 'konva/lib/types';
-import { Node } from 'konva/lib/Node';
 import { Circle, Group } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
 import { useState } from 'react';
 import { useAnimationGroups } from '../../animation';
 import { useCircleSizeScale, useElementDrawerTheme } from '../../theme';
+import { handleDragBoundFunc } from '../utils';
 
 export function DotCircleOperatorDrawer({
 	x,
@@ -103,25 +102,13 @@ export function DotCircleOperatorDrawer({
 			originalEvent: e,
 		});
 
-	const handleDragBoundFunc = function (this: Node, position: Vector2d) {
-		if (!onDragBound) {
-			return position;
-		}
-
-		return onDragBound({
-			id,
-			node: this,
-			position,
-		});
-	};
-
 	return (
 		<Group
 			visible={visible && Boolean(mainShapeRef)}
 			x={x}
 			y={y}
 			draggable={draggable}
-			dragBoundFunc={handleDragBoundFunc}
+			dragBoundFunc={handleDragBoundFunc(id, onDragBound)}
 			onMouseDown={handleMouseDown}
 			onMouseUp={handleMouseUp}
 			onMouseOver={handleMouseOver}
@@ -149,4 +136,3 @@ export function DotCircleOperatorDrawer({
 		</Group>
 	);
 }
-

@@ -5,26 +5,19 @@ import { StageState, isStageStateDragging } from '../../store/stage';
 import { useRootStore } from '../../store/rootStore';
 import { LineDrawerEvents } from '../../drawers';
 
-export const useLineDrawerHandlers = (): [LineDrawerEvents, StageState, SimulationState] =>
-	useRootStore(
-		(stageStore) => {
-			let handler: LineDrawerEvents = {};
+export const useLineDrawerHandlers = (): LineDrawerEvents =>
+	useRootStore((stageStore) => {
+		if (stageStore.simulation.state === SimulationState.Running) {
+			return {};
+		}
 
-			if (stageStore.simulation.state === SimulationState.Running) {
-				handler = {};
-			} else if (stageStore.state === StageState.Select) {
-				handler = connectLineSelectStateHandlers(stageStore);
-			} else if (isStageStateDragging(stageStore.state)) {
-				handler = connectLineDragStateHandlers(stageStore);
-			}
+		if (stageStore.state === StageState.Select) {
+			return connectLineSelectStateHandlers(stageStore);
+		}
 
-			return [handler, stageStore.state, stageStore.simulation.state];
-		},
-		(prevHandler, handler) => {
-			const [, prevState, prevSimState] = prevHandler;
-			const [, state, simState] = handler;
+		if (isStageStateDragging(stageStore.state)) {
+			return connectLineDragStateHandlers(stageStore);
+		}
 
-			return prevState === state && prevSimState === simState;
-		},
-	);
-
+		return {};
+	});

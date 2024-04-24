@@ -6,25 +6,19 @@ import { StageState, isStageStateDragging } from '../../store/stage';
 import { useRootStore } from '../../store/rootStore';
 import { DrawerEvents } from '../../drawers';
 
-export const useElementDrawerHandlers = (): [DrawerEvents, StageState, SimulationState] =>
-	useRootStore(
-		(storeState) => {
-			let handler: DrawerEvents = {};
-			if (storeState.simulation.state === SimulationState.Running) {
-				handler = drawerAnimationStateHandlers(storeState);
-			} else if (storeState.state === StageState.Select) {
-				handler = drawerSelectStateHandlers(storeState);
-			} else if (isStageStateDragging(storeState.state)) {
-				handler = drawerDragStateHandlers(storeState);
-			}
+export const useElementDrawerHandlers = (): DrawerEvents =>
+	useRootStore((storeState) => {
+		if (storeState.simulation.state === SimulationState.Running) {
+			return drawerAnimationStateHandlers(storeState);
+		}
 
-			return [handler, storeState.state, storeState.simulation.state];
-		},
-		(prevHandler, handler) => {
-			const [, prevState, prevSimState] = prevHandler;
-			const [, state, simState] = handler;
+		if (storeState.state === StageState.Select) {
+			return drawerSelectStateHandlers(storeState);
+		}
 
-			return prevState === state && prevSimState === simState;
-		},
-	);
+		if (isStageStateDragging(storeState.state)) {
+			return drawerDragStateHandlers(storeState);
+		}
 
+		return {};
+	});

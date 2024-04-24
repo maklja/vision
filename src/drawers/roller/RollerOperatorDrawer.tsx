@@ -1,5 +1,3 @@
-import { Vector2d } from 'konva/lib/types';
-import { Node } from 'konva/lib/Node';
 import Konva from 'konva';
 import { useState } from 'react';
 import { Group, Rect, Text, Ellipse, Path } from 'react-konva';
@@ -7,6 +5,7 @@ import { useAnimationGroups } from '../../animation';
 import { RectangleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme } from '../../theme';
 import { Point } from '../../model';
+import { handleDragBoundFunc } from '../utils';
 
 export interface RollerOperatorDrawerProps extends RectangleDrawerProps {
 	title: string;
@@ -123,18 +122,6 @@ export function RollerOperatorDrawer({
 			originalEvent: e,
 		});
 
-	const handleDragBoundFunc = function (this: Node, position: Vector2d) {
-		if (!onDragBound) {
-			return position;
-		}
-
-		return onDragBound({
-			id,
-			node: this,
-			position,
-		});
-	};
-
 	const textX = (mainTextRef?.width() ?? 0) / -2 + width / 2;
 	const textY = (mainTextRef?.height() ?? 0) / -2 + height / 2;
 
@@ -173,7 +160,7 @@ export function RollerOperatorDrawer({
 			x={x}
 			y={y}
 			draggable={draggable}
-			dragBoundFunc={handleDragBoundFunc}
+			dragBoundFunc={handleDragBoundFunc(id, onDragBound)}
 			onMouseOver={handleMouseOver}
 			onMouseOut={handleMouseOut}
 			onMouseDown={handleMouseDown}
@@ -236,4 +223,3 @@ export function RollerOperatorDrawer({
 		</Group>
 	);
 }
-

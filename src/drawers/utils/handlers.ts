@@ -1,6 +1,8 @@
 import { Vector2d } from 'konva/lib/types';
-import { snapPositionToGrind } from '../../model';
+import { Node } from 'konva/lib/Node';
+import { Point, snapPositionToGrind } from '../../model';
 import { Stage } from 'konva/lib/Stage';
+import { DrawerDragBoundEvent } from '../DrawerProps';
 
 export function calcSnapPosition(pos: Vector2d, gridSize: number, stage: Stage | null) {
 	const stageScale = stage?.scale() ?? { x: 1, y: 1 };
@@ -14,3 +16,18 @@ export function calcSnapPosition(pos: Vector2d, gridSize: number, stage: Stage |
 	};
 }
 
+export const handleDragBoundFunc = (
+	id: string,
+	onDragBound?: (event: DrawerDragBoundEvent) => Point,
+) =>
+	function (this: Node, position: Vector2d) {
+		if (!onDragBound) {
+			return position;
+		}
+
+		return onDragBound({
+			id,
+			node: this,
+			position,
+		});
+	};

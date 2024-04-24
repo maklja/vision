@@ -5,6 +5,7 @@ import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 
 export function drawerSelectStateHandlers(state: RootState): DrawerEvents {
+	state.clearCanvasAutoDragInterval();
 	return {
 		...drawerAnimationStateHandlers,
 		onMouseDown: (e: DrawerEvent) => {

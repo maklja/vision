@@ -59,25 +59,14 @@ function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 	});
 }
 
-let autoDragInterval: number | null = null;
 let shiftKeyDown = false;
 
-function clearAutoDragInterval() {
-	if (!autoDragInterval) {
-		return;
-	}
-
-	clearInterval(autoDragInterval);
-	autoDragInterval = null;
-}
-
 export function drawerDragStateHandlers(state: RootState): DrawerEvents {
-	clearAutoDragInterval();
 	shiftKeyDown = false;
 	return {
 		...drawerAnimationStateHandlers,
 		onDragEnd: (e: DrawerEvent) => {
-			clearAutoDragInterval();
+			state.clearCanvasAutoDragInterval();
 			const { originalEvent } = e;
 			if (!originalEvent) {
 				return;
@@ -96,8 +85,8 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 			}
 			originalEvent.cancelBubble = true;
 
-			if (!autoDragInterval) {
-				autoDragInterval = window.setInterval(() => {
+			if (!state.canvasState.autoDragInterval) {
+				const autoDragInterval = window.setInterval(() => {
 					const stage = e.originalEvent?.currentTarget.getStage();
 					if (!stage) {
 						return;
@@ -105,6 +94,9 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 
 					edgeAutoDrag(stage, state);
 				}, AUTO_DRAG_REFRESH_INTERVAL);
+				state.updateCanvasState({
+					autoDragInterval,
+				});
 			}
 
 			changeCursorStyle('grabbing', originalEvent.currentTarget.getStage());
@@ -153,4 +145,3 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 		},
 	};
 }
-

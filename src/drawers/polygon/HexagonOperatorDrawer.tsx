@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import Konva from 'konva';
-import { Vector2d } from 'konva/lib/types';
-import { Node } from 'konva/lib/Node';
 import { RegularPolygon, Group, Text } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme } from '../../theme';
 import { useAnimationGroups } from '../../animation';
+import { handleDragBoundFunc } from '../utils';
 
 export interface HexagonOperatorDrawerProps extends CircleDrawerProps {
 	title: string;
@@ -110,23 +109,11 @@ export function HexagonOperatorDrawer({
 			originalEvent: e,
 		});
 
-	const handleDragBoundFunc = function (this: Node, position: Vector2d) {
-		if (!onDragBound) {
-			return position;
-		}
-
-		return onDragBound({
-			id,
-			node: this,
-			position,
-		});
-	};
-
 	return (
 		<Group
 			visible={visible && Boolean(mainTextRef && mainShapeRef)}
 			draggable={draggable}
-			dragBoundFunc={handleDragBoundFunc}
+			dragBoundFunc={handleDragBoundFunc(id, onDragBound)}
 			x={x}
 			y={y}
 			onMouseOver={handleMouseOver}
@@ -160,4 +147,3 @@ export function HexagonOperatorDrawer({
 		</Group>
 	);
 }
-

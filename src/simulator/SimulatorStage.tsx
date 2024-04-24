@@ -40,7 +40,7 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
 	const canvasState = useRootStore((state) => state.canvasState);
 	const stageState = useRootStore(selectStageState());
-	const [stageHandlers] = useStageHandlers();
+	const stageHandlers = useStageHandlers();
 	const stageRef = useRef<Konva.Stage | null>(null);
 	// small workaround because react=dnd doesn't support key events
 	const [snapToGrid, setSnapToGrid] = useState(false);
@@ -140,4 +140,3 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 		</div>
 	);
 });
-

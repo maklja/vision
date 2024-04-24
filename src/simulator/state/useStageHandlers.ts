@@ -5,21 +5,20 @@ import { StageState } from '../../store/stage';
 import { useRootStore } from '../../store/rootStore';
 import { StageEvents } from '../SimulatorStage';
 
-export const useStageHandlers = (): [StageEvents, StageState] =>
+export const useStageHandlers = (): StageEvents =>
 	useRootStore(
 		useShallow((storeState) => {
-			let handler: StageEvents = {};
 			if (
 				storeState.state === StageState.Select ||
 				storeState.state === StageState.LassoSelect
 			) {
-				handler = stageSelectStateHandlers(storeState);
-			} else if (storeState.state === StageState.DrawConnectLine) {
-				handler = stageDrawConnectLineStateHandlers(storeState);
+				return stageSelectStateHandlers(storeState);
 			}
 
-			return [handler, storeState.state];
-		}),
-		(prevHandlers, handlers) => prevHandlers[1] === handlers[1],
-	);
+			if (storeState.state === StageState.DrawConnectLine) {
+				return stageDrawConnectLineStateHandlers(storeState);
+			}
 
+			return {};
+		}),
+	);

@@ -87,6 +87,7 @@ export interface CanvasState {
 	height: number;
 	scaleX: number;
 	scaleY: number;
+	autoDragInterval: number | null;
 }
 
 const draggableStates = [StageState.Select, StageState.Dragging];
@@ -148,6 +149,7 @@ export interface StageSlice {
 	unpinConnectLine: (payload: UnpinConnectLinePayload) => void;
 	removeSimulationAnimation: (animationId: string) => void;
 	createElementSnapLines: (payload: CreateElementSnapLinesPayload) => SnapLine[];
+	clearCanvasAutoDragInterval: () => void;
 }
 
 export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (set, get) => ({
@@ -164,6 +166,7 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 		height: 0,
 		scaleX: 0,
 		scaleY: 0,
+		autoDragInterval: null,
 	},
 	updateCanvasState: (canvasUpdate: Partial<CanvasState>) =>
 		set((state) => {
@@ -174,6 +177,7 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 
 			return state;
 		}),
+	clearCanvasAutoDragInterval: () => set((state) => clearCanvasAutoDragInterval(state)),
 	setHighlighted: (highlightElements: string[]) =>
 		set((state) => {
 			state.highlighted = highlightElements;
@@ -584,6 +588,18 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 	},
 });
 
+function clearCanvasAutoDragInterval(state: RootState) {
+	if (!state.canvasState.autoDragInterval) {
+		return state;
+	}
+
+	console.log(state.canvasState.autoDragInterval);
+
+	clearInterval(state.canvasState.autoDragInterval);
+	state.canvasState.autoDragInterval = null;
+	return state;
+}
+
 export const selectStageState = () => (state: RootState) => state.state;
 
 export const selectLasso = () =>
@@ -615,4 +631,3 @@ export const isHighlighted = (elementId: string) => (state: RootState) =>
 	state.highlighted.includes(elementId);
 
 export const selectCanvasState = (state: RootState) => state.canvasState;
-

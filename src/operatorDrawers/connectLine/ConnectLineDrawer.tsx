@@ -15,7 +15,7 @@ export interface ConnectLineDrawerProps {
 export const ConnectLineDrawer = ({ connectLine, select, draggable }: ConnectLineDrawerProps) => {
 	const theme = useThemeContext();
 	const lineSize = useLineSize();
-	const [connectLineHandlers] = useLineDrawerHandlers();
+	const connectLineHandlers = useLineDrawerHandlers();
 	const highlight = useRootStore(isHighlighted(connectLine.id));
 
 	return (
@@ -31,4 +31,3 @@ export const ConnectLineDrawer = ({ connectLine, select, draggable }: ConnectLin
 		/>
 	);
 };
-
