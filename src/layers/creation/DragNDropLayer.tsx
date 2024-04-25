@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import Konva from 'konva';
 import { Layer } from 'react-konva';
 import { XYCoord, useDragLayer } from 'react-dnd';
-import { ElementType } from '../../model';
+import { ElementType, SnapLineOrientation } from '../../model';
 import { DragNDropType } from '../../dragNDrop';
 import { createOperatorDrawer } from '../../operatorDrawers';
 import { ShapeSize, calculateShapeSizeBoundingBox, useGridTheme } from '../../theme';
@@ -63,8 +63,20 @@ export const DragNDropLayer = ({ snapToGrid }: DragNDropLayerProps) => {
 			? calcSnapPosition({ x, y }, gridTheme.size, stage)
 			: { x, y };
 
-		updateDraftElementPosition(newPosition);
-		createDraftElementSnapLines();
+		const snapLines = createDraftElementSnapLines(newPosition);
+		const verticalSnapLine = snapLines.find(
+			(snapLine) => snapLine.orientation === SnapLineOrientation.Vertical,
+		);
+		const horizontalSnapLine = snapLines.find(
+			(snapLine) => snapLine.orientation === SnapLineOrientation.Horizontal,
+		);
+
+		const newX = verticalSnapLine ? newPosition.x + verticalSnapLine.distance : newPosition.x;
+		const newY = horizontalSnapLine
+			? newPosition.y + horizontalSnapLine.distance
+			: newPosition.y;
+
+		updateDraftElementPosition({ x: newX, y: newY });
 	}, [snapToGrid, clientOffset, item, isDragging, itemType]);
 
 	const drawer = createOperatorDrawer(draftElement.type, {

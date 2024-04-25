@@ -167,7 +167,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			state.connectPoints[element.id] = connectPoints;
 
 			return state;
-		}),
+		}, true),
 	removeElementsConnectPoints: (elementIds: string[]) =>
 		set((state) => {
 			if (elementIds.length === 0) {
@@ -179,7 +179,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			});
 
 			return state;
-		}),
+		}, true),
 	setSelectElementConnectPoint: (elementId: string) =>
 		set((state) => {
 			const el = state.elements[elementId];
@@ -196,7 +196,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			});
 
 			return state;
-		}),
+		}, true),
 	loadConnectPoints: (elements: Element[]) =>
 		set((state) => {
 			elements.forEach((element) => {
@@ -204,7 +204,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			});
 
 			return state;
-		}),
+		}, true),
 	clearSelectedConnectPoints: () =>
 		set((state) => {
 			Object.keys(state.connectPoints).forEach((elId) => {
@@ -214,7 +214,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			});
 
 			return state;
-		}),
+		}, true),
 	setSelectElementsConnectPoints: (elementIds: string[]) =>
 		set((state) => {
 			Object.keys(state.connectPoints).forEach((elId) => {
@@ -233,7 +233,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			});
 
 			return state;
-		}),
+		}, true),
 	markConnectionPointsAsConnectable: (elementIds: string[]) =>
 		set((state) => {
 			Object.keys(state.connectPoints).forEach((elId) => {
@@ -243,7 +243,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			});
 
 			return state;
-		}),
+		}, true),
 	selectConnectPoints: (elementId: string) =>
 		set((state) => {
 			const el = state.elements[elementId];
@@ -257,7 +257,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			);
 
 			return state;
-		}),
+		}, true),
 	deselectConnectPoints: (elementId: string) =>
 		set((state) => {
 			state.connectPoints[elementId] = hideElementConnectPointsVisibility(
@@ -276,7 +276,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			});
 
 			return state;
-		}),
+		}, true),
 	moveConnectPointsByDelta: (payload: MoveConnectPointsByDeltaPayload) =>
 		set((state) => moveConnectPointsByDelta(state, payload), true),
 	lockConnectLine: (connectPointBoundingBox: IBoundingBox) =>
@@ -301,7 +301,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			state.draftConnectLine.locked = true;
 
 			return state;
-		}),
+		}, true),
 	unlockDraftConnectLine: () =>
 		set((state) => {
 			if (!state.draftConnectLine) {
@@ -311,7 +311,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			state.draftConnectLine.locked = false;
 
 			return state;
-		}),
+		}, true),
 	updateConnectPoints: (payload: UpdateConnectPointsPayload) =>
 		set((state) => {
 			payload.connectPointUpdates.forEach((updatePayload) => {
@@ -329,7 +329,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			});
 
 			return state;
-		}),
+		}, true),
 });
 
 export function moveConnectPointsByDelta(

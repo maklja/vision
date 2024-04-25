@@ -43,7 +43,6 @@ export const CircleConnectPointsDrawer = ({
 }: CircleConnectPointsDrawerProps) => {
 	const centerX = x + width / 2;
 	const centerY = y + height / 2;
-	// TODO perf calculate immediately?
 	const connectPointBB = useConnectPointBoundingBox();
 	const connectPointHalfWidth = connectPointBB.width / 2;
 	const connectPointHalfHeight = connectPointBB.height / 2;

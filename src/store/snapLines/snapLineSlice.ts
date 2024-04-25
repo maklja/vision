@@ -124,7 +124,6 @@ export function createSnapLinesByConnectPoint(
 ) {
 	const shapeSize = findElementSize(elementSizes, ElementType.ConnectPoint);
 	const connectPointsCenter = connectPoints
-		.filter((cp) => cp.visible)
 		.map((cp) => calculateShapeSizeBoundingBox({ x: cp.x, y: cp.y }, shapeSize).center);
 
 	const snapLinesMap: Map<string, SnapLine> = connectPointsCenter
@@ -164,7 +163,7 @@ export const createSnapLineSlice: StateCreator<RootState, [], [], SnapLineSlice>
 			state.snapLines = [];
 
 			return state;
-		}),
+		}, true),
 });
 
 export function setSnapLines(state: RootState, snapLines: SnapLine[]) {

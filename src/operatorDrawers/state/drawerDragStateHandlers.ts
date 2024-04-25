@@ -7,7 +7,7 @@ import { RootState } from '../../store/rootStore';
 import { SnapLineOrientation } from '../../model';
 import { SNAP_DISTANCE } from '../../store/snapLines';
 
-const AUTO_DRAG_REFRESH_INTERVAL = 300;
+const AUTO_DRAG_REFRESH_INTERVAL = 150;
 const AUTO_DRAG_EDGE_OFFSET = 100;
 const AUTO_DRAG_ANIMATION_DURATION = 0.1;
 const AUTO_DRAG_MOVE_DISTANCE = 50;
@@ -59,10 +59,7 @@ function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 	});
 }
 
-let shiftKeyDown = false;
-
 export function drawerDragStateHandlers(state: RootState): DrawerEvents {
-	shiftKeyDown = false;
 	return {
 		...drawerAnimationStateHandlers,
 		onDragEnd: (e: DrawerEvent) => {
@@ -78,7 +75,6 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 			state.clearSnapLines();
 		},
 		onDragMove: (e: DrawerEvent) => {
-			console.time('onDragMove');
 			const { id, originalEvent } = e;
 			if (!originalEvent) {
 				return;
@@ -131,12 +127,13 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 				y,
 			});
 
-			shiftKeyDown = Boolean(e.originalEvent?.evt.shiftKey);
 			state.changeState(StageState.Dragging);
-			console.timeEnd('onDragMove');
+			state.updateCanvasState({
+				snapToGrip: Boolean(e.originalEvent?.evt.shiftKey),
+			});
 		},
 		onDragBound: (e: DrawerDragBoundEvent) => {
-			if (!shiftKeyDown) {
+			if (!state.canvasState.snapToGrip) {
 				return e.position;
 			}
 
@@ -145,3 +142,4 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 		},
 	};
 }
+

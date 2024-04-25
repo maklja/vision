@@ -87,7 +87,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				properties: mapToOperatorPropsTemplate(payload.type),
 			};
 			return state;
-		}),
+		}, true),
 	updateDraftElementPosition: (payload: Point) =>
 		set((state) => {
 			if (!state.draftElement) {
@@ -100,17 +100,17 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				y: payload.y,
 			};
 			return state;
-		}),
+		}, true),
 	clearDraftElement: () =>
 		set((state) => {
 			state.draftElement = null;
 			return state;
-		}),
+		}, true),
 	addElement: (newElement: Element) =>
 		set((state) => {
 			state.elements[newElement.id] = newElement;
 			return state;
-		}),
+		}, true),
 	updateElement: (payload: UpdateElementPayload) =>
 		set((state) => {
 			const el = state.elements[payload.id];
@@ -125,7 +125,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				...payload.properties,
 			};
 			return state;
-		}),
+		}, true),
 	removeElements: (elementIds: string[]) =>
 		set((state) => {
 			if (elementIds.length === 0) {
@@ -136,7 +136,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				delete state.elements[elId];
 			});
 			return state;
-		}),
+		}, true),
 	loadElements: (elements: Element[]) =>
 		set((state) => {
 			state.elements = elements.reduce(
@@ -147,7 +147,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				{},
 			);
 			return state;
-		}),
+		}, true),
 	setSelectElements: (elementIds: string[]) =>
 		set((state) => {
 			if (state.selectedElements.length === 0 && elementIds.length === 0) {
@@ -156,7 +156,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 
 			state.selectedElements = elementIds;
 			return state;
-		}),
+		}, true),
 	selectElement: (elementId: string) =>
 		set((state) => {
 			if (state.selectedElements.includes(elementId)) {
@@ -165,7 +165,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 
 			state.selectedElements.push(elementId);
 			return state;
-		}),
+		}, true),
 	deselectElement: (elementId: string) =>
 		set((state) => {
 			const idx = state.selectedElements.indexOf(elementId);
@@ -175,7 +175,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 
 			state.selectedElements.splice(idx, 1);
 			return state;
-		}),
+		}, true),
 	updateElementProperty: (payload: UpdateElementPropertyPayload) =>
 		set((state) => {
 			const element = state.elements[payload.id];
@@ -185,7 +185,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 
 			element.properties[payload.propertyName] = payload.propertyValue;
 			return state;
-		}),
+		}, true),
 	moveElementToPosition: (payload: MoveElementPayload) =>
 		set((state) => moveElementToPosition(state, payload), true),
 	moveElementByDelta: (payload: MoveElementByDeltaPayload) =>

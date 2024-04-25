@@ -1,14 +1,22 @@
+import Konva from 'konva';
 import { useMemo } from 'react';
 import { Layer, Line } from 'react-konva';
 import { useGridTheme } from '../../theme';
-import { useRootStore } from '../../store/rootStore';
-import { selectCanvasState } from '../../store/stage';
 import { useThemeContext } from '../../store/hooks';
 
-export const GridLayer = () => {
+export interface GridLayerProps {
+	stage: Konva.Stage;
+}
+
+export function GridLayer({ stage }: GridLayerProps) {
 	const theme = useThemeContext();
 	const gridTheme = useGridTheme(theme);
-	const { x, y, width, height, scaleX } = useRootStore(selectCanvasState);
+	const position = stage.position();
+	const x = position.x;
+	const y = position.y;
+	const width = stage.width();
+	const height = stage.height();
+	const scaleX = stage.scaleX();
 
 	const { viewRect, gridLines } = useMemo(() => {
 		if (scaleX === 0) {
@@ -23,6 +31,7 @@ export const GridLayer = () => {
 			};
 		}
 
+		const outerEdgeOffset = 2000; // how much to draw in the are that is not visible
 		const gridSize = gridTheme.size;
 		const stageRect = {
 			x1: 0,
@@ -34,12 +43,13 @@ export const GridLayer = () => {
 				y: y / scaleX,
 			},
 		};
+
 		// make a rect to describe the viewport
 		const viewRect = {
-			x1: -stageRect.offset.x,
-			y1: -stageRect.offset.y,
-			x2: width / scaleX - stageRect.offset.x,
-			y2: height / scaleX - stageRect.offset.y,
+			x1: -stageRect.offset.x - outerEdgeOffset,
+			y1: -stageRect.offset.y - outerEdgeOffset,
+			x2: (width + outerEdgeOffset) / scaleX - stageRect.offset.x,
+			y2: (height + outerEdgeOffset) / scaleX - stageRect.offset.y,
 		};
 		// and find the largest rectangle that bounds both the stage and view rect.
 		// This is the rect we will draw on.
@@ -53,6 +63,7 @@ export const GridLayer = () => {
 			x2: width / scaleX - gridOffset.x + gridSize,
 			y2: height / scaleX - gridOffset.y + gridSize,
 		};
+
 		const fullRect = {
 			x1: Math.min(stageRect.x1, gridRect.x1),
 			y1: Math.min(stageRect.y1, gridRect.y1),
@@ -100,7 +111,7 @@ export const GridLayer = () => {
 		};
 	}, [x, y, width, height, scaleX, gridTheme.size]);
 
-	return (
+	return stage ? (
 		<Layer
 			clipX={viewRect.x1}
 			clipY={viewRect.y1}
@@ -110,6 +121,6 @@ export const GridLayer = () => {
 		>
 			{gridLines}
 		</Layer>
-	);
-};
+	) : null;
+}
 

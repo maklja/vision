@@ -131,7 +131,7 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 				scaleX={canvasState.scaleX}
 				scaleY={canvasState.scaleY}
 			>
-				<GridLayer />
+				{stageRef.current ? <GridLayer stage={stageRef.current} /> : null}
 				<DrawersLayer />
 				<AnimationsLayer />
 				<DraftLayer />
@@ -140,3 +140,4 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 		</div>
 	);
 });
+
