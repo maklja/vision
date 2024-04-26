@@ -1,5 +1,5 @@
 import deepMerge from 'deepmerge';
-import { ColorTheme, retrieveThemeColors } from './colors';
+import { ColorTheme, retrieveThemeColor } from './colors';
 import { lineDrawerTheme, LineTheme } from './lineDrawerTheme';
 import {
 	connectPointsTheme,
@@ -41,8 +41,8 @@ export type ThemesContext = {
 	[key in ElementType]?: Theme;
 } & { default: Theme };
 
-export const createThemeContext = (): ThemesContext => {
-	const defaultColorTheme = retrieveThemeColors();
+export function createThemeContext(id?: string): ThemesContext {
+	const defaultColorTheme = retrieveThemeColor(id);
 	const defaultTheme = {
 		colors: defaultColorTheme,
 		drawer: elementDrawerTheme(defaultColorTheme),
@@ -71,7 +71,7 @@ export const createThemeContext = (): ThemesContext => {
 		),
 		default: defaultTheme,
 	};
-};
+}
 
 export interface DrawerCommonThemeState {
 	highlight?: boolean;
