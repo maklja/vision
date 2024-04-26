@@ -36,6 +36,12 @@ export interface MoveElementPayload {
 	y: number;
 }
 
+export interface MoveElementByDeltaPayload {
+	id: string;
+	dx: number;
+	dy: number;
+}
+
 export interface ElementSlice {
 	elements: Record<string, Element>;
 	selectedElements: string[];
@@ -52,6 +58,7 @@ export interface ElementSlice {
 	setSelectElements: (elementIds: string[]) => void;
 	updateElementProperty: (payload: UpdateElementPropertyPayload) => void;
 	moveElementToPosition: (payload: MoveElementPayload) => void;
+	moveElementByDelta: (payload: MoveElementByDeltaPayload) => void;
 }
 
 function createElementName(takenElNames: string[], elType: ElementType) {
@@ -80,7 +87,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				properties: mapToOperatorPropsTemplate(payload.type),
 			};
 			return state;
-		}),
+		}, true),
 	updateDraftElementPosition: (payload: Point) =>
 		set((state) => {
 			if (!state.draftElement) {
@@ -93,17 +100,17 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				y: payload.y,
 			};
 			return state;
-		}),
+		}, true),
 	clearDraftElement: () =>
 		set((state) => {
 			state.draftElement = null;
 			return state;
-		}),
+		}, true),
 	addElement: (newElement: Element) =>
 		set((state) => {
 			state.elements[newElement.id] = newElement;
 			return state;
-		}),
+		}, true),
 	updateElement: (payload: UpdateElementPayload) =>
 		set((state) => {
 			const el = state.elements[payload.id];
@@ -118,7 +125,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				...payload.properties,
 			};
 			return state;
-		}),
+		}, true),
 	removeElements: (elementIds: string[]) =>
 		set((state) => {
 			if (elementIds.length === 0) {
@@ -129,7 +136,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				delete state.elements[elId];
 			});
 			return state;
-		}),
+		}, true),
 	loadElements: (elements: Element[]) =>
 		set((state) => {
 			state.elements = elements.reduce(
@@ -140,7 +147,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				{},
 			);
 			return state;
-		}),
+		}, true),
 	setSelectElements: (elementIds: string[]) =>
 		set((state) => {
 			if (state.selectedElements.length === 0 && elementIds.length === 0) {
@@ -149,7 +156,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 
 			state.selectedElements = elementIds;
 			return state;
-		}),
+		}, true),
 	selectElement: (elementId: string) =>
 		set((state) => {
 			if (state.selectedElements.includes(elementId)) {
@@ -158,7 +165,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 
 			state.selectedElements.push(elementId);
 			return state;
-		}),
+		}, true),
 	deselectElement: (elementId: string) =>
 		set((state) => {
 			const idx = state.selectedElements.indexOf(elementId);
@@ -168,7 +175,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 
 			state.selectedElements.splice(idx, 1);
 			return state;
-		}),
+		}, true),
 	updateElementProperty: (payload: UpdateElementPropertyPayload) =>
 		set((state) => {
 			const element = state.elements[payload.id];
@@ -178,20 +185,36 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 
 			element.properties[payload.propertyName] = payload.propertyValue;
 			return state;
-		}),
+		}, true),
 	moveElementToPosition: (payload: MoveElementPayload) =>
-		set((state) => {
-			const el = state.elements[payload.id];
-			if (!el) {
-				return state;
-			}
-
-			el.x = payload.x;
-			el.y = payload.y;
-
-			return state;
-		}),
+		set((state) => moveElementToPosition(state, payload), true),
+	moveElementByDelta: (payload: MoveElementByDeltaPayload) =>
+		set((state) => moveElementByDelta(state, payload), true),
 });
+
+export function moveElementToPosition(state: RootState, payload: MoveElementPayload) {
+	const el = state.elements[payload.id];
+	if (!el) {
+		return state;
+	}
+
+	el.x = payload.x;
+	el.y = payload.y;
+
+	return state;
+}
+
+export function moveElementByDelta(state: RootState, payload: MoveElementByDeltaPayload) {
+	const el = state.elements[payload.id];
+	if (!el) {
+		return state;
+	}
+
+	el.x += payload.dx;
+	el.y += payload.dy;
+
+	return state;
+}
 
 export const selectStageElements = () =>
 	useShallow((state: RootState) => Object.values(state.elements));
@@ -202,5 +225,3 @@ export const selectStageDraftElement = () => (state: RootState) =>
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
 	state.selectedElements.includes(elementId);
 
-export const selectStageElementById = (id: string | null) => (state: RootState) =>
-	!id ? null : state.elements[id] ?? null;

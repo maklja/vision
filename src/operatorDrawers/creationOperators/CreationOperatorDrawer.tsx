@@ -10,7 +10,7 @@ export interface CreationOperatorDrawerProps extends ElementDrawerProps {
 	title: string;
 }
 
-export const CreationOperatorDrawer = ({
+export function CreationOperatorDrawer({
 	x,
 	y,
 	scale = 1,
@@ -18,7 +18,6 @@ export const CreationOperatorDrawer = ({
 	theme,
 	animation,
 	draggable,
-	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -32,11 +31,12 @@ export const CreationOperatorDrawer = ({
 	onDragEnd,
 	onDragMove,
 	onDragStart,
+	onDragBound,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
 	onMouseOver,
-}: CreationOperatorDrawerProps) => {
+}: CreationOperatorDrawerProps) {
 	const circleShapeSize = useCircleShapeSize(elementType, scale);
 
 	return (
@@ -59,7 +59,6 @@ export const CreationOperatorDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
-				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}
@@ -70,6 +69,7 @@ export const CreationOperatorDrawer = ({
 				onDragStart={onDragStart}
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
+				onDragBound={onDragBound}
 				onMouseDown={onMouseDown}
 				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}
@@ -77,5 +77,5 @@ export const CreationOperatorDrawer = ({
 			/>
 		</Group>
 	);
-};
+}
 

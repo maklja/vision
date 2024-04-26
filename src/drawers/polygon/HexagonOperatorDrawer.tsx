@@ -1,18 +1,16 @@
 import { useState } from 'react';
 import Konva from 'konva';
-import { Vector2d } from 'konva/lib/types';
-import { Node } from 'konva/lib/Node';
 import { RegularPolygon, Group, Text } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
-import { useElementDrawerTheme, useGridTheme } from '../../theme';
+import { useElementDrawerTheme } from '../../theme';
 import { useAnimationGroups } from '../../animation';
-import { dragBoundFuncHandler } from '../utils';
+import { handleDragBoundFunc } from '../utils';
 
 export interface HexagonOperatorDrawerProps extends CircleDrawerProps {
 	title: string;
 }
 
-export const HexagonOperatorDrawer = ({
+export function HexagonOperatorDrawer({
 	x,
 	y,
 	title,
@@ -24,7 +22,6 @@ export const HexagonOperatorDrawer = ({
 	theme,
 	animation,
 	draggable = false,
-	draggableSnap = false,
 	hasError = false,
 	onMouseOver,
 	onMouseOut,
@@ -33,16 +30,16 @@ export const HexagonOperatorDrawer = ({
 	onDragMove,
 	onDragStart,
 	onDragEnd,
+	onDragBound,
 	onAnimationDestroy,
 	onAnimationBegin,
 	onAnimationComplete,
-}: HexagonOperatorDrawerProps) => {
+}: HexagonOperatorDrawerProps) {
 	const drawerStyle = useElementDrawerTheme(theme, {
 		highlight,
 		select,
 		hasError,
 	});
-	const gridTheme = useGridTheme(theme);
 	const { radius, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
@@ -112,19 +109,11 @@ export const HexagonOperatorDrawer = ({
 			originalEvent: e,
 		});
 
-	const handleDragBoundFunc = function (this: Node, pos: Vector2d) {
-		if (!draggableSnap) {
-			return pos;
-		}
-
-		return dragBoundFuncHandler(this, pos, gridTheme.size);
-	};
-
 	return (
 		<Group
 			visible={visible && Boolean(mainTextRef && mainShapeRef)}
 			draggable={draggable}
-			dragBoundFunc={handleDragBoundFunc}
+			dragBoundFunc={handleDragBoundFunc(id, onDragBound)}
 			x={x}
 			y={y}
 			onMouseOver={handleMouseOver}
@@ -157,5 +146,4 @@ export const HexagonOperatorDrawer = ({
 			/>
 		</Group>
 	);
-};
-
+}

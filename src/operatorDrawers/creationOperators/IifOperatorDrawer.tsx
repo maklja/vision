@@ -5,7 +5,7 @@ import { CheckCircleIconDrawer, CircleOperatorDrawer, CloseCircleIconDrawer } fr
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { useCircleShapeSize } from '../../store/hooks';
 
-export const IifOperatorDrawer = ({
+export function IifOperatorDrawer({
 	x,
 	y,
 	scale = 1,
@@ -13,7 +13,6 @@ export const IifOperatorDrawer = ({
 	theme,
 	animation,
 	draggable,
-	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -25,11 +24,12 @@ export const IifOperatorDrawer = ({
 	onDragEnd,
 	onDragMove,
 	onDragStart,
+	onDragBound,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
 	onMouseOver,
-}: ElementDrawerProps) => {
+}: ElementDrawerProps) {
 	const elType = ElementType.IIf;
 	const circleShapeSize = useCircleShapeSize(elType, scale);
 	const circleCPSize = useCircleShapeSize(ElementType.ConnectPoint, scale);
@@ -72,7 +72,6 @@ export const IifOperatorDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
-				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}
@@ -83,6 +82,7 @@ export const IifOperatorDrawer = ({
 				onDragStart={onDragStart}
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
+				onDragBound={onDragBound}
 				onMouseDown={onMouseDown}
 				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}
@@ -90,4 +90,5 @@ export const IifOperatorDrawer = ({
 			/>
 		</Group>
 	);
-};
+}
+

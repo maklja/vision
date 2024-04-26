@@ -41,12 +41,12 @@ import {
 } from './transformationOperators';
 import { isSelectedElement } from '../store/elements';
 import { selectElementErrorById } from '../store/errors';
-import { StageState, isHighlighted, selectStageState } from '../store/stage';
+import { isHighlighted } from '../store/stage';
 import { useRootStore } from '../store/rootStore';
 import { selectDrawerAnimationByDrawerId } from '../store/drawerAnimations';
 import { selectElementSizeOptions, useThemeContext } from '../store/hooks';
 
-export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerProps) => {
+export function createOperatorDrawer(elType: ElementType, props: ElementDrawerProps) {
 	switch (elType) {
 		// creationOperators
 		case ElementType.Interval:
@@ -115,7 +115,7 @@ export const createOperatorDrawer = (elType: ElementType, props: ElementDrawerPr
 		default:
 			return null;
 	}
-};
+}
 
 export interface OperatorDrawerProps {
 	element: Element;
@@ -123,11 +123,7 @@ export interface OperatorDrawerProps {
 	draggable: boolean;
 }
 
-export const OperatorDrawer = ({
-	element,
-	visibleConnectPoints,
-	draggable,
-}: OperatorDrawerProps) => {
+export function OperatorDrawer({ element, visibleConnectPoints, draggable }: OperatorDrawerProps) {
 	const theme = useThemeContext(element.type);
 	const animation = useRootStore(selectDrawerAnimationByDrawerId(element.id));
 	const drawerHandlers = useElementDrawerHandlers();
@@ -135,7 +131,6 @@ export const OperatorDrawer = ({
 	const highlight = useRootStore(isHighlighted(element.id));
 	const error = useRootStore(selectElementErrorById(element.id));
 	const elementSizeOptions = useRootStore(selectElementSizeOptions);
-	const stageState = useRootStore(selectStageState());
 
 	const animationConfig = animation
 		? {
@@ -178,10 +173,8 @@ export const OperatorDrawer = ({
 				select,
 				highlight,
 				draggable,
-				draggableSnap: stageState === StageState.SnapDragging,
 				visibleConnectPoints,
 				hasError: Boolean(error),
 			});
 	}
-};
-
+}

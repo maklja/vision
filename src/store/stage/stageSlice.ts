@@ -2,9 +2,11 @@ import { StateCreator } from 'zustand';
 import { RootState } from '../rootStore';
 import { useShallow } from 'zustand/react/shallow';
 import {
+	calculateShapeSizeBoundingBox,
 	createElementSizesContext,
 	createThemeContext,
 	ElementSizesContext,
+	findElementSize,
 	ThemesContext,
 } from '../../theme';
 import {
@@ -17,13 +19,20 @@ import {
 	findElementDescriptor,
 	IBoundingBox,
 	Point,
+	SnapLine,
 } from '../../model';
-import { CreateElementPayload, MoveElementPayload } from '../elements';
-import { LinkConnectLineDrawPayload } from '../connectLines';
+import {
+	CreateElementPayload,
+	moveElementByDelta,
+	MoveElementPayload,
+	moveElementToPosition,
+} from '../elements';
+import { LinkConnectLineDrawPayload, moveConnectLinePointsByDelta } from '../connectLines';
 import { createSnapLinesByConnectPoint, createSnapLinesByElement } from '../snapLines';
 import { AnimationKey } from '../../animation';
-import { ObservableEvent } from '../simulation';
+import { ObservableEvent, SimulationState } from '../simulation';
 import { FlowValueType } from '../../engine';
+import { moveConnectPointsByDelta } from '../connectPoints';
 
 export interface StartConnectLineDrawPayload {
 	sourceId: string;
@@ -54,6 +63,12 @@ export interface PinConnectLinePayload {
 	connectPointBoundingBox: IBoundingBox;
 }
 
+export interface CreateElementSnapLinesPayload {
+	elementId: string;
+	x: number;
+	y: number;
+}
+
 export interface UnpinConnectLinePayload {
 	drawerId: string;
 	animationId: string | null;
@@ -64,7 +79,6 @@ export enum StageState {
 	LassoSelect = 'lassoSelect',
 	DrawConnectLine = 'drawConnectLine',
 	Dragging = 'dragging',
-	SnapDragging = 'snapDragging',
 	DrawElement = 'drawElement',
 }
 
@@ -80,12 +94,13 @@ export interface CanvasState {
 	height: number;
 	scaleX: number;
 	scaleY: number;
+	autoDragInterval: number | null;
+	snapToGrip: boolean;
 }
 
-const draggingStates = [StageState.Dragging, StageState.SnapDragging];
-const draggableStates = [StageState.Select, StageState.Dragging, StageState.SnapDragging];
+const draggableStates = [StageState.Select, StageState.Dragging];
 
-export const isStageStateDragging = (state: StageState) => draggingStates.includes(state);
+export const isStageStateDragging = (state: StageState) => state === StageState.Dragging;
 
 export const isElementDragAllowed = (state: StageState) => draggableStates.includes(state);
 
@@ -132,9 +147,8 @@ export interface StageSlice {
 	linkConnectLineDraw: (payload: LinkConnectLineDrawPayload) => void;
 	moveElement: (payload: MoveElementPayload) => void;
 	moveSelectedElementsByDelta: (payload: MoveByDeltaElementPayload) => void;
-	createDraftElementSnapLines: () => void;
-	createConnectPointSnapLines: () => void;
-	createElementSnapLines: (referenceElementId: string) => void;
+	createDraftElementSnapLines: (position: Point) => SnapLine[];
+	createConnectPointSnapLines: (position: Point) => SnapLine[];
 	showTooltip: (payload: ShowTooltipPayload) => void;
 	hideTooltip: () => void;
 	setHighlighted: (highlightElements: string[]) => void;
@@ -142,6 +156,8 @@ export interface StageSlice {
 	pinConnectLine: (payload: PinConnectLinePayload) => void;
 	unpinConnectLine: (payload: UnpinConnectLinePayload) => void;
 	removeSimulationAnimation: (animationId: string) => void;
+	createElementSnapLines: (payload: CreateElementSnapLinesPayload) => SnapLine[];
+	clearCanvasAutoDragInterval: () => void;
 }
 
 export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (set, get) => ({
@@ -158,6 +174,8 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 		height: 0,
 		scaleX: 0,
 		scaleY: 0,
+		autoDragInterval: null,
+		snapToGrip: false,
 	},
 	updateCanvasState: (canvasUpdate: Partial<CanvasState>) =>
 		set((state) => {
@@ -167,13 +185,14 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			};
 
 			return state;
-		}),
+		}, true),
+	clearCanvasAutoDragInterval: () => set((state) => clearCanvasAutoDragInterval(state)),
 	setHighlighted: (highlightElements: string[]) =>
 		set((state) => {
 			state.highlighted = highlightElements;
 
 			return state;
-		}),
+		}, true),
 	showTooltip: (payload: ShowTooltipPayload) =>
 		set((state) => {
 			state.tooltip = {
@@ -182,19 +201,21 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			};
 
 			return state;
-		}),
+		}, true),
 	hideTooltip: () =>
 		set((state) => {
-			state.tooltip = null;
+			if (state.tooltip) {
+				state.tooltip = null;
+			}
 
 			return state;
-		}),
+		}, true),
 	changeState: (newState: StageState) =>
 		set((state) => {
 			state.state = newState;
 
 			return state;
-		}),
+		}, true),
 	load: (elements: Element[], connectLines: ConnectLine[]) => {
 		const state = get();
 		state.loadElements(elements);
@@ -281,7 +302,7 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			};
 
 			return state;
-		}),
+		}, true),
 	updateLassoSelection: (point: Point | null) =>
 		set((state) => {
 			if (!point || !state.lassoSelection) {
@@ -299,14 +320,14 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			};
 
 			return state;
-		}),
+		}, true),
 	stopLassoSelection: () =>
 		set((state) => {
 			state.lassoSelection = null;
 			state.state = StageState.Select;
 
 			return state;
-		}),
+		}, true),
 	addDraftElement: () => {
 		const state = get();
 
@@ -342,177 +363,153 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 		currentState.markElementAsSelected(draftConnectLine.source.id);
 		currentState.removeAllDrawerAnimations(payload.connectPointId);
 	},
-	moveElement: (payload: MoveElementPayload) => {
-		const state = get();
-
-		const el = state.elements[payload.id];
-		if (!el) {
-			return;
-		}
-
-		state.moveElementToPosition(payload);
-
-		const dx = payload.x - el.x;
-		const dy = payload.y - el.y;
-
-		state.moveConnectPointsByDelta({
-			ids: [el.id],
-			dx,
-			dy,
-		});
-
-		const connectLines = Object.values(state.connectLines);
-		connectLines.forEach((cl) => {
-			if (cl.source.id === el.id) {
-				state.moveConnectLinePointsByDelta({
-					id: cl.id,
-					pointIndexes: [0, 1],
-					dx,
-					dy,
-				});
-			}
-
-			if (cl.target.id === el.id) {
-				state.moveConnectLinePointsByDelta({
-					id: cl.id,
-					pointIndexes: [cl.points.length - 2, cl.points.length - 1],
-					dx,
-					dy,
-				});
-			}
-		});
-	},
-	moveSelectedElementsByDelta: (payload: MoveByDeltaElementPayload) => {
-		const state = get();
-		const selectedElements = state.selectedElements;
-		if (selectedElements.length === 0) {
-			return;
-		}
-
-		const el = state.elements[payload.referenceElementId];
-		if (!el) {
-			return;
-		}
-
-		const dx = payload.x - el.x;
-		const dy = payload.y - el.y;
-
-		selectedElements.forEach((elId) => {
-			const el = state.elements[elId];
+	moveElement: (payload: MoveElementPayload) =>
+		set((state) => {
+			const el = state.elements[payload.id];
 			if (!el) {
-				return;
+				return state;
 			}
 
-			state.moveElementToPosition({
-				id: el.id,
-				x: el.x + dx,
-				y: el.y + dy,
+			moveElementToPosition(state, payload);
+
+			const dx = payload.x - el.x;
+			const dy = payload.y - el.y;
+
+			moveConnectPointsByDelta(state, {
+				ids: [el.id],
+				dx,
+				dy,
 			});
-		});
 
-		state.moveConnectPointsByDelta({
-			ids: selectedElements,
-			dx,
-			dy,
-		});
+			const connectLines = Object.values(state.connectLines);
+			connectLines.forEach((cl) => {
+				if (cl.source.id === el.id) {
+					moveConnectLinePointsByDelta(state, {
+						id: cl.id,
+						pointIndexes: [0, 1],
+						dx,
+						dy,
+					});
+				}
 
-		const connectLines = Object.values(state.connectLines);
-		connectLines.forEach((cl) => {
-			if (cl.source.id === el.id) {
-				state.moveConnectLinePointsByDelta({
-					id: cl.id,
-					pointIndexes: [0, 1],
-					dx,
-					dy,
-				});
+				if (cl.target.id === el.id) {
+					moveConnectLinePointsByDelta(state, {
+						id: cl.id,
+						pointIndexes: [cl.points.length - 2, cl.points.length - 1],
+						dx,
+						dy,
+					});
+				}
+			});
+
+			return state;
+		}, true),
+	moveSelectedElementsByDelta: (payload: MoveByDeltaElementPayload) =>
+		set((state) => {
+			const selectedElements = state.selectedElements;
+			if (selectedElements.length === 0) {
+				return state;
 			}
 
-			if (cl.target.id === el.id) {
-				state.moveConnectLinePointsByDelta({
-					id: cl.id,
-					pointIndexes: [cl.points.length - 2, cl.points.length - 1],
-					dx,
-					dy,
-				});
+			const el = state.elements[payload.referenceElementId];
+			if (!el) {
+				return state;
 			}
-		});
-	},
-	createDraftElementSnapLines: () => {
+
+			const dx = payload.x - el.x;
+			const dy = payload.y - el.y;
+			selectedElements.forEach((elId) => {
+				moveElementByDelta(state, { id: elId, dx, dy });
+			});
+
+			moveConnectPointsByDelta(state, {
+				ids: selectedElements,
+				dx,
+				dy,
+			});
+
+			const connectLines = Object.values(state.connectLines);
+			connectLines.forEach((cl) => {
+				if (selectedElements.includes(cl.source.id)) {
+					moveConnectLinePointsByDelta(state, {
+						id: cl.id,
+						pointIndexes: [0, 1],
+						dx,
+						dy,
+					});
+				}
+
+				if (selectedElements.includes(cl.target.id)) {
+					moveConnectLinePointsByDelta(state, {
+						id: cl.id,
+						pointIndexes: [cl.points.length - 2, cl.points.length - 1],
+						dx,
+						dy,
+					});
+				}
+			});
+
+			return state;
+		}, true),
+	createDraftElementSnapLines: (position: Point) => {
 		const state = get();
 		if (!state.draftElement) {
-			return;
+			return [];
 		}
 
 		const elements = Object.values(state.elements);
 		const { horizontalSnapLines, verticalSnapLines } = createSnapLinesByElement(
-			state.draftElement,
+			{
+				...state.draftElement,
+				x: position.x,
+				y: position.y,
+			},
 			elements,
 			state.elementSizes,
 		);
-		state.setSnapLines([...horizontalSnapLines, ...verticalSnapLines]);
-		const [horizontalSnapLine] = horizontalSnapLines;
-		const [verticalSnapLine] = verticalSnapLines;
-		const x = verticalSnapLine
-			? state.draftElement.x + verticalSnapLine.distance
-			: state.draftElement.x;
-		const y = horizontalSnapLine
-			? state.draftElement.y + horizontalSnapLine.distance
-			: state.draftElement.y;
 
-		state.updateDraftElementPosition({
-			x,
-			y,
-		});
+		const snapLines = [...horizontalSnapLines, ...verticalSnapLines];
+		state.setSnapLines(snapLines);
+
+		return snapLines;
 	},
-	createConnectPointSnapLines: () => {
+	createConnectPointSnapLines: (position: Point) => {
 		const state = get();
 		if (!state.draftConnectLine) {
-			return;
+			return [];
 		}
 
-		const { source, points } = state.draftConnectLine;
+		const { source } = state.draftConnectLine;
 		const elementConnectPoints = state.connectPoints[source.id];
 		if (!elementConnectPoints) {
-			return;
+			return [];
 		}
 
 		const cp = elementConnectPoints.find((cp) => cp.position === source.connectPosition);
 		if (!cp) {
-			return;
+			return [];
 		}
 
 		const connectPoints = Object.values(state.connectPoints)
 			.flat()
-			.filter((curElementCp) => curElementCp.elementId !== cp.elementId);
-		const currentPosition = points[points.length - 1];
+			.filter(
+				(curElementCp) => curElementCp.visible && curElementCp.elementId !== cp.elementId,
+			);
 		const { horizontalSnapLines, verticalSnapLines } = createSnapLinesByConnectPoint(
-			currentPosition,
+			position,
 			connectPoints,
 			state.elementSizes,
 		);
 
-		state.setSnapLines([...horizontalSnapLines, ...verticalSnapLines]);
-
-		const [horizontalSnapLine] = horizontalSnapLines;
-		const [verticalSnapLine] = verticalSnapLines;
-
-		const x = verticalSnapLine
-			? currentPosition.x - verticalSnapLine.distance
-			: currentPosition.x;
-		const y = horizontalSnapLine
-			? currentPosition.y - horizontalSnapLine.distance
-			: currentPosition.y;
-
-		state.moveConnectLineDraw({
-			position: { x, y },
-			normalizePosition: false,
-		});
+		const snapLines = [...horizontalSnapLines, ...verticalSnapLines];
+		state.setSnapLines(snapLines);
+		return snapLines;
 	},
-	createElementSnapLines: (referenceElementId: string) => {
+	createElementSnapLines: (payload: CreateElementSnapLinesPayload) => {
 		const state = get();
-		const el = state.elements[referenceElementId];
+		const el = state.elements[payload.elementId];
 		if (!el) {
-			return;
+			return [];
 		}
 
 		const elements = Object.values(state.elements).filter(
@@ -520,23 +517,18 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 		);
 
 		const { horizontalSnapLines, verticalSnapLines } = createSnapLinesByElement(
-			el,
+			{
+				...el,
+				x: payload.x,
+				y: payload.y,
+			},
 			elements,
 			state.elementSizes,
 		);
 
-		state.setSnapLines([...horizontalSnapLines, ...verticalSnapLines]);
-
-		const [horizontalSnapLine] = horizontalSnapLines;
-		const [verticalSnapLine] = verticalSnapLines;
-		const x = verticalSnapLine ? el.x + verticalSnapLine.distance : el.x;
-		const y = horizontalSnapLine ? el.y + horizontalSnapLine.distance : el.y;
-
-		state.moveSelectedElementsByDelta({
-			referenceElementId,
-			x,
-			y,
-		});
+		const snapLines = [...horizontalSnapLines, ...verticalSnapLines];
+		state.setSnapLines(snapLines);
+		return snapLines;
 	},
 	pinConnectLine: (payload: PinConnectLinePayload) => {
 		const state = get();
@@ -589,6 +581,16 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 	},
 });
 
+function clearCanvasAutoDragInterval(state: RootState) {
+	if (!state.canvasState.autoDragInterval) {
+		return state;
+	}
+
+	clearInterval(state.canvasState.autoDragInterval);
+	state.canvasState.autoDragInterval = null;
+	return state;
+}
+
 export const selectStageState = () => (state: RootState) => state.state;
 
 export const selectLasso = () =>
@@ -614,10 +616,51 @@ export const selectLasso = () =>
 		};
 	});
 
-export const selectTooltip = (state: RootState) => state.tooltip;
-
 export const isHighlighted = (elementId: string) => (state: RootState) =>
 	state.highlighted.includes(elementId);
 
 export const selectCanvasState = (state: RootState) => state.canvasState;
+
+export const selectElementTooltip = () =>
+	useShallow((state: RootState) => {
+		const tooltip = state.tooltip;
+		if (!tooltip) {
+			return null;
+		}
+
+		const element = state.elements[tooltip.elementId];
+		if (!element) {
+			return null;
+		}
+
+		const shapeSize = findElementSize(state.elementSizes, element.type);
+		const bb = calculateShapeSizeBoundingBox(element, shapeSize);
+
+		const error = state.errors[tooltip.elementId];
+		if (error) {
+			return {
+				id: element.id,
+				text: error.errorMessage,
+				x: bb.center.x,
+				y: bb.topLeft.y,
+				width: bb.width,
+			};
+		}
+
+		const alternativeText = tooltip.text ?? element?.name ?? '';
+		if (!alternativeText) {
+			return null;
+		}
+
+		return {
+			id: element.id,
+			text: alternativeText,
+			x: bb.center.x,
+			y: bb.topLeft.y,
+			width: bb.width,
+		};
+	});
+
+export const selectIsDraggable = (state: RootState) =>
+	state.simulation.state !== SimulationState.Running && isElementDragAllowed(state.state);
 

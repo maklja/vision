@@ -142,7 +142,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			simulation.events = [];
 
 			return state;
-		}),
+		}, true),
 	resetSimulation: () =>
 		set((state) => {
 			const { simulation } = state;
@@ -152,7 +152,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			simulation.events = [];
 
 			return state;
-		}),
+		}, true),
 	completeSimulation: () =>
 		set((state) => {
 			const { simulation } = state;
@@ -163,7 +163,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 					: SimulationState.Stopped;
 
 			return state;
-		}),
+		}, true),
 	addObservableEvent: (event: ObservableEvent) =>
 		set((state) => {
 			const { simulation } = state;
@@ -191,7 +191,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			simulation.completed = event.type !== FlowValueType.Next;
 
 			return state;
-		}),
+		}, true),
 	removeSimulationAnimationAtIndex: (animationIdx: number) =>
 		set((state) => {
 			const { simulation } = state;
@@ -200,10 +200,11 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			simulation.state = isSimulationDone ? SimulationState.Stopped : SimulationState.Running;
 
 			return state;
-		}),
+		}, true),
 });
 
 export const selectSimulation = (state: RootState) => state.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.simulation.animationsQueue.at(0) ?? null;
+

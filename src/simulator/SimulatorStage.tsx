@@ -2,6 +2,7 @@ import Konva from 'konva';
 import { useEffect, useRef, useState, forwardRef } from 'react';
 import { Stage } from 'react-konva';
 import { useDrop } from 'react-dnd';
+import { useShallow } from 'zustand/react/shallow';
 import { AnimationsLayer } from '../layers/animations';
 import { DraftLayer, DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DrawersLayer } from '../layers/drawers';
@@ -38,7 +39,7 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 	const stopElementDraw = useRootStore((state) => state.stopElementDraw);
 	const clearSnapLines = useRootStore((state) => state.clearSnapLines);
 	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
-	const canvasState = useRootStore((state) => state.canvasState);
+	const canvasState = useRootStore(useShallow((state) => state.canvasState));
 	const stageState = useRootStore(selectStageState());
 	const stageHandlers = useStageHandlers();
 	const stageRef = useRef<Konva.Stage | null>(null);
@@ -131,7 +132,7 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 				scaleX={canvasState.scaleX}
 				scaleY={canvasState.scaleY}
 			>
-				<GridLayer />
+				{stageRef.current ? <GridLayer stage={stageRef.current} /> : null}
 				<DrawersLayer />
 				<AnimationsLayer />
 				<DraftLayer />
@@ -140,3 +141,4 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 		</div>
 	);
 });
+

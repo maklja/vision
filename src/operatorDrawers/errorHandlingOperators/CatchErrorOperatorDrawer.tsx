@@ -5,7 +5,7 @@ import { RectangleOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { useRectangleShapeSize } from '../../store/hooks';
 
-export const CatchErrorOperatorDrawer = ({
+export function CatchErrorOperatorDrawer({
 	x,
 	y,
 	scale = 1,
@@ -13,7 +13,6 @@ export const CatchErrorOperatorDrawer = ({
 	theme,
 	animation,
 	draggable,
-	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -25,11 +24,12 @@ export const CatchErrorOperatorDrawer = ({
 	onDragEnd,
 	onDragMove,
 	onDragStart,
+	onDragBound,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
 	onMouseOver,
-}: ElementDrawerProps) => {
+}: ElementDrawerProps) {
 	const elType = ElementType.CatchError;
 	const rectangleShapeSize = useRectangleShapeSize(elType, scale);
 
@@ -53,7 +53,6 @@ export const CatchErrorOperatorDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
-				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}
@@ -64,6 +63,7 @@ export const CatchErrorOperatorDrawer = ({
 				onDragStart={onDragStart}
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
+				onDragBound={onDragBound}
 				onMouseDown={onMouseDown}
 				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}
@@ -71,4 +71,5 @@ export const CatchErrorOperatorDrawer = ({
 			/>
 		</Group>
 	);
-};
+}
+

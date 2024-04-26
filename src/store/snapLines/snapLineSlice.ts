@@ -1,5 +1,4 @@
 import { StateCreator } from 'zustand';
-import { useShallow } from 'zustand/react/shallow';
 import {
 	boundingBoxTouch,
 	createBoundingBoxSnapLines,
@@ -15,7 +14,7 @@ import {
 import { RootState } from '../rootStore';
 import { calculateShapeSizeBoundingBox, ElementSizesContext, findElementSize } from '../../theme';
 
-const SNAP_DISTANCE = 4;
+export const SNAP_DISTANCE = 6;
 
 export function mergeSnapLines(snapLinesMap: Map<string, SnapLine>, snapLine: SnapLine) {
 	const isHorizontal = snapLine.orientation === SnapLineOrientation.Horizontal;
@@ -125,7 +124,6 @@ export function createSnapLinesByConnectPoint(
 ) {
 	const shapeSize = findElementSize(elementSizes, ElementType.ConnectPoint);
 	const connectPointsCenter = connectPoints
-		.filter((cp) => cp.visible)
 		.map((cp) => calculateShapeSizeBoundingBox({ x: cp.x, y: cp.y }, shapeSize).center);
 
 	const snapLinesMap: Map<string, SnapLine> = connectPointsCenter
@@ -156,18 +154,23 @@ export interface SnapLineSlice {
 
 export const createSnapLineSlice: StateCreator<RootState, [], [], SnapLineSlice> = (set) => ({
 	snapLines: [],
-	setSnapLines: (snapLines: SnapLine[]) =>
-		set((state) => {
-			state.snapLines = snapLines;
-
-			return state;
-		}),
+	setSnapLines: (snapLines: SnapLine[]) => set((state) => setSnapLines(state, snapLines), true),
 	clearSnapLines: () =>
 		set((state) => {
+			if (state.snapLines.length === 0) {
+				return state;
+			}
 			state.snapLines = [];
 
 			return state;
-		}),
+		}, true),
 });
 
-export const selectSnapLines = () => useShallow((state: RootState) => state.snapLines);
+export function setSnapLines(state: RootState, snapLines: SnapLine[]) {
+	state.snapLines = snapLines;
+
+	return state;
+}
+
+export const selectSnapLines = (state: RootState) => state.snapLines;
+

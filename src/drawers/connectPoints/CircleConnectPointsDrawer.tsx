@@ -1,5 +1,5 @@
 import { Group, Line } from 'react-konva';
-import { ConnectPointPosition, BoundingBox, ElementType } from '../../model';
+import { ConnectPointPosition, BoundingBox } from '../../model';
 import { CircleShapeSize, Theme } from '../../theme';
 import {
 	ConnectPointDrawerEvent,
@@ -7,7 +7,7 @@ import {
 	ConnectPointsOptions,
 } from '../DrawerProps';
 import { CircleConnectPointDrawer } from './CircleConnectPointDrawer';
-import { useBoundingBox } from '../../store/hooks';
+import { useConnectPointBoundingBox } from '../../store/hooks';
 
 export interface CircleConnectPointsDrawerProps extends ConnectPointsDrawerEvents {
 	id: string;
@@ -43,49 +43,44 @@ export const CircleConnectPointsDrawer = ({
 }: CircleConnectPointsDrawerProps) => {
 	const centerX = x + width / 2;
 	const centerY = y + height / 2;
-	const connectPointBB = useBoundingBox(ElementType.ConnectPoint, { x: 0, y: 0 });
+	const connectPointBB = useConnectPointBoundingBox();
 	const connectPointHalfWidth = connectPointBB.width / 2;
 	const connectPointHalfHeight = connectPointBB.height / 2;
 
-	const handleOnMouseDown = (cEvent: ConnectPointDrawerEvent) => {
+	const handleOnMouseDown = (cEvent: ConnectPointDrawerEvent) =>
 		onMouseDown?.({
 			id,
 			connectPoint: cEvent,
 			element: new BoundingBox(x, y, width, height),
 		});
-	};
 
-	const handleOnMouseUp = (cEvent: ConnectPointDrawerEvent) => {
+	const handleOnMouseUp = (cEvent: ConnectPointDrawerEvent) =>
 		onMouseUp?.({
 			id,
 			connectPoint: cEvent,
 			element: new BoundingBox(x, y, width, height),
 		});
-	};
 
-	const handleOnMouseOver = (cEvent: ConnectPointDrawerEvent) => {
+	const handleOnMouseOver = (cEvent: ConnectPointDrawerEvent) =>
 		onMouseOver?.({
 			id,
 			connectPoint: cEvent,
 			element: new BoundingBox(x, y, width, height),
 		});
-	};
 
-	const handleOnMouseOut = (cEvent: ConnectPointDrawerEvent) => {
+	const handleOnMouseOut = (cEvent: ConnectPointDrawerEvent) =>
 		onMouseOut?.({
 			id,
 			connectPoint: cEvent,
 			element: new BoundingBox(x, y, width, height),
 		});
-	};
 
-	const handleOnMouseMove = (cEvent: ConnectPointDrawerEvent) => {
+	const handleOnMouseMove = (cEvent: ConnectPointDrawerEvent) =>
 		onMouseMove?.({
 			id,
 			connectPoint: cEvent,
 			element: new BoundingBox(x, y, width, height),
 		});
-	};
 
 	return (
 		<Group>
@@ -238,3 +233,4 @@ export const CircleConnectPointsDrawer = ({
 		</Group>
 	);
 };
+

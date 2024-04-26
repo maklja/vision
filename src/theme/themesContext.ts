@@ -1,3 +1,4 @@
+import deepMerge from 'deepmerge';
 import { ColorTheme, retrieveThemeColors } from './colors';
 import { lineDrawerTheme, LineTheme } from './lineDrawerTheme';
 import {
@@ -37,7 +38,7 @@ export interface DrawerThemeOverride {
 }
 
 export type ThemesContext = {
-	[key in ElementType]?: DrawerThemeOverride;
+	[key in ElementType]?: Theme;
 } & { default: Theme };
 
 export const createThemeContext = (): ThemesContext => {
@@ -54,12 +55,20 @@ export const createThemeContext = (): ThemesContext => {
 		lasso: lassoTheme(defaultColorTheme),
 	};
 	return {
-		[ElementType.IIf]: {
-			connectPoints: iifConnectPointsTheme(defaultColorTheme),
-		},
-		[ElementType.BufferToggle]: {
-			connectPoints: bufferToggleConnectPointsTheme(defaultColorTheme),
-		},
+		[ElementType.IIf]: deepMerge<Theme, DrawerThemeOverride>(
+			defaultTheme,
+			{ connectPoints: iifConnectPointsTheme(defaultColorTheme) },
+			{
+				arrayMerge: (_destinationArray, sourceArray) => sourceArray,
+			},
+		),
+		[ElementType.BufferToggle]: deepMerge<Theme, DrawerThemeOverride>(
+			defaultTheme,
+			{ connectPoints: bufferToggleConnectPointsTheme(defaultColorTheme) },
+			{
+				arrayMerge: (_destinationArray, sourceArray) => sourceArray,
+			},
+		),
 		default: defaultTheme,
 	};
 };

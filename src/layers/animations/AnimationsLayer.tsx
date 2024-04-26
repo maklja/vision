@@ -11,7 +11,7 @@ import {
 import { selectDrawerAnimationById } from '../../store/drawerAnimations';
 import { useRootStore } from '../../store/rootStore';
 
-export const AnimationsLayer = () => {
+export function AnimationsLayer() {
 	const simulation = useRootStore(selectSimulation);
 	const nextAnimation = useRootStore(selectSimulationNextAnimation);
 	const removeSimulationAnimation = useRootStore((state) => state.removeSimulationAnimation);
@@ -69,5 +69,5 @@ export const AnimationsLayer = () => {
 			/>
 		</Layer>
 	);
-};
+}
 

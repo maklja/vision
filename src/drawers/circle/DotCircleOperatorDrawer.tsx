@@ -1,14 +1,12 @@
 import Konva from 'konva';
-import { Vector2d } from 'konva/lib/types';
-import { Node } from 'konva/lib/Node';
 import { Circle, Group } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
 import { useState } from 'react';
 import { useAnimationGroups } from '../../animation';
-import { useCircleSizeScale, useElementDrawerTheme, useGridTheme } from '../../theme';
-import { dragBoundFuncHandler } from '../utils';
+import { useCircleSizeScale, useElementDrawerTheme } from '../../theme';
+import { handleDragBoundFunc } from '../utils';
 
-export const DotCircleOperatorDrawer = ({
+export function DotCircleOperatorDrawer({
 	x,
 	y,
 	size,
@@ -19,7 +17,6 @@ export const DotCircleOperatorDrawer = ({
 	animation,
 	visible,
 	draggable = false,
-	draggableSnap = false,
 	hasError = false,
 	onMouseDown,
 	onMouseUp,
@@ -28,16 +25,16 @@ export const DotCircleOperatorDrawer = ({
 	onDragMove,
 	onDragStart,
 	onDragEnd,
+	onDragBound,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
-}: CircleDrawerProps) => {
+}: CircleDrawerProps) {
 	const drawerStyle = useElementDrawerTheme(theme, {
 		highlight,
 		select,
 		hasError,
 	});
-	const gridTheme = useGridTheme(theme);
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [innerShapeRef, setInnerShapeRef] = useState<Konva.Circle | null>(null);
 	useAnimationGroups(animation, {
@@ -105,21 +102,13 @@ export const DotCircleOperatorDrawer = ({
 			originalEvent: e,
 		});
 
-	const handleDragBoundFunc = function (this: Node, pos: Vector2d) {
-		if (!draggableSnap) {
-			return pos;
-		}
-
-		return dragBoundFuncHandler(this, pos, gridTheme.size);
-	};
-
 	return (
 		<Group
 			visible={visible && Boolean(mainShapeRef)}
 			x={x}
 			y={y}
 			draggable={draggable}
-			dragBoundFunc={handleDragBoundFunc}
+			dragBoundFunc={handleDragBoundFunc(id, onDragBound)}
 			onMouseDown={handleMouseDown}
 			onMouseUp={handleMouseUp}
 			onMouseOver={handleMouseOver}
@@ -146,5 +135,4 @@ export const DotCircleOperatorDrawer = ({
 			/>
 		</Group>
 	);
-};
-
+}

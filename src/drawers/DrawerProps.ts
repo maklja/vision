@@ -1,12 +1,19 @@
 import Konva from 'konva';
+import { Node } from 'konva/lib/Node';
 import { Key, ReactNode } from 'react';
 import { DrawerAnimationTemplate, AnimationEffectEvent } from '../animation';
 import { CircleShapeSize, RectangleShapeSize, ShapeSize, Theme } from '../theme';
-import { BoundingBox, ConnectPointPosition, ConnectPointType, ConnectPoint } from '../model';
+import { BoundingBox, ConnectPointPosition, ConnectPointType, ConnectPoint, Point } from '../model';
 
 export interface DrawerEvent {
 	id: string;
 	originalEvent?: Konva.KonvaEventObject<MouseEvent>;
+}
+
+export interface DrawerDragBoundEvent {
+	id: string;
+	node: Node;
+	position: Point;
 }
 
 export interface DrawerAnimationEvents {
@@ -23,6 +30,7 @@ export interface DrawerEvents extends DrawerAnimationEvents {
 	onDragStart?: (event: DrawerEvent) => void;
 	onDragEnd?: (event: DrawerEvent) => void;
 	onDragMove?: (event: DrawerEvent) => void;
+	onDragBound?: (event: DrawerDragBoundEvent) => Point;
 }
 
 export interface DrawerCommonProps {
@@ -31,7 +39,6 @@ export interface DrawerCommonProps {
 	theme: Theme;
 	x: number;
 	y: number;
-	draggableSnap?: boolean;
 	draggable?: boolean;
 	highlight?: boolean;
 	select?: boolean;

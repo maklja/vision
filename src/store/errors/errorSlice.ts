@@ -28,13 +28,13 @@ export const createErrorSlice: StateCreator<RootState, [], [], ErrorSlice> = (se
 			};
 
 			return state;
-		}),
+		}, true),
 	clearErrors: () =>
 		set((state) => {
 			state.errors = {};
 
 			return state;
-		}),
+		}, true),
 });
 
 export const selectElementErrorById =
@@ -46,3 +46,4 @@ export const selectElementErrorById =
 
 		return state.errors[elementId];
 	};
+

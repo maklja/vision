@@ -1,23 +1,24 @@
-import { useMemo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { stageSelectStateHandlers } from './stageSelectStateHandlers';
 import { stageDrawConnectLineStateHandlers } from './stageDrawConnectLineStateHandlers';
-import { StageState, selectStageState } from '../../store/stage';
+import { StageState } from '../../store/stage';
 import { useRootStore } from '../../store/rootStore';
+import { StageEvents } from '../SimulatorStage';
 
-export function useStageHandlers() {
-	const stageState = useRootStore(selectStageState());
-	const state = useRootStore();
+export const useStageHandlers = (): StageEvents =>
+	useRootStore(
+		useShallow((storeState) => {
+			if (
+				storeState.state === StageState.Select ||
+				storeState.state === StageState.LassoSelect
+			) {
+				return stageSelectStateHandlers(storeState);
+			}
 
-	return useMemo(() => {
-		if (stageState === StageState.Select || stageState === StageState.LassoSelect) {
-			return stageSelectStateHandlers(state);
-		}
+			if (storeState.state === StageState.DrawConnectLine) {
+				return stageDrawConnectLineStateHandlers(storeState);
+			}
 
-		if (stageState === StageState.DrawConnectLine) {
-			return stageDrawConnectLineStateHandlers(state);
-		}
-
-		return {};
-	}, [stageState]);
-}
-
+			return {};
+		}),
+	);

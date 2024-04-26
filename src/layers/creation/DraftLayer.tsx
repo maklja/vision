@@ -2,25 +2,19 @@ import { Layer } from 'react-konva';
 import { DraftLineDrawer, SnapLineDrawer, LassoSelection } from '../../drawers';
 import { selectStageDraftConnectLine } from '../../store/connectLines';
 import { selectSnapLines } from '../../store/snapLines';
-import { selectStageElementById } from '../../store/elements';
 import { useMemo } from 'react';
 import { useLineSize } from '../../theme';
 import { selectLasso } from '../../store/stage';
 import { useBoundingBox, useThemeContext } from '../../store/hooks';
 import { useRootStore } from '../../store/rootStore';
 
-export const DraftLayer = () => {
+export function DraftLayer() {
 	const theme = useThemeContext();
 	const lineSize = useLineSize();
 	const draftConnectLine = useRootStore(selectStageDraftConnectLine());
-	const snapLines = useRootStore(selectSnapLines());
-	const sourceElement = useRootStore(selectStageElementById(draftConnectLine?.source.id ?? null));
+	const snapLines = useRootStore(selectSnapLines);
 	const lassoBoundingBox = useRootStore(selectLasso());
-
-	const elBoundingBox = useBoundingBox(sourceElement?.type ?? null, {
-		x: sourceElement?.x ?? 0,
-		y: sourceElement?.y ?? 0,
-	});
+	const elBoundingBox = useBoundingBox(draftConnectLine?.source.id ?? null);
 
 	const draftPoints = useMemo(() => {
 		if (!draftConnectLine) {
@@ -74,5 +68,5 @@ export const DraftLayer = () => {
 			))}
 		</Layer>
 	);
-};
+}
 

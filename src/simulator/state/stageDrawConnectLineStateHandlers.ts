@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { StageEvents } from '../SimulatorStage';
 import { RootState } from '../../store/rootStore';
+import { SnapLineOrientation } from '../../model';
 
 export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents => ({
 	onMouseMove: (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -10,7 +11,26 @@ export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents
 			return;
 		}
 
-		const { x, y } = stage.getRelativePointerPosition() ?? { x: 0, y: 0 };
+		const currentPosition = stage.getRelativePointerPosition();
+		if (!currentPosition) {
+			return;
+		}
+
+		const snapLines = state.createConnectPointSnapLines(currentPosition);
+		const verticalSnapLine = snapLines.find(
+			(snapLine) => snapLine.orientation === SnapLineOrientation.Vertical,
+		);
+		const horizontalSnapLine = snapLines.find(
+			(snapLine) => snapLine.orientation === SnapLineOrientation.Horizontal,
+		);
+
+		const x = verticalSnapLine
+			? currentPosition.x - verticalSnapLine.distance
+			: currentPosition.x;
+		const y = horizontalSnapLine
+			? currentPosition.y - horizontalSnapLine.distance
+			: currentPosition.y;
+
 		state.moveConnectLineDraw({
 			position: {
 				x,
@@ -18,7 +38,6 @@ export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents
 			},
 			normalizePosition: e.evt.shiftKey,
 		});
-		state.createConnectPointSnapLines();
 	},
 	onMouseDown: (e: Konva.KonvaEventObject<MouseEvent>) => {
 		e.cancelBubble = true;
@@ -39,3 +58,4 @@ export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents
 		state.clearSnapLines();
 	},
 });
+

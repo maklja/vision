@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 import { createStore, useStore } from 'zustand';
-import { subscribeWithSelector } from 'zustand/middleware';
+import { useStoreWithEqualityFn } from 'zustand/traditional';
+import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { ConnectLine, Element } from '../model';
 import { createElementSlice, ElementSlice } from './elements';
@@ -49,18 +50,21 @@ export const createRootStore = (initProps?: Partial<StateProps>) => {
 	const canvasState = initProps?.canvasState ?? { x: 0, y: 0, scaleX: 1, scaleY: 1 };
 
 	const store = createStore<RootState>()(
-		immer(
-			subscribeWithSelector((...args) => ({
-				...createElementSlice(...args),
-				...createConnectLineSlice(...args),
-				...createConnectPointSlice(...args),
-				...createStageSlice(...args),
-				...createSelectSlice(...args),
-				...createSnapLineSlice(...args),
-				...createErrorSlice(...args),
-				...createAnimationSlice(...args),
-				...createSimulationSlice(...args),
-			})),
+		devtools(
+			immer(
+				subscribeWithSelector((...args) => ({
+					...createElementSlice(...args),
+					...createConnectLineSlice(...args),
+					...createConnectPointSlice(...args),
+					...createStageSlice(...args),
+					...createSelectSlice(...args),
+					...createSnapLineSlice(...args),
+					...createErrorSlice(...args),
+					...createAnimationSlice(...args),
+					...createSimulationSlice(...args),
+				})),
+			),
+			{ name: 'SimulatorStore' },
 		),
 	);
 	store.getState().load(elements, connectLInes);
@@ -70,7 +74,14 @@ export const createRootStore = (initProps?: Partial<StateProps>) => {
 
 export function useRootStore(): RootState;
 export function useRootStore<T = RootState>(selector?: (state: RootState) => T): T;
-export function useRootStore<T = RootState>(selector?: (state: RootState) => T): T {
+export function useRootStore<T = RootState>(
+	selector?: (state: RootState) => T,
+	qualityFn?: (state: T, prevState: T) => boolean,
+): T;
+export function useRootStore<T = RootState>(
+	selector?: (state: RootState) => T,
+	qualityFn?: (state: T, prevState: T) => boolean,
+): T {
 	const store = useContext(StoreContext);
 
 	if (!store) {
@@ -81,6 +92,6 @@ export function useRootStore<T = RootState>(selector?: (state: RootState) => T):
 		return useStore(store, (state) => state as T);
 	}
 
-	return useStore(store, selector);
+	return useStoreWithEqualityFn(store, selector, qualityFn);
 }
 

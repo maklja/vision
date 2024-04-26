@@ -68,7 +68,7 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 			state.animations[drawerId] = [...drawerAnimations, newAnimation];
 
 			return state;
-		}),
+		}, true),
 	removeDrawerAnimation: (payload: RemoveDrawerAnimationPayload) =>
 		set((state) => {
 			const { animationId, drawerId } = payload;
@@ -90,13 +90,13 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 			state.animations[drawerId] = updatedQueue;
 
 			return state;
-		}),
+		}, true),
 	removeAllDrawerAnimations: (drawerId: string) =>
 		set((state) => {
 			delete state.animations[drawerId];
 
 			return state;
-		}),
+		}, true),
 	disposeDrawerAnimation: (payload: DisposeDrawerAnimationPayload) =>
 		set((state) => {
 			const { drawerId, animationId } = payload;
@@ -116,7 +116,7 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 			state.animations[drawerId] = updatedQueue;
 
 			return state;
-		}),
+		}, true),
 	refreshDrawerAnimation: (payload: RefreshDrawerAnimationPayload) =>
 		set((state) => {
 			const { drawerId, key } = payload;
@@ -152,7 +152,7 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 			];
 
 			return state;
-		}),
+		}, true),
 });
 
 export const selectDrawerAnimationByDrawerId =
@@ -169,3 +169,4 @@ export const selectDrawerAnimationById =
 
 		return state.animations[drawerId]?.find((a) => a.id === animationId) ?? null;
 	};
+

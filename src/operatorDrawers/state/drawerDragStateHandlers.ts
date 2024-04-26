@@ -1,11 +1,13 @@
 import Konva from 'konva';
-import { DrawerEvent, DrawerEvents } from '../../drawers';
+import { calcSnapPosition, DrawerDragBoundEvent, DrawerEvent, DrawerEvents } from '../../drawers';
 import { StageState } from '../../store/stage';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 import { RootState } from '../../store/rootStore';
+import { SnapLineOrientation } from '../../model';
+import { SNAP_DISTANCE } from '../../store/snapLines';
 
-const AUTO_DRAG_REFRESH_INTERVAL = 300;
+const AUTO_DRAG_REFRESH_INTERVAL = 150;
 const AUTO_DRAG_EDGE_OFFSET = 100;
 const AUTO_DRAG_ANIMATION_DURATION = 0.1;
 const AUTO_DRAG_MOVE_DISTANCE = 50;
@@ -39,6 +41,11 @@ function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 		newY = stage.y() - AUTO_DRAG_MOVE_DISTANCE;
 	}
 
+	const isNearEdge = isNearLeft || isNearRight || isNearTop || isNearBottom;
+	if (!isNearEdge) {
+		return;
+	}
+
 	stage.to({
 		x: newX,
 		y: newY,
@@ -52,23 +59,11 @@ function edgeAutoDrag(stage: Konva.Stage, state: RootState) {
 	});
 }
 
-let autoDragInterval: NodeJS.Timeout | null = null;
-
-function clearAutoDragInterval() {
-	if (!autoDragInterval) {
-		return;
-	}
-
-	clearInterval(autoDragInterval);
-	autoDragInterval = null;
-}
-
 export function drawerDragStateHandlers(state: RootState): DrawerEvents {
-	clearAutoDragInterval();
 	return {
 		...drawerAnimationStateHandlers,
 		onDragEnd: (e: DrawerEvent) => {
-			clearAutoDragInterval();
+			state.clearCanvasAutoDragInterval();
 			const { originalEvent } = e;
 			if (!originalEvent) {
 				return;
@@ -84,9 +79,10 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 			if (!originalEvent) {
 				return;
 			}
+			originalEvent.cancelBubble = true;
 
-			if (!autoDragInterval) {
-				autoDragInterval = setInterval(() => {
+			if (!state.canvasState.autoDragInterval) {
+				const autoDragInterval = window.setInterval(() => {
 					const stage = e.originalEvent?.currentTarget.getStage();
 					if (!stage) {
 						return;
@@ -94,21 +90,56 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 
 					edgeAutoDrag(stage, state);
 				}, AUTO_DRAG_REFRESH_INTERVAL);
+				state.updateCanvasState({
+					autoDragInterval,
+				});
 			}
 
 			changeCursorStyle('grabbing', originalEvent.currentTarget.getStage());
-			originalEvent.cancelBubble = true;
+
 			const position = originalEvent.currentTarget.getPosition();
-			state.moveSelectedElementsByDelta({
-				referenceElementId: id,
+			const snapLines = state.createElementSnapLines({
+				elementId: id,
 				x: position.x,
 				y: position.y,
 			});
 
-			state.createElementSnapLines(id);
-			state.changeState(
-				e.originalEvent?.evt.shiftKey ? StageState.SnapDragging : StageState.Dragging,
+			const verticalSnapLine = snapLines.find(
+				(snapLine) => snapLine.orientation === SnapLineOrientation.Vertical,
 			);
+			const horizontalSnapLine = snapLines.find(
+				(snapLine) => snapLine.orientation === SnapLineOrientation.Horizontal,
+			);
+
+			const x =
+				verticalSnapLine && verticalSnapLine.distance <= SNAP_DISTANCE
+					? position.x + verticalSnapLine.distance
+					: position.x;
+			const y =
+				horizontalSnapLine && horizontalSnapLine.distance <= SNAP_DISTANCE
+					? position.y + horizontalSnapLine.distance
+					: position.y;
+
+			originalEvent.currentTarget.setPosition({ x, y });
+			state.moveSelectedElementsByDelta({
+				referenceElementId: id,
+				x,
+				y,
+			});
+
+			state.changeState(StageState.Dragging);
+			state.updateCanvasState({
+				snapToGrip: Boolean(e.originalEvent?.evt.shiftKey),
+			});
+		},
+		onDragBound: (e: DrawerDragBoundEvent) => {
+			if (!state.canvasState.snapToGrip) {
+				return e.position;
+			}
+
+			const gridSize = state.themes.default.grid.size;
+			return calcSnapPosition(e.position, gridSize, e.node.getStage());
 		},
 	};
 }
+

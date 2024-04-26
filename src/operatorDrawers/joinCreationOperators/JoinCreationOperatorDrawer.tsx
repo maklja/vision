@@ -10,7 +10,7 @@ export interface JoinCreationOperatorDrawerProps extends ElementDrawerProps {
 	title: string;
 }
 
-export const JoinCreationOperatorDrawer = ({
+export function JoinCreationOperatorDrawer({
 	x,
 	y,
 	scale = 1,
@@ -18,7 +18,6 @@ export const JoinCreationOperatorDrawer = ({
 	theme,
 	animation,
 	draggable,
-	draggableSnap,
 	highlight,
 	hasError,
 	select,
@@ -32,11 +31,12 @@ export const JoinCreationOperatorDrawer = ({
 	onDragEnd,
 	onDragMove,
 	onDragStart,
+	onDragBound,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
 	onMouseOver,
-}: JoinCreationOperatorDrawerProps) => {
+}: JoinCreationOperatorDrawerProps) {
 	const circleShapeSize = useCircleShapeSize(elementType, scale);
 
 	return (
@@ -59,7 +59,6 @@ export const JoinCreationOperatorDrawer = ({
 				y={y}
 				animation={animation}
 				draggable={draggable}
-				draggableSnap={draggableSnap}
 				highlight={highlight}
 				hasError={hasError}
 				select={select}
@@ -70,6 +69,7 @@ export const JoinCreationOperatorDrawer = ({
 				onDragStart={onDragStart}
 				onDragMove={onDragMove}
 				onDragEnd={onDragEnd}
+				onDragBound={onDragBound}
 				onMouseDown={onMouseDown}
 				onMouseUp={onMouseUp}
 				onMouseOver={onMouseOver}
@@ -77,4 +77,5 @@ export const JoinCreationOperatorDrawer = ({
 			/>
 		</Group>
 	);
-};
+}
+
