@@ -4,6 +4,7 @@ import { changeCursorStyle } from '../../operatorDrawers/utils';
 import { ZoomTo, zoomStage } from './calculateScaleAndPosition';
 import { RootState } from '../../store/rootStore';
 import { StageState, ZoomType } from '../../store/stage';
+import { themeColors } from '../../theme';
 
 const LEFT_MOUSE_BUTTON = 0;
 const PAN_MOUSE_BUTTON_KEY = 1;
@@ -110,9 +111,17 @@ export const stageSelectStateHandlers = (state: RootState): StageEvents => ({
 		});
 	},
 	onKeyUp: (e: KeyboardEvent, stage: Konva.Stage | null) => {
-		if (e.key === 'Delete') {
+		if (e.key.toLowerCase() === 'delete') {
 			state.removeSelectedElements();
 			changeCursorStyle('default', stage);
+		} else if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 't') {
+			const currentThemeColor = state.theme.default.colors;
+
+			const currentThemeIndex = themeColors.findIndex(
+				(themeColor) => themeColor.id === currentThemeColor.id,
+			);
+			const nextThemeColor = themeColors[currentThemeIndex + 1] ?? themeColors[0];
+			state.changeTheme(nextThemeColor.id);
 		}
 	},
 	onContextMenu: (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -127,3 +136,4 @@ export const stageSelectStateHandlers = (state: RootState): StageEvents => ({
 		state.clearAllSelectedElements();
 	},
 });
+

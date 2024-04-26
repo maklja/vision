@@ -137,7 +137,7 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 				return e.position;
 			}
 
-			const gridSize = state.themes.default.grid.size;
+			const gridSize = state.theme.default.grid.size;
 			return calcSnapPosition(e.position, gridSize, e.node.getStage());
 		},
 	};

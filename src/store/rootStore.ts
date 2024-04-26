@@ -17,6 +17,7 @@ import { createSimulationSlice, SimulationSlice } from './simulation';
 export interface StateProps {
 	elements: Element[];
 	connectLines: ConnectLine[];
+	themeId: string;
 	canvasState: {
 		x: number;
 		y: number;
@@ -67,6 +68,7 @@ export const createRootStore = (initProps?: Partial<StateProps>) => {
 			{ name: 'SimulatorStore' },
 		),
 	);
+	store.getState().changeTheme(initProps?.themeId);
 	store.getState().load(elements, connectLInes);
 	store.getState().updateCanvasState(canvasState);
 	return store;

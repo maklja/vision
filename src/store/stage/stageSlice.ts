@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootStore';
 import { useShallow } from 'zustand/react/shallow';
+import { RootState } from '../rootStore';
 import {
 	calculateShapeSizeBoundingBox,
 	createElementSizesContext,
@@ -130,7 +130,7 @@ export interface StageSlice {
 	state: StageState;
 	elementSizes: ElementSizesContext;
 	lassoSelection: IBoundingBox | null;
-	themes: ThemesContext;
+	theme: ThemesContext;
 	tooltip: ElementTooltip | null;
 	highlighted: string[];
 	canvasState: CanvasState;
@@ -158,13 +158,14 @@ export interface StageSlice {
 	removeSimulationAnimation: (animationId: string) => void;
 	createElementSnapLines: (payload: CreateElementSnapLinesPayload) => SnapLine[];
 	clearCanvasAutoDragInterval: () => void;
+	changeTheme: (themeId?: string) => void;
 }
 
 export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (set, get) => ({
 	state: StageState.Select,
 	elementSizes: createElementSizesContext(),
 	lassoSelection: null,
-	themes: createThemeContext(),
+	theme: createThemeContext(),
 	tooltip: null,
 	highlighted: [],
 	canvasState: {
@@ -177,6 +178,12 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 		autoDragInterval: null,
 		snapToGrip: false,
 	},
+	changeTheme: (themeId?: string) =>
+		set((state) => {
+			state.theme = createThemeContext(themeId);
+
+			return state;
+		}, true),
 	updateCanvasState: (canvasUpdate: Partial<CanvasState>) =>
 		set((state) => {
 			state.canvasState = {

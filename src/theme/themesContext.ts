@@ -1,5 +1,5 @@
 import deepMerge from 'deepmerge';
-import { ColorTheme, retrieveThemeColors } from './colors';
+import { ColorTheme, retrieveThemeColor } from './colors';
 import { lineDrawerTheme, LineTheme } from './lineDrawerTheme';
 import {
 	connectPointsTheme,
@@ -41,37 +41,37 @@ export type ThemesContext = {
 	[key in ElementType]?: Theme;
 } & { default: Theme };
 
-export const createThemeContext = (): ThemesContext => {
-	const defaultColorTheme = retrieveThemeColors();
+export function createThemeContext(id?: string): ThemesContext {
+	const colorTheme = retrieveThemeColor(id);
 	const defaultTheme = {
-		colors: defaultColorTheme,
-		drawer: elementDrawerTheme(defaultColorTheme),
-		connectLine: lineDrawerTheme(defaultColorTheme),
-		connectPoints: connectPointsTheme(defaultColorTheme),
-		simulation: simulationTheme(defaultColorTheme),
-		tooltip: tooltipTheme(defaultColorTheme),
-		snapLine: snapLineDrawerTheme(defaultColorTheme),
-		grid: gridTheme(defaultColorTheme),
-		lasso: lassoTheme(defaultColorTheme),
+		colors: colorTheme,
+		drawer: elementDrawerTheme(colorTheme),
+		connectLine: lineDrawerTheme(colorTheme),
+		connectPoints: connectPointsTheme(colorTheme),
+		simulation: simulationTheme(colorTheme),
+		tooltip: tooltipTheme(colorTheme),
+		snapLine: snapLineDrawerTheme(colorTheme),
+		grid: gridTheme(colorTheme),
+		lasso: lassoTheme(colorTheme),
 	};
 	return {
 		[ElementType.IIf]: deepMerge<Theme, DrawerThemeOverride>(
 			defaultTheme,
-			{ connectPoints: iifConnectPointsTheme(defaultColorTheme) },
+			{ connectPoints: iifConnectPointsTheme(colorTheme) },
 			{
 				arrayMerge: (_destinationArray, sourceArray) => sourceArray,
 			},
 		),
 		[ElementType.BufferToggle]: deepMerge<Theme, DrawerThemeOverride>(
 			defaultTheme,
-			{ connectPoints: bufferToggleConnectPointsTheme(defaultColorTheme) },
+			{ connectPoints: bufferToggleConnectPointsTheme(colorTheme) },
 			{
 				arrayMerge: (_destinationArray, sourceArray) => sourceArray,
 			},
 		),
 		default: defaultTheme,
 	};
-};
+}
 
 export interface DrawerCommonThemeState {
 	highlight?: boolean;
