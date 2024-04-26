@@ -5,6 +5,7 @@ import { Simulator } from './simulator';
 import { createRootStore, StateProps, StoreContext } from './store/rootStore';
 import { ConnectLine, Element } from './model';
 import { CanvasState } from './store/stage';
+import { hello } from '@maklja/vision-simulator-model';
 
 const diagramId = 'test'; // TODO temp solution until multiple tabs are added
 const storeData = await get<StateProps>(diagramId);
@@ -12,6 +13,7 @@ const rootStore = createRootStore(storeData);
 
 function App() {
 	const store = useRef(rootStore);
+	alert(hello());
 	useEffect(() => {
 		const unsubscribe = store.current.subscribe<
 			[Record<string, Element>, Record<string, ConnectLine>, CanvasState, string]

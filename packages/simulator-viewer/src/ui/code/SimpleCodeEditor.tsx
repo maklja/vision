@@ -60,7 +60,7 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
 		enabled: false,
 	},
 	suggestOnTriggerCharacters: true,
-	wordBasedSuggestions: true,
+	wordBasedSuggestions: 'currentDocument',
 	wordSeparators: '~!@#$%^&*()-=+[{]}|;:\'",.<>/?',
 	wordWrap: 'on',
 	wordWrapBreakAfterCharacters: '\t})]?|&,;',

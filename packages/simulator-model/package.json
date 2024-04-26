@@ -1,0 +1,9 @@
+{
+	"name": "@maklja/vision-simulator-model",
+	"version": "0.1.0",
+	"description": "",
+	"main": "./src/index.js",
+	"keywords": [],
+	"author": "Bojan Makljenovic"
+}
+
