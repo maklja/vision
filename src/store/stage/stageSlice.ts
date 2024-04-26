@@ -2,9 +2,11 @@ import { StateCreator } from 'zustand';
 import { RootState } from '../rootStore';
 import { useShallow } from 'zustand/react/shallow';
 import {
+	calculateShapeSizeBoundingBox,
 	createElementSizesContext,
 	createThemeContext,
 	ElementSizesContext,
+	findElementSize,
 	ThemesContext,
 } from '../../theme';
 import {
@@ -28,7 +30,7 @@ import {
 import { LinkConnectLineDrawPayload, moveConnectLinePointsByDelta } from '../connectLines';
 import { createSnapLinesByConnectPoint, createSnapLinesByElement } from '../snapLines';
 import { AnimationKey } from '../../animation';
-import { ObservableEvent } from '../simulation';
+import { ObservableEvent, SimulationState } from '../simulation';
 import { FlowValueType } from '../../engine';
 import { moveConnectPointsByDelta } from '../connectPoints';
 
@@ -614,10 +616,51 @@ export const selectLasso = () =>
 		};
 	});
 
-export const selectTooltip = (state: RootState) => state.tooltip;
-
 export const isHighlighted = (elementId: string) => (state: RootState) =>
 	state.highlighted.includes(elementId);
 
 export const selectCanvasState = (state: RootState) => state.canvasState;
+
+export const selectElementTooltip = () =>
+	useShallow((state: RootState) => {
+		const tooltip = state.tooltip;
+		if (!tooltip) {
+			return null;
+		}
+
+		const element = state.elements[tooltip.elementId];
+		if (!element) {
+			return null;
+		}
+
+		const shapeSize = findElementSize(state.elementSizes, element.type);
+		const bb = calculateShapeSizeBoundingBox(element, shapeSize);
+
+		const error = state.errors[tooltip.elementId];
+		if (error) {
+			return {
+				id: element.id,
+				text: error.errorMessage,
+				x: bb.center.x,
+				y: bb.topLeft.y,
+				width: bb.width,
+			};
+		}
+
+		const alternativeText = tooltip.text ?? element?.name ?? '';
+		if (!alternativeText) {
+			return null;
+		}
+
+		return {
+			id: element.id,
+			text: alternativeText,
+			x: bb.center.x,
+			y: bb.topLeft.y,
+			width: bb.width,
+		};
+	});
+
+export const selectIsDraggable = (state: RootState) =>
+	state.simulation.state !== SimulationState.Running && isElementDragAllowed(state.state);
 

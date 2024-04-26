@@ -27,7 +27,7 @@ export interface DragNDropLayerProps {
 	snapToGrid: boolean;
 }
 
-export const DragNDropLayer = ({ snapToGrid }: DragNDropLayerProps) => {
+export function DragNDropLayer({ snapToGrid }: DragNDropLayerProps) {
 	const theme = useThemeContext();
 	const gridTheme = useGridTheme(theme);
 	const elementSizeOptions = useRootStore(selectElementSizeOptions);
@@ -92,5 +92,5 @@ export const DragNDropLayer = ({ snapToGrid }: DragNDropLayerProps) => {
 	});
 
 	return <Layer ref={layerRef}>{drawer}</Layer>;
-};
+}
 

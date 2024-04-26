@@ -8,7 +8,7 @@ import { selectLasso } from '../../store/stage';
 import { useBoundingBox, useThemeContext } from '../../store/hooks';
 import { useRootStore } from '../../store/rootStore';
 
-export const DraftLayer = () => {
+export function DraftLayer() {
 	const theme = useThemeContext();
 	const lineSize = useLineSize();
 	const draftConnectLine = useRootStore(selectStageDraftConnectLine());
@@ -68,5 +68,5 @@ export const DraftLayer = () => {
 			))}
 		</Layer>
 	);
-};
+}
 

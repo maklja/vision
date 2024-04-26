@@ -325,7 +325,11 @@ export const selectStageDraftConnectLine = () => (state: RootState) => state.dra
 export const selectStageConnectLines = () =>
 	useShallow((state: RootState) => Object.values(state.connectLines));
 
-export const selectRelatedElementElements = (elementId: string) => (state: RootState) => {
+export const selectRelatedElementElements = (elementId: string | null) => (state: RootState) => {
+	if (elementId === null) {
+		return [];
+	}
+
 	const sourceConnectLines = Object.values(state.connectLines).filter(
 		(cl) => cl.source.id === elementId,
 	);

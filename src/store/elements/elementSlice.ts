@@ -225,6 +225,3 @@ export const selectStageDraftElement = () => (state: RootState) =>
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
 	state.selectedElements.includes(elementId);
 
-export const selectStageElementById = (id: string | null) => (state: RootState) =>
-	!id ? null : state.elements[id] ?? null;
-
