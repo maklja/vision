@@ -120,10 +120,7 @@ export const stageSelectStateHandlers = (state: RootState): StageEvents => ({
 			const currentThemeIndex = themeColors.findIndex(
 				(themeColor) => themeColor.id === currentThemeColor.id,
 			);
-			const nextThemeColor =
-				currentThemeIndex + 1 >= themeColors.length
-					? themeColors[0]
-					: themeColors[currentThemeIndex + 1];
+			const nextThemeColor = themeColors[currentThemeIndex + 1] ?? themeColors[0];
 			state.changeTheme(nextThemeColor.id);
 		}
 	},
