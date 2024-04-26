@@ -20,7 +20,7 @@ function App() {
 				state.elements,
 				state.connectLines,
 				state.canvasState,
-				state.themes.default.colors.id,
+				state.theme.default.colors.id,
 			],
 			async (state) => {
 				const [elements, connectLines, canvasState, themeId] = state;

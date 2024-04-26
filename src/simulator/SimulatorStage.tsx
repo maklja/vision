@@ -88,7 +88,7 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(function S
 			window.removeEventListener('drag', dragHandler, false);
 			window.removeEventListener('resize', resizeHandler, false);
 		};
-	}, []);
+	}, [stageHandlers]);
 
 	useEffect(() => {
 		if (!stageRef.current) {

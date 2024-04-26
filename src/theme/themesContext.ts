@@ -42,29 +42,29 @@ export type ThemesContext = {
 } & { default: Theme };
 
 export function createThemeContext(id?: string): ThemesContext {
-	const defaultColorTheme = retrieveThemeColor(id);
+	const colorTheme = retrieveThemeColor(id);
 	const defaultTheme = {
-		colors: defaultColorTheme,
-		drawer: elementDrawerTheme(defaultColorTheme),
-		connectLine: lineDrawerTheme(defaultColorTheme),
-		connectPoints: connectPointsTheme(defaultColorTheme),
-		simulation: simulationTheme(defaultColorTheme),
-		tooltip: tooltipTheme(defaultColorTheme),
-		snapLine: snapLineDrawerTheme(defaultColorTheme),
-		grid: gridTheme(defaultColorTheme),
-		lasso: lassoTheme(defaultColorTheme),
+		colors: colorTheme,
+		drawer: elementDrawerTheme(colorTheme),
+		connectLine: lineDrawerTheme(colorTheme),
+		connectPoints: connectPointsTheme(colorTheme),
+		simulation: simulationTheme(colorTheme),
+		tooltip: tooltipTheme(colorTheme),
+		snapLine: snapLineDrawerTheme(colorTheme),
+		grid: gridTheme(colorTheme),
+		lasso: lassoTheme(colorTheme),
 	};
 	return {
 		[ElementType.IIf]: deepMerge<Theme, DrawerThemeOverride>(
 			defaultTheme,
-			{ connectPoints: iifConnectPointsTheme(defaultColorTheme) },
+			{ connectPoints: iifConnectPointsTheme(colorTheme) },
 			{
 				arrayMerge: (_destinationArray, sourceArray) => sourceArray,
 			},
 		),
 		[ElementType.BufferToggle]: deepMerge<Theme, DrawerThemeOverride>(
 			defaultTheme,
-			{ connectPoints: bufferToggleConnectPointsTheme(defaultColorTheme) },
+			{ connectPoints: bufferToggleConnectPointsTheme(colorTheme) },
 			{
 				arrayMerge: (_destinationArray, sourceArray) => sourceArray,
 			},

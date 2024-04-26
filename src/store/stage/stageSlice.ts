@@ -130,7 +130,7 @@ export interface StageSlice {
 	state: StageState;
 	elementSizes: ElementSizesContext;
 	lassoSelection: IBoundingBox | null;
-	themes: ThemesContext;
+	theme: ThemesContext;
 	tooltip: ElementTooltip | null;
 	highlighted: string[];
 	canvasState: CanvasState;
@@ -165,7 +165,7 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 	state: StageState.Select,
 	elementSizes: createElementSizesContext(),
 	lassoSelection: null,
-	themes: createThemeContext(),
+	theme: createThemeContext(),
 	tooltip: null,
 	highlighted: [],
 	canvasState: {
@@ -180,10 +180,10 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 	},
 	changeTheme: (themeId?: string) =>
 		set((state) => {
-			state.themes = createThemeContext(themeId);
+			state.theme = createThemeContext(themeId);
 
 			return state;
-		}),
+		}, true),
 	updateCanvasState: (canvasUpdate: Partial<CanvasState>) =>
 		set((state) => {
 			state.canvasState = {

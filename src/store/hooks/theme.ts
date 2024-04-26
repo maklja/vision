@@ -17,10 +17,10 @@ export const useThemeContext = (elType?: ElementType): Theme =>
 	useRootStore(
 		useShallow((state: RootState) => {
 			if (!elType) {
-				return state.themes.default;
+				return state.theme.default;
 			}
 
-			return state.themes[elType] ?? state.themes.default;
+			return state.theme[elType] ?? state.theme.default;
 		}),
 	);
 

@@ -5,7 +5,6 @@
 -   marble diagrams
 -   DOM events
 -   form validation
--   themes
 -   multi-tabs
 -   full size editor
 -   show code error
@@ -20,3 +19,4 @@
 -   improve operator bar
 -   milion https://www.youtube.com/watch?v=fcY9TthQnI4
 -   join creation operators pass arguments to creation operators
+-   settings windows for theme and grid configuration
