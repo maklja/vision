@@ -1,7 +1,6 @@
 import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
-import { ConnectLine, Point } from '@maklja/vision-simulator-model';
-import { FlowValueType } from '../../engine';
+import { ConnectLine, FlowValueType, Point } from '@maklja/vision-simulator-model';
 import { DrawerAnimation } from '../drawerAnimations';
 import { RootState } from '../rootStore';
 import { AnimationKey, MoveAnimation } from '../../animation';

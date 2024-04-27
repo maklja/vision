@@ -8,7 +8,6 @@
 -   multi-tabs
 -   full size editor
 -   show code error
--   nx project split
 -   move engine to workers
 -   offline support
 -   google drive integration
@@ -20,3 +19,4 @@
 -   milion https://www.youtube.com/watch?v=fcY9TthQnI4
 -   join creation operators pass arguments to creation operators
 -   settings windows for theme and grid configuration
+-   change MaterialUI with tailwind

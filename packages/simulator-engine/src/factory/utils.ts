@@ -1,5 +1,6 @@
 import { OperatorFunction, concatMap, map, of } from 'rxjs';
-import { FlowValue, FlowValueType } from '../context';
+import { FlowValueType } from '@maklja/vision-simulator-model';
+import { FlowValue } from '../context';
 
 export function createFlowValue(value: unknown, elementId: string): FlowValue {
 	return new FlowValue(value, elementId, FlowValueType.Next);

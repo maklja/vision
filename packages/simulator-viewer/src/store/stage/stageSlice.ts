@@ -17,6 +17,7 @@ import {
 	Element,
 	ElementDescriptor,
 	findElementDescriptor,
+	FlowValueType,
 	IBoundingBox,
 	Point,
 	SnapLine,
@@ -31,7 +32,6 @@ import { LinkConnectLineDrawPayload, moveConnectLinePointsByDelta } from '../con
 import { createSnapLinesByConnectPoint, createSnapLinesByElement } from '../snapLines';
 import { AnimationKey } from '../../animation';
 import { ObservableEvent, SimulationState } from '../simulation';
-import { FlowValueType } from '../../engine';
 import { moveConnectPointsByDelta } from '../connectPoints';
 
 export interface StartConnectLineDrawPayload {

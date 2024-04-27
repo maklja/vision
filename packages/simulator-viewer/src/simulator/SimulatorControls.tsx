@@ -5,14 +5,7 @@ import { SimulationControls } from '../ui';
 import { useRootStore } from '../store/rootStore';
 import { selectSimulation } from '../store/simulation';
 import { selectStageElements } from '../store/elements';
-import {
-	createObservableSimulation,
-	FlowValueEvent,
-	InvalidElementPropertyValueError,
-	MissingNextElementError,
-	MissingReferenceObservableError,
-	UnsupportedElementTypeError,
-} from '../engine';
+import type { FlowValueEvent } from '@maklja/vision-simulator-engine';
 import { selectStageConnectLines } from '../store/connectLines';
 import { isEntryOperatorType } from '@maklja/vision-simulator-model';
 import { useShallow } from 'zustand/react/shallow';
@@ -40,24 +33,32 @@ export function SimulatorControls() {
 		null,
 	);
 
-	const dispatchObservableEvent = (event: FlowValueEvent<unknown>) =>
-		addObservableEvent({
-			id: event.id,
-			hash: event.hash,
-			index: event.index,
-			connectLinesId: event.connectLinesId,
-			sourceElementId: event.sourceElementId,
-			targetElementId: event.targetElementId,
-			type: event.value.type,
-			value: `${event.value.raw}`,
-		});
-
-	const dispatchCompleteEvent = () => completeSimulation();
-
-	function handleSimulationStart(entryElementId: string) {
+	async function handleSimulationStart(entryElementId: string) {
 		if (!entryElementId) {
 			return;
 		}
+
+		const {
+			createObservableSimulation,
+			InvalidElementPropertyValueError,
+			MissingNextElementError,
+			MissingReferenceObservableError,
+			UnsupportedElementTypeError,
+		} = await import('@maklja/vision-simulator-engine');
+
+		const dispatchObservableEvent = (event: FlowValueEvent<unknown>) =>
+			addObservableEvent({
+				id: event.id,
+				hash: event.hash,
+				index: event.index,
+				connectLinesId: event.connectLinesId,
+				sourceElementId: event.sourceElementId,
+				targetElementId: event.targetElementId,
+				type: event.value.type,
+				value: `${event.value.raw}`,
+			});
+
+		const dispatchCompleteEvent = () => completeSimulation();
 
 		try {
 			clearErrors();

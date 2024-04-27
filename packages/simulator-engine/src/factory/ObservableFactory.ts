@@ -3,13 +3,14 @@ import {
 	ConnectLine,
 	Element,
 	ElementProps,
+	FlowValueType,
 	isCreationOperatorType,
 	isEntryOperatorType,
 	isJoinCreationOperatorType,
 	isPipeOperatorType,
 	isSubscriberType,
 } from '@maklja/vision-simulator-model';
-import { FlowManager, FlowValue, FlowValueType, SimulationModel } from '../context';
+import { FlowManager, FlowValue, SimulationModel } from '../context';
 import { creationOperatorFactory } from './creationOperatorFactory';
 import { pipeOperatorFactory } from './pipeOperatorFactory';
 import { GraphBranch, GraphNode, GraphNodeType } from '../simulationGraph';
