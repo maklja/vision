@@ -1,19 +1,33 @@
 import { get, set } from 'idb-keyval';
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { shallow } from 'zustand/shallow';
 import { ConnectLine, Element } from '@maklja/vision-simulator-model';
 import { Simulator } from './simulator';
-import { createRootStore, StateProps, StoreContext } from './store/rootStore';
+import { createRootStore, RootStore, StateProps, StoreContext } from './store/rootStore';
 import { CanvasState } from './store/stage';
 
 const diagramId = 'test'; // TODO temp solution until multiple tabs are added
-const storeData = await get<StateProps>(diagramId);
-const rootStore = createRootStore(storeData);
 
 function App() {
-	const store = useRef(rootStore);
+	const [store, setStore] = useState<RootStore | null>(null);
+
 	useEffect(() => {
-		const unsubscribe = store.current.subscribe<
+		get<StateProps>(diagramId)
+			.then((storeData) => {
+				setStore(createRootStore(storeData));
+			})
+			.catch((error) => {
+				console.error(`Failed to load data from database. ${error}`);
+				setStore(createRootStore());
+			});
+	}, []);
+
+	useEffect(() => {
+		if (!store) {
+			return;
+		}
+
+		const unsubscribe = store.subscribe<
 			[Record<string, Element>, Record<string, ConnectLine>, CanvasState, string]
 		>(
 			(state) => [
@@ -41,13 +55,15 @@ function App() {
 			},
 		);
 		return unsubscribe;
-	}, [store.current]);
+	}, [store]);
 
 	return (
 		<div>
-			<StoreContext.Provider value={store.current}>
-				<Simulator />
-			</StoreContext.Provider>
+			{store ? (
+				<StoreContext.Provider value={store}>
+					<Simulator />
+				</StoreContext.Provider>
+			) : null}
 		</div>
 	);
 }

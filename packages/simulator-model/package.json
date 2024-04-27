@@ -4,6 +4,14 @@
 	"description": "",
 	"main": "./src/index.js",
 	"keywords": [],
-	"author": "Bojan Makljenovic"
+	"author": "Bojan Makljenovic",
+	"scripts": {
+		"eslint": "eslint src/**/*.{js,ts}"
+	},
+	"devDependencies": {
+		"eslint": "8.24.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.2.1"
+	}
 }
 

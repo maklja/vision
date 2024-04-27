@@ -2,6 +2,7 @@
 	"name": "@maklja/vision-simulator-viewer",
 	"version": "0.1.0",
 	"type": "module",
+	"author": "Bojan Makljenovic",
 	"private": true,
 	"dependencies": {
 		"@emotion/react": "^11.11.1",
@@ -43,7 +44,7 @@
 		"start": "vite",
 		"build": "vite build",
 		"serve": "vite preview",
-		"eslint": "eslint './src/**/*.{js,ts,tsx}'"
+		"eslint": "eslint src/**/*.{js,ts,tsx}"
 	},
 	"eslintConfig": {
 		"extends": [
