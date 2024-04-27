@@ -10,8 +10,8 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { DueDateType, TimerElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
-import { DueDateType, TimerElementProperties } from '../../../model';
 import { handleNumberInputChanged } from '../utils';
 
 export interface TimerElementPropertiesFormProps {
@@ -117,4 +117,3 @@ export function TimerElementPropertiesForm({
 		</Stack>
 	);
 }
-

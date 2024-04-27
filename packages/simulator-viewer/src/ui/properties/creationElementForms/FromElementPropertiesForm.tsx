@@ -1,8 +1,8 @@
 import { SyntheticEvent } from 'react';
 import Stack from '@mui/material/Stack';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { FromElementProperties } from '@maklja/vision-simulator-model';
 import Checkbox from '@mui/material/Checkbox';
-import { FromElementProperties } from '../../../model';
 import { SimpleCodeEditor } from '../../code';
 import { formStyle } from '../commonStyles';
 

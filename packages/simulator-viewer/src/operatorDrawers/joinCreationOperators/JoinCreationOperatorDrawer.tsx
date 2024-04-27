@@ -1,5 +1,5 @@
 import { Group } from 'react-konva';
-import { ElementType } from '../../model';
+import { ElementType } from '@maklja/vision-simulator-model';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { HexagonOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
@@ -78,4 +78,3 @@ export function JoinCreationOperatorDrawer({
 		</Group>
 	);
 }
-

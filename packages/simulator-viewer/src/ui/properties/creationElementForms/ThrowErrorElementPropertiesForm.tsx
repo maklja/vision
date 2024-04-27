@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { ThrowErrorElementProperties } from '../../../model';
+import { ThrowErrorElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -28,4 +28,3 @@ export function ThrowErrorElementPropertiesForm({
 		</Stack>
 	);
 }
-

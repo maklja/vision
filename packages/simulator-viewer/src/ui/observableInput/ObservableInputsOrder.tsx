@@ -1,7 +1,7 @@
 import Stack from '@mui/material/Stack';
 import InputLabel from '@mui/material/InputLabel';
+import { ConnectPointType } from '@maklja/vision-simulator-model';
 import { RelatedElements } from '../properties/ElementPropertiesForm';
-import { ConnectPointType } from '../../model';
 import { ObservableIndexedInputs } from './ObservableIndexedInputs';
 
 export interface ObservableInputsOrderProps {

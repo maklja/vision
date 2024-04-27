@@ -31,7 +31,7 @@ import {
 	RangeElementProperties,
 	ThrowErrorElementProperties,
 	TimerElementProperties,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
 import {
 	AjaxElementPropertiesForm,
 	DeferElementPropertiesForm,
@@ -308,4 +308,3 @@ export function ElementPropertiesForm({
 		</Box>
 	) : null;
 }
-

@@ -1,7 +1,7 @@
 import Konva from 'konva';
+import { SnapLineOrientation } from '@maklja/vision-simulator-model';
 import { StageEvents } from '../SimulatorStage';
 import { RootState } from '../../store/rootStore';
-import { SnapLineOrientation } from '../../model';
 
 export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents => ({
 	onMouseMove: (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -58,4 +58,3 @@ export const stageDrawConnectLineStateHandlers = (state: RootState): StageEvents
 		state.clearSnapLines();
 	},
 });
-

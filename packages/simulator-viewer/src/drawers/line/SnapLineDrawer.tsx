@@ -1,5 +1,5 @@
 import { Line, Group } from 'react-konva';
-import { Point } from '../../model';
+import { Point } from '@maklja/vision-simulator-model';
 import { Theme, useSnapLineDrawerTheme } from '../../theme';
 
 export interface SnapLineDrawerProps {
@@ -22,4 +22,3 @@ export const SnapLineDrawer = ({ points, theme, visible = true }: SnapLineDrawer
 		</Group>
 	);
 };
-

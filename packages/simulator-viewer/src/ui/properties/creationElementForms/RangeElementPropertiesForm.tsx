@@ -1,7 +1,7 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import { RangeElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
-import { RangeElementProperties } from '../../../model';
 import { handleNumberInputChanged, handleOptionalNumberInputChanged } from '../utils';
 
 export interface RangeElementPropertiesFormProps {
@@ -58,4 +58,3 @@ export function RangeElementPropertiesForm({
 		</Stack>
 	);
 }
-

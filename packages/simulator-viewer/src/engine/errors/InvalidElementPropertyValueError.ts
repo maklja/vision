@@ -7,4 +7,3 @@ export class InvalidElementPropertyValueError extends Error {
 		super(`Invalid property "${propertyKey}" value for element ${elementId}`);
 	}
 }
-

@@ -1,4 +1,5 @@
 import { Observable, ObservableInput, catchError } from 'rxjs';
+import { Element, ElementType } from '@maklja/vision-simulator-model';
 import {
 	OperatorProps,
 	PipeObservableFactory,
@@ -6,7 +7,6 @@ import {
 	PipeOperatorFunctionFactory,
 } from './OperatorFactory';
 import { FlowValue, FlowValueType } from '../context';
-import { Element, ElementType } from '../../model';
 import { MissingReferenceObservableError } from '../errors';
 
 const createCatchErrorOperator =
@@ -52,4 +52,3 @@ export const errorHandlingOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
-

@@ -1,4 +1,4 @@
-import { Point } from '../../model';
+import { Point } from '@maklja/vision-simulator-model';
 import { Theme } from '../../theme';
 import { AnimationTemplate } from '../AnimationTemplate';
 import { AnimationKey } from './AnimationKey';

@@ -8,7 +8,7 @@ import {
 	EMPTY_ELEMENT,
 	mapToOperatorPropsTemplate,
 	Point,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
 import { RootState } from '../rootStore';
 
 export interface UpdateElementPayload<P = ElementProps> {
@@ -224,4 +224,3 @@ export const selectStageDraftElement = () => (state: RootState) =>
 
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
 	state.selectedElements.includes(elementId);
-

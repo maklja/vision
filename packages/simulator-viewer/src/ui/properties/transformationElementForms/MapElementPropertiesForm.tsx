@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
+import { MapElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
-import { MapElementProperties } from '../../../model';
 import { SimpleCodeEditor } from '../../code';
 
 export interface MapElementPropertiesFormProps {
@@ -28,4 +28,3 @@ export function MapElementPropertiesForm({
 		</Stack>
 	);
 }
-

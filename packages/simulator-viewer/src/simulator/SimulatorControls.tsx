@@ -14,7 +14,7 @@ import {
 	UnsupportedElementTypeError,
 } from '../engine';
 import { selectStageConnectLines } from '../store/connectLines';
-import { isEntryOperatorType } from '../model';
+import { isEntryOperatorType } from '@maklja/vision-simulator-model';
 import { useShallow } from 'zustand/react/shallow';
 
 export function SimulatorControls() {
@@ -129,4 +129,3 @@ export function SimulatorControls() {
 		</Box>
 	);
 }
-

@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
+import { ExhaustMapElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
-import { ExhaustMapElementProperties } from '../../../model';
 import { SimpleCodeEditor } from '../../code';
 
 export interface ExhaustMapElementPropertiesFormProps {
@@ -28,4 +28,3 @@ export function ExhaustMapElementPropertiesForm({
 		</Stack>
 	);
 }
-

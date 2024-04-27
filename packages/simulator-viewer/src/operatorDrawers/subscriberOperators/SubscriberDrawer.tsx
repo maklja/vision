@@ -1,6 +1,6 @@
 import { Group } from 'react-konva';
+import { ElementType } from '@maklja/vision-simulator-model';
 import { DotCircleOperatorDrawer } from '../../drawers';
-import { ElementType } from '../../model';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { useCircleShapeSize } from '../../store/hooks';
@@ -71,4 +71,3 @@ export function SubscriberDrawer({
 		</Group>
 	);
 }
-

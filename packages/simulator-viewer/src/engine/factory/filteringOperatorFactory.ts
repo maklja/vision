@@ -1,4 +1,5 @@
 import { Observable, filter } from 'rxjs';
+import { Element, ElementType, FilterElement } from '@maklja/vision-simulator-model';
 import {
 	OperatorProps,
 	PipeObservableFactory,
@@ -6,7 +7,6 @@ import {
 	PipeOperatorFunctionFactory,
 } from './OperatorFactory';
 import { FlowValue } from '../context';
-import { Element, ElementType, FilterElement } from '../../model';
 import { mapOutputToFlowValue } from './utils';
 
 const createFilterOperator = (el: Element) => (o: Observable<FlowValue>) => {
@@ -33,4 +33,3 @@ export const filteringOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
-

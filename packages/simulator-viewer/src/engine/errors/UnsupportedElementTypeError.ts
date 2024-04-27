@@ -1,5 +1,5 @@
 import { v1 } from 'uuid';
-import { ElementGroup, ElementType } from '../../model';
+import { ElementGroup, ElementType } from '@maklja/vision-simulator-model';
 
 export class UnsupportedElementTypeError extends Error {
 	readonly id = v1();
@@ -12,4 +12,3 @@ export class UnsupportedElementTypeError extends Error {
 		super(`Unsupported element type "${elementGroup}" in element group "${elementGroup}"`);
 	}
 }
-

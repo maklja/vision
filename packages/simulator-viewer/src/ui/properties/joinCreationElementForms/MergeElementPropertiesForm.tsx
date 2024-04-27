@@ -1,7 +1,7 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import { MergeElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
-import { MergeElementProperties } from '../../../model';
 import { ObservableInputsOrder } from '../../observableInput';
 import { RelatedElements } from '../ElementPropertiesForm';
 import { handleNumberInputChanged } from '../utils';
@@ -48,4 +48,3 @@ export function MergeElementPropertiesForm({
 		</Stack>
 	);
 }
-

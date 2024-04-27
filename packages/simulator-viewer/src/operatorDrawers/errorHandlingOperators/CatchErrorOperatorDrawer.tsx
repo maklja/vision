@@ -1,5 +1,5 @@
 import { Group } from 'react-konva';
-import { ElementType } from '../../model';
+import { ElementType } from '@maklja/vision-simulator-model';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { RectangleOperatorDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
@@ -72,4 +72,3 @@ export function CatchErrorOperatorDrawer({
 		</Group>
 	);
 }
-

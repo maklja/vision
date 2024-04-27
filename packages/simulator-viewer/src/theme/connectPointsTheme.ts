@@ -1,4 +1,4 @@
-import { ConnectPointPosition } from '../model';
+import { ConnectPointPosition } from '@maklja/vision-simulator-model';
 import { ColorTheme } from './colors';
 
 export interface ConnectPointElementStyle {
@@ -70,4 +70,3 @@ export const connectPointsTheme = (themeColors: ColorTheme): ConnectPointsTheme 
 		right: connectPointThemeDefault,
 	};
 };
-

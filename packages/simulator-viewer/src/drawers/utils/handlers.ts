@@ -1,7 +1,7 @@
 import { Vector2d } from 'konva/lib/types';
 import { Node } from 'konva/lib/Node';
-import { Point, snapPositionToGrind } from '../../model';
 import { Stage } from 'konva/lib/Stage';
+import { Point, snapPositionToGrind } from '@maklja/vision-simulator-model';
 import { DrawerDragBoundEvent } from '../DrawerProps';
 
 export function calcSnapPosition(pos: Vector2d, gridSize: number, stage: Stage | null) {

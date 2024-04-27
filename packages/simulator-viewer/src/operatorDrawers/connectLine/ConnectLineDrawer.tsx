@@ -1,5 +1,5 @@
+import { ConnectLine } from '@maklja/vision-simulator-model';
 import { LineDrawer } from '../../drawers';
-import { ConnectLine } from '../../model';
 import { useThemeContext } from '../../store/hooks';
 import { useRootStore } from '../../store/rootStore';
 import { isHighlighted } from '../../store/stage';

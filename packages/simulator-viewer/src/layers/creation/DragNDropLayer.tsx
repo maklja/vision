@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import Konva from 'konva';
 import { Layer } from 'react-konva';
 import { XYCoord, useDragLayer } from 'react-dnd';
-import { ElementType, SnapLineOrientation } from '../../model';
+import { ElementType, SnapLineOrientation } from '@maklja/vision-simulator-model';
 import { DragNDropType } from '../../dragNDrop';
 import { createOperatorDrawer } from '../../operatorDrawers';
 import { ShapeSize, calculateShapeSizeBoundingBox, useGridTheme } from '../../theme';
@@ -93,4 +93,3 @@ export function DragNDropLayer({ snapToGrid }: DragNDropLayerProps) {
 
 	return <Layer ref={layerRef}>{drawer}</Layer>;
 }
-

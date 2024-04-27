@@ -1,10 +1,10 @@
 import Konva from 'konva';
+import { SnapLineOrientation } from '@maklja/vision-simulator-model';
 import { calcSnapPosition, DrawerDragBoundEvent, DrawerEvent, DrawerEvents } from '../../drawers';
 import { StageState } from '../../store/stage';
 import { changeCursorStyle } from '../utils';
 import { drawerAnimationStateHandlers } from './drawerAnimationStateHandlers';
 import { RootState } from '../../store/rootStore';
-import { SnapLineOrientation } from '../../model';
 import { SNAP_DISTANCE } from '../../store/snapLines';
 
 const AUTO_DRAG_REFRESH_INTERVAL = 150;
@@ -142,4 +142,3 @@ export function drawerDragStateHandlers(state: RootState): DrawerEvents {
 		},
 	};
 }
-

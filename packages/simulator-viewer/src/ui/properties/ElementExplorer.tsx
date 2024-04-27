@@ -9,7 +9,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import { Element, Point, mapElementTypeToGroup } from '../../model';
+import { Element, Point, mapElementTypeToGroup } from '@maklja/vision-simulator-model';
 import { ElementShape } from '../../theme';
 import { formStyle } from './commonStyles';
 import { useShapeSize } from '../../store/hooks';

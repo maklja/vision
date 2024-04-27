@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
+import { CatchErrorElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
-import { CatchErrorElementProperties } from '../../../model';
 import { SimpleCodeEditor } from '../../code';
 
 export interface CatchErrorElementPropertiesFormProps {
@@ -30,4 +30,3 @@ export function CatchErrorElementPropertiesForm({
 		</Stack>
 	);
 }
-

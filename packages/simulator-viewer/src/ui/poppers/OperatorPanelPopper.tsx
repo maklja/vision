@@ -1,8 +1,8 @@
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
+import { ElementGroup, ElementType, mapElementGroupToTypes } from '@maklja/vision-simulator-model';
 import { OperatorButton } from './OperatorButton';
-import { ElementGroup, ElementType, mapElementGroupToTypes } from '../../model';
 
 export interface OperatorPanelPopperProps {
 	id: string;
@@ -57,4 +57,3 @@ export const OperatorPanelPopper = ({
 		</Popper>
 	);
 };
-

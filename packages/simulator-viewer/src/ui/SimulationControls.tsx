@@ -7,7 +7,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Box from '@mui/material/Box';
-import { Element } from '../model';
+import { Element } from '@maklja/vision-simulator-model';
 import { SimulationState } from '../store/simulation';
 
 export interface SimulationControlsProps {
@@ -105,4 +105,3 @@ export const SimulationControls = ({
 		</Box>
 	);
 };
-

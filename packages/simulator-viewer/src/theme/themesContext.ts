@@ -1,4 +1,5 @@
 import deepMerge from 'deepmerge';
+import { ConnectPointPosition, ElementType } from '@maklja/vision-simulator-model';
 import { ColorTheme, retrieveThemeColor } from './colors';
 import { lineDrawerTheme, LineTheme } from './lineDrawerTheme';
 import {
@@ -12,7 +13,6 @@ import {
 	ElementDrawerThemeOverride,
 } from './elementDrawerTheme';
 import { simulationTheme, SimulationTheme } from './simulationTheme';
-import { ConnectPointPosition, ElementType } from '../model';
 import { iifConnectPointsTheme } from './iifDrawerTheme';
 import { TooltipTheme, tooltipTheme } from './tooltipTheme';
 import { SnapLineTheme, snapLineDrawerTheme } from './snapLineDrawerTheme';
@@ -189,4 +189,3 @@ export const useSnapLineDrawerTheme = (theme: Theme) => {
 export const useGridTheme = (theme: Theme) => {
 	return theme.grid;
 };
-

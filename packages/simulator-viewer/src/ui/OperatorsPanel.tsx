@@ -3,6 +3,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
 import PhoneIcon from '@mui/icons-material/Phone';
+import { ElementGroup } from '@maklja/vision-simulator-model';
 import {
 	CreationOperatorIcon,
 	FilteringOperatorIcon,
@@ -10,7 +11,6 @@ import {
 	SubscriberOperatorIcon,
 	TransformationOperatorIcon,
 } from './icons';
-import { ElementGroup } from '../model';
 import { OperatorPanelPopper } from './poppers';
 import { useTheme } from '@mui/material/styles';
 
@@ -203,4 +203,3 @@ export const OperatorsPanel = ({ popperVisible = true, disabled = false }: Opera
 		</div>
 	);
 };
-

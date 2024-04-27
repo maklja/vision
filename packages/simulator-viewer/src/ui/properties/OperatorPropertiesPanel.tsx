@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
+import { Element, Point } from '@maklja/vision-simulator-model';
 import { ElementExplorer } from './ElementExplorer';
-import { Element, Point } from '../../model';
 import { ElementPropertiesForm, RelatedElements } from './ElementPropertiesForm';
 
 export interface OperatorPropertiesPanelProps {
@@ -60,4 +60,3 @@ export function OperatorPropertiesPanel({
 		</Box>
 	);
 }
-

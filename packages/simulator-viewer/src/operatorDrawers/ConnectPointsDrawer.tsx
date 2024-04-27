@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { ConnectPointPosition, ConnectPoints, ElementType } from '../model';
+import { ConnectPointPosition, ConnectPoints, ElementType } from '@maklja/vision-simulator-model';
 import { useConnectPointHandlers } from './state';
 import {
 	CircleConnectPointsDrawer,

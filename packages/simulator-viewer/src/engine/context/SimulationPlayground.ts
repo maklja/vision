@@ -1,4 +1,4 @@
-import { ConnectLine, Element } from '../../model';
+import { ConnectLine, Element } from '@maklja/vision-simulator-model';
 
 export interface SimulationPlayground {
 	elements: ReadonlyMap<string, Element>;

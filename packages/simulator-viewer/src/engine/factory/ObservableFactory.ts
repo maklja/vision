@@ -8,7 +8,7 @@ import {
 	isJoinCreationOperatorType,
 	isPipeOperatorType,
 	isSubscriberType,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
 import { FlowManager, FlowValue, FlowValueType, SimulationModel } from '../context';
 import { creationOperatorFactory } from './creationOperatorFactory';
 import { pipeOperatorFactory } from './pipeOperatorFactory';

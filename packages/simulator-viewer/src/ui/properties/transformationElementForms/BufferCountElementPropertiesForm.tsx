@@ -1,7 +1,7 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import { BufferCountElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
-import { BufferCountElementProperties } from '../../../model';
 import { handleNumberInputChanged } from '../utils';
 
 export interface BufferCountElementPropertiesFormProps {
@@ -61,4 +61,3 @@ export function BufferCountElementPropertiesForm({
 		</Stack>
 	);
 }
-

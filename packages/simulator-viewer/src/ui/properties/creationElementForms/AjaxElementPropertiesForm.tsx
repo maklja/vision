@@ -6,9 +6,9 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
+import { AjaxElementProperties, HttpMethod } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
-import { AjaxElementProperties, HttpMethod } from '../../../model';
 import { KeyValueList } from '../../pair';
 import { handleNumberInputChanged } from '../utils';
 
@@ -166,4 +166,3 @@ export function AjaxElementPropertiesForm({
 		</Stack>
 	);
 }
-

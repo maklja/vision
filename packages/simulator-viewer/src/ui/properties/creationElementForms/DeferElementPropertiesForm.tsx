@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { DeferElementProperties } from '../../../model';
+import { DeferElementProperties } from '@maklja/vision-simulator-model';
 import { SimpleCodeEditor } from '../../code';
 import { formStyle } from '../commonStyles';
 

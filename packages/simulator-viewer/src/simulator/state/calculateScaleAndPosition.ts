@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { Point } from '../../model';
+import { Point } from '@maklja/vision-simulator-model';
 import { ZoomType } from '../../store/stage';
 
 export enum ZoomTo {
@@ -61,4 +61,3 @@ export function zoomStage(stage: Konva.Stage, zoomType: ZoomType, zoomTo = ZoomT
 	stage.scale(newScale);
 	stage.position(newPosition);
 }
-

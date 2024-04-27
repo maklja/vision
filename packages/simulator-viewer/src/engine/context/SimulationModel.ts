@@ -1,4 +1,4 @@
-import { ConnectLine, Element } from '../../model';
+import { ConnectLine, Element } from '@maklja/vision-simulator-model';
 import { GraphBranch } from '../simulationGraph';
 
 export class SimulationModel {
@@ -36,4 +36,3 @@ export class SimulationModel {
 		return graphBranch;
 	}
 }
-

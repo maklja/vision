@@ -1,6 +1,11 @@
 import { Observable } from 'rxjs';
+import {
+	ConnectLine,
+	ConnectedElement,
+	Element,
+	ElementProps,
+} from '@maklja/vision-simulator-model';
 import { FlowValue } from '../context';
-import { ConnectLine, ConnectedElement, Element, ElementProps } from '../../model';
 
 interface OperatorFactory {
 	isSupported(el: Element): boolean;
@@ -43,4 +48,3 @@ export type PipeOperatorFunctionFactory = (
 export interface PipeOperatorFactory extends OperatorFactory {
 	create(el: Element, props: OperatorProps): PipeObservableFactory;
 }
-

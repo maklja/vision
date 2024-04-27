@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Layer } from 'react-konva';
-import { ElementType } from '../../model';
+import { ElementType } from '@maklja/vision-simulator-model';
 import { OperatorDrawer } from '../../operatorDrawers';
 import { AnimationKey } from '../../animation';
 import {
@@ -70,4 +70,3 @@ export function AnimationsLayer() {
 		</Layer>
 	);
 }
-

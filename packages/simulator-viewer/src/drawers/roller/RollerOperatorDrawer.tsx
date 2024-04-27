@@ -1,10 +1,10 @@
 import Konva from 'konva';
 import { useState } from 'react';
 import { Group, Rect, Text, Ellipse, Path } from 'react-konva';
+import { Point } from '@maklja/vision-simulator-model';
 import { useAnimationGroups } from '../../animation';
 import { RectangleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme } from '../../theme';
-import { Point } from '../../model';
 import { handleDragBoundFunc } from '../utils';
 
 export interface RollerOperatorDrawerProps extends RectangleDrawerProps {

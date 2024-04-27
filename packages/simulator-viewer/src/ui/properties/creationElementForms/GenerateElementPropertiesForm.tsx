@@ -1,7 +1,7 @@
 import Stack from '@mui/material/Stack';
+import { GenerateElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
-import { GenerateElementProperties } from '../../../model';
 
 export interface GenerateElementPropertiesFormProps {
 	id: string;
@@ -60,4 +60,3 @@ export function GenerateElementPropertiesForm({
 		</Stack>
 	);
 }
-

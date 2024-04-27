@@ -1,4 +1,4 @@
-import { ConnectLine, Element, isEntryOperatorType } from '../model';
+import { ConnectLine, Element, isEntryOperatorType } from '@maklja/vision-simulator-model';
 import { SimulationModel } from './context';
 import { ObservableSimulation } from './ObservableSimulation';
 import { SimulationGraph } from './simulationGraph';
@@ -40,4 +40,3 @@ export const createObservableSimulation = (
 ) => {
 	return new ObservableSimulation(createSimulationModel(entryElementId, elements, cls));
 };
-

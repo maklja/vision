@@ -1,5 +1,5 @@
 import { Line, Group } from 'react-konva';
-import { Point } from '../../model';
+import { Point } from '@maklja/vision-simulator-model';
 import { LineSize, Theme, useLineDrawerTheme } from '../../theme';
 import { LineArrow } from './LineArrow';
 import { useMemo } from 'react';
@@ -36,4 +36,3 @@ export const DraftLineDrawer = ({
 		</Group>
 	);
 };
-

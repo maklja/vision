@@ -3,7 +3,7 @@ import { createStore, useStore } from 'zustand';
 import { useStoreWithEqualityFn } from 'zustand/traditional';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { ConnectLine, Element } from '../model';
+import { ConnectLine, Element } from '@maklja/vision-simulator-model';
 import { createElementSlice, ElementSlice } from './elements';
 import { createStageSlice, StageSlice } from './stage';
 import { ConnectPointSlice, createConnectPointSlice } from './connectPoints';
@@ -96,4 +96,3 @@ export function useRootStore<T = RootState>(
 
 	return useStoreWithEqualityFn(store, selector, qualityFn);
 }
-

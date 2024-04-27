@@ -2,8 +2,8 @@ import { ReactNode } from 'react';
 import Konva from 'konva';
 import { useState } from 'react';
 import { Circle, Group } from 'react-konva';
+import { ConnectPointPosition, ConnectPointType } from '@maklja/vision-simulator-model';
 import { DrawerAnimationTemplate, useAnimation } from '../../animation';
-import { ConnectPointPosition, ConnectPointType } from '../../model';
 import {
 	CircleShapeSize,
 	Theme,
@@ -103,4 +103,3 @@ export const CircleConnectPointDrawer = ({
 		</Group>
 	);
 };
-

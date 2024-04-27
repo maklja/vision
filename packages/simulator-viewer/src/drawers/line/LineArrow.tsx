@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Path } from 'react-konva';
-import { Point } from '../../model';
+import { Point } from '@maklja/vision-simulator-model';
 import { LineSize } from '../../theme';
 
 export interface LineArrowProps {
@@ -41,4 +41,3 @@ export const LineArrow = ({ points, size, fill }: LineArrowProps) => {
 
 	return <Path listening={false} data={path} fill={fill} />;
 };
-

@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { IifElementProperties } from '../../../model';
+import { IifElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -48,4 +48,3 @@ export function IifElementPropertiesForm({
 		</Stack>
 	);
 }
-

@@ -1,9 +1,9 @@
 import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
+import { ConnectLine, Point } from '@maklja/vision-simulator-model';
 import { FlowValueType } from '../../engine';
 import { DrawerAnimation } from '../drawerAnimations';
 import { RootState } from '../rootStore';
-import { ConnectLine, Point } from '../../model';
 import { AnimationKey, MoveAnimation } from '../../animation';
 
 export interface MoveSimulationAnimation
@@ -207,4 +207,3 @@ export const selectSimulation = (state: RootState) => state.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.simulation.animationsQueue.at(0) ?? null;
-

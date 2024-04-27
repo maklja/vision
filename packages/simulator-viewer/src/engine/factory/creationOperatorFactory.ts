@@ -42,7 +42,7 @@ import {
 	ThrowErrorElementProperties,
 	TimerElement,
 	TimerElementProperties,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
 import {
 	CreationObservableFactory,
 	CreationOperatorFactory,
@@ -361,4 +361,3 @@ export const creationOperatorFactory: CreationOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
-

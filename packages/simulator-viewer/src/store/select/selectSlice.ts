@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootStore';
 import { useShallow } from 'zustand/react/shallow';
-import { normalizeBoundingBox } from '../../model';
+import { normalizeBoundingBox } from '@maklja/vision-simulator-model';
+import { RootState } from '../rootStore';
 import { calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
 
 export interface SelectSlice {

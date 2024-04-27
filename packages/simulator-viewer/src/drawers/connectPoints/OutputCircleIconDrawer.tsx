@@ -1,6 +1,6 @@
 import { Circle } from 'react-konva';
+import { ConnectPointPosition } from '@maklja/vision-simulator-model';
 import { CircleShapeSize, Theme, fromSize, useConnectPointTheme } from '../../theme';
-import { ConnectPointPosition } from '../../model';
 
 export interface OutputCircleIconDrawerProps {
 	theme: Theme;
@@ -31,4 +31,3 @@ export const OutputCircleIconDrawer = ({
 		/>
 	);
 };
-

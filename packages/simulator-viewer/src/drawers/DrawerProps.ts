@@ -1,9 +1,9 @@
+import { Key, ReactNode } from 'react';
 import Konva from 'konva';
 import { Node } from 'konva/lib/Node';
-import { Key, ReactNode } from 'react';
+import { BoundingBox, ConnectPointPosition, ConnectPointType, ConnectPoint, Point } from '@maklja/vision-simulator-model';
 import { DrawerAnimationTemplate, AnimationEffectEvent } from '../animation';
 import { CircleShapeSize, RectangleShapeSize, ShapeSize, Theme } from '../theme';
-import { BoundingBox, ConnectPointPosition, ConnectPointType, ConnectPoint, Point } from '../model';
 
 export interface DrawerEvent {
 	id: string;

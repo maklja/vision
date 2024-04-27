@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
+import { BufferWhenElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
-import { BufferWhenElementProperties } from '../../../model';
 import { SimpleCodeEditor } from '../../code';
 
 export interface BufferWhenElementPropertiesFormProps {
@@ -28,4 +28,3 @@ export function BufferWhenElementPropertiesForm({
 		</Stack>
 	);
 }
-

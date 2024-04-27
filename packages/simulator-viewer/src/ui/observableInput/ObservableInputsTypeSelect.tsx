@@ -3,7 +3,7 @@ import FormHelperText from '@mui/material/FormHelperText';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { ObservableInputsType } from '../../model';
+import { ObservableInputsType } from '@maklja/vision-simulator-model';
 
 export interface ObservableInputsTypeSelectProps {
 	value: ObservableInputsType;
@@ -39,4 +39,3 @@ export const ObservableInputsTypeSelect = ({
 		</FormControl>
 	);
 };
-

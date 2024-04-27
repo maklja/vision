@@ -1,6 +1,10 @@
 import Stack from '@mui/material/Stack';
+import {
+	CommonProps,
+	ForkJoinElementProperties,
+	ObservableInputsType,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
-import { CommonProps, ForkJoinElementProperties, ObservableInputsType } from '../../../model';
 import { ObservableInputs } from '../../observableInput';
 import { RelatedElements } from '../ElementPropertiesForm';
 
@@ -34,4 +38,3 @@ export function ForkJoinElementPropertiesForm({
 		</Stack>
 	);
 }
-

@@ -1,5 +1,11 @@
 import { useMemo } from 'react';
-import { ElementType, ElementGroup, mapElementTypeToGroup, Point, BoundingBox } from '../model';
+import {
+	ElementType,
+	ElementGroup,
+	mapElementTypeToGroup,
+	Point,
+	BoundingBox,
+} from '@maklja/vision-simulator-model';
 
 export enum ElementShape {
 	Circle = 'circle',
@@ -231,4 +237,3 @@ export const useLineSize = (scale = 1): LineSize =>
 		}),
 		[scale],
 	);
-

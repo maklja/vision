@@ -1,5 +1,4 @@
 import { StateCreator } from 'zustand';
-import { RootState } from '../rootStore';
 import {
 	calcConnectPointVisibility,
 	ConnectPoint,
@@ -10,7 +9,8 @@ import {
 	ElementType,
 	IBoundingBox,
 	pointOverlapBoundingBox,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
+import { RootState } from '../rootStore';
 import {
 	calculateShapeSizeBoundingBox,
 	ElementSizesContext,
@@ -363,4 +363,3 @@ export const selectElementConnectPointsById = (id: string) =>
 			{},
 		);
 	});
-

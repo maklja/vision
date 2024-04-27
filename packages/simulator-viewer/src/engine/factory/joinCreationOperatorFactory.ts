@@ -19,7 +19,7 @@ import {
 	MergeElement,
 	MergeElementProperties,
 	ObservableInputsType,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
 import {
 	CreationObservableFactory,
 	JoinCreationOperatorFactory,
@@ -191,4 +191,3 @@ export const joinCreationOperatorFactory: JoinCreationOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
-

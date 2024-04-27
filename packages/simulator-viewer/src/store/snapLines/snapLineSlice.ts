@@ -10,7 +10,8 @@ import {
 	ConnectPoint,
 	ElementType,
 	createPointSnapLines,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
+('../../model');
 import { RootState } from '../rootStore';
 import { calculateShapeSizeBoundingBox, ElementSizesContext, findElementSize } from '../../theme';
 
@@ -123,8 +124,9 @@ export function createSnapLinesByConnectPoint(
 	elementSizes: ElementSizesContext,
 ) {
 	const shapeSize = findElementSize(elementSizes, ElementType.ConnectPoint);
-	const connectPointsCenter = connectPoints
-		.map((cp) => calculateShapeSizeBoundingBox({ x: cp.x, y: cp.y }, shapeSize).center);
+	const connectPointsCenter = connectPoints.map(
+		(cp) => calculateShapeSizeBoundingBox({ x: cp.x, y: cp.y }, shapeSize).center,
+	);
 
 	const snapLinesMap: Map<string, SnapLine> = connectPointsCenter
 		.flatMap((curCpCenter) => createPointSnapLines(p, curCpCenter))
@@ -173,4 +175,3 @@ export function setSnapLines(state: RootState, snapLines: SnapLine[]) {
 }
 
 export const selectSnapLines = (state: RootState) => state.snapLines;
-

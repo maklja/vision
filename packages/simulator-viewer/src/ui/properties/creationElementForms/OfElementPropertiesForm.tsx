@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { OfElementProperties } from '../../../model';
+import { OfElementProperties } from '@maklja/vision-simulator-model';
 import { SimpleCodeEditor } from '../../code';
 import { formStyle } from '../commonStyles';
 
@@ -28,4 +28,3 @@ export function OfElementPropertiesForm({
 		</Stack>
 	);
 }
-

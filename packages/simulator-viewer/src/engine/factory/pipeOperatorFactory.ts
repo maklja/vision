@@ -1,4 +1,4 @@
-import { Element } from '../../model';
+import { Element } from '@maklja/vision-simulator-model';
 import { OperatorProps, PipeObservableFactory, PipeOperatorFactory } from './OperatorFactory';
 import { transformationOperatorFactory } from './transformationOperatorFactory';
 import { filteringOperatorFactory } from './filteringOperatorFactory';
@@ -23,4 +23,3 @@ export const pipeOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.some((factory) => factory.isSupported(el));
 	},
 };
-

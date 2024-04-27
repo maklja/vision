@@ -20,7 +20,7 @@ import {
 	IBoundingBox,
 	Point,
 	SnapLine,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
 import {
 	CreateElementPayload,
 	moveElementByDelta,
@@ -670,4 +670,3 @@ export const selectElementTooltip = () =>
 
 export const selectIsDraggable = (state: RootState) =>
 	state.simulation.state !== SimulationState.Running && isElementDragAllowed(state.state);
-

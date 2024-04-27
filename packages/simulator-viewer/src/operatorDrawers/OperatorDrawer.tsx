@@ -1,3 +1,4 @@
+import { Element, ElementType, ResultElement } from '@maklja/vision-simulator-model';
 import {
 	AjaxOperatorDrawer,
 	DeferOperatorDrawer,
@@ -12,7 +13,6 @@ import {
 	TimerOperatorDrawer,
 } from './creationOperators';
 import { CatchErrorOperatorDrawer } from './errorHandlingOperators';
-import { Element, ElementType, ResultElement } from '../model';
 import { SubscriberDrawer } from './subscriberOperators';
 import { FilterOperatorDrawer } from './filteringOperators';
 import { ResultDrawer } from './resultOperators';

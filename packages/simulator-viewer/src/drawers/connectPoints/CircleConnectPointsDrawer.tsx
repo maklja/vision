@@ -1,5 +1,5 @@
 import { Group, Line } from 'react-konva';
-import { ConnectPointPosition, BoundingBox } from '../../model';
+import { ConnectPointPosition, BoundingBox } from '@maklja/vision-simulator-model';
 import { CircleShapeSize, Theme } from '../../theme';
 import {
 	ConnectPointDrawerEvent,
@@ -233,4 +233,3 @@ export const CircleConnectPointsDrawer = ({
 		</Group>
 	);
 };
-

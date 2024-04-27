@@ -1,6 +1,6 @@
 import { useShallow } from 'zustand/react/shallow';
+import { BoundingBox, ElementType, Point } from '@maklja/vision-simulator-model';
 import { RootState, useRootStore } from '../rootStore';
-import { BoundingBox, ElementType, Point } from '../../model';
 import {
 	Theme,
 	findCircleShapeSize,
@@ -61,4 +61,3 @@ export const useConnectPointBoundingBox = (position: Point = { x: 0, y: 0 }) =>
 			return calculateShapeSizeBoundingBox(position, shapeSize);
 		}),
 	);
-

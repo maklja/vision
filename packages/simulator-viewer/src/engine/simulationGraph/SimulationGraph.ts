@@ -4,7 +4,7 @@ import {
 	ElementType,
 	isEntryOperatorType,
 	isSubscriberType,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
 import { MissingNextElementError } from '../errors';
 
 export enum GraphNodeType {
@@ -118,4 +118,3 @@ export class SimulationGraph {
 		return isEntryOperatorType(elType);
 	}
 }
-

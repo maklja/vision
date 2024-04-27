@@ -1,6 +1,6 @@
 import { v1 } from 'uuid';
 import createHash from 'object-hash';
-import { ConnectLine } from '../../model';
+import { ConnectLine } from '@maklja/vision-simulator-model';
 import { Observable } from 'rxjs';
 
 export enum FlowValueType {

@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { useMemo } from 'react';
 import { Line, Group, Circle } from 'react-konva';
-import { Point, lineToPolygon, linesIntersection } from '../../model';
+import { Point, lineToPolygon, linesIntersection } from '@maklja/vision-simulator-model';
 import { LineDrawerEvents } from '../DrawerProps';
 import { LineSize, Theme, useLineDrawerTheme } from '../../theme';
 import { LineArrow } from './LineArrow';
@@ -190,4 +190,3 @@ export const LineDrawer = ({
 		</Group>
 	);
 };
-

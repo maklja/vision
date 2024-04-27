@@ -34,7 +34,7 @@ import {
 	MapElement,
 	MergeMapElement,
 	OBSERVABLE_GENERATOR_NAME,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
 import { MissingReferenceObservableError } from '../errors';
 import { mapFlowValuesArray, mapOutputToFlowValue } from './utils';
 
@@ -289,4 +289,3 @@ export const transformationOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
-

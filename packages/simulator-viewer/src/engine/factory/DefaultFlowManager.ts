@@ -1,5 +1,5 @@
 import { Observable, ReplaySubject } from 'rxjs';
-import { ConnectLine, isErrorHandlerType, isSubscriberType } from '../../model';
+import { ConnectLine, isErrorHandlerType, isSubscriberType } from '@maklja/vision-simulator-model';
 import { FlowManager, FlowValue, FlowValueEvent, SimulationModel } from '../context';
 
 export class DefaultFlowManager implements FlowManager {

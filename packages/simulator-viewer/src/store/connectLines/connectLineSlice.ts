@@ -7,7 +7,7 @@ import {
 	ConnectPointType,
 	distanceBetweenPoints,
 	Point,
-} from '../../model';
+} from '@maklja/vision-simulator-model';
 import { StageState, StartConnectLineDrawPayload } from '../stage';
 import { v1 } from 'uuid';
 import { useShallow } from 'zustand/react/shallow';
@@ -346,4 +346,3 @@ export const selectRelatedElementElements = (elementId: string | null) => (state
 		};
 	});
 };
-

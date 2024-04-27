@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { IntervalElementProperties } from '../../../model';
+import { IntervalElementProperties } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { handleNumberInputChanged } from '../utils';
 
@@ -40,4 +40,3 @@ export function IntervalElementPropertiesForm({
 		</Stack>
 	);
 }
-

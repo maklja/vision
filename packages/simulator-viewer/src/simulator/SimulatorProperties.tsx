@@ -1,11 +1,11 @@
+import { useShallow } from 'zustand/react/shallow';
 import Paper from '@mui/material/Paper';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { CommonProps, ConnectPointType, Point } from '@maklja/vision-simulator-model';
 import { WindowShell } from '../ui/window';
 import { OperatorPropertiesPanel } from '../ui/properties/OperatorPropertiesPanel';
 import { useRootStore } from '../store/rootStore';
 import { selectRelatedElementElements } from '../store/connectLines';
-import { useShallow } from 'zustand/react/shallow';
-import { CommonProps, ConnectPointType, Point } from '../model';
 
 export function SimulatorProperties() {
 	const selectedElement = useRootStore(
@@ -112,4 +112,3 @@ export function SimulatorProperties() {
 		</WindowShell>
 	) : null;
 }
-

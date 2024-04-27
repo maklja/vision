@@ -1,6 +1,10 @@
 import Stack from '@mui/material/Stack';
+import {
+	CombineLatestElementProperties,
+	CommonProps,
+	ObservableInputsType,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
-import { CombineLatestElementProperties, CommonProps, ObservableInputsType } from '../../../model';
 import { ObservableInputs } from '../../observableInput';
 import { RelatedElements } from '../ElementPropertiesForm';
 
@@ -34,4 +38,3 @@ export function CombineLatestElementPropertiesForm({
 		</Stack>
 	);
 }
-

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { Layer, Stage } from 'react-konva';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { ElementType } from '../../model';
+import { ElementType } from '@maklja/vision-simulator-model';
 import { DragNDropType } from '../../dragNDrop';
 import { calculateShapeSizeBoundingBox, scaleShapeSize } from '../../theme';
 import { createOperatorDrawer } from '../../operatorDrawers';
@@ -88,4 +88,3 @@ export const OperatorButton = ({ elementType, padding = 4, scale = 0.65 }: Opera
 		</Box>
 	);
 };
-
