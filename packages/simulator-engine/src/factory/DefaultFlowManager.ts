@@ -4,12 +4,12 @@ import { FlowManager, FlowValue, FlowValueEvent, SimulationModel } from '../cont
 
 export class DefaultFlowManager implements FlowManager {
 	private eventIndex = 0;
-	private readonly eventObserver = new ReplaySubject<FlowValueEvent<unknown>>(10_000);
+	private readonly eventObserver = new ReplaySubject<FlowValueEvent>(10_000);
 	private readonly connectLinesPath: Map<string, ConnectLine[]> = new Map();
 
 	constructor(private readonly simulationModel: SimulationModel) {}
 
-	asObservable(): Observable<FlowValueEvent<unknown>> {
+	asObservable(): Observable<FlowValueEvent> {
 		return this.eventObserver.asObservable();
 	}
 
@@ -30,7 +30,8 @@ export class DefaultFlowManager implements FlowManager {
 			id: value.id,
 			index: ++this.eventIndex,
 			hash: value.hash,
-			value,
+			value: `${value.raw}`,
+			type: value.type,
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
@@ -53,7 +54,8 @@ export class DefaultFlowManager implements FlowManager {
 			id: flowValue.id,
 			index: ++this.eventIndex,
 			hash: flowValue.hash,
-			value: flowValue,
+			value: `${flowValue.raw}`,
+			type: flowValue.type,
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,

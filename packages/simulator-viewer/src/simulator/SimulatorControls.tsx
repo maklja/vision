@@ -38,61 +38,43 @@ export function SimulatorControls() {
 			return;
 		}
 
-		const {
-			createObservableSimulation,
-			InvalidElementPropertyValueError,
-			MissingNextElementError,
-			MissingReferenceObservableError,
-			UnsupportedElementTypeError,
-		} = await import('@maklja/vision-simulator-engine');
+		const { startObservableSimulation } = await import('@maklja/vision-simulator-engine');
 
-		const dispatchObservableEvent = (event: FlowValueEvent<unknown>) =>
+		const dispatchObservableEvent = (event: FlowValueEvent) =>
 			addObservableEvent({
 				id: event.id,
 				hash: event.hash,
 				index: event.index,
-				connectLinesId: event.connectLinesId,
+				connectLinesId: [...event.connectLinesId],
 				sourceElementId: event.sourceElementId,
 				targetElementId: event.targetElementId,
-				type: event.value.type,
-				value: `${event.value.raw}`,
+				type: event.type,
+				value: event.value,
 			});
 
-		const dispatchCompleteEvent = () => completeSimulation();
-
-		try {
-			clearErrors();
-			startSimulation();
-			clearAllSelectedElements();
-			const subscription = createObservableSimulation(
-				entryElementId,
-				elements,
-				connectLines,
-			).start({
-				next: dispatchObservableEvent,
-				error: dispatchObservableEvent,
-				complete: dispatchCompleteEvent,
-			});
-			setSimulationSubscription(subscription);
-		} catch (e) {
-			if (
-				e instanceof MissingReferenceObservableError ||
-				e instanceof MissingNextElementError ||
-				e instanceof UnsupportedElementTypeError ||
-				e instanceof InvalidElementPropertyValueError
-			) {
+		clearErrors();
+		startSimulation();
+		clearAllSelectedElements();
+		const subscription = startObservableSimulation({
+			entryElementId,
+			elements,
+			connectLines,
+			onNext: dispatchObservableEvent,
+			onError: (error) => {
+				dispatchObservableEvent(error);
+				subscription.unsubscribe();
+			},
+			onComplete: () => {
+				completeSimulation();
+				subscription.unsubscribe();
+			},
+			onCreationError: (creationErrorEvent) => {
+				subscription.unsubscribe();
 				resetSimulation();
-				createElementError({
-					elementId: e.elementId,
-					errorMessage: e.message,
-					errorId: e.id,
-				});
-
-				return;
-			}
-
-			throw e;
-		}
+				createElementError(creationErrorEvent);
+			},
+		});
+		setSimulationSubscription(subscription);
 	}
 
 	function handleSimulationStop() {

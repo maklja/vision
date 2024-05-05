@@ -8,7 +8,6 @@
 -   multi-tabs
 -   full size editor
 -   show code error
--   move engine to workers
 -   offline support
 -   google drive integration
 -   subscribe stage

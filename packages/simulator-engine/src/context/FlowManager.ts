@@ -20,14 +20,15 @@ export class FlowValue<T = unknown> {
 	}
 }
 
-export interface FlowValueEvent<T> {
-	id: string;
-	index: number;
-	value: FlowValue<T>;
-	hash: string;
-	connectLinesId: string[];
-	sourceElementId: string;
-	targetElementId: string;
+export interface FlowValueEvent {
+	readonly id: string;
+	readonly index: number;
+	readonly value: string;
+	readonly hash: string;
+	readonly type: FlowValueType;
+	readonly connectLinesId: readonly string[];
+	readonly sourceElementId: string;
+	readonly targetElementId: string;
 }
 
 export interface FlowManager {
@@ -39,5 +40,5 @@ export interface FlowManager {
 
 	handleComplete(): void;
 
-	asObservable(): Observable<FlowValueEvent<unknown>>;
+	asObservable(): Observable<FlowValueEvent>;
 }
