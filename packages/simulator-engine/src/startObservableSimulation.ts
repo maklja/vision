@@ -45,7 +45,7 @@ export function startObservableSimulation({
 			{ name: 'ObservableWorker', type: 'module' },
 		);
 
-		backgroundWorker.onmessage = (ev: MessageEvent<FlowValueEvent | null>) => {
+		backgroundWorker.addEventListener('message', (ev: MessageEvent<FlowValueEvent | null>) => {
 			const { data } = ev;
 			if (data === null) {
 				return onComplete?.();
@@ -63,7 +63,16 @@ export function startObservableSimulation({
 						errorMessage: data.value,
 					});
 			}
-		};
+		});
+
+		backgroundWorker.addEventListener('error', (ev) => {
+			console.error('Error is throw by ObservableWorker', ev);
+			backgroundWorker.terminate();
+		});
+
+		backgroundWorker.addEventListener('messageerror', (ev) => {
+			console.error('Message error is thrown by ObservableWorker', ev.data);
+		});
 
 		backgroundWorker.postMessage({
 			type: ObservableSimulationMessageType.StartSimulation,
