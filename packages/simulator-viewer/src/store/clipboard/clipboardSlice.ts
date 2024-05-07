@@ -70,6 +70,7 @@ export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlic
 
 			const copiedElements = new Map<string, string>();
 
+			state.selectedElements = [];
 			state.clipboard.elements.forEach((el) => {
 				const xDistance = el.x - pasteRelativeToPosition.x;
 				const yDistance = el.y - pasteRelativeToPosition.y;
@@ -84,8 +85,10 @@ export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlic
 
 				addElement(state, elCopy);
 				createElementConnectPoints(state, elCopy);
+				state.selectedElements.push(elCopy.id);
 			});
 
+			state.selectedConnectLines = [];
 			state.clipboard.connectLines.forEach((cl) => {
 				const points = cl.points.map((p) => {
 					const xDistance = p.x - pasteRelativeToPosition.x;
@@ -118,6 +121,7 @@ export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlic
 				};
 
 				addConnectLine(state, clCopy);
+				state.selectedConnectLines.push(clCopy.id);
 			});
 
 			return state;
