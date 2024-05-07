@@ -1,7 +1,5 @@
--   locate element by name
 -   scheduler, multi result animations
 -   results preview
--   marble diagrams
 -   DOM events
 -   form validation
 -   multi-tabs

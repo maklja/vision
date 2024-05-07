@@ -1,4 +1,4 @@
-export const hashToColor = (strHash: string) => {
+export function hashToColor(strHash: string) {
 	const hash = strHash
 		.split('')
 		.reduce((curHash, char) => char.charCodeAt(0) + ((curHash << 5) - curHash), 0);
@@ -7,11 +7,11 @@ export const hashToColor = (strHash: string) => {
 		(color, hashValue) => `${color}${('00' + hashValue.toString(16)).slice(-2)}`,
 		'#',
 	);
-};
+}
 
 const padZero = (str: string, len = 2) => (Array(len).join('0') + str).slice(-len);
 
-export const invertColor = (hex: string, bw: boolean) => {
+export function invertColor(hex: string, bw: boolean) {
 	if (hex.indexOf('#') === 0) {
 		hex = hex.slice(1);
 	}
@@ -40,4 +40,5 @@ export const invertColor = (hex: string, bw: boolean) => {
 
 	// pad each with zeros and return
 	return '#' + padZero(rStr) + padZero(gStr) + padZero(bStr);
-};
+}
+
