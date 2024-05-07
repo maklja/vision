@@ -162,12 +162,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 ) => ({
 	connectPoints: {},
 	createElementConnectPoints: (element: Element) =>
-		set((state) => {
-			const connectPoints = createConnectPoints(element, state.elementSizes);
-			state.connectPoints[element.id] = connectPoints;
-
-			return state;
-		}, true),
+		set((state) => createElementConnectPoints(state, element), true),
 	removeElementsConnectPoints: (elementIds: string[]) =>
 		set((state) => {
 			if (elementIds.length === 0) {
@@ -352,6 +347,13 @@ export function moveConnectPointsByDelta(
 	return state;
 }
 
+export function createElementConnectPoints(state: RootState, element: Element) {
+	const connectPoints = createConnectPoints(element, state.elementSizes);
+	state.connectPoints[element.id] = connectPoints;
+
+	return state;
+}
+
 export const selectElementConnectPointsById = (id: string) =>
 	useShallow((state: RootState) => {
 		const connectPoints = state.connectPoints[id] ?? [];
@@ -363,3 +365,4 @@ export const selectElementConnectPointsById = (id: string) =>
 			{},
 		);
 	});
+

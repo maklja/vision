@@ -5,6 +5,7 @@ import {
 	ConnectPointDrawerEvent,
 	ConnectPointsDrawerEvents,
 	ConnectPointsOptions,
+	createConnectPointDrawerId,
 } from '../DrawerProps';
 import { CircleConnectPointDrawer } from './CircleConnectPointDrawer';
 import { useConnectPointBoundingBox } from '../../store/hooks';
@@ -19,12 +20,7 @@ export interface CircleConnectPointsDrawerProps extends ConnectPointsDrawerEvent
 	connectPointsOptions: ConnectPointsOptions<CircleShapeSize>;
 }
 
-export const createConnectPointDrawerId = (
-	drawerId: string,
-	connectPointPosition: ConnectPointPosition,
-) => `${drawerId}_${connectPointPosition}`;
-
-export const CircleConnectPointsDrawer = ({
+export function CircleConnectPointsDrawer({
 	id,
 	x = 0,
 	y = 0,
@@ -40,7 +36,7 @@ export const CircleConnectPointsDrawer = ({
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
-}: CircleConnectPointsDrawerProps) => {
+}: CircleConnectPointsDrawerProps) {
 	const centerX = x + width / 2;
 	const centerY = y + height / 2;
 	const connectPointBB = useConnectPointBoundingBox();
@@ -232,4 +228,5 @@ export const CircleConnectPointsDrawer = ({
 			)}
 		</Group>
 	);
-};
+}
+

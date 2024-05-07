@@ -9,12 +9,12 @@ export interface InputCircleIconDrawerProps {
 	highlight?: boolean;
 }
 
-export const InputCircleIconDrawer = ({
+export function InputCircleIconDrawer({
 	theme,
 	size,
 	highlight,
 	connectPointPosition,
-}: InputCircleIconDrawerProps) => {
+}: InputCircleIconDrawerProps) {
 	const connectPointElementTheme = useConnectPointTheme(theme, {
 		highlight,
 		position: connectPointPosition,
@@ -30,4 +30,5 @@ export const InputCircleIconDrawer = ({
 			radius={radius}
 		/>
 	);
-};
+}
+

@@ -47,6 +47,17 @@ export class BoundingBox implements IBoundingBox {
 		return new BoundingBox(bb.x, bb.y, bb.width, bb.height);
 	}
 
+	union(bb: IBoundingBox): BoundingBox {
+		const xMin = Math.min(this.x, bb.x);
+		const yMin = Math.min(this.y, bb.y);
+		const xMax = Math.max(this.x + this.width, bb.x + bb.width);
+		const yMax = Math.max(this.y + this.height, bb.y + bb.height);
+		const width = xMax - xMin;
+		const height = yMax - yMin;
+
+		return new BoundingBox(xMin, yMin, width, height);
+	}
+
 	intersects(bb: IBoundingBox) {
 		return boundingBoxesIntersection(this, bb);
 	}

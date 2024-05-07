@@ -1,4 +1,3 @@
--   copy/paste
 -   locate element by name
 -   scheduler, multi result animations
 -   results preview
@@ -20,3 +19,4 @@
 -   settings windows for theme and grid configuration
 -   change MaterialUI with tailwind
 -   elements tree
+

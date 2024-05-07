@@ -34,7 +34,7 @@ export interface CircleConnectPointDrawerProps extends DrawerAnimationEvents {
 	children?: (iconProps: ConnectPointIconDrawerProps) => ReactNode | null;
 }
 
-export const CircleConnectPointDrawer = ({
+export function CircleConnectPointDrawer({
 	id,
 	type,
 	position,
@@ -53,7 +53,7 @@ export const CircleConnectPointDrawer = ({
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
-}: CircleConnectPointDrawerProps) => {
+}: CircleConnectPointDrawerProps) {
 	const connectPointElementTheme = useConnectPointTheme(theme, { position, highlight });
 	const { radius } = size;
 	const boundingBox = calculateShapeSizeBoundingBox({ x, y }, size);
@@ -102,4 +102,5 @@ export const CircleConnectPointDrawer = ({
 			{children?.({ type, theme, highlight, connectPointPosition: position })}
 		</Group>
 	);
-};
+}
+

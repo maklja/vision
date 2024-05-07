@@ -1,7 +1,13 @@
 import { Key, ReactNode } from 'react';
 import Konva from 'konva';
 import { Node } from 'konva/lib/Node';
-import { BoundingBox, ConnectPointPosition, ConnectPointType, ConnectPoint, Point } from '@maklja/vision-simulator-model';
+import {
+	BoundingBox,
+	ConnectPointPosition,
+	ConnectPointType,
+	ConnectPoint,
+	Point,
+} from '@maklja/vision-simulator-model';
 import { DrawerAnimationTemplate, AnimationEffectEvent } from '../animation';
 import { CircleShapeSize, RectangleShapeSize, ShapeSize, Theme } from '../theme';
 
@@ -116,4 +122,9 @@ export interface LineDrawerEvents {
 	onDotDragEnd?: (lineDotEvent: LineDotEvent<DragEvent>) => void;
 	onDotDragMove?: (lineDotEvent: LineDotEvent<DragEvent>) => void;
 }
+
+export const createConnectPointDrawerId = (
+	drawerId: string,
+	connectPointPosition: ConnectPointPosition,
+) => `${drawerId}_${connectPointPosition}`;
 

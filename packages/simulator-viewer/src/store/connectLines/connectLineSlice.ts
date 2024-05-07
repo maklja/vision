@@ -79,6 +79,7 @@ export interface ConnectLineSlice {
 	removeElementConnectLines: (payload: RemoveElementConnectLinesPayload) => void;
 	updateConnectLine: (payload: UpdateConnectLinePayload) => void;
 	loadConnectLines: (connectLInes: ConnectLine[]) => void;
+	addConnectLine: (connectLine: ConnectLine) => void;
 }
 
 function generateUniqueName(name: string, takenNames: string[]) {
@@ -98,8 +99,7 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 	createConnectLineDraw: (payload: StartConnectLineDrawPayload) =>
 		set((state) => {
 			const { sourceId, points, type, position } = payload;
-			const connectLines = Object.values(state.connectLines);
-			const clsNames = connectLines
+			const clsNames = Object.values(state.connectLines)
 				.filter(({ source }) => source.id === sourceId && source.connectPointType === type)
 				.map((cl) => cl.name);
 			state.draftConnectLine = {
@@ -167,6 +167,8 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 			};
 			return state;
 		}, true),
+	addConnectLine: (connectLine: ConnectLine) =>
+		set((state) => addConnectLine(state, connectLine), true),
 	setSelectConnectLines: (connectLineIds: string[]) =>
 		set((state) => {
 			state.selectedConnectLines = connectLineIds;
@@ -338,6 +340,11 @@ export function moveConnectLineDraw(state: RootState, payload: MoveConnectLineDr
 			: { x: position.x, y: lastPoint.y };
 
 	draftConnectLine.points.splice(-1, 1, newPosition);
+	return state;
+}
+
+export function addConnectLine(state: RootState, connectLine: ConnectLine) {
+	state.connectLines[connectLine.id] = connectLine;
 	return state;
 }
 

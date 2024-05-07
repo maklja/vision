@@ -106,11 +106,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 			state.draftElement = null;
 			return state;
 		}, true),
-	addElement: (newElement: Element) =>
-		set((state) => {
-			state.elements[newElement.id] = newElement;
-			return state;
-		}, true),
+	addElement: (newElement: Element) => set((state) => addElement(state, newElement), true),
 	updateElement: (payload: UpdateElementPayload) =>
 		set((state) => {
 			const el = state.elements[payload.id];
@@ -216,6 +212,21 @@ export function moveElementByDelta(state: RootState, payload: MoveElementByDelta
 	return state;
 }
 
+export function addElement(state: RootState, newElement: Element) {
+	const allElementNames = Object.values(state.elements).map((el) => el.name);
+
+	let elName = newElement.name;
+	if (allElementNames.includes(elName)) {
+		elName = createElementName(allElementNames, newElement.type);
+	}
+
+	state.elements[newElement.id] = {
+		...newElement,
+		name: elName,
+	};
+	return state;
+}
+
 export const selectStageElements = () =>
 	useShallow((state: RootState) => Object.values(state.elements));
 
@@ -224,3 +235,4 @@ export const selectStageDraftElement = () => (state: RootState) =>
 
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
 	state.selectedElements.includes(elementId);
+
