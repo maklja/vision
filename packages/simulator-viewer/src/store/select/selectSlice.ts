@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
-import { normalizeBoundingBox } from '@maklja/vision-simulator-model';
+import { boundingBoxLinesIntersection, normalizeBoundingBox } from '@maklja/vision-simulator-model';
 import { RootState } from '../rootStore';
 import { calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
 
@@ -87,13 +87,18 @@ export const createSelectSlice: StateCreator<RootState, [], [], SelectSlice> = (
 			})
 			.map((el) => el.id);
 
-		if (selectedElementIds.length === 0) {
+		const selectedConnectLineIds = Object.values(state.connectLines)
+			.filter((cl) => boundingBoxLinesIntersection(normalizedLassoBB, cl.points))
+			.map((cl) => cl.id);
+
+		if (selectedElementIds.length === 0 && selectedConnectLineIds.length === 0) {
 			state.clearAllSelectedElements();
 			return;
 		}
 
 		state.setSelectElements(selectedElementIds);
 		state.setSelectElementsConnectPoints(selectedElementIds);
+		state.setSelectConnectLines(selectedConnectLineIds);
 	},
 });
 
