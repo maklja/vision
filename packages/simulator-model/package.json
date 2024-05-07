@@ -8,6 +8,9 @@
 	"scripts": {
 		"eslint": "eslint src/**/*.{js,ts}"
 	},
+	"dependencies": {
+		"dedent": "^1.5.1"
+	},
 	"devDependencies": {
 		"eslint": "8.24.0",
 		"eslint-config-prettier": "^8.5.0",

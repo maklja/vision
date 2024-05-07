@@ -13,6 +13,24 @@ importers:
       '@maklja/vision-simulator-model':
         specifier: workspace:^0.1.0
         version: link:../simulator-model
+      '@types/object-hash':
+        specifier: ^2.2.1
+        version: 2.2.1
+      '@types/uuid':
+        specifier: ^8.3.4
+        version: 8.3.4
+      dedent:
+        specifier: ^1.5.1
+        version: 1.5.3(babel-plugin-macros@3.1.0)
+      object-hash:
+        specifier: ^3.0.0
+        version: 3.0.0
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.1
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.1
     devDependencies:
       eslint:
         specifier: 8.24.0
@@ -25,6 +43,10 @@ importers:
         version: 4.2.1(eslint-config-prettier@8.10.0(eslint@8.24.0))(eslint@8.24.0)(prettier@3.2.5)
 
   packages/simulator-model:
+    dependencies:
+      dedent:
+        specifier: ^1.5.1
+        version: 1.5.3(babel-plugin-macros@3.1.0)
     devDependencies:
       eslint:
         specifier: 8.24.0
@@ -77,9 +99,6 @@ importers:
       '@types/node':
         specifier: ^20.12.7
         version: 20.12.7
-      '@types/object-hash':
-        specifier: ^2.2.1
-        version: 2.2.1
       '@types/react':
         specifier: ^18.0.21
         version: 18.3.0
@@ -92,9 +111,6 @@ importers:
       dayjs:
         specifier: ^1.11.9
         version: 1.11.10
-      dedent:
-        specifier: ^1.5.1
-        version: 1.5.3(babel-plugin-macros@3.1.0)
       deepmerge:
         specifier: ^4.3.1
         version: 4.3.1
@@ -110,9 +126,6 @@ importers:
       monaco-editor:
         specifier: 0.48.0
         version: 0.48.0
-      object-hash:
-        specifier: ^3.0.0
-        version: 3.0.0
       react:
         specifier: ^18.2.0
         version: 18.3.0
