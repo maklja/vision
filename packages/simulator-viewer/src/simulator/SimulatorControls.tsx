@@ -1,16 +1,22 @@
+import Konva from 'konva';
 import { useState } from 'react';
 import { Unsubscribable } from 'rxjs';
 import Box from '@mui/material/Box';
+import { useShallow } from 'zustand/react/shallow';
+import type { FlowValueEvent } from '@maklja/vision-simulator-engine';
+import { Element, isEntryOperatorType } from '@maklja/vision-simulator-model';
 import { SimulationControls } from '../ui';
 import { useRootStore } from '../store/rootStore';
 import { selectSimulation } from '../store/simulation';
 import { selectStageElements } from '../store/elements';
-import type { FlowValueEvent } from '@maklja/vision-simulator-engine';
 import { selectStageConnectLines } from '../store/connectLines';
-import { isEntryOperatorType } from '@maklja/vision-simulator-model';
-import { useShallow } from 'zustand/react/shallow';
+import { calculateShapeSizeBoundingBox, findElementSize } from '../theme';
 
-export function SimulatorControls() {
+export interface SimulatorControlsProps {
+	stage: Konva.Stage | null;
+}
+
+export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	const simulation = useRootStore(selectSimulation);
 	const elements = useRootStore(selectStageElements());
 	const entryElements = useRootStore(
@@ -20,6 +26,7 @@ export function SimulatorControls() {
 				.sort((el1, el2) => el1.name.localeCompare(el2.name)),
 		),
 	);
+	const elementSizes = useRootStore((state) => state.elementSizes);
 	const connectLines = useRootStore(selectStageConnectLines());
 	const clearAllSelectedElements = useRootStore((state) => state.clearAllSelectedElements);
 	const createElementError = useRootStore((state) => state.createElementError);
@@ -28,6 +35,8 @@ export function SimulatorControls() {
 	const resetSimulation = useRootStore((state) => state.resetSimulation);
 	const completeSimulation = useRootStore((state) => state.completeSimulation);
 	const addObservableEvent = useRootStore((state) => state.addObservableEvent);
+	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
+	const setSelectElements = useRootStore((state) => state.setSelectElements);
 
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
@@ -91,6 +100,35 @@ export function SimulatorControls() {
 		handleSimulationStart(entryElementId);
 	}
 
+	function handleElementLocate(element: Element) {
+		if (!stage) {
+			return;
+		}
+
+		const shapeSize = findElementSize(elementSizes, element.type);
+		const elementCenter = calculateShapeSizeBoundingBox(
+			{ x: element.x, y: element.y },
+			shapeSize,
+		).center;
+
+		const x = -elementCenter.x + stage.width() / 2;
+		const y = -elementCenter.y + stage.height() / 2;
+
+		stage.scale({ x: 1, y: 1 });
+		stage.position({
+			x,
+			y,
+		});
+		updateCanvasState({
+			x,
+			y,
+			scaleX: 1,
+			scaleY: 1,
+		});
+		clearAllSelectedElements();
+		setSelectElements([element.id]);
+	}
+
 	return (
 		<Box
 			sx={{
@@ -108,7 +146,9 @@ export function SimulatorControls() {
 				onSimulationStart={handleSimulationStart}
 				onSimulationStop={handleSimulationStop}
 				onSimulationReset={handleSimulationReset}
+				onElementLocate={handleElementLocate}
 			/>
 		</Box>
 	);
 }
+

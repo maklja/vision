@@ -31,12 +31,7 @@ interface IconDrawerProps extends ConnectPointIconDrawerProps {
 	shapeSize: ShapeSize;
 }
 
-const DefaultInputIcon = ({
-	theme,
-	connectPointPosition,
-	highlight,
-	shapeSize,
-}: IconDrawerProps) => {
+function DefaultInputIcon({ theme, connectPointPosition, highlight, shapeSize }: IconDrawerProps) {
 	switch (shapeSize.type) {
 		case ElementShape.Circle:
 			return (
@@ -50,14 +45,9 @@ const DefaultInputIcon = ({
 		default:
 			return null;
 	}
-};
+}
 
-const DefaultOutputIcon = ({
-	theme,
-	connectPointPosition,
-	highlight,
-	shapeSize,
-}: IconDrawerProps) => {
+function DefaultOutputIcon({ theme, connectPointPosition, highlight, shapeSize }: IconDrawerProps) {
 	switch (shapeSize.type) {
 		case ElementShape.Circle:
 			return (
@@ -71,14 +61,9 @@ const DefaultOutputIcon = ({
 		default:
 			return null;
 	}
-};
+}
 
-const DefaultEventIcon = ({
-	theme,
-	connectPointPosition,
-	highlight,
-	shapeSize,
-}: IconDrawerProps) => {
+function DefaultEventIcon({ theme, connectPointPosition, highlight, shapeSize }: IconDrawerProps) {
 	switch (shapeSize.type) {
 		case ElementShape.Circle:
 			return (
@@ -92,45 +77,43 @@ const DefaultEventIcon = ({
 		default:
 			return null;
 	}
-};
+}
 
-export const createDefaultElementProps = <T extends ShapeSize>(
+const createDefaultElementProps = <T extends ShapeSize>(
 	connectPoints: ConnectPoints,
 	shapeSize: T,
 	icons: ConnectPointsDrawerIconsProps,
-): ConnectPointsOptions<T> => {
-	return {
-		left: connectPoints.left && {
-			...connectPoints.left,
-			shapeSize,
-			icon: (props) =>
-				icons.left?.(props) ?? <DefaultInputIcon {...props} shapeSize={shapeSize} />,
-		},
-		right: connectPoints.right && {
-			...connectPoints.right,
-			shapeSize,
-			icon: (props) =>
-				icons.right?.(props) ?? <DefaultOutputIcon {...props} shapeSize={shapeSize} />,
-		},
-		top: connectPoints.top && {
-			...connectPoints.top,
-			shapeSize,
-			icon: (props) =>
-				icons.top?.(props) ?? <DefaultEventIcon {...props} shapeSize={shapeSize} />,
-		},
-		bottom: connectPoints.bottom && {
-			...connectPoints.bottom,
-			shapeSize,
-			icon: (props) =>
-				icons.bottom?.(props) ?? <DefaultEventIcon {...props} shapeSize={shapeSize} />,
-		},
-	};
-};
+): ConnectPointsOptions<T> => ({
+	left: connectPoints.left && {
+		...connectPoints.left,
+		shapeSize,
+		icon: (props) =>
+			icons.left?.(props) ?? <DefaultInputIcon {...props} shapeSize={shapeSize} />,
+	},
+	right: connectPoints.right && {
+		...connectPoints.right,
+		shapeSize,
+		icon: (props) =>
+			icons.right?.(props) ?? <DefaultOutputIcon {...props} shapeSize={shapeSize} />,
+	},
+	top: connectPoints.top && {
+		...connectPoints.top,
+		shapeSize,
+		icon: (props) =>
+			icons.top?.(props) ?? <DefaultEventIcon {...props} shapeSize={shapeSize} />,
+	},
+	bottom: connectPoints.bottom && {
+		...connectPoints.bottom,
+		shapeSize,
+		icon: (props) =>
+			icons.bottom?.(props) ?? <DefaultEventIcon {...props} shapeSize={shapeSize} />,
+	},
+});
 
-const createAnimationConfig = (
+function createAnimationConfig(
 	animation: DrawerAnimation | null,
 	theme: Theme,
-): DrawerAnimationTemplate | null => {
+): DrawerAnimationTemplate | null {
 	if (!animation) {
 		return null;
 	}
@@ -140,13 +123,13 @@ const createAnimationConfig = (
 		id: animation.id,
 		dispose: animation.dispose,
 	};
-};
+}
 
-const createConnectPointsOptions = (
+function createConnectPointsOptions(
 	id: string,
 	theme: Theme,
 	defaultCPOptions: ConnectPointsOptions<CircleShapeSize>,
-): ConnectPointsOptions<CircleShapeSize> => {
+): ConnectPointsOptions<CircleShapeSize> {
 	const leftAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Left);
 	const rightAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Right);
 	const topAnimationId = createConnectPointDrawerId(id, ConnectPointPosition.Top);
@@ -176,7 +159,7 @@ const createConnectPointsOptions = (
 			animation: createAnimationConfig(bottomAnimation, theme),
 		},
 	};
-};
+}
 
 export interface ConnectPointsDrawerProps {
 	id: string;
@@ -189,7 +172,7 @@ export interface ConnectPointsDrawerProps {
 	icons?: ConnectPointsDrawerIconsProps;
 }
 
-export const ConnectPointsDrawer = ({
+export function ConnectPointsDrawer({
 	id,
 	x,
 	y,
@@ -198,7 +181,7 @@ export const ConnectPointsDrawer = ({
 	shape,
 	visible = false,
 	icons = {},
-}: ConnectPointsDrawerProps) => {
+}: ConnectPointsDrawerProps) {
 	const theme = useThemeContext(type);
 	const connectPointsHandlers = useConnectPointHandlers();
 	const connectPoints = useRootStore(selectElementConnectPointsById(id));
@@ -223,4 +206,5 @@ export const ConnectPointsDrawer = ({
 			height={bb.height}
 		/>
 	);
-};
+}
+

@@ -122,6 +122,10 @@ export const stageSelectStateHandlers = (state: RootState): StageEvents => ({
 			);
 			const nextThemeColor = themeColors[currentThemeIndex + 1] ?? themeColors[0];
 			state.changeTheme(nextThemeColor.id);
+		} else if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+			state.copySelected();
+		} else if (e.ctrlKey && e.key.toLowerCase() === 'v') {
+			state.pasteSelected(stage?.getRelativePointerPosition() ?? { x: 0, y: 0 });
 		}
 	},
 	onContextMenu: (e: Konva.KonvaEventObject<MouseEvent>) => {

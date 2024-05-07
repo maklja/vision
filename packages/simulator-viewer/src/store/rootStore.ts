@@ -13,6 +13,7 @@ import { createSnapLineSlice, SnapLineSlice } from './snapLines';
 import { createErrorSlice, ErrorSlice } from './errors/errorSlice';
 import { AnimationSlice, createAnimationSlice } from './drawerAnimations';
 import { createSimulationSlice, SimulationSlice } from './simulation';
+import { ClipboardSlice, createClipboardSlice } from './clipboard';
 
 export interface StateProps {
 	elements: Element[];
@@ -34,7 +35,8 @@ export type RootState = ElementSlice &
 	SnapLineSlice &
 	ErrorSlice &
 	AnimationSlice &
-	SimulationSlice;
+	SimulationSlice &
+	ClipboardSlice;
 
 export type RootStore = ReturnType<typeof createRootStore>;
 
@@ -45,7 +47,7 @@ export interface StorageBlob {
 
 export const StoreContext = createContext<RootStore | null>(null);
 
-export const createRootStore = (initProps?: Partial<StateProps>) => {
+export function createRootStore(initProps?: Partial<StateProps>) {
 	const elements = initProps?.elements ?? [];
 	const connectLInes = initProps?.connectLines ?? [];
 	const canvasState = initProps?.canvasState ?? { x: 0, y: 0, scaleX: 1, scaleY: 1 };
@@ -63,6 +65,7 @@ export const createRootStore = (initProps?: Partial<StateProps>) => {
 					...createErrorSlice(...args),
 					...createAnimationSlice(...args),
 					...createSimulationSlice(...args),
+					...createClipboardSlice(...args),
 				})),
 			),
 			{ name: 'SimulatorStore' },
@@ -72,7 +75,7 @@ export const createRootStore = (initProps?: Partial<StateProps>) => {
 	store.getState().load(elements, connectLInes);
 	store.getState().updateCanvasState(canvasState);
 	return store;
-};
+}
 
 export function useRootStore(): RootState;
 export function useRootStore<T = RootState>(selector?: (state: RootState) => T): T;
@@ -96,3 +99,4 @@ export function useRootStore<T = RootState>(
 
 	return useStoreWithEqualityFn(store, selector, qualityFn);
 }
+

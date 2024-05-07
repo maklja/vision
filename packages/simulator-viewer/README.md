@@ -1,8 +1,5 @@
--   copy/paste
--   locate element by name
 -   scheduler, multi result animations
 -   results preview
--   marble diagrams
 -   DOM events
 -   form validation
 -   multi-tabs
@@ -20,3 +17,4 @@
 -   settings windows for theme and grid configuration
 -   change MaterialUI with tailwind
 -   elements tree
+

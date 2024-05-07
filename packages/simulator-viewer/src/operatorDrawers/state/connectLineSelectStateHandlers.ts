@@ -9,8 +9,19 @@ export const connectLineSelectStateHandlers = (state: RootState): LineDrawerEven
 			e.originalEvent.cancelBubble = true;
 		}
 
+		if (e.originalEvent?.evt.ctrlKey) {
+			state.toggleConnectLineSelection(e.id);
+		} else {
+			state.markConnectLineAsSelected(e.id);
+		}
+	},
+	onMouseUp: (e: LineEvent) => {
+		if (e.originalEvent?.evt.ctrlKey) {
+			return;
+		}
+
 		state.clearAllSelectedElements();
-		state.selectConnectLines([e.id]);
+		state.markConnectLineAsSelected(e.id);
 	},
 	onMouseOver: (e: LineEvent) => {
 		const { id, originalEvent } = e;
@@ -43,3 +54,4 @@ export const connectLineSelectStateHandlers = (state: RootState): LineDrawerEven
 		state.changeState(StageState.Dragging);
 	},
 });
+

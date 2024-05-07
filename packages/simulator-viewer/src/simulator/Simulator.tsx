@@ -14,7 +14,7 @@ export const Simulator = () => {
 		<Box sx={{ position: 'absolute', width: '100%', height: '100%' }}>
 			<SimulatorStage ref={(stageRef) => setStage(stageRef)} />
 
-			<SimulatorControls />
+			<SimulatorControls stage={stage} />
 
 			<SimulatorZoom stage={stage} />
 

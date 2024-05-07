@@ -22,14 +22,14 @@ interface SelectableOperatorButtonProps {
 	onClick: (e: MouseEvent<HTMLElement>) => void;
 }
 
-const SelectableOperatorButton = ({
+function SelectableOperatorButton({
 	ariaLabel,
 	title,
 	selected,
 	disabled,
 	onClick,
 	children,
-}: PropsWithChildren<SelectableOperatorButtonProps>) => {
+}: PropsWithChildren<SelectableOperatorButtonProps>) {
 	const theme = useTheme();
 
 	const borderStyle = '2px solid';
@@ -53,14 +53,14 @@ const SelectableOperatorButton = ({
 			</IconButton>
 		</Stack>
 	);
-};
+}
 
 export interface OperatorsPanelProps {
 	popperVisible?: boolean;
 	disabled?: boolean;
 }
 
-export const OperatorsPanel = ({ popperVisible = true, disabled = false }: OperatorsPanelProps) => {
+export function OperatorsPanel({ popperVisible = true, disabled = false }: OperatorsPanelProps) {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [elementGroup, setElementGroup] = useState<null | ElementGroup>(null);
 
@@ -202,4 +202,5 @@ export const OperatorsPanel = ({ popperVisible = true, disabled = false }: Opera
 			/>
 		</div>
 	);
-};
+}
+

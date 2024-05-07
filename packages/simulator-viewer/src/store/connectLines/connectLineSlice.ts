@@ -70,13 +70,16 @@ export interface ConnectLineSlice {
 	deleteConnectLineDraw: () => void;
 	removeConnectLines: (connectLineIds: string[]) => void;
 	addConnectLineDraw: (payload: LinkConnectLineDrawPayload) => void;
-	selectConnectLines: (connectLineIds: string[]) => void;
+	setSelectConnectLines: (connectLineIds: string[]) => void;
 	deselectAllConnectLines: () => void;
+	selectConnectLine: (connectLineId: string) => void;
+	deselectConnectLine: (connectLineId: string) => void;
 	movePointConnectLine: (payload: MoveConnectLinePointPayload) => void;
 	moveConnectLinePointsByDelta: (payload: MoveConnectLinePointsByDeltaPayload) => void;
 	removeElementConnectLines: (payload: RemoveElementConnectLinesPayload) => void;
 	updateConnectLine: (payload: UpdateConnectLinePayload) => void;
 	loadConnectLines: (connectLInes: ConnectLine[]) => void;
+	addConnectLine: (connectLine: ConnectLine) => void;
 }
 
 function generateUniqueName(name: string, takenNames: string[]) {
@@ -96,8 +99,7 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 	createConnectLineDraw: (payload: StartConnectLineDrawPayload) =>
 		set((state) => {
 			const { sourceId, points, type, position } = payload;
-			const connectLines = Object.values(state.connectLines);
-			const clsNames = connectLines
+			const clsNames = Object.values(state.connectLines)
 				.filter(({ source }) => source.id === sourceId && source.connectPointType === type)
 				.map((cl) => cl.name);
 			state.draftConnectLine = {
@@ -165,9 +167,30 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 			};
 			return state;
 		}, true),
-	selectConnectLines: (connectLineIds: string[]) =>
+	addConnectLine: (connectLine: ConnectLine) =>
+		set((state) => addConnectLine(state, connectLine), true),
+	setSelectConnectLines: (connectLineIds: string[]) =>
 		set((state) => {
 			state.selectedConnectLines = connectLineIds;
+			return state;
+		}, true),
+	selectConnectLine: (connectLineId: string) =>
+		set((state) => {
+			if (state.selectedConnectLines.includes(connectLineId)) {
+				return state;
+			}
+
+			state.selectedConnectLines.push(connectLineId);
+			return state;
+		}, true),
+	deselectConnectLine: (connectLineId: string) =>
+		set((state) => {
+			const idx = state.selectedConnectLines.indexOf(connectLineId);
+			if (idx === -1) {
+				return state;
+			}
+
+			state.selectedConnectLines.splice(idx, 1);
 			return state;
 		}, true),
 	deselectAllConnectLines: () =>
@@ -320,6 +343,11 @@ export function moveConnectLineDraw(state: RootState, payload: MoveConnectLineDr
 	return state;
 }
 
+export function addConnectLine(state: RootState, connectLine: ConnectLine) {
+	state.connectLines[connectLine.id] = connectLine;
+	return state;
+}
+
 export const selectStageDraftConnectLine = () => (state: RootState) => state.draftConnectLine;
 
 export const selectStageConnectLines = () =>
@@ -346,3 +374,4 @@ export const selectRelatedElementElements = (elementId: string | null) => (state
 		};
 	});
 };
+
