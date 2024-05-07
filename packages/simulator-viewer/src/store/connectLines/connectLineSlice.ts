@@ -70,8 +70,10 @@ export interface ConnectLineSlice {
 	deleteConnectLineDraw: () => void;
 	removeConnectLines: (connectLineIds: string[]) => void;
 	addConnectLineDraw: (payload: LinkConnectLineDrawPayload) => void;
-	selectConnectLines: (connectLineIds: string[]) => void;
+	setSelectConnectLines: (connectLineIds: string[]) => void;
 	deselectAllConnectLines: () => void;
+	selectConnectLine: (connectLineId: string) => void;
+	deselectConnectLine: (connectLineId: string) => void;
 	movePointConnectLine: (payload: MoveConnectLinePointPayload) => void;
 	moveConnectLinePointsByDelta: (payload: MoveConnectLinePointsByDeltaPayload) => void;
 	removeElementConnectLines: (payload: RemoveElementConnectLinesPayload) => void;
@@ -165,9 +167,28 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 			};
 			return state;
 		}, true),
-	selectConnectLines: (connectLineIds: string[]) =>
+	setSelectConnectLines: (connectLineIds: string[]) =>
 		set((state) => {
 			state.selectedConnectLines = connectLineIds;
+			return state;
+		}, true),
+	selectConnectLine: (connectLineId: string) =>
+		set((state) => {
+			if (state.selectedConnectLines.includes(connectLineId)) {
+				return state;
+			}
+
+			state.selectedConnectLines.push(connectLineId);
+			return state;
+		}, true),
+	deselectConnectLine: (connectLineId: string) =>
+		set((state) => {
+			const idx = state.selectedConnectLines.indexOf(connectLineId);
+			if (idx === -1) {
+				return state;
+			}
+
+			state.selectedConnectLines.splice(idx, 1);
 			return state;
 		}, true),
 	deselectAllConnectLines: () =>
@@ -346,3 +367,4 @@ export const selectRelatedElementElements = (elementId: string | null) => (state
 		};
 	});
 };
+

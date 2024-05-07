@@ -7,8 +7,10 @@ import { calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
 export interface SelectSlice {
 	removeSelectedElements: () => void;
 	clearAllSelectedElements: () => void;
-	markElementAsSelected: (elId: string) => void;
+	markElementAsSelected: (elementId: string) => void;
 	toggleElementSelection: (elementId: string) => void;
+	markConnectLineAsSelected: (connectLineId: string) => void;
+	toggleConnectLineSelection: (connectLineId: string) => void;
 	selectElementsInLassoBoundingBox: () => void;
 }
 
@@ -48,6 +50,24 @@ export const createSelectSlice: StateCreator<RootState, [], [], SelectSlice> = (
 			state.selectConnectPoints(elementId);
 		}
 	},
+	markConnectLineAsSelected: (connectLineId: string) => {
+		const state = get();
+
+		if (state.selectedConnectLines.includes(connectLineId)) {
+			return;
+		}
+
+		state.setSelectConnectLines([connectLineId]);
+	},
+	toggleConnectLineSelection: (connectLineId: string) => {
+		const state = get();
+		const isSelected = state.selectedConnectLines.includes(connectLineId);
+		if (isSelected) {
+			state.deselectConnectLine(connectLineId);
+		} else {
+			state.selectConnectLine(connectLineId);
+		}
+	},
 	selectElementsInLassoBoundingBox: () => {
 		const state = get();
 		const lassoBoundingBox = state.lassoSelection;
@@ -81,3 +101,4 @@ export const selectElementsInSelection = () =>
 	useShallow((state: RootState) =>
 		Object.values(state.elements).filter((el) => state.selectedElements.includes(el.id)),
 	);
+
