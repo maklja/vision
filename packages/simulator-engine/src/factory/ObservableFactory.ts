@@ -55,7 +55,7 @@ export class ObservableFactory {
 		while (graphBranchesDependencyQueue.length > 0) {
 			const curElId = graphBranchesDependencyQueue[0];
 			const graphBranch = this.simulationModel.getGraphBranch(curElId);
-			const missingNodeIds = [...graphBranch.refNodeIds].filter(
+			const missingNodeIds = graphBranch.refNodeIds.filter(
 				(elId) => !observableGenerators.has(elId),
 			);
 
@@ -257,3 +257,4 @@ export class ObservableFactory {
 			);
 	}
 }
+
