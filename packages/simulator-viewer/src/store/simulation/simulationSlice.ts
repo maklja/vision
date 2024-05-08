@@ -5,16 +5,15 @@ import { DrawerAnimation } from '../drawerAnimations';
 import { RootState } from '../rootStore';
 import { AnimationKey, MoveAnimation } from '../../animation';
 
-export interface MoveSimulationAnimation
-	extends SimulationAnimation<MoveAnimation & ObservableEvent> {
+export interface MoveSimulationAnimation extends DrawerAnimation<MoveAnimation & ObservableEvent> {
 	key: AnimationKey.MoveDrawer;
 }
 
-export interface HighlightSimulationAnimation extends SimulationAnimation<ObservableEvent> {
+export interface HighlightSimulationAnimation extends DrawerAnimation<ObservableEvent> {
 	key: AnimationKey.HighlightDrawer;
 }
 
-export interface ErrorSimulationAnimation extends SimulationAnimation<ObservableEvent> {
+export interface ErrorSimulationAnimation extends DrawerAnimation<ObservableEvent> {
 	key: AnimationKey.ErrorDrawer;
 }
 
@@ -27,10 +26,7 @@ export interface ObservableEvent {
 	sourceElementId: string;
 	targetElementId: string;
 	value: string;
-}
-
-export interface SimulationAnimation<D = unknown> extends DrawerAnimation<D> {
-	readonly drawerId: string;
+	time: number;
 }
 
 export enum SimulationState {
@@ -43,7 +39,7 @@ export interface Simulation {
 	state: SimulationState;
 	completed: boolean;
 	events: ObservableEvent[];
-	animationsQueue: SimulationAnimation[];
+	animationsQueue: DrawerAnimation[];
 }
 
 export interface SimulationSlice {
@@ -57,19 +53,16 @@ export interface SimulationSlice {
 
 function createAnimations(
 	events: (ObservableEvent | null)[],
-	connectLines: ConnectLine[],
+	connectLines: Record<string, ConnectLine>,
 	simulatorId: string,
-): SimulationAnimation[] {
+): DrawerAnimation[] {
 	const [prevEvent, currentEvent] = events;
 	if (!currentEvent) {
 		return [];
 	}
 
 	const { sourceElementId, targetElementId, type, connectLinesId } = currentEvent;
-	const points = connectLinesId.flatMap((clId) => {
-		const connectLine = connectLines.find((cl) => cl.id === clId);
-		return connectLine ? connectLine.points : [];
-	});
+	const points = connectLinesId.flatMap((clId) => connectLines[clId]?.points ?? []);
 
 	const resultAnimations: MoveSimulationAnimation[] = points
 		.slice(1, points.length - 1)
@@ -120,7 +113,7 @@ function createAnimations(
 				},
 				...resultAnimations,
 				targetAnimation,
-		  ]
+			]
 		: [...resultAnimations, targetAnimation];
 }
 
@@ -168,10 +161,9 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			const { simulation } = state;
 			const updatedEvents = [...simulation.events, event];
 
-			const connectLines = Object.values(state.connectLines);
 			// create simulation animations for each drawer that is affected by events
 			const beginIndex = updatedEvents.length - 1;
-			const animations: SimulationAnimation[] = updatedEvents
+			const animations: DrawerAnimation[] = updatedEvents
 				.slice(beginIndex)
 				.reduce((group: (ObservableEvent | null)[][], currentEvent, i) => {
 					// group simulation events by [previousEvent, currentEvent]
@@ -183,7 +175,9 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 
 					return [...group, [prevEvent, currentEvent]];
 				}, [])
-				.flatMap((eventsPair) => createAnimations(eventsPair, connectLines, simulation.id));
+				.flatMap((eventsPair) =>
+					createAnimations(eventsPair, state.connectLines, simulation.id),
+				);
 
 			simulation.events = updatedEvents;
 			simulation.animationsQueue = [...simulation.animationsQueue, ...animations];
@@ -204,5 +198,6 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 
 export const selectSimulation = (state: RootState) => state.simulation;
 
-export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
+export const selectSimulationNextAnimation = (state: RootState): DrawerAnimation | null =>
 	state.simulation.animationsQueue.at(0) ?? null;
+

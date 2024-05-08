@@ -29,6 +29,7 @@ export interface FlowValueEvent {
 	readonly connectLinesId: readonly string[];
 	readonly sourceElementId: string;
 	readonly targetElementId: string;
+	readonly time: number;
 }
 
 export interface FlowManager {
@@ -42,3 +43,4 @@ export interface FlowManager {
 
 	asObservable(): Observable<FlowValueEvent>;
 }
+

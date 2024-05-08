@@ -35,6 +35,7 @@ export class DefaultFlowManager implements FlowManager {
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
+			time: performance.now(),
 		});
 	}
 
@@ -59,6 +60,7 @@ export class DefaultFlowManager implements FlowManager {
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
+			time: performance.now(),
 		});
 	}
 
@@ -93,3 +95,4 @@ export class DefaultFlowManager implements FlowManager {
 		return cls;
 	}
 }
+

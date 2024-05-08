@@ -5,7 +5,31 @@ import { DrawerAnimationTemplate } from '../AnimationTemplate';
 import { useAnimationEffect } from './useAnimationEffect';
 import { AnimationEffectEvent } from './AnimationEffectEvent';
 
-export const useAnimation = (
+async function disposeAnimation(
+	animationTemplate: DrawerAnimationTemplate | undefined | null,
+	animation: TweenAnimation | null,
+) {
+	try {
+		if (animationTemplate?.options?.autoReverse) {
+			await animation?.reverse();
+		} else {
+			await animation?.reset();
+		}
+		animation?.destroy();
+	} catch {
+		// no need to handle this error if animation dispose fails
+	}
+}
+
+async function startAnimation(animation: TweenAnimation | null) {
+	try {
+		await animation?.play();
+	} catch {
+		// no need to handle this error if animation play fails
+	}
+}
+
+export function useAnimation(
 	node: Konva.Node | null,
 	options: {
 		drawerId: string;
@@ -17,7 +41,7 @@ export const useAnimation = (
 		onAnimationComplete?: (event: AnimationEffectEvent) => void;
 		onAnimationDestroy?: (event: AnimationEffectEvent) => void;
 	},
-) => {
+) {
 	const {
 		drawerId,
 		animationTemplate,
@@ -78,36 +102,15 @@ export const useAnimation = (
 		},
 	});
 
-	const disposeAnimation = async () => {
-		try {
-			if (animationTemplate?.options?.autoReverse) {
-				await animation?.reverse();
-			} else {
-				await animation?.reset();
-			}
-			animation?.destroy();
-		} catch {
-			// no need to handle this error if animation dispose fails
-		}
-	};
-
-	const startAnimation = async () => {
-		try {
-			await animation?.play();
-		} catch {
-			// no need to handle this error if animation play fails
-		}
-	};
-
 	useEffect(() => {
 		if (!animationTemplate) {
 			return;
 		}
 
 		if (animationTemplate.dispose) {
-			disposeAnimation();
+			disposeAnimation(animationTemplate, animation);
 		} else {
-			startAnimation();
+			startAnimation(animation);
 		}
 	}, [animationTemplate?.dispose]);
 
@@ -116,4 +119,5 @@ export const useAnimation = (
 	}, [animation]);
 
 	return animation;
-};
+}
+

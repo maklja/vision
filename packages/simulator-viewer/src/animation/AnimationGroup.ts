@@ -3,7 +3,10 @@ import { v1 } from 'uuid';
 import { AbstractAnimation, Animation, AnimationEvent } from './Animation';
 
 export class AnimationGroup extends AbstractAnimation {
-	constructor(private readonly animations: Animation[], public readonly id = v1()) {
+	constructor(
+		private readonly animations: Animation[],
+		public readonly id = v1(),
+	) {
 		super();
 	}
 
@@ -36,3 +39,4 @@ export class AnimationGroup extends AbstractAnimation {
 		this.onAnimationDestroy?.(this);
 	}
 }
+
