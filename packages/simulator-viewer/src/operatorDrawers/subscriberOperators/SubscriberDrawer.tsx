@@ -18,6 +18,7 @@ export function SubscriberDrawer({
 	select,
 	visible,
 	visibleConnectPoints,
+	disabled,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -56,6 +57,7 @@ export function SubscriberDrawer({
 				hasError={hasError}
 				select={select}
 				visible={visible}
+				disabled={disabled}
 				onAnimationBegin={onAnimationBegin}
 				onAnimationComplete={onAnimationComplete}
 				onAnimationDestroy={onAnimationDestroy}
@@ -71,3 +73,4 @@ export function SubscriberDrawer({
 		</Group>
 	);
 }
+

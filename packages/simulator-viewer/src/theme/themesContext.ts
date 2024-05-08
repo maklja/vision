@@ -89,6 +89,7 @@ export function createThemeContext(id?: string): ThemesContext {
 export interface DrawerCommonThemeState {
 	highlight?: boolean;
 	select?: boolean;
+	disabled?: boolean;
 }
 
 export interface DrawerThemeState extends DrawerCommonThemeState {
@@ -133,6 +134,13 @@ export const useElementDrawerTheme = (theme: Theme, state: DrawerThemeState) => 
 		};
 	}
 
+	if (state.disabled) {
+		return {
+			element: drawer.disabledElement,
+			text: drawer.disabledText,
+		};
+	}
+
 	if (state.hasError) {
 		return {
 			element: drawer.errorElement,
@@ -170,6 +178,14 @@ export const useTooltipTheme = (theme: Theme) => {
 };
 
 export const useLineDrawerTheme = (theme: Theme, state: DrawerCommonThemeState = {}) => {
+	if (state.disabled) {
+		return {
+			line: theme.connectLine.disabledLine,
+			arrow: theme.connectLine.disabledArrow,
+			dot: theme.connectLine.disabledDot,
+		};
+	}
+
 	if (state.highlight) {
 		return {
 			line: theme.connectLine.highlightLine,

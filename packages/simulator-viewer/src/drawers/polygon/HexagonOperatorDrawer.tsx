@@ -23,6 +23,7 @@ export function HexagonOperatorDrawer({
 	animation,
 	draggable = false,
 	hasError = false,
+	disabled = false,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
@@ -39,6 +40,7 @@ export function HexagonOperatorDrawer({
 		highlight,
 		select,
 		hasError,
+		disabled,
 	});
 	const { radius, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
@@ -147,3 +149,4 @@ export function HexagonOperatorDrawer({
 		</Group>
 	);
 }
+

@@ -18,6 +18,7 @@ export function FilterOperatorDrawer({
 	select,
 	visible,
 	visibleConnectPoints,
+	disabled,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -57,6 +58,7 @@ export function FilterOperatorDrawer({
 				hasError={hasError}
 				select={select}
 				visible={visible}
+				disabled={disabled}
 				onAnimationBegin={onAnimationBegin}
 				onAnimationComplete={onAnimationComplete}
 				onAnimationDestroy={onAnimationDestroy}
@@ -72,3 +74,4 @@ export function FilterOperatorDrawer({
 		</Group>
 	);
 }
+

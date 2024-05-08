@@ -16,7 +16,7 @@ export interface TooltipDrawerProps {
 	offset?: number;
 }
 
-export const TooltipDrawer = ({
+export function TooltipDrawer({
 	id,
 	theme,
 	x,
@@ -27,7 +27,7 @@ export const TooltipDrawer = ({
 	visible = true,
 	padding = 8,
 	offset = 6,
-}: TooltipDrawerProps) => {
+}: TooltipDrawerProps) {
 	const rectangleShapeSize = scaleRectangleShape(defaultRectangleShape, scale);
 	const tooltipTheme = useTooltipTheme(theme);
 	const [textRef, setTextRef] = useState<Konva.Text | null>(null);
@@ -61,4 +61,5 @@ export const TooltipDrawer = ({
 			/>
 		</Group>
 	);
-};
+}
+

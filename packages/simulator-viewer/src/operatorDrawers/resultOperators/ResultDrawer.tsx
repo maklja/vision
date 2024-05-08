@@ -20,6 +20,7 @@ export function ResultDrawer({
 	select,
 	visible,
 	hash,
+	disabled,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -48,6 +49,7 @@ export function ResultDrawer({
 			select={select}
 			visible={visible}
 			hash={hash}
+			disabled={disabled}
 			onAnimationBegin={onAnimationBegin}
 			onAnimationComplete={onAnimationComplete}
 			onAnimationDestroy={onAnimationDestroy}
@@ -62,3 +64,4 @@ export function ResultDrawer({
 		/>
 	);
 }
+

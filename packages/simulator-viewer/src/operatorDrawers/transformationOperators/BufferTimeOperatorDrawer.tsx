@@ -2,7 +2,7 @@ import { ElementType } from '@maklja/vision-simulator-model';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { TransformationOperatorDrawer } from './TransformationOperatorDrawer';
 
-export const BufferTimeOperatorDrawer = (props: ElementDrawerProps) => {
+export function BufferTimeOperatorDrawer(props: ElementDrawerProps) {
 	return (
 		<TransformationOperatorDrawer
 			{...props}
@@ -10,4 +10,5 @@ export const BufferTimeOperatorDrawer = (props: ElementDrawerProps) => {
 			elementType={ElementType.BufferTime}
 		/>
 	);
-};
+}
+

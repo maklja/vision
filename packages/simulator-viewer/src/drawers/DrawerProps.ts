@@ -49,6 +49,7 @@ export interface DrawerCommonProps {
 	highlight?: boolean;
 	select?: boolean;
 	visible?: boolean;
+	disabled?: boolean;
 	hasError?: boolean;
 	animation?: DrawerAnimationTemplate | null;
 }

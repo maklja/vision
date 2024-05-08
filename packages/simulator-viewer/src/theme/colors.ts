@@ -15,6 +15,8 @@ export interface ColorTheme {
 	readonly successSecondaryColor: string;
 	readonly lassoPrimaryColor: string;
 	readonly lassoSecondaryColor: string;
+	readonly disabledPrimaryColor: string;
+	readonly disabledSecondaryColor: string;
 }
 
 const seaColorTheme: ColorTheme = {
@@ -34,6 +36,8 @@ const seaColorTheme: ColorTheme = {
 	successSecondaryColor: '#22bb33',
 	lassoPrimaryColor: 'rgba(0, 102, 204, 1)',
 	lassoSecondaryColor: 'rgba(0, 102, 204, 0.3)',
+	disabledPrimaryColor: '#808080',
+	disabledSecondaryColor: '#555555',
 };
 
 const beigeColorTheme: ColorTheme = {
@@ -53,6 +57,8 @@ const beigeColorTheme: ColorTheme = {
 	successSecondaryColor: '#22bb33',
 	lassoPrimaryColor: 'rgba(246, 246, 201, 1)',
 	lassoSecondaryColor: 'rgba(246, 246, 201, 0.3)',
+	disabledPrimaryColor: '#808080',
+	disabledSecondaryColor: '#555555',
 };
 
 const winterColorTheme: ColorTheme = {
@@ -72,6 +78,8 @@ const winterColorTheme: ColorTheme = {
 	successSecondaryColor: '#22bb33',
 	lassoPrimaryColor: 'rgba(144, 238, 144, 1)',
 	lassoSecondaryColor: 'rgba(144, 238, 144, 0.3)',
+	disabledPrimaryColor: '#808080',
+	disabledSecondaryColor: '#555555',
 };
 
 const defaultColorTheme = seaColorTheme;

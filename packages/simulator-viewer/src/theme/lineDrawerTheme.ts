@@ -26,6 +26,9 @@ export interface LineTheme {
 	readonly highlightLine: LineElementStyle;
 	readonly highlightArrow: ArrowElementStyle;
 	readonly highlightDot: DotElementStyle;
+	readonly disabledLine: LineElementStyle;
+	readonly disabledArrow: ArrowElementStyle;
+	readonly disabledDot: DotElementStyle;
 }
 
 export interface LineThemeOverride {
@@ -38,6 +41,9 @@ export interface LineThemeOverride {
 	highlightLine?: Partial<LineElementStyle>;
 	highlightArrow?: Partial<ArrowElementStyle>;
 	highlightDot?: Partial<DotElementStyle>;
+	disabledLine?: Partial<LineElementStyle>;
+	disabledArrow?: Partial<ArrowElementStyle>;
+	disabledDot?: Partial<DotElementStyle>;
 }
 
 export function lineDrawerTheme(themeColors: ColorTheme): LineTheme {
@@ -86,11 +92,24 @@ export function lineDrawerTheme(themeColors: ColorTheme): LineTheme {
 			fill: themeColors.secondaryColor,
 			stroke: themeColors.secondaryColor,
 		},
+		disabledLine: {
+			...defaultLine,
+			stroke: themeColors.disabledPrimaryColor,
+		},
+		disabledDot: {
+			...defaultDot,
+			fill: themeColors.disabledSecondaryColor,
+			stroke: themeColors.disabledSecondaryColor,
+		},
+		disabledArrow: {
+			...defaultArrow,
+			fill: themeColors.disabledPrimaryColor,
+		},
 	};
 }
 
 export function subscribeLineDrawerTheme(): LineThemeOverride {
-	const dash = [10, 3]
+	const dash = [10, 3];
 	return {
 		line: {
 			dash,

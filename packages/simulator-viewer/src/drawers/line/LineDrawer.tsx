@@ -13,6 +13,7 @@ export interface LineDrawerProps extends LineDrawerEvents {
 	theme: Theme;
 	visible?: boolean;
 	highlight?: boolean;
+	disabled?: boolean;
 	select?: boolean;
 	arrowVisible?: boolean;
 	draggable?: boolean;
@@ -28,6 +29,7 @@ export function LineDrawer({
 	highlight = false,
 	arrowVisible = true,
 	draggable = true,
+	disabled = false,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
@@ -39,7 +41,7 @@ export function LineDrawer({
 	onDotDragEnd,
 	onDotDragMove,
 }: LineDrawerProps) {
-	const lineTheme = useLineDrawerTheme(theme, { select, highlight });
+	const lineTheme = useLineDrawerTheme(theme, { select, highlight, disabled });
 	const drawAnArrow = arrowVisible && points.length > 3;
 
 	const boundingBoxPoints = useMemo(() => {
