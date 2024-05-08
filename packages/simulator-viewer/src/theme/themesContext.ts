@@ -1,7 +1,12 @@
 import deepMerge from 'deepmerge';
-import { ConnectPointPosition, ElementType } from '@maklja/vision-simulator-model';
+import { ConnectLineType, ConnectPointPosition, ElementType } from '@maklja/vision-simulator-model';
 import { ColorTheme, retrieveThemeColor } from './colors';
-import { lineDrawerTheme, LineTheme } from './lineDrawerTheme';
+import {
+	lineDrawerTheme,
+	LineTheme,
+	LineThemeOverride,
+	subscribeLineDrawerTheme,
+} from './lineDrawerTheme';
 import {
 	connectPointsTheme,
 	ConnectPointsTheme,
@@ -35,11 +40,12 @@ export interface Theme {
 export interface DrawerThemeOverride {
 	drawer?: ElementDrawerThemeOverride;
 	connectPoints?: ConnectPointsThemeOverride;
+	connectLine?: LineThemeOverride;
 }
 
 export type ThemesContext = {
 	[key in ElementType]?: Theme;
-} & { default: Theme };
+} & { [key in ConnectLineType]?: Theme } & { default: Theme };
 
 export function createThemeContext(id?: string): ThemesContext {
 	const colorTheme = retrieveThemeColor(id);
@@ -65,6 +71,13 @@ export function createThemeContext(id?: string): ThemesContext {
 		[ElementType.BufferToggle]: deepMerge<Theme, DrawerThemeOverride>(
 			defaultTheme,
 			{ connectPoints: bufferToggleConnectPointsTheme(colorTheme) },
+			{
+				arrayMerge: (_destinationArray, sourceArray) => sourceArray,
+			},
+		),
+		[ConnectLineType.Subscribe]: deepMerge<Theme, DrawerThemeOverride>(
+			defaultTheme,
+			{ connectLine: subscribeLineDrawerTheme() },
 			{
 				arrayMerge: (_destinationArray, sourceArray) => sourceArray,
 			},
@@ -189,3 +202,4 @@ export const useSnapLineDrawerTheme = (theme: Theme) => {
 export const useGridTheme = (theme: Theme) => {
 	return theme.grid;
 };
+

@@ -35,7 +35,7 @@ export type ConnectPointsThemeOverride = {
 	[key in ConnectPointPosition]?: ConnectPointThemeOverride;
 };
 
-export const connectPointsTheme = (themeColors: ColorTheme): ConnectPointsTheme => {
+export function connectPointsTheme(themeColors: ColorTheme): ConnectPointsTheme {
 	const elementDefault = {
 		stroke: themeColors.secondaryColor,
 		fill: themeColors.backgroundPrimaryColor,
@@ -69,4 +69,5 @@ export const connectPointsTheme = (themeColors: ColorTheme): ConnectPointsTheme 
 		left: connectPointThemeDefault,
 		right: connectPointThemeDefault,
 	};
-};
+}
+

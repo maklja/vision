@@ -6,10 +6,11 @@ export interface GridTheme {
 	readonly size: number;
 }
 
-export const gridTheme = (themeColors: ColorTheme): GridTheme => {
+export function gridTheme(themeColors: ColorTheme): GridTheme {
 	return {
 		stroke: themeColors.backgroundTertiaryColor,
 		strokeWidth: 1,
 		size: 25,
 	};
-};
+}
+

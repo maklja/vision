@@ -7,12 +7,12 @@ export interface LassoTheme {
 	readonly cornerRadius: number;
 }
 
-export const lassoTheme = (themeColors: ColorTheme): LassoTheme => {
+export function lassoTheme(themeColors: ColorTheme): LassoTheme {
 	return {
 		stroke: themeColors.lassoPrimaryColor,
 		fill: themeColors.lassoSecondaryColor,
 		strokeWidth: 1,
 		cornerRadius: 2,
 	};
-};
+}
 

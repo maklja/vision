@@ -41,7 +41,7 @@ export interface ElementDrawerThemeOverride {
 	errorText?: Partial<ElementDrawerTextStyle>;
 }
 
-export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme => {
+export function elementDrawerTheme(themeColors: ColorTheme): ElementDrawerTheme {
 	const elementDefault = {
 		stroke: themeColors.secondaryColor,
 		fill: themeColors.primaryColor,
@@ -111,5 +111,5 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 			...textDefault,
 		},
 	};
-};
+}
 

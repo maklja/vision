@@ -18,7 +18,7 @@ export interface LineDrawerProps extends LineDrawerEvents {
 	draggable?: boolean;
 }
 
-export const LineDrawer = ({
+export function LineDrawer({
 	id,
 	points,
 	size,
@@ -38,7 +38,7 @@ export const LineDrawer = ({
 	onDotDragStart,
 	onDotDragEnd,
 	onDotDragMove,
-}: LineDrawerProps) => {
+}: LineDrawerProps) {
 	const lineTheme = useLineDrawerTheme(theme, { select, highlight });
 	const drawAnArrow = arrowVisible && points.length > 3;
 
@@ -185,8 +185,9 @@ export const LineDrawer = ({
 								y={p.y}
 							/>
 						);
-				  })
+					})
 				: null}
 		</Group>
 	);
-};
+}
+
