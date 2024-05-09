@@ -45,7 +45,7 @@ export interface Simulation {
 export interface SimulationSlice {
 	simulation: Simulation;
 	startSimulation: () => void;
-	resetSimulation: () => void;
+	stopSimulation: () => void;
 	completeSimulation: () => void;
 	addObservableEvent: (event: ObservableEvent) => void;
 	removeSimulationAnimationAtIndex: (animationIdx: number) => void;
@@ -127,21 +127,28 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 	},
 	startSimulation: () =>
 		set((state) => {
-			const { simulation } = state;
+			const { simulation, elements, connectLines, disabledConnectLines, disabledElements } =
+				state;
 			simulation.completed = false;
 			simulation.state = SimulationState.Running;
 			simulation.animationsQueue = [];
 			simulation.events = [];
 
+			disabledConnectLines.push(...Object.keys(connectLines));
+			disabledElements.push(...Object.keys(elements));
+
 			return state;
 		}, true),
-	resetSimulation: () =>
+	stopSimulation: () =>
 		set((state) => {
 			const { simulation } = state;
 			simulation.completed = false;
 			simulation.state = SimulationState.Stopped;
 			simulation.animationsQueue = [];
 			simulation.events = [];
+
+			state.disabledElements = [];
+			state.disabledConnectLines = [];
 
 			return state;
 		}, true),
@@ -153,6 +160,9 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 				simulation.animationsQueue.length > 0
 					? SimulationState.Running
 					: SimulationState.Stopped;
+
+			state.disabledElements = [];
+			state.disabledConnectLines = [];
 
 			return state;
 		}, true),

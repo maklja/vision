@@ -65,6 +65,7 @@ export interface UpdateConnectLinePayload {
 export interface ConnectLineSlice {
 	connectLines: Record<string, ConnectLine>;
 	selectedConnectLines: string[];
+	disabledConnectLines: string[];
 	draftConnectLine: DraftConnectLine | null;
 	createConnectLineDraw: (payload: StartConnectLineDrawPayload) => void;
 	moveConnectLineDraw: (payload: MoveConnectLineDrawPayload) => void;
@@ -82,6 +83,7 @@ export interface ConnectLineSlice {
 	updateConnectLine: (payload: UpdateConnectLinePayload) => void;
 	loadConnectLines: (connectLInes: ConnectLine[]) => void;
 	addConnectLine: (connectLine: ConnectLine) => void;
+	setDisabledConnectLines: (connectLineIds: string[]) => void;
 }
 
 function generateUniqueName(name: string, takenNames: string[]) {
@@ -97,6 +99,7 @@ function generateUniqueName(name: string, takenNames: string[]) {
 export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLineSlice> = (set) => ({
 	connectLines: {},
 	selectedConnectLines: [],
+	disabledConnectLines: [],
 	draftConnectLine: null,
 	createConnectLineDraw: (payload: StartConnectLineDrawPayload) =>
 		set((state) => {
@@ -301,6 +304,11 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 
 			return state;
 		}, true),
+	setDisabledConnectLines: (connectLineIds: string[]) =>
+		set((state) => {
+			state.disabledConnectLines = connectLineIds;
+			return state;
+		}, true),
 });
 
 export function moveConnectLinePointsByDelta(
@@ -380,4 +388,7 @@ export const selectRelatedElementElements = (elementId: string | null) => (state
 		};
 	});
 };
+
+export const isDisabledConnectLine = (connectLine: string) => (state: RootState) =>
+	state.disabledConnectLines.includes(connectLine);
 

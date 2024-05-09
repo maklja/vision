@@ -5,6 +5,7 @@ import { useRootStore } from '../../store/rootStore';
 import { isHighlighted } from '../../store/stage';
 import { useLineSize } from '../../theme';
 import { useLineDrawerHandlers } from '../state';
+import { isDisabledConnectLine } from '../../store/connectLines';
 
 export interface ConnectLineDrawerProps {
 	connectLine: ConnectLine;
@@ -17,6 +18,7 @@ export function ConnectLineDrawer({ connectLine, select, draggable }: ConnectLin
 	const lineSize = useLineSize();
 	const connectLineHandlers = useLineDrawerHandlers();
 	const highlight = useRootStore(isHighlighted(connectLine.id));
+	const disabled = useRootStore(isDisabledConnectLine(connectLine.id));
 
 	return (
 		<LineDrawer
@@ -28,6 +30,7 @@ export function ConnectLineDrawer({ connectLine, select, draggable }: ConnectLin
 			select={select}
 			highlight={highlight}
 			draggable={draggable}
+			disabled={disabled}
 		/>
 	);
 }

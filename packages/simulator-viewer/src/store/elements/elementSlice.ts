@@ -45,6 +45,7 @@ export interface MoveElementByDeltaPayload {
 export interface ElementSlice {
 	elements: Record<string, Element>;
 	selectedElements: string[];
+	disabledElements: string[];
 	draftElement: Element | null;
 	loadElements: (elements: Element[]) => void;
 	updateElement: (payload: UpdateElementPayload) => void;
@@ -74,6 +75,7 @@ function createElementName(takenElNames: string[], elType: ElementType) {
 export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> = (set) => ({
 	elements: {},
 	selectedElements: [],
+	disabledElements: [],
 	draftElement: null,
 	createDraftElement: (payload: CreateElementPayload) =>
 		set((state) => {
@@ -186,6 +188,11 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 		set((state) => moveElementToPosition(state, payload), true),
 	moveElementByDelta: (payload: MoveElementByDeltaPayload) =>
 		set((state) => moveElementByDelta(state, payload), true),
+	setDisabledElements: (elementIds: string[]) =>
+		set((state) => {
+			state.disabledElements = elementIds;
+			return state;
+		}, true),
 });
 
 export function moveElementToPosition(state: RootState, payload: MoveElementPayload) {
@@ -235,4 +242,7 @@ export const selectStageDraftElement = () => (state: RootState) =>
 
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
 	state.selectedElements.includes(elementId);
+
+export const isDisabledElement = (elementId: string) => (state: RootState) =>
+	state.disabledElements.includes(elementId);
 

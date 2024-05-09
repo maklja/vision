@@ -2,7 +2,7 @@ import { Element, ElementType, ResultElement } from '@maklja/vision-simulator-mo
 import { ResultDrawer } from './resultOperators';
 import { useElementDrawerHandlers } from './state';
 import { animationRegistry } from '../animation';
-import { isSelectedElement } from '../store/elements';
+import { isDisabledElement, isSelectedElement } from '../store/elements';
 import { selectElementErrorById } from '../store/errors';
 import { isHighlighted } from '../store/stage';
 import { useRootStore } from '../store/rootStore';
@@ -24,6 +24,7 @@ export function OperatorDrawer({ element, visibleConnectPoints, draggable }: Ope
 	const highlight = useRootStore(isHighlighted(element.id));
 	const error = useRootStore(selectElementErrorById(element.id));
 	const elementSizeOptions = useRootStore(selectElementSizeOptions);
+	const disabled = useRootStore(isDisabledElement(element.id));
 
 	const animationConfig = animation
 		? {
@@ -65,6 +66,7 @@ export function OperatorDrawer({ element, visibleConnectPoints, draggable }: Ope
 				theme,
 				select,
 				highlight,
+				disabled,
 				draggable,
 				visibleConnectPoints,
 				hasError: Boolean(error),
