@@ -125,7 +125,7 @@ export const stageSelectStateHandlers = (state: RootState): StageEvents => ({
 		} else if (e.ctrlKey && e.key.toLowerCase() === 'c') {
 			state.copySelected();
 		} else if (e.ctrlKey && e.key.toLowerCase() === 'v') {
-			state.pasteSelected(stage?.getRelativePointerPosition() ?? { x: 0, y: 0 });
+			state.pasteSelectedAndMark(stage?.getRelativePointerPosition() ?? { x: 0, y: 0 });
 		}
 	},
 	onContextMenu: (e: Konva.KonvaEventObject<MouseEvent>) => {

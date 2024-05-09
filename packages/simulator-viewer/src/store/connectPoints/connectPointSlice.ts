@@ -211,24 +211,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			return state;
 		}, true),
 	setSelectElementsConnectPoints: (elementIds: string[]) =>
-		set((state) => {
-			Object.keys(state.connectPoints).forEach((elId) => {
-				const connectPoints = state.connectPoints[elId];
-				if (!elementIds.includes(elId)) {
-					state.connectPoints[elId] = hideElementConnectPointsVisibility(connectPoints);
-					return;
-				}
-
-				const el = state.elements[elId];
-				if (!el) {
-					throw new Error(`Element with id ${elId} was not found`);
-				}
-
-				state.connectPoints[elId] = calcElementConnectPointsVisibility(el, connectPoints);
-			});
-
-			return state;
-		}, true),
+		set((state) => setSelectElementsConnectPoints(state, elementIds), true),
 	markConnectionPointsAsConnectable: (elementIds: string[]) =>
 		set((state) => {
 			Object.keys(state.connectPoints).forEach((elId) => {
@@ -326,6 +309,25 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			return state;
 		}, true),
 });
+
+export function setSelectElementsConnectPoints(state: RootState, elementIds: string[]) {
+	Object.keys(state.connectPoints).forEach((elId) => {
+		const connectPoints = state.connectPoints[elId];
+		if (!elementIds.includes(elId)) {
+			state.connectPoints[elId] = hideElementConnectPointsVisibility(connectPoints);
+			return;
+		}
+
+		const el = state.elements[elId];
+		if (!el) {
+			throw new Error(`Element with id ${elId} was not found`);
+		}
+
+		state.connectPoints[elId] = calcElementConnectPointsVisibility(el, connectPoints);
+	});
+
+	return state;
+}
 
 export function moveConnectPointsByDelta(
 	state: RootState,
