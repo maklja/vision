@@ -28,6 +28,7 @@ export class DefaultFlowManager implements FlowManager {
 		const lastConnectLine = cls[cls.length - 1];
 		this.eventObserver.next({
 			id: value.id,
+			branchId: value.branchId,
 			index: ++this.eventIndex,
 			hash: value.hash,
 			value: `${value.raw}`,
@@ -53,6 +54,7 @@ export class DefaultFlowManager implements FlowManager {
 		const lastConnectLine = cls[cls.length - 1];
 		this.eventObserver.next({
 			id: flowValue.id,
+			branchId: flowValue.branchId,
 			index: ++this.eventIndex,
 			hash: flowValue.hash,
 			value: `${flowValue.raw}`,

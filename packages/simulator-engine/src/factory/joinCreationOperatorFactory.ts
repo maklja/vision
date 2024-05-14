@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import {
 	combineLatest,
 	concat,
@@ -38,12 +39,13 @@ type JoinCreationOperatorFunctionFactory = (
 function createIndexedObservableInput(
 	id: string,
 	observableGeneratorProps: readonly ObservableGeneratorProps[],
+	branchId: string,
 	overrideProperties?: Partial<ElementProps>,
 ) {
 	return observableGeneratorProps.map((observableGeneratorProp) =>
 		defer(() => {
-			observableGeneratorProp.onSubscribe?.(FlowValue.createEmptyValue(id));
-			return observableGeneratorProp.observableGenerator(overrideProperties);
+			observableGeneratorProp.onSubscribe?.(FlowValue.createFlowValue(id, branchId));
+			return observableGeneratorProp.observableGenerator(overrideProperties, branchId);
 		}),
 	);
 }
@@ -51,14 +53,15 @@ function createIndexedObservableInput(
 function createNamedObservableInput(
 	id: string,
 	observableGeneratorProps: readonly ObservableGeneratorProps[],
+	branchId: string,
 	overrideProperties?: Partial<ElementProps>,
 ): Record<string, ObservableInput<unknown>> {
 	return observableGeneratorProps.reduce(
 		(namedObservableInput, observableGeneratorProp) => ({
 			...namedObservableInput,
 			[observableGeneratorProp.connectLine.name]: defer(() => {
-				observableGeneratorProp.onSubscribe?.(FlowValue.createEmptyValue(id));
-				return observableGeneratorProp.observableGenerator(overrideProperties);
+				observableGeneratorProp.onSubscribe?.(FlowValue.createFlowValue(id, branchId));
+				return observableGeneratorProp.observableGenerator(overrideProperties, branchId);
 			}),
 		}),
 		{},
@@ -66,7 +69,8 @@ function createNamedObservableInput(
 }
 
 const createMergeOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) =>
+	(overrideProperties?: Partial<ElementProps>, branchId: string = v1()) => {
 		const mergeEl = el as MergeElement;
 		const mergeElProperties: MergeElementProperties = {
 			...mergeEl.properties,
@@ -77,8 +81,10 @@ const createMergeOperator =
 			...props.refObservableGenerators.map(
 				(refObservableGenerator) =>
 					defer(() => {
-						refObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(el.id));
-						return refObservableGenerator.observableGenerator();
+						refObservableGenerator.onSubscribe?.(
+							FlowValue.createFlowValue(el.id, branchId),
+						);
+						return refObservableGenerator.observableGenerator(undefined, branchId);
 					}),
 				mergeElProperties.limitConcurrent > 0
 					? mergeElProperties.limitConcurrent
@@ -88,7 +94,8 @@ const createMergeOperator =
 	};
 
 const createCombineLatestOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) =>
+	(overrideProperties?: Partial<ElementProps>, branchId: string = v1()) => {
 		const combineLatestEl = el as CombineLatestElement;
 
 		if (combineLatestEl.properties.observableInputsType === ObservableInputsType.Array) {
@@ -96,6 +103,7 @@ const createCombineLatestOperator =
 				createIndexedObservableInput(
 					combineLatestEl.id,
 					props.refObservableGenerators,
+					branchId,
 					overrideProperties,
 				),
 			).pipe(mapFlowValuesArray(combineLatestEl.id));
@@ -105,25 +113,30 @@ const createCombineLatestOperator =
 			createNamedObservableInput(
 				combineLatestEl.id,
 				props.refObservableGenerators,
+				branchId,
 				overrideProperties,
 			),
-		).pipe(map((value) => createFlowValue(value, combineLatestEl.id)));
+		).pipe(map((value) => createFlowValue(value, combineLatestEl.id, branchId)));
 	};
 
 const createConcatOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) =>
+	(overrideProperties?: Partial<ElementProps>, branchId: string = v1()) => {
 		return concat<FlowValue[]>(
 			...props.refObservableGenerators.map((refObservableGenerator) =>
 				defer(() => {
-					refObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(el.id));
-					return refObservableGenerator.observableGenerator(overrideProperties);
+					refObservableGenerator.onSubscribe?.(
+						FlowValue.createFlowValue(el.id, branchId),
+					);
+					return refObservableGenerator.observableGenerator(overrideProperties, branchId);
 				}),
 			),
 		);
 	};
 
 const createForkJoinOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) =>
+	(overrideProperties?: Partial<ElementProps>, branchId: string = v1()) => {
 		const forkJoinEl = el as ForkJoinElement;
 
 		if (forkJoinEl.properties.observableInputsType === ObservableInputsType.Array) {
@@ -131,6 +144,7 @@ const createForkJoinOperator =
 				createIndexedObservableInput(
 					forkJoinEl.id,
 					props.refObservableGenerators,
+					branchId,
 					overrideProperties,
 				),
 			).pipe(mapFlowValuesArray(forkJoinEl.id));
@@ -140,30 +154,37 @@ const createForkJoinOperator =
 			createNamedObservableInput(
 				forkJoinEl.id,
 				props.refObservableGenerators,
+				branchId,
 				overrideProperties,
 			),
-		).pipe(map((value) => createFlowValue(value, forkJoinEl.id)));
+		).pipe(map((value) => createFlowValue(value, forkJoinEl.id, branchId)));
 	};
 
 const createRaceOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) =>
+	(overrideProperties?: Partial<ElementProps>, branchId: string = v1()) => {
 		return race<FlowValue[]>(
 			props.refObservableGenerators.map((refObservableGenerator) =>
 				defer(() => {
-					refObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(el.id));
-					return refObservableGenerator.observableGenerator(overrideProperties);
+					refObservableGenerator.onSubscribe?.(
+						FlowValue.createFlowValue(el.id, branchId),
+					);
+					return refObservableGenerator.observableGenerator(overrideProperties, branchId);
 				}),
 			),
 		);
 	};
 
 const createZipOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) =>
+	(overrideProperties?: Partial<ElementProps>, branchId: string = v1()) => {
 		return zip<FlowValue[]>(
 			props.refObservableGenerators.map((refObservableGenerator) =>
 				defer(() => {
-					refObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(el.id));
-					return refObservableGenerator.observableGenerator(overrideProperties);
+					refObservableGenerator.onSubscribe?.(
+						FlowValue.createFlowValue(el.id, branchId),
+					);
+					return refObservableGenerator.observableGenerator(overrideProperties, branchId);
 				}),
 			),
 		).pipe(mapFlowValuesArray(el.id));
@@ -191,3 +212,4 @@ export const joinCreationOperatorFactory: JoinCreationOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
+

@@ -52,6 +52,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 		const dispatchObservableEvent = (event: FlowValueEvent) =>
 			addObservableEvent({
 				id: event.id,
+				branchId: event.branchId,
 				hash: event.hash,
 				index: event.index,
 				connectLinesId: [...event.connectLinesId],

@@ -19,6 +19,7 @@ export interface ErrorSimulationAnimation extends DrawerAnimation<ObservableEven
 
 export interface ObservableEvent {
 	id: string;
+	branchId: string;
 	type: FlowValueType;
 	hash: string;
 	index: number;

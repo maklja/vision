@@ -1,7 +1,7 @@
 import { v1 } from 'uuid';
+import { Observable } from 'rxjs';
 import createHash from 'object-hash';
 import { ConnectLine, FlowValueType } from '@maklja/vision-simulator-model';
-import { Observable } from 'rxjs';
 
 export class FlowValue<T = unknown> {
 	public readonly hash: string;
@@ -9,19 +9,21 @@ export class FlowValue<T = unknown> {
 	constructor(
 		public readonly raw: T,
 		public readonly elementId: string,
+		public readonly branchId: string,
 		public readonly type: FlowValueType,
 		public readonly id: string = v1(),
 	) {
 		this.hash = createHash({ id }, { algorithm: 'md5' });
 	}
 
-	static createEmptyValue(elementId: string) {
-		return new FlowValue(null, elementId, FlowValueType.Next, 'EMPTY_FLOW_VALUE');
+	static createFlowValue(elementId: string, branchId: string) {
+		return new FlowValue(null, elementId, branchId, FlowValueType.Next);
 	}
 }
 
 export interface FlowValueEvent {
 	readonly id: string;
+	readonly branchId: string;
 	readonly index: number;
 	readonly value: string;
 	readonly hash: string;
