@@ -154,9 +154,9 @@ export class ObservableFactory {
 		});
 		const fullPipeFactories = [...creationPipeFactories, ...pipeFactories];
 
-		return (overrideParameters?: ElementProps, branchId?: string) =>
+		return (overrideParameters?: ElementProps, branchId: string = v1()) =>
 			fullPipeFactories.reduce(
-				(o, pipeFactory) => pipeFactory(o),
+				(o, pipeFactory) => pipeFactory(o, branchId),
 				creationObservableFactory(overrideParameters, branchId),
 			);
 	}

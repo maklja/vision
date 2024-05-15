@@ -50,15 +50,15 @@ export function mapArrayOutputToFlowValue(operatorFn: OperatorFunction<unknown, 
 	);
 }
 
-export function mapFlowValuesArray(elementId: string) {
-	return map(
-		(flowValues: FlowValue[]) =>
-			new FlowValue(
-				flowValues.map((flowValue) => flowValue.raw),
-				elementId,
-				flowValues[0].branchId,
-				FlowValueType.Next,
-			),
-	);
+export function mapFlowValuesArray(elementId: string, branchId?: string) {
+	return map((flowValues: FlowValue[]) => {
+		console.log(flowValues);
+		return new FlowValue(
+			flowValues.map((flowValue) => flowValue.raw),
+			elementId,
+			branchId ?? flowValues[0].branchId,
+			FlowValueType.Next,
+		);
+	});
 }
 

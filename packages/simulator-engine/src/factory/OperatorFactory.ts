@@ -16,7 +16,10 @@ export type CreationObservableFactory = (
 	branchId?: string,
 ) => Observable<FlowValue>;
 
-export type PipeObservableFactory = (observable: Observable<FlowValue>) => Observable<FlowValue>;
+export type PipeObservableFactory = (
+	observable: Observable<FlowValue>,
+	branchId: string,
+) => Observable<FlowValue>;
 
 export interface ObservableGeneratorProps {
 	readonly observableGenerator: CreationObservableFactory;

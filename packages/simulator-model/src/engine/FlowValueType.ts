@@ -3,4 +3,6 @@ export enum FlowValueType {
 	Error = 'error',
 	Complete = 'complete',
 	CreationError = 'creationError',
+	// Subscribe = 'subscribe'
 }
+
