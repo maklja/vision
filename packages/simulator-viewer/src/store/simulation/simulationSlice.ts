@@ -5,16 +5,15 @@ import { DrawerAnimation } from '../drawerAnimations';
 import { RootState } from '../rootStore';
 import { AnimationKey, MoveAnimation } from '../../animation';
 
-export interface MoveSimulationAnimation
-	extends SimulationAnimation<MoveAnimation & ObservableEvent> {
+export interface MoveSimulationAnimation extends DrawerAnimation<MoveAnimation & ObservableEvent> {
 	key: AnimationKey.MoveDrawer;
 }
 
-export interface HighlightSimulationAnimation extends SimulationAnimation<ObservableEvent> {
+export interface HighlightSimulationAnimation extends DrawerAnimation<ObservableEvent> {
 	key: AnimationKey.HighlightDrawer;
 }
 
-export interface ErrorSimulationAnimation extends SimulationAnimation<ObservableEvent> {
+export interface ErrorSimulationAnimation extends DrawerAnimation<ObservableEvent> {
 	key: AnimationKey.ErrorDrawer;
 }
 
@@ -30,10 +29,6 @@ export interface ObservableEvent {
 	subscribeId: string | null;
 }
 
-export interface SimulationAnimation<D = unknown> extends DrawerAnimation<D> {
-	readonly drawerId: string;
-}
-
 export enum SimulationState {
 	Stopped = 'stopped',
 	Running = 'running',
@@ -44,7 +39,11 @@ export interface Simulation {
 	state: SimulationState;
 	completed: boolean;
 	events: ObservableEvent[];
-	animationsQueue: SimulationAnimation[];
+	animationsQueue: DrawerAnimation[];
+	animations: {
+		completed: string[];
+		queue: Record<string, DrawerAnimation[]>;
+	};
 }
 
 export interface SimulationSlice {
@@ -60,7 +59,7 @@ function createAnimations(
 	events: (ObservableEvent | null)[],
 	connectLines: ConnectLine[],
 	simulatorId: string,
-): SimulationAnimation[] {
+): DrawerAnimation[] {
 	const [prevEvent, currentEvent] = events;
 	if (!currentEvent) {
 		return [];
@@ -132,6 +131,10 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 		completed: false,
 		animationsQueue: [],
 		events: [],
+		animations: {
+			queue: {},
+			completed: [],
+		},
 	},
 	startSimulation: () =>
 		set((state) => {
@@ -172,7 +175,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			const connectLines = Object.values(state.connectLines);
 			// create simulation animations for each drawer that is affected by events
 			const beginIndex = updatedEvents.length - 1;
-			const animations: SimulationAnimation[] = updatedEvents
+			const animations: DrawerAnimation[] = updatedEvents
 				.slice(beginIndex)
 				.reduce((group: (ObservableEvent | null)[][], currentEvent, i) => {
 					// group simulation events by [previousEvent, currentEvent]
@@ -205,6 +208,6 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 
 export const selectSimulation = (state: RootState) => state.simulation;
 
-export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
+export const selectSimulationNextAnimation = (state: RootState): DrawerAnimation | null =>
 	state.simulation.animationsQueue.at(0) ?? null;
 
