@@ -59,6 +59,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 				targetElementId: event.targetElementId,
 				type: event.type,
 				value: event.value,
+				subscribeId: event.subscribeId,
 			});
 
 		clearErrors();

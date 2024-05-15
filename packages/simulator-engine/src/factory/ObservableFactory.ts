@@ -17,14 +17,12 @@ import { GraphBranch, GraphNode, GraphNodeType } from '../simulationGraph';
 import { joinCreationOperatorFactory } from './joinCreationOperatorFactory';
 import {
 	CreationObservableFactory,
-	CreationObservableGenerator,
 	ObservableGeneratorProps,
 	PipeObservableFactory,
-	PipeObservableGenerator,
 } from './OperatorFactory';
 
 interface RefObservable {
-	observableGenerator: CreationObservableGenerator;
+	observableGenerator: CreationObservableFactory;
 	connectLine: ConnectLine;
 }
 
@@ -50,7 +48,7 @@ export class ObservableFactory {
 	createObservable() {
 		const { entryElementId } = this.simulationModel;
 
-		const observableGenerators = new Map<string, CreationObservableGenerator>();
+		const observableGenerators = new Map<string, CreationObservableFactory>();
 		const graphBranchesDependencyQueue: string[] = [entryElementId];
 		while (graphBranchesDependencyQueue.length > 0) {
 			const curElId = graphBranchesDependencyQueue[0];
@@ -81,7 +79,7 @@ export class ObservableFactory {
 
 	private createBranchObservable(
 		graphBranch: GraphBranch,
-		observableGenerators: Map<string, CreationObservableGenerator>,
+		observableGenerators: Map<string, CreationObservableFactory>,
 	): CreationObservableFactory {
 		const { entryElementId } = this.simulationModel;
 		const [creationNodePairs, pipeNodePairs] = graphBranch.nodes.reduce(
@@ -155,10 +153,10 @@ export class ObservableFactory {
 		});
 		const fullPipeFactories = [...creationPipeFactories, ...pipeFactories];
 
-		return (overrideParameters?: ElementProps) =>
+		return (overrideParameters?: ElementProps, subscribeId?: string) =>
 			fullPipeFactories.reduce(
 				(o, pipeFactory) => pipeFactory(o),
-				creationObservableFactory(overrideParameters),
+				creationObservableFactory(overrideParameters, subscribeId),
 			);
 	}
 
@@ -204,7 +202,7 @@ export class ObservableFactory {
 
 	private getRefObservableGenerators(
 		node: GraphNode,
-		observables: Map<string, CreationObservableGenerator>,
+		observables: Map<string, CreationObservableFactory>,
 	): RefObservable[] {
 		return node.edges
 			.filter((edge) => edge.type === GraphNodeType.Reference)
@@ -224,12 +222,12 @@ export class ObservableFactory {
 			});
 	}
 
-	private createControlOperator(cl: ConnectLine): PipeObservableGenerator {
+	private createControlOperator(cl: ConnectLine): PipeObservableFactory {
 		return (o: Observable<FlowValue>) =>
 			o.pipe(tap<FlowValue>((value) => this.flowManager.handleNextEvent(value, cl)));
 	}
 
-	private createErrorTrackerOperator(cl: ConnectLine): PipeObservableGenerator {
+	private createErrorTrackerOperator(cl: ConnectLine): PipeObservableFactory {
 		return (o: Observable<FlowValue>) =>
 			o.pipe(
 				catchError<FlowValue, ObservableInput<FlowValue>>((error: unknown) => {
@@ -243,7 +241,7 @@ export class ObservableFactory {
 			);
 	}
 
-	private createUnhandledErrorOperator(cl: ConnectLine): PipeObservableGenerator {
+	private createUnhandledErrorOperator(cl: ConnectLine): PipeObservableFactory {
 		return (o: Observable<FlowValue>) =>
 			o.pipe(
 				catchError<FlowValue, ObservableInput<FlowValue>>((error: unknown) => {
@@ -257,3 +255,4 @@ export class ObservableFactory {
 			);
 	}
 }
+

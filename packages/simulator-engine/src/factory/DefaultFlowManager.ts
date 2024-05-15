@@ -28,6 +28,7 @@ export class DefaultFlowManager implements FlowManager {
 		const lastConnectLine = cls[cls.length - 1];
 		this.eventObserver.next({
 			id: value.id,
+			subscribeId: value.subscribeId,
 			index: ++this.eventIndex,
 			hash: value.hash,
 			value: `${value.raw}`,
@@ -38,10 +39,10 @@ export class DefaultFlowManager implements FlowManager {
 		});
 	}
 
-	handleError(flowValue: FlowValue, cl: ConnectLine): void {
+	handleError(value: FlowValue, cl: ConnectLine): void {
 		const { target } = cl;
 		const targetEl = this.simulationModel.getElement(target.id);
-		const cls = this.retrieveFlowValuePath(flowValue.id);
+		const cls = this.retrieveFlowValuePath(value.id);
 		cls.push(cl);
 
 		if (!isErrorHandlerType(targetEl.type) && !isSubscriberType(targetEl.type)) {
@@ -51,28 +52,29 @@ export class DefaultFlowManager implements FlowManager {
 		const firstConnectLine = cls[0];
 		const lastConnectLine = cls[cls.length - 1];
 		this.eventObserver.next({
-			id: flowValue.id,
+			id: value.id,
+			subscribeId: value.subscribeId,
 			index: ++this.eventIndex,
-			hash: flowValue.hash,
-			value: `${flowValue.raw}`,
-			type: flowValue.type,
+			hash: value.hash,
+			value: `${value.raw}`,
+			type: value.type,
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
 		});
 	}
 
-	handleFatalError(flowValue: FlowValue, cl: ConnectLine): void {
-		const cls = this.retrieveFlowValuePath(flowValue.id);
+	handleFatalError(value: FlowValue, cl: ConnectLine): void {
+		const cls = this.retrieveFlowValuePath(value.id);
 		cls.push(cl);
 
 		const firstConnectLine = cls[0];
 		const lastConnectLine = cls[cls.length - 1];
 		this.eventObserver.error({
-			id: flowValue.id,
+			id: value.id,
 			index: ++this.eventIndex,
-			hash: flowValue.hash,
-			value: flowValue,
+			hash: value.hash,
+			value: value,
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
@@ -93,3 +95,4 @@ export class DefaultFlowManager implements FlowManager {
 		return cls;
 	}
 }
+

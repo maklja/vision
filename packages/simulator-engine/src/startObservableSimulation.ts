@@ -53,6 +53,7 @@ export function startObservableSimulation({
 
 			switch (data.type) {
 				case FlowValueType.Next:
+				case FlowValueType.Subscribe:
 					return onNext?.(data);
 				case FlowValueType.Error:
 					return onError?.(data);

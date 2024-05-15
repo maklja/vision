@@ -27,6 +27,7 @@ export interface ObservableEvent {
 	sourceElementId: string;
 	targetElementId: string;
 	value: string;
+	subscribeId: string | null;
 }
 
 export interface SimulationAnimation<D = unknown> extends DrawerAnimation<D> {
@@ -120,7 +121,7 @@ function createAnimations(
 				},
 				...resultAnimations,
 				targetAnimation,
-		  ]
+			]
 		: [...resultAnimations, targetAnimation];
 }
 
@@ -206,3 +207,4 @@ export const selectSimulation = (state: RootState) => state.simulation;
 
 export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
 	state.simulation.animationsQueue.at(0) ?? null;
+

@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import {
 	defer,
 	EMPTY,
@@ -54,7 +55,7 @@ import {
 	MissingReferenceObservableError,
 	UnsupportedElementTypeError,
 } from '../errors';
-import { createFlowValue } from './utils';
+import { createFlowValue, wrapGeneratorCallback } from './utils';
 
 const createFromCreationOperator =
 	(el: Element, props: OperatorProps) =>
@@ -107,14 +108,16 @@ const createOfCreationOperator = (el: Element) => (overrideProperties?: Partial<
 
 const createIntervalCreationOperator =
 	(el: Element) =>
-	(overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
+	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
 		const intervalEl = el as IntervalElement;
 		const intervalElProps: IntervalElementProperties = {
 			...intervalEl.properties,
 			...overrideProperties,
 		};
 
-		return interval(intervalElProps.period).pipe(map((item) => createFlowValue(item, el.id)));
+		return interval(intervalElProps.period).pipe(
+			map((item) => FlowValue.createNextEvent(item, el.id, subscribeId)),
+		);
 	};
 
 const createIifCreationOperator =
@@ -236,7 +239,8 @@ const createEmptyCreationOperator = (el: Element) => (): Observable<FlowValue> =
 };
 
 const createDeferCreationOperator =
-	(el: Element, props: OperatorProps) => (): Observable<FlowValue> => {
+	(el: Element, props: OperatorProps) =>
+	(_overrideProperties?: ElementProps, parentSubscribeId?: string): Observable<FlowValue> => {
 		if (props.refObservableGenerators.length === 0) {
 			throw new MissingReferenceObservableError(
 				el.id,
@@ -250,12 +254,20 @@ const createDeferCreationOperator =
 
 		const deferEl = el as DeferElement;
 		const [refObservableGenerator] = props.refObservableGenerators;
+
+		const subscribeId = v1();
+		const wrappedObservableGenerator = wrapGeneratorCallback(
+			refObservableGenerator.observableGenerator,
+			subscribeId,
+		);
 		const observableRefInvokerFn: () => Observable<FlowValue> = new Function(
 			OBSERVABLE_GENERATOR_NAME,
 			`return ${el.properties.observableFactory}`,
-		)(refObservableGenerator.observableGenerator);
+		)(wrappedObservableGenerator);
 		return defer(() => {
-			refObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(deferEl.id));
+			refObservableGenerator.onSubscribe?.(
+				FlowValue.createSubscribeEvent(deferEl.id, subscribeId, parentSubscribeId),
+			);
 			return observableRefInvokerFn();
 		});
 	};
@@ -361,3 +373,4 @@ export const creationOperatorFactory: CreationOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
+
