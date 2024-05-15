@@ -3,7 +3,7 @@ import { ConnectLine, Element, Point } from '@maklja/vision-simulator-model';
 import { StateCreator } from 'zustand';
 import { RootState } from '../rootStore';
 import { calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
-import { createElementConnectPoints } from '../connectPoints';
+import { createElementConnectPoints, setSelectElementsConnectPoints } from '../connectPoints';
 import { addConnectLine } from '../connectLines';
 import { addElement } from '../elements';
 
@@ -13,10 +13,14 @@ export interface ClipboardSlice {
 		connectLines: ConnectLine[];
 	};
 	copySelected: () => void;
+	pasteSelectedAndMark: (position: Point) => void;
 	pasteSelected: (position: Point) => void;
 }
 
-export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlice> = (set) => ({
+export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlice> = (
+	set,
+	get,
+) => ({
 	clipboard: {
 		elements: [],
 		connectLines: [],
@@ -45,6 +49,10 @@ export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlic
 
 			return state;
 		}),
+	pasteSelectedAndMark: (position: Point) => {
+		get().clearAllSelectedElements();
+		get().pasteSelected(position);
+	},
 	pasteSelected: (position: Point) =>
 		set((state) => {
 			if (state.clipboard.elements.length === 0) {
@@ -69,8 +77,6 @@ export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlic
 			const pasteRelativeToPosition = elementsBB.center;
 
 			const copiedElements = new Map<string, string>();
-
-			state.selectedElements = [];
 			state.clipboard.elements.forEach((el) => {
 				const xDistance = el.x - pasteRelativeToPosition.x;
 				const yDistance = el.y - pasteRelativeToPosition.y;
@@ -88,7 +94,8 @@ export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlic
 				state.selectedElements.push(elCopy.id);
 			});
 
-			state.selectedConnectLines = [];
+			setSelectElementsConnectPoints(state, [...copiedElements.values()]);
+
 			state.clipboard.connectLines.forEach((cl) => {
 				const points = cl.points.map((p) => {
 					const xDistance = p.x - pasteRelativeToPosition.x;

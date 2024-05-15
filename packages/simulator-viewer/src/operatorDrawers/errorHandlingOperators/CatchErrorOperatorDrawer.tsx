@@ -14,6 +14,7 @@ export function CatchErrorOperatorDrawer({
 	animation,
 	draggable,
 	highlight,
+	disabled,
 	hasError,
 	select,
 	visible,
@@ -57,6 +58,7 @@ export function CatchErrorOperatorDrawer({
 				hasError={hasError}
 				select={select}
 				visible={visible}
+				disabled={disabled}
 				onAnimationBegin={onAnimationBegin}
 				onAnimationComplete={onAnimationComplete}
 				onAnimationDestroy={onAnimationDestroy}
@@ -72,3 +74,4 @@ export function CatchErrorOperatorDrawer({
 		</Group>
 	);
 }
+

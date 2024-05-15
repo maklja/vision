@@ -9,7 +9,7 @@ export interface LineArrowProps {
 	fill?: string;
 }
 
-export const LineArrow = ({ points, size, fill }: LineArrowProps) => {
+export function LineArrow({ points, size, fill }: LineArrowProps) {
 	const { arrowSize, arrowAngle } = size;
 	const path = useMemo(() => {
 		const sourcePoint = points[points.length - 2];
@@ -40,4 +40,5 @@ export const LineArrow = ({ points, size, fill }: LineArrowProps) => {
 	}, [points]);
 
 	return <Path listening={false} data={path} fill={fill} />;
-};
+}
+

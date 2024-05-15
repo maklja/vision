@@ -8,22 +8,41 @@ import {
 	MissingReferenceObservableError,
 	UnsupportedElementTypeError,
 } from './errors';
+import { GraphBranch } from './simulationGraph';
 
 export enum ObservableSimulationMessageType {
 	StartSimulation = 'startSimulation',
 	StopSimulation = 'stopSimulation',
+	Creation = 'creation',
+	CreationError = 'creationError',
+	Event = 'event',
 }
 
 export interface CreationErrorEvent {
+	type: ObservableSimulationMessageType.CreationError;
 	elementId: string;
 	errorMessage: string;
 	errorId: string;
 }
 
+export interface CreationEvent {
+	type: ObservableSimulationMessageType.Creation;
+	entryElementId: string;
+	observableGraphBranch: Record<string, GraphBranch>;
+}
+
+export interface SimulationEvent {
+	type: ObservableSimulationMessageType.Event;
+	event: FlowValueEvent | null;
+}
+
+export type ObservableSimulationMessages = CreationEvent | CreationErrorEvent | SimulationEvent;
+
 export interface CreateObservableSimulationProps {
 	entryElementId: string;
 	elements: Element[];
 	connectLines: ConnectLine[];
+	onCreation?: (simulationModelEvent: CreationEvent) => void;
 	onCreationError?: (creationErrorEvent: CreationErrorEvent) => void;
 	onNext?: (value: FlowValueEvent) => void;
 	onError?: (value: FlowValueEvent) => void;
@@ -37,6 +56,7 @@ export function startObservableSimulation({
 	onNext,
 	onError,
 	onComplete,
+	onCreation,
 	onCreationError,
 }: CreateObservableSimulationProps): Unsubscribable {
 	if (window.Worker) {
@@ -45,25 +65,30 @@ export function startObservableSimulation({
 			{ name: 'ObservableWorker', type: 'module' },
 		);
 
-		backgroundWorker.addEventListener('message', (ev: MessageEvent<FlowValueEvent | null>) => {
-			const { data } = ev;
-			if (data === null) {
-				return onComplete?.();
-			}
+		backgroundWorker.addEventListener(
+			'message',
+			(ev: MessageEvent<ObservableSimulationMessages>) => {
+				const { data } = ev;
 
-			switch (data.type) {
-				case FlowValueType.Next:
-					return onNext?.(data);
-				case FlowValueType.Error:
-					return onError?.(data);
-				case FlowValueType.CreationError:
-					return onCreationError?.({
-						elementId: data.sourceElementId,
-						errorId: data.id,
-						errorMessage: data.value,
-					});
-			}
-		});
+				if (data.type === ObservableSimulationMessageType.Creation) {
+					return onCreation?.(data);
+				} else if (data.type === ObservableSimulationMessageType.CreationError) {
+					return onCreationError?.(data);
+				} else if (data.type === ObservableSimulationMessageType.Event) {
+					const { event } = data;
+					if (event === null) {
+						return onComplete?.();
+					}
+
+					switch (event.type) {
+						case FlowValueType.Next:
+							return onNext?.(event);
+						case FlowValueType.Error:
+							return onError?.(event);
+					}
+				}
+			},
+		);
 
 		backgroundWorker.addEventListener('error', (ev) => {
 			console.error('Error is throw by ObservableWorker', ev);
@@ -89,10 +114,14 @@ export function startObservableSimulation({
 	}
 
 	try {
-		const observableSimulation = new ObservableSimulation(
-			createSimulationModel(entryElementId, elements, connectLines),
-		);
+		const simModel = createSimulationModel(entryElementId, elements, connectLines);
+		const observableSimulation = new ObservableSimulation(simModel);
 
+		onCreation?.({
+			type: ObservableSimulationMessageType.Creation,
+			entryElementId: simModel.entryElementId,
+			observableGraphBranch: Object.fromEntries(simModel.graphBranches.entries()),
+		});
 		return observableSimulation.start({
 			next: (value) => onNext?.(value),
 			error: (error) => onError?.(error),
@@ -106,6 +135,7 @@ export function startObservableSimulation({
 			e instanceof InvalidElementPropertyValueError
 		) {
 			onCreationError?.({
+				type: ObservableSimulationMessageType.CreationError,
 				elementId: e.elementId,
 				errorMessage: e.message,
 				errorId: e.id,
@@ -115,3 +145,4 @@ export function startObservableSimulation({
 		throw e;
 	}
 }
+

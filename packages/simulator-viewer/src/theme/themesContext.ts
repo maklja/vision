@@ -1,7 +1,12 @@
 import deepMerge from 'deepmerge';
-import { ConnectPointPosition, ElementType } from '@maklja/vision-simulator-model';
+import { ConnectLineType, ConnectPointPosition, ElementType } from '@maklja/vision-simulator-model';
 import { ColorTheme, retrieveThemeColor } from './colors';
-import { lineDrawerTheme, LineTheme } from './lineDrawerTheme';
+import {
+	lineDrawerTheme,
+	LineTheme,
+	LineThemeOverride,
+	subscribeLineDrawerTheme,
+} from './lineDrawerTheme';
 import {
 	connectPointsTheme,
 	ConnectPointsTheme,
@@ -35,11 +40,12 @@ export interface Theme {
 export interface DrawerThemeOverride {
 	drawer?: ElementDrawerThemeOverride;
 	connectPoints?: ConnectPointsThemeOverride;
+	connectLine?: LineThemeOverride;
 }
 
 export type ThemesContext = {
 	[key in ElementType]?: Theme;
-} & { default: Theme };
+} & { [key in ConnectLineType]?: Theme } & { default: Theme };
 
 export function createThemeContext(id?: string): ThemesContext {
 	const colorTheme = retrieveThemeColor(id);
@@ -69,6 +75,13 @@ export function createThemeContext(id?: string): ThemesContext {
 				arrayMerge: (_destinationArray, sourceArray) => sourceArray,
 			},
 		),
+		[ConnectLineType.Subscribe]: deepMerge<Theme, DrawerThemeOverride>(
+			defaultTheme,
+			{ connectLine: subscribeLineDrawerTheme() },
+			{
+				arrayMerge: (_destinationArray, sourceArray) => sourceArray,
+			},
+		),
 		default: defaultTheme,
 	};
 }
@@ -76,6 +89,7 @@ export function createThemeContext(id?: string): ThemesContext {
 export interface DrawerCommonThemeState {
 	highlight?: boolean;
 	select?: boolean;
+	disabled?: boolean;
 }
 
 export interface DrawerThemeState extends DrawerCommonThemeState {
@@ -120,6 +134,13 @@ export const useElementDrawerTheme = (theme: Theme, state: DrawerThemeState) => 
 		};
 	}
 
+	if (state.disabled) {
+		return {
+			element: drawer.disabledElement,
+			text: drawer.disabledText,
+		};
+	}
+
 	if (state.hasError) {
 		return {
 			element: drawer.errorElement,
@@ -157,6 +178,14 @@ export const useTooltipTheme = (theme: Theme) => {
 };
 
 export const useLineDrawerTheme = (theme: Theme, state: DrawerCommonThemeState = {}) => {
+	if (state.disabled) {
+		return {
+			line: theme.connectLine.disabledLine,
+			arrow: theme.connectLine.disabledArrow,
+			dot: theme.connectLine.disabledDot,
+		};
+	}
+
 	if (state.highlight) {
 		return {
 			line: theme.connectLine.highlightLine,
@@ -189,3 +218,4 @@ export const useSnapLineDrawerTheme = (theme: Theme) => {
 export const useGridTheme = (theme: Theme) => {
 	return theme.grid;
 };
+

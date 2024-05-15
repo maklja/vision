@@ -11,12 +11,18 @@ interface OperatorFactory {
 	isSupported(el: Element): boolean;
 }
 
-export type CreationObservableGenerator = (overrideProps?: ElementProps) => Observable<FlowValue>;
+export type CreationObservableFactory = (
+	overrideProps?: ElementProps,
+	branchId?: string,
+) => Observable<FlowValue>;
 
-export type PipeObservableGenerator = (observable: Observable<FlowValue>) => Observable<FlowValue>;
+export type PipeObservableFactory = (
+	observable: Observable<FlowValue>,
+	branchId: string,
+) => Observable<FlowValue>;
 
 export interface ObservableGeneratorProps {
-	readonly observableGenerator: CreationObservableGenerator;
+	readonly observableGenerator: CreationObservableFactory;
 	readonly connectPoint: ConnectedElement;
 	readonly connectLine: ConnectLine;
 	readonly onSubscribe?: (value: FlowValue) => void;
@@ -25,12 +31,6 @@ export interface ObservableGeneratorProps {
 export interface OperatorProps {
 	readonly refObservableGenerators: readonly ObservableGeneratorProps[];
 }
-
-export type CreationObservableFactory = <T extends ElementProps = ElementProps>(
-	overrideParameters?: Partial<T>,
-) => Observable<FlowValue>;
-
-export type PipeObservableFactory = (o: Observable<FlowValue>) => Observable<FlowValue>;
 
 export interface CreationOperatorFactory extends OperatorFactory {
 	create(el: Element, props: OperatorProps): CreationObservableFactory;
@@ -48,3 +48,4 @@ export type PipeOperatorFunctionFactory = (
 export interface PipeOperatorFactory extends OperatorFactory {
 	create(el: Element, props: OperatorProps): PipeObservableFactory;
 }
+

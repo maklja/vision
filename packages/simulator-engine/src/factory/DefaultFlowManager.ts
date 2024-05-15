@@ -28,6 +28,7 @@ export class DefaultFlowManager implements FlowManager {
 		const lastConnectLine = cls[cls.length - 1];
 		this.eventObserver.next({
 			id: value.id,
+			branchId: value.branchId,
 			index: ++this.eventIndex,
 			hash: value.hash,
 			value: `${value.raw}`,
@@ -35,6 +36,7 @@ export class DefaultFlowManager implements FlowManager {
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
+			time: performance.now(),
 		});
 	}
 
@@ -52,6 +54,7 @@ export class DefaultFlowManager implements FlowManager {
 		const lastConnectLine = cls[cls.length - 1];
 		this.eventObserver.next({
 			id: flowValue.id,
+			branchId: flowValue.branchId,
 			index: ++this.eventIndex,
 			hash: flowValue.hash,
 			value: `${flowValue.raw}`,
@@ -59,6 +62,7 @@ export class DefaultFlowManager implements FlowManager {
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
+			time: performance.now(),
 		});
 	}
 
@@ -93,3 +97,4 @@ export class DefaultFlowManager implements FlowManager {
 		return cls;
 	}
 }
+

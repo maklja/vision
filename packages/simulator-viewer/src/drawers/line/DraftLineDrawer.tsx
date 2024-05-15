@@ -12,13 +12,13 @@ export interface DraftLineDrawerProps {
 	arrowVisible?: boolean;
 }
 
-export const DraftLineDrawer = ({
+export function DraftLineDrawer({
 	points,
 	theme,
 	size,
 	visible = true,
 	arrowVisible = false,
-}: DraftLineDrawerProps) => {
+}: DraftLineDrawerProps) {
 	const lineTheme = useLineDrawerTheme(theme);
 
 	const arrowPoints = useMemo(() => points.slice(-2), [points]);
@@ -35,4 +35,5 @@ export const DraftLineDrawer = ({
 			{drawArrow ? <LineArrow {...lineTheme.arrow} points={arrowPoints} size={size} /> : null}
 		</Group>
 	);
-};
+}
+

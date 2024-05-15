@@ -28,6 +28,8 @@ export interface ElementDrawerTheme {
 	readonly selectText: ElementDrawerTextStyle;
 	readonly errorElement: ElementDrawerStyle;
 	readonly errorText: ElementDrawerTextStyle;
+	readonly disabledElement: ElementDrawerStyle;
+	readonly disabledText: ElementDrawerTextStyle;
 }
 
 export interface ElementDrawerThemeOverride {
@@ -39,9 +41,11 @@ export interface ElementDrawerThemeOverride {
 	selectText?: Partial<ElementDrawerTextStyle>;
 	errorElement?: Partial<ElementDrawerPartStyle>;
 	errorText?: Partial<ElementDrawerTextStyle>;
+	disabledElement?: Partial<ElementDrawerPartStyle>;
+	disabledText?: Partial<ElementDrawerTextStyle>;
 }
 
-export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme => {
+export function elementDrawerTheme(themeColors: ColorTheme): ElementDrawerTheme {
 	const elementDefault = {
 		stroke: themeColors.secondaryColor,
 		fill: themeColors.primaryColor,
@@ -110,6 +114,21 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 		errorText: {
 			...textDefault,
 		},
+		disabledElement: {
+			primary: {
+				...elementDefault,
+				fill: themeColors.disabledPrimaryColor,
+				stroke: themeColors.disabledSecondaryColor,
+			},
+			secondary: {
+				...elementDefault,
+				fill: themeColors.disabledSecondaryColor,
+				stroke: themeColors.disabledSecondaryColor,
+			},
+		},
+		disabledText: {
+			...textDefault,
+		},
 	};
-};
+}
 

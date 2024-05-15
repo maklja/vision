@@ -24,6 +24,7 @@ export function RollerOperatorDrawer({
 	animation,
 	draggable = false,
 	hasError = false,
+	disabled = false,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
@@ -40,6 +41,7 @@ export function RollerOperatorDrawer({
 		highlight,
 		select,
 		hasError,
+		disabled,
 	});
 	const { width, height, fontSizes } = size;
 	const [leftEllipseShapeRef, setLeftEllipseShapeRef] = useState<Konva.Ellipse | null>(null);
@@ -223,3 +225,4 @@ export function RollerOperatorDrawer({
 		</Group>
 	);
 }
+

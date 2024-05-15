@@ -18,6 +18,7 @@ export function DotCircleOperatorDrawer({
 	visible,
 	draggable = false,
 	hasError = false,
+	disabled = false,
 	onMouseDown,
 	onMouseUp,
 	onMouseOut,
@@ -34,6 +35,7 @@ export function DotCircleOperatorDrawer({
 		highlight,
 		select,
 		hasError,
+		disabled,
 	});
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [innerShapeRef, setInnerShapeRef] = useState<Konva.Circle | null>(null);
@@ -136,3 +138,4 @@ export function DotCircleOperatorDrawer({
 		</Group>
 	);
 }
+

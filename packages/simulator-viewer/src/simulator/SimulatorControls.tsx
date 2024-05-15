@@ -32,7 +32,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	const createElementError = useRootStore((state) => state.createElementError);
 	const clearErrors = useRootStore((state) => state.clearErrors);
 	const startSimulation = useRootStore((state) => state.startSimulation);
-	const resetSimulation = useRootStore((state) => state.resetSimulation);
+	const stopSimulation = useRootStore((state) => state.stopSimulation);
 	const completeSimulation = useRootStore((state) => state.completeSimulation);
 	const addObservableEvent = useRootStore((state) => state.addObservableEvent);
 	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
@@ -52,6 +52,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 		const dispatchObservableEvent = (event: FlowValueEvent) =>
 			addObservableEvent({
 				id: event.id,
+				branchId: event.branchId,
 				hash: event.hash,
 				index: event.index,
 				connectLinesId: [...event.connectLinesId],
@@ -59,6 +60,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 				targetElementId: event.targetElementId,
 				type: event.type,
 				value: event.value,
+				time: event.time,
 			});
 
 		clearErrors();
@@ -79,7 +81,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 			},
 			onCreationError: (creationErrorEvent) => {
 				subscription.unsubscribe();
-				resetSimulation();
+				stopSimulation();
 				createElementError(creationErrorEvent);
 			},
 		});
@@ -89,14 +91,14 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	function handleSimulationStop() {
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
-		resetSimulation();
+		stopSimulation();
 	}
 
 	function handleSimulationReset(entryElementId: string) {
 		simulationSubscription?.unsubscribe();
 		setSimulationSubscription(null);
 
-		resetSimulation();
+		stopSimulation();
 		handleSimulationStart(entryElementId);
 	}
 

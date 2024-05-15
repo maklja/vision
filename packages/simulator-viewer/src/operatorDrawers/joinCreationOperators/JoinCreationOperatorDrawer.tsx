@@ -25,6 +25,7 @@ export function JoinCreationOperatorDrawer({
 	visibleConnectPoints,
 	elementType,
 	title,
+	disabled,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -63,6 +64,7 @@ export function JoinCreationOperatorDrawer({
 				hasError={hasError}
 				select={select}
 				visible={visible}
+				disabled={disabled}
 				onAnimationBegin={onAnimationBegin}
 				onAnimationComplete={onAnimationComplete}
 				onAnimationDestroy={onAnimationDestroy}
@@ -78,3 +80,4 @@ export function JoinCreationOperatorDrawer({
 		</Group>
 	);
 }
+

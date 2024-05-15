@@ -2,7 +2,7 @@ import { ElementType } from '@maklja/vision-simulator-model';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { CreationOperatorDrawer } from './CreationOperatorDrawer';
 
-export const ThrowErrorOperatorDrawer = (props: ElementDrawerProps) => {
+export function ThrowErrorOperatorDrawer(props: ElementDrawerProps) {
 	return (
 		<CreationOperatorDrawer
 			{...props}
@@ -10,4 +10,5 @@ export const ThrowErrorOperatorDrawer = (props: ElementDrawerProps) => {
 			title={'Throw\nError'}
 		/>
 	);
-};
+}
+

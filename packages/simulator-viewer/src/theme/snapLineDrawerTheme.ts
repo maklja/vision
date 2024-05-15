@@ -1,29 +1,23 @@
 import { ColorTheme } from './colors';
-
-export interface SnapLineElementStyle {
-	readonly stroke: string;
-	readonly strokeWidth: number;
-	readonly dash: number[];
-}
+import { LineElementStyle } from './lineDrawerTheme';
 
 export interface SnapLineTheme {
-	readonly line: SnapLineElementStyle;
+	readonly line: LineElementStyle;
 }
 
 export interface SnapLineThemeOverride {
-	line?: Partial<SnapLineElementStyle>;
+	line?: Partial<LineElementStyle>;
 }
 
-const dash = [8, 3];
-
-export const snapLineDrawerTheme = (themeColors: ColorTheme): SnapLineTheme => {
-	const defaultSnapLine: SnapLineElementStyle = {
+export function snapLineDrawerTheme(themeColors: ColorTheme): SnapLineTheme {
+	const defaultSnapLine: LineElementStyle = {
 		stroke: themeColors.secondaryColor,
 		strokeWidth: 1,
-		dash,
+		dash: [8, 3],
 	};
 
 	return {
 		line: defaultSnapLine,
 	};
-};
+}
+

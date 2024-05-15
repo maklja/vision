@@ -3,12 +3,12 @@ import { CircleResultDrawer } from '../../drawers';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { useCircleShapeSize } from '../../store/hooks';
 
-export interface ResultDrawerProps extends ElementDrawerProps {
+export interface SubscribeResultDrawerProps extends ElementDrawerProps {
 	hash: string;
 	visibleConnectPoints?: never;
 }
 
-export function ResultDrawer({
+export function SubscribeResultDrawer({
 	x,
 	y,
 	scale = 1,
@@ -20,7 +20,6 @@ export function ResultDrawer({
 	select,
 	visible,
 	hash,
-	disabled,
 	onAnimationBegin,
 	onAnimationComplete,
 	onAnimationDestroy,
@@ -32,9 +31,9 @@ export function ResultDrawer({
 	onMouseUp,
 	onMouseOut,
 	onMouseOver,
-}: ResultDrawerProps) {
-	const elType = ElementType.Result;
-	const circleShapeSize = useCircleShapeSize(elType, scale);
+}: SubscribeResultDrawerProps) {
+	const elType = ElementType.Subscribe;
+	const circleShapeSize = useCircleShapeSize(elType, scale * 0.3);
 
 	return (
 		<CircleResultDrawer
@@ -49,7 +48,6 @@ export function ResultDrawer({
 			select={select}
 			visible={visible}
 			hash={hash}
-			disabled={disabled}
 			onAnimationBegin={onAnimationBegin}
 			onAnimationComplete={onAnimationComplete}
 			onAnimationDestroy={onAnimationDestroy}

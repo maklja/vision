@@ -5,10 +5,10 @@ export interface SimulationTheme {
 	readonly fill: string;
 }
 
-export const simulationTheme = (themeColors: ColorTheme): SimulationTheme => {
+export function simulationTheme(themeColors: ColorTheme): SimulationTheme {
 	return {
 		fill: themeColors.secondaryColor,
 		stroke: themeColors.primaryColor,
 	};
-};
+}
 

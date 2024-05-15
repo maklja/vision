@@ -1,4 +1,4 @@
-import { ConnectLine, Element, FlowValueType } from '@maklja/vision-simulator-model';
+import { ConnectLine, Element } from '@maklja/vision-simulator-model';
 import { createSimulationModel, ObservableSimulation } from './ObservableSimulation';
 import { ObservableSimulationMessageType } from './startObservableSimulation';
 import {
@@ -7,7 +7,6 @@ import {
 	MissingReferenceObservableError,
 	UnsupportedElementTypeError,
 } from './errors';
-import { FlowValueEvent } from './context';
 
 export interface StartSimulationMessageEvent {
 	type: ObservableSimulationMessageType.StartSimulation;
@@ -38,18 +37,35 @@ self.addEventListener(
 
 		try {
 			const createSimulationMessage = ev.data;
-			observableSimulation = new ObservableSimulation(
-				createSimulationModel(
-					createSimulationMessage.entryElementId,
-					createSimulationMessage.elements,
-					createSimulationMessage.connectLines,
-				),
+			const simModel = createSimulationModel(
+				createSimulationMessage.entryElementId,
+				createSimulationMessage.elements,
+				createSimulationMessage.connectLines,
 			);
+			observableSimulation = new ObservableSimulation(simModel);
+
+			self.postMessage({
+				type: ObservableSimulationMessageType.Creation,
+				entryElementId: simModel.entryElementId,
+				observableGraphBranch: Object.fromEntries(simModel.graphBranches.entries()),
+			});
 
 			observableSimulation.start({
-				next: (value) => self.postMessage(value),
-				error: (error) => self.postMessage(error),
-				complete: () => self.postMessage(null),
+				next: (value) =>
+					self.postMessage({
+						type: ObservableSimulationMessageType.Event,
+						event: value,
+					}),
+				error: (error) =>
+					self.postMessage({
+						type: ObservableSimulationMessageType.Event,
+						event: error,
+					}),
+				complete: () =>
+					self.postMessage({
+						type: ObservableSimulationMessageType.Event,
+						event: null,
+					}),
 			});
 		} catch (e) {
 			if (
@@ -58,20 +74,16 @@ self.addEventListener(
 				e instanceof UnsupportedElementTypeError ||
 				e instanceof InvalidElementPropertyValueError
 			) {
-				const event: FlowValueEvent = {
-					id: e.id,
-					sourceElementId: e.elementId,
-					targetElementId: e.elementId,
-					connectLinesId: [],
-					hash: '',
-					index: -1,
-					type: FlowValueType.CreationError,
-					value: e.message,
-				};
-				self.postMessage(event);
+				self.postMessage({
+					type: ObservableSimulationMessageType.CreationError,
+					elementId: e.elementId,
+					errorMessage: e.message,
+					errorId: e.id,
+				});
 			}
 
 			throw e;
 		}
 	},
 );
+

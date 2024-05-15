@@ -26,10 +26,11 @@ export interface RefreshDrawerAnimationPayload {
 }
 
 export interface DrawerAnimation<D = unknown> {
-	id: string;
-	key: AnimationKey;
-	dispose: boolean;
-	data?: D;
+	readonly id: string;
+	readonly key: AnimationKey;
+	readonly drawerId: string;
+	readonly dispose: boolean;
+	readonly data?: D;
 }
 
 export interface AnimationSlice {
@@ -51,6 +52,7 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 			const newAnimation = {
 				id: animationId,
 				key,
+				drawerId,
 				dispose: false,
 				data,
 			};
@@ -110,7 +112,7 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 					? {
 							...a,
 							dispose: true,
-					  }
+						}
 					: a,
 			);
 			state.animations[drawerId] = updatedQueue;
@@ -126,6 +128,7 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 					{
 						id: v1(),
 						key,
+						drawerId,
 						dispose: false,
 					},
 				];
@@ -147,6 +150,7 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 				{
 					id: v1(),
 					key,
+					drawerId,
 					dispose: false,
 				},
 			];

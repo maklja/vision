@@ -23,6 +23,7 @@ export function RectangleOperatorDrawer({
 	animation,
 	draggable = false,
 	hasError = false,
+	disabled = false,
 	onMouseOver,
 	onMouseOut,
 	onMouseDown,
@@ -39,6 +40,7 @@ export function RectangleOperatorDrawer({
 		highlight,
 		select,
 		hasError,
+		disabled,
 	});
 	const { width, height, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
@@ -145,3 +147,4 @@ export function RectangleOperatorDrawer({
 		</Group>
 	);
 }
+

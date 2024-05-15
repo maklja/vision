@@ -7,7 +7,6 @@
 -   show code error
 -   offline support
 -   google drive integration
--   subscribe stage
 -   event observable position passed
 -   key bind array observable result
 -   handle partition join creation operator

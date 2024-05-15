@@ -26,7 +26,7 @@ export interface GraphNode {
 
 export interface GraphBranch {
 	nodes: GraphNode[];
-	refNodeIds: Set<string>;
+	refNodeIds: string[];
 }
 
 export class SimulationGraph {
@@ -51,7 +51,7 @@ export class SimulationGraph {
 		const refNodeIds = nodes
 			.flatMap((node) => node.edges)
 			.filter((edge) => edge.type === GraphNodeType.Reference)
-			.reduce((edgeSet, edge) => edgeSet.add(edge.targetNodeId), new Set<string>());
+			.reduce((edges: string[], edge) => [...edges, edge.targetNodeId], []);
 
 		graphBranches.set(elementId, {
 			nodes,
@@ -118,3 +118,4 @@ export class SimulationGraph {
 		return isEntryOperatorType(elType);
 	}
 }
+

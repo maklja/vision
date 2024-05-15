@@ -5,21 +5,21 @@ import { DrawerAnimation } from '../drawerAnimations';
 import { RootState } from '../rootStore';
 import { AnimationKey, MoveAnimation } from '../../animation';
 
-export interface MoveSimulationAnimation
-	extends SimulationAnimation<MoveAnimation & ObservableEvent> {
+export interface MoveSimulationAnimation extends DrawerAnimation<MoveAnimation & ObservableEvent> {
 	key: AnimationKey.MoveDrawer;
 }
 
-export interface HighlightSimulationAnimation extends SimulationAnimation<ObservableEvent> {
+export interface HighlightSimulationAnimation extends DrawerAnimation<ObservableEvent> {
 	key: AnimationKey.HighlightDrawer;
 }
 
-export interface ErrorSimulationAnimation extends SimulationAnimation<ObservableEvent> {
+export interface ErrorSimulationAnimation extends DrawerAnimation<ObservableEvent> {
 	key: AnimationKey.ErrorDrawer;
 }
 
 export interface ObservableEvent {
 	id: string;
+	branchId: string;
 	type: FlowValueType;
 	hash: string;
 	index: number;
@@ -27,10 +27,7 @@ export interface ObservableEvent {
 	sourceElementId: string;
 	targetElementId: string;
 	value: string;
-}
-
-export interface SimulationAnimation<D = unknown> extends DrawerAnimation<D> {
-	readonly drawerId: string;
+	time: number;
 }
 
 export enum SimulationState {
@@ -43,13 +40,14 @@ export interface Simulation {
 	state: SimulationState;
 	completed: boolean;
 	events: ObservableEvent[];
-	animationsQueue: SimulationAnimation[];
+	animationsQueue: DrawerAnimation[];
+	animations: Record<string, DrawerAnimation[]>;
 }
 
 export interface SimulationSlice {
 	simulation: Simulation;
 	startSimulation: () => void;
-	resetSimulation: () => void;
+	stopSimulation: () => void;
 	completeSimulation: () => void;
 	addObservableEvent: (event: ObservableEvent) => void;
 	removeSimulationAnimationAtIndex: (animationIdx: number) => void;
@@ -57,19 +55,16 @@ export interface SimulationSlice {
 
 function createAnimations(
 	events: (ObservableEvent | null)[],
-	connectLines: ConnectLine[],
+	connectLines: Record<string, ConnectLine>,
 	simulatorId: string,
-): SimulationAnimation[] {
+): DrawerAnimation[] {
 	const [prevEvent, currentEvent] = events;
 	if (!currentEvent) {
 		return [];
 	}
 
 	const { sourceElementId, targetElementId, type, connectLinesId } = currentEvent;
-	const points = connectLinesId.flatMap((clId) => {
-		const connectLine = connectLines.find((cl) => cl.id === clId);
-		return connectLine ? connectLine.points : [];
-	});
+	const points = connectLinesId.flatMap((clId) => connectLines[clId]?.points ?? []);
 
 	const resultAnimations: MoveSimulationAnimation[] = points
 		.slice(1, points.length - 1)
@@ -120,9 +115,71 @@ function createAnimations(
 				},
 				...resultAnimations,
 				targetAnimation,
-		  ]
+			]
 		: [...resultAnimations, targetAnimation];
 }
+
+function createEventAnimations(
+	event: ObservableEvent,
+	connectLines: Record<string, ConnectLine>,
+	simulatorId: string,
+): DrawerAnimation[] {
+	const { sourceElementId, targetElementId, type, connectLinesId } = event;
+	const points = connectLinesId.flatMap((clId) => connectLines[clId]?.points ?? []);
+
+	const resultAnimations: MoveSimulationAnimation[] = points
+		.slice(1, points.length - 1)
+		.reduce((groupedPoints: Point[][], sourcePosition, i, pointsSlice) => {
+			const targetPosition = pointsSlice[i + 1];
+			if (targetPosition == null) {
+				return groupedPoints;
+			}
+
+			return [...groupedPoints, [sourcePosition, targetPosition]];
+		}, [])
+		.map((pointsGroup) => {
+			const [sourcePosition, targetPosition] = pointsGroup;
+			return {
+				id: v1(),
+				dispose: false,
+				drawerId: simulatorId,
+				key: AnimationKey.MoveDrawer,
+				data: {
+					...event,
+					sourcePosition,
+					targetPosition,
+				},
+			};
+		});
+
+	const animationKey =
+		type === FlowValueType.Error ? AnimationKey.ErrorDrawer : AnimationKey.HighlightDrawer;
+	const targetAnimation: HighlightSimulationAnimation | ErrorSimulationAnimation = {
+		id: v1(),
+		dispose: false,
+		drawerId: targetElementId,
+		key: animationKey,
+		data: event,
+	};
+	const sourceAnimation: HighlightSimulationAnimation | ErrorSimulationAnimation = {
+		id: v1(),
+		dispose: false,
+		drawerId: sourceElementId,
+		key: animationKey,
+		data: event,
+	};
+
+	return [sourceAnimation, ...resultAnimations, targetAnimation];
+}
+
+// const eventAnimation = createEventAnimations(event, state.connectLines, simulation.id);
+// if (!simulation.animations[event.id]) {
+// 	simulation.animations[event.id] = eventAnimation;
+// } else {
+// 	simulation.animations[event.id].push(...eventAnimation);
+// }
+
+// console.log({ ...simulation.animations });
 
 export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSlice> = (set) => ({
 	simulation: {
@@ -131,24 +188,32 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 		completed: false,
 		animationsQueue: [],
 		events: [],
+		animations: {},
 	},
 	startSimulation: () =>
 		set((state) => {
-			const { simulation } = state;
+			const { simulation, elements, connectLines, disabledConnectLines, disabledElements } =
+				state;
 			simulation.completed = false;
 			simulation.state = SimulationState.Running;
 			simulation.animationsQueue = [];
 			simulation.events = [];
 
+			disabledConnectLines.push(...Object.keys(connectLines));
+			disabledElements.push(...Object.keys(elements));
+
 			return state;
 		}, true),
-	resetSimulation: () =>
+	stopSimulation: () =>
 		set((state) => {
 			const { simulation } = state;
 			simulation.completed = false;
 			simulation.state = SimulationState.Stopped;
 			simulation.animationsQueue = [];
 			simulation.events = [];
+
+			state.disabledElements = [];
+			state.disabledConnectLines = [];
 
 			return state;
 		}, true),
@@ -161,17 +226,19 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 					? SimulationState.Running
 					: SimulationState.Stopped;
 
+			state.disabledElements = [];
+			state.disabledConnectLines = [];
+
 			return state;
 		}, true),
 	addObservableEvent: (event: ObservableEvent) =>
 		set((state) => {
-			const { simulation } = state;
+			const { simulation, connectLines } = state;
 			const updatedEvents = [...simulation.events, event];
 
-			const connectLines = Object.values(state.connectLines);
 			// create simulation animations for each drawer that is affected by events
 			const beginIndex = updatedEvents.length - 1;
-			const animations: SimulationAnimation[] = updatedEvents
+			const animations: DrawerAnimation[] = updatedEvents
 				.slice(beginIndex)
 				.reduce((group: (ObservableEvent | null)[][], currentEvent, i) => {
 					// group simulation events by [previousEvent, currentEvent]
@@ -183,11 +250,17 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 
 					return [...group, [prevEvent, currentEvent]];
 				}, [])
-				.flatMap((eventsPair) => createAnimations(eventsPair, connectLines, simulation.id));
+				.flatMap((eventsPair) =>
+					createAnimations(eventsPair, state.connectLines, simulation.id),
+				);
 
 			simulation.events = updatedEvents;
 			simulation.animationsQueue = [...simulation.animationsQueue, ...animations];
 			simulation.completed = event.type !== FlowValueType.Next;
+
+			const eventAnimations = simulation.animations[event.id] ?? [];
+			eventAnimations.push(...createEventAnimations(event, connectLines, simulation.id));
+			simulation.animations[event.id] = eventAnimations;
 
 			return state;
 		}, true),
@@ -204,5 +277,14 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 
 export const selectSimulation = (state: RootState) => state.simulation;
 
-export const selectSimulationNextAnimation = (state: RootState): SimulationAnimation | null =>
+export const selectSimulationNextAnimation = (state: RootState): DrawerAnimation | null =>
 	state.simulation.animationsQueue.at(0) ?? null;
+
+export const selectNextAnimations = (state: RootState): DrawerAnimation[] => {
+	const valueIds = Object.keys(state.animations);
+
+	return valueIds
+		.map((valueId) => state.animations[valueId].shift())
+		.filter((value) => value != null);
+};
+

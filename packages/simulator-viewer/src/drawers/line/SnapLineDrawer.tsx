@@ -8,7 +8,7 @@ export interface SnapLineDrawerProps {
 	visible?: boolean;
 }
 
-export const SnapLineDrawer = ({ points, theme, visible = true }: SnapLineDrawerProps) => {
+export function SnapLineDrawer({ points, theme, visible = true }: SnapLineDrawerProps) {
 	const snapLineTheme = useSnapLineDrawerTheme(theme);
 
 	return (
@@ -21,4 +21,5 @@ export const SnapLineDrawer = ({ points, theme, visible = true }: SnapLineDrawer
 			/>
 		</Group>
 	);
-};
+}
+
