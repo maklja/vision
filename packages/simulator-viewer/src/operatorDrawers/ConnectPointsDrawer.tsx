@@ -121,6 +121,7 @@ function createAnimationConfig(
 	return {
 		...animationRegistry.retrieveAnimationConfig(animation.key)(theme),
 		id: animation.id,
+		groupId: animation.groupId,
 		dispose: animation.dispose,
 	};
 }

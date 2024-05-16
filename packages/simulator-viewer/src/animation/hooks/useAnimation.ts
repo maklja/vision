@@ -50,6 +50,7 @@ export const useAnimation = (
 
 			onAnimationBegin?.({
 				animationId: animation.id,
+				animationGroupId: animationTemplate.groupId,
 				animationKey: animationTemplate.key,
 				drawerId,
 			});
@@ -61,6 +62,7 @@ export const useAnimation = (
 
 			onAnimationComplete?.({
 				animationId: animation.id,
+				animationGroupId: animationTemplate.groupId,
 				animationKey: animationTemplate.key,
 				drawerId,
 			});
@@ -72,6 +74,7 @@ export const useAnimation = (
 
 			onAnimationDestroy?.({
 				animationId: animation.id,
+				animationGroupId: animationTemplate.groupId,
 				animationKey: animationTemplate.key,
 				drawerId,
 			});
@@ -117,3 +120,4 @@ export const useAnimation = (
 
 	return animation;
 };
+

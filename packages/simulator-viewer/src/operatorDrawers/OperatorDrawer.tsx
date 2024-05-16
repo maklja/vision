@@ -29,6 +29,7 @@ export function OperatorDrawer({ element, visibleConnectPoints, draggable }: Ope
 		? {
 				...animationRegistry.retrieveAnimationConfig(animation.key)(theme, animation.data),
 				id: animation.id,
+				groupId: animation.groupId,
 				dispose: animation.dispose,
 			}
 		: null;

@@ -2,17 +2,12 @@ import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { AnimationKey } from '../../animation';
 import { RootState } from '../rootStore';
+import { ObservableEvent } from '../simulation';
 
-export interface AddDrawerAnimationActionPayload {
-	drawerId: string;
-	key: AnimationKey;
-	animationId?: string;
-	data?: unknown;
-}
-
-export interface RemoveDrawerAnimationPayload {
+export interface DestroyDrawerAnimationPayload {
 	drawerId: string;
 	animationId: string;
+	animationGroupId: string;
 }
 
 export interface DisposeDrawerAnimationPayload {
@@ -29,70 +24,104 @@ export interface DrawerAnimation<D = unknown> {
 	readonly id: string;
 	readonly key: AnimationKey;
 	readonly drawerId: string;
+	readonly groupId: string;
 	dispose: boolean;
 	data?: D;
 }
 
 export interface AnimationSlice {
 	animations: Record<string, DrawerAnimation[]>;
-	addDrawerAnimation: (payload: AddDrawerAnimationActionPayload) => void;
-	removeDrawerAnimation: (payload: RemoveDrawerAnimationPayload) => void;
+	destroyDrawerAnimation: (payload: DestroyDrawerAnimationPayload) => void;
 	removeAllDrawerAnimations: (drawerId: string) => void;
 	disposeDrawerAnimation: (payload: DisposeDrawerAnimationPayload) => void;
 	refreshDrawerAnimation: (payload: RefreshDrawerAnimationPayload) => void;
+	scheduleSimulationAnimations: () => void;
+	removeDrawerAnimation: (payload: DestroyDrawerAnimationPayload) => void;
 }
 
-export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlice> = (set) => ({
+const SUPPORTED_ANIMATIONS: readonly AnimationKey[] = [
+	AnimationKey.MoveDrawer,
+	AnimationKey.HighlightDrawer,
+	AnimationKey.ErrorDrawer,
+];
+
+export function retrieveNextAnimations(state: RootState) {
+	const { simulation } = state;
+	return Object.values(simulation.animations.queue)
+		.map((eventQueue) => eventQueue[0])
+		.filter((animation) => {
+			if (!animation || !SUPPORTED_ANIMATIONS.includes(animation.key)) {
+				return false;
+			}
+
+			const animationData = animation.data as ObservableEvent;
+			if (!animationData.subscribeId) {
+				return true;
+			}
+
+			return simulation.animations.subscribed.includes(animationData.subscribeId);
+		});
+}
+
+function scheduleSimulationAnimations(state: RootState) {
+	retrieveNextAnimations(state).forEach(({ id, groupId, key, dispose, drawerId, data }) => {
+		const drawerAnimations = state.animations[drawerId];
+		const newAnimation = {
+			id,
+			groupId,
+			key,
+			drawerId,
+			dispose,
+			data,
+		};
+
+		if (!drawerAnimations) {
+			state.animations[drawerId] = [newAnimation];
+			return;
+		}
+
+		const animationExists = drawerAnimations.some((a) => a.id === newAnimation.id);
+		if (animationExists) {
+			return;
+		}
+
+		state.animations[drawerId].push(newAnimation);
+	});
+
+	return state;
+}
+
+export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlice> = (
+	set,
+	get,
+) => ({
 	animations: {},
-	addDrawerAnimation: (payload: AddDrawerAnimationActionPayload) =>
-		set((state) => {
-			const { drawerId, key, animationId = v1(), data } = payload;
-			const drawerAnimations = state.animations[drawerId];
-
-			const newAnimation = {
-				id: animationId,
-				key,
-				drawerId,
-				dispose: false,
-				data,
-			};
-
-			if (!drawerAnimations) {
-				state.animations[drawerId] = [newAnimation];
-				return state;
-			}
-
-			const animationExists = drawerAnimations.some((a) => a.id === newAnimation.id);
-			if (animationExists) {
-				return state;
-			}
-
-			state.animations[drawerId] = [...drawerAnimations, newAnimation];
-
-			return state;
-		}, true),
-	removeDrawerAnimation: (payload: RemoveDrawerAnimationPayload) =>
+	scheduleSimulationAnimations: () => set((state) => scheduleSimulationAnimations(state), true),
+	removeDrawerAnimation: (payload: DestroyDrawerAnimationPayload) =>
 		set((state) => {
 			const { animationId, drawerId } = payload;
+
 			const drawerAnimations = state.animations[drawerId];
 			if (!drawerAnimations) {
 				return state;
 			}
 
-			const removedAnimation = drawerAnimations.find((a) => a.id === animationId);
-			if (!removedAnimation) {
-				return state;
-			}
-			const updatedQueue = drawerAnimations.filter((a) => a !== removedAnimation);
-			if (updatedQueue.length === 0) {
-				delete state.animations[drawerId];
+			const animationIdx = drawerAnimations.findIndex((a) => a.id === animationId);
+			if (animationIdx === -1) {
 				return state;
 			}
 
-			state.animations[drawerId] = updatedQueue;
+			drawerAnimations.splice(animationIdx, 1);
+			if (drawerAnimations.length === 0) {
+				delete state.animations[drawerId];
+			}
 
 			return state;
 		}, true),
+	destroyDrawerAnimation: (payload: DestroyDrawerAnimationPayload) => {
+		get().removeDrawerAnimation(payload);
+		get().removeSimulationAnimation(payload.animationGroupId, payload.animationId);
+	},
 	removeAllDrawerAnimations: (drawerId: string) =>
 		set((state) => {
 			delete state.animations[drawerId];
@@ -123,10 +152,12 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 		set((state) => {
 			const { drawerId, key } = payload;
 			const drawerAnimations = state.animations[drawerId];
+			const id = v1();
 			if (!drawerAnimations) {
 				state.animations[drawerId] = [
 					{
-						id: v1(),
+						id,
+						groupId: id,
 						key,
 						drawerId,
 						dispose: false,
@@ -148,7 +179,8 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 			state.animations[drawerId] = [
 				...drawerAnimations,
 				{
-					id: v1(),
+					id: id,
+					groupId: id,
 					key,
 					drawerId,
 					dispose: false,
@@ -163,14 +195,4 @@ export const selectDrawerAnimationByDrawerId =
 	(drawerId: string) =>
 	(state: RootState): DrawerAnimation | null =>
 		state.animations[drawerId]?.at(0) ?? null;
-
-export const selectDrawerAnimationById =
-	(drawerId?: string, animationId?: string) =>
-	(state: RootState): DrawerAnimation | null => {
-		if (!drawerId || !animationId) {
-			return null;
-		}
-
-		return state.animations[drawerId]?.find((a) => a.id === animationId) ?? null;
-	};
 

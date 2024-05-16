@@ -12,5 +12,6 @@ export interface AnimationTemplate {
 
 export interface DrawerAnimationTemplate extends AnimationTemplate {
 	id: string;
+	groupId: string;
 	dispose: boolean;
 }
