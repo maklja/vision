@@ -2,7 +2,7 @@ import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { AnimationKey } from '../../animation';
 import { RootState } from '../rootStore';
-import { ObservableEvent } from '../simulation';
+import { ObservableEvent, removeSimulationAnimation } from '../simulation';
 import { updateElement } from '../elements';
 
 export interface DestroyDrawerAnimationPayload {
@@ -82,31 +82,34 @@ export function retrieveNextAnimations(state: RootState) {
 
 function scheduleSimulationAnimations(state: RootState) {
 	retrieveNextAnimations(state).forEach(({ id, groupId, key, dispose, drawerId, data }) => {
-		const drawerAnimations = state.animations[drawerId];
-		const newAnimation = {
+		const animationExists = state.animations[drawerId]?.some((a) => a.id === id);
+		if (animationExists) {
+			return;
+		}
+
+		// const completedAnimationInfo = state.simulation.animations.completed;
+		// console.log(performance.now() - completedAnimationInfo[drawerId]?.time);
+		// if (performance.now() - completedAnimationInfo[drawerId]?.time < 100) {
+		// 	removeSimulationAnimation(state, groupId, id);
+		// 	return;
+		// }
+
+		if (!state.animations[drawerId]) {
+			state.animations[drawerId] = [];
+			updateElement(state, {
+				id: groupId,
+				visible: key === AnimationKey.MoveDrawer,
+			});
+		}
+
+		state.animations[drawerId].push({
 			id,
 			groupId,
 			key,
 			drawerId,
 			dispose,
 			data,
-		};
-
-		if (!drawerAnimations) {
-			state.animations[drawerId] = [newAnimation];
-			updateElement(state, {
-				id: groupId,
-				visible: key === AnimationKey.MoveDrawer,
-			});
-			return;
-		}
-
-		const animationExists = drawerAnimations.some((a) => a.id === newAnimation.id);
-		if (animationExists) {
-			return;
-		}
-
-		state.animations[drawerId].push(newAnimation);
+		});
 	});
 
 	return state;
@@ -142,6 +145,7 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 	destroyDrawerAnimation: (payload: DestroyDrawerAnimationPayload) => {
 		get().removeSimulationAnimation(payload.animationGroupId, payload.animationId);
 		get().removeDrawerAnimation(payload);
+		get().scheduleSimulationAnimations();
 	},
 	removeAllDrawerAnimations: (drawerId: string) =>
 		set((state) => {

@@ -59,7 +59,10 @@ import { createFlowValue, wrapGeneratorCallback } from './utils';
 
 const createFromCreationOperator =
 	(el: Element, props: OperatorProps) =>
-	(overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
+	(
+		overrideProperties?: Partial<ElementProps>,
+		parentSubscribeId?: string,
+	): Observable<FlowValue> => {
 		const fromEl = el as FromElement;
 		const fromElProperties: FromElementProperties = {
 			...fromEl.properties,
@@ -68,7 +71,9 @@ const createFromCreationOperator =
 
 		if (!fromElProperties.enableObservableEvent) {
 			const inputFn = new Function(`return ${fromElProperties.inputCallbackExpression}`);
-			return from(inputFn()()).pipe(map((item) => createFlowValue(item, fromEl.id)));
+			return from(inputFn()()).pipe(
+				map((item) => FlowValue.createNextEvent(item, el.id, parentSubscribeId)),
+			);
 		}
 
 		if (props.refObservableGenerators.length === 0) {
@@ -83,12 +88,20 @@ const createFromCreationOperator =
 		}
 
 		const [refObservableGenerator] = props.refObservableGenerators;
+		const subscribeId = v1();
+		const wrappedObservableGenerator = wrapGeneratorCallback(
+			refObservableGenerator.observableGenerator,
+			subscribeId,
+		);
+
 		const observableRefInvokerFn: () => Observable<FlowValue> = new Function(
 			OBSERVABLE_GENERATOR_NAME,
 			`return ${fromElProperties.observableFactory}`,
-		)(refObservableGenerator.observableGenerator);
+		)(wrappedObservableGenerator);
 		return defer(() => {
-			refObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(fromEl.id));
+			refObservableGenerator.onSubscribe?.(
+				FlowValue.createSubscribeEvent(fromEl.id, subscribeId, parentSubscribeId),
+			);
 			return from(observableRefInvokerFn());
 		}).pipe(map((item) => createFlowValue(item, fromEl.id)));
 	};
