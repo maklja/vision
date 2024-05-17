@@ -132,14 +132,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 			return state;
 		}, true),
 	setSelectElements: (elementIds: string[]) =>
-		set((state) => {
-			if (state.selectedElements.length === 0 && elementIds.length === 0) {
-				return state;
-			}
-
-			state.selectedElements = elementIds;
-			return state;
-		}, true),
+		set((state) => setSelectElements(state, elementIds), true),
 	selectElement: (elementId: string) =>
 		set((state) => {
 			if (state.selectedElements.includes(elementId)) {
@@ -187,6 +180,16 @@ export function updateElement(state: RootState, payload: UpdateElementPayload) {
 		...el.properties,
 		...payload.properties,
 	};
+
+	return state;
+}
+
+export function setSelectElements(state: RootState, elementIds: string[]) {
+	if (state.selectedElements.length === 0 && elementIds.length === 0) {
+		return state;
+	}
+
+	state.selectedElements = elementIds;
 	return state;
 }
 
@@ -237,4 +240,3 @@ export const selectStageDraftElement = () => (state: RootState) =>
 
 export const isSelectedElement = (elementId: string) => (state: RootState) =>
 	state.selectedElements.includes(elementId);
-

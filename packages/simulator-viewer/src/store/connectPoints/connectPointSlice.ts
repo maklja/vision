@@ -200,16 +200,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 
 			return state;
 		}, true),
-	clearSelectedConnectPoints: () =>
-		set((state) => {
-			Object.keys(state.connectPoints).forEach((elId) => {
-				state.connectPoints[elId] = hideElementConnectPointsVisibility(
-					state.connectPoints[elId],
-				);
-			});
-
-			return state;
-		}, true),
+	clearSelectedConnectPoints: () => set((state) => clearSelectedConnectPoints(state), true),
 	setSelectElementsConnectPoints: (elementIds: string[]) =>
 		set((state) => {
 			Object.keys(state.connectPoints).forEach((elId) => {
@@ -240,19 +231,7 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 			return state;
 		}, true),
 	selectConnectPoints: (elementId: string) =>
-		set((state) => {
-			const el = state.elements[elementId];
-			if (!el) {
-				throw new Error(`Element with id ${elementId} was not found`);
-			}
-
-			state.connectPoints[elementId] = calcElementConnectPointsVisibility(
-				el,
-				state.connectPoints[elementId],
-			);
-
-			return state;
-		}, true),
+		set((state) => selectConnectPoints(state, elementId), true),
 	deselectConnectPoints: (elementId: string) =>
 		set((state) => {
 			state.connectPoints[elementId] = hideElementConnectPointsVisibility(
@@ -327,6 +306,28 @@ export const createConnectPointSlice: StateCreator<RootState, [], [], ConnectPoi
 		}, true),
 });
 
+export function clearSelectedConnectPoints(state: RootState) {
+	Object.keys(state.connectPoints).forEach((elId) => {
+		state.connectPoints[elId] = hideElementConnectPointsVisibility(state.connectPoints[elId]);
+	});
+
+	return state;
+}
+
+export function selectConnectPoints(state: RootState, elementId: string) {
+	const el = state.elements[elementId];
+	if (!el) {
+		throw new Error(`Element with id ${elementId} was not found`);
+	}
+
+	state.connectPoints[elementId] = calcElementConnectPointsVisibility(
+		el,
+		state.connectPoints[elementId],
+	);
+
+	return state;
+}
+
 export function moveConnectPointsByDelta(
 	state: RootState,
 	payload: MoveConnectPointsByDeltaPayload,
@@ -365,4 +366,3 @@ export const selectElementConnectPointsById = (id: string) =>
 			{},
 		);
 	});
-

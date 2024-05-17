@@ -193,11 +193,7 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 			state.selectedConnectLines.splice(idx, 1);
 			return state;
 		}, true),
-	deselectAllConnectLines: () =>
-		set((state) => {
-			state.selectedConnectLines = [];
-			return state;
-		}, true),
+	deselectAllConnectLines: () => set((state) => deselectAllConnectLines(state), true),
 	movePointConnectLine: (payload: MoveConnectLinePointPayload) =>
 		set((state) => {
 			const cl = state.connectLines[payload.id];
@@ -297,6 +293,11 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 		}, true),
 });
 
+export function deselectAllConnectLines(state: RootState) {
+	state.selectedConnectLines = [];
+	return state;
+}
+
 export function moveConnectLinePointsByDelta(
 	state: RootState,
 	payload: MoveConnectLinePointsByDeltaPayload,
@@ -374,4 +375,3 @@ export const selectRelatedElementElements = (elementId: string | null) => (state
 		};
 	});
 };
-

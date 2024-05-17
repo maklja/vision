@@ -3,9 +3,10 @@ import { ConnectLine, Element, Point } from '@maklja/vision-simulator-model';
 import { StateCreator } from 'zustand';
 import { RootState } from '../rootStore';
 import { calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
-import { createElementConnectPoints } from '../connectPoints';
+import { createElementConnectPoints, selectConnectPoints } from '../connectPoints';
 import { addConnectLine } from '../connectLines';
 import { addElement } from '../elements';
+import { clearAllSelectedElements } from '../select';
 
 export interface ClipboardSlice {
 	clipboard: {
@@ -70,7 +71,7 @@ export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlic
 
 			const copiedElements = new Map<string, string>();
 
-			state.selectedElements = [];
+			clearAllSelectedElements(state);
 			state.clipboard.elements.forEach((el) => {
 				const xDistance = el.x - pasteRelativeToPosition.x;
 				const yDistance = el.y - pasteRelativeToPosition.y;
@@ -86,9 +87,9 @@ export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlic
 				addElement(state, elCopy);
 				createElementConnectPoints(state, elCopy);
 				state.selectedElements.push(elCopy.id);
+				selectConnectPoints(state, elCopy.id);
 			});
 
-			state.selectedConnectLines = [];
 			state.clipboard.connectLines.forEach((cl) => {
 				const points = cl.points.map((p) => {
 					const xDistance = p.x - pasteRelativeToPosition.x;
@@ -127,4 +128,3 @@ export const createClipboardSlice: StateCreator<RootState, [], [], ClipboardSlic
 			return state;
 		}),
 });
-
