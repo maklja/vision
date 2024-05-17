@@ -2,7 +2,7 @@ import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { AnimationKey } from '../../animation';
 import { RootState } from '../rootStore';
-import { ObservableEvent, removeSimulationAnimation } from '../simulation';
+import { ObservableEvent } from '../simulation';
 import { updateElement } from '../elements';
 
 export interface DestroyDrawerAnimationPayload {
@@ -51,20 +51,16 @@ export function retrieveNextAnimations(state: RootState) {
 	return Object.values(simulation.animations.queue)
 		.flatMap((eventQueue) => {
 			const nextAnimation = eventQueue[0];
-			if (nextAnimation.key !== AnimationKey.MoveDrawer) {
-				return [nextAnimation];
-			}
-
-			const movingAnimations = [nextAnimation];
+			const sameAnimations = [nextAnimation];
 			for (const animation of eventQueue.slice(1)) {
-				if (animation.key !== AnimationKey.MoveDrawer) {
+				if (animation.key !== nextAnimation.key) {
 					break;
 				}
 
-				movingAnimations.push(animation);
+				sameAnimations.push(animation);
 			}
 
-			return movingAnimations;
+			return sameAnimations;
 		})
 		.filter((animation) => {
 			if (!animation || !SUPPORTED_ANIMATIONS.includes(animation.key)) {
@@ -80,19 +76,35 @@ export function retrieveNextAnimations(state: RootState) {
 		});
 }
 
+function compressAnimations(
+	animations: DrawerAnimation[],
+	compressNumber = 4,
+	allowedAnimationCompression = [AnimationKey.HighlightDrawer],
+) {
+	const nextAnimation = animations[0];
+	if (!allowedAnimationCompression.includes(nextAnimation.key)) {
+		return animations;
+	}
+
+	const followingAnimations = animations.slice(1, compressNumber + 1);
+	for (const animation of followingAnimations) {
+		if (animation.key !== nextAnimation.key) {
+			return animations;
+		}
+
+		console.log('disposed');
+		animation.dispose = true;
+	}
+
+	return animations;
+}
+
 function scheduleSimulationAnimations(state: RootState) {
 	retrieveNextAnimations(state).forEach(({ id, groupId, key, dispose, drawerId, data }) => {
 		const animationExists = state.animations[drawerId]?.some((a) => a.id === id);
 		if (animationExists) {
 			return;
 		}
-
-		// const completedAnimationInfo = state.simulation.animations.completed;
-		// console.log(performance.now() - completedAnimationInfo[drawerId]?.time);
-		// if (performance.now() - completedAnimationInfo[drawerId]?.time < 100) {
-		// 	removeSimulationAnimation(state, groupId, id);
-		// 	return;
-		// }
 
 		if (!state.animations[drawerId]) {
 			state.animations[drawerId] = [];
@@ -110,6 +122,7 @@ function scheduleSimulationAnimations(state: RootState) {
 			dispose,
 			data,
 		});
+		compressAnimations(state.animations[drawerId]);
 	});
 
 	return state;

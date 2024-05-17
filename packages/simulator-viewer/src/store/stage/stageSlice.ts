@@ -17,7 +17,6 @@ import {
 	Element,
 	ElementDescriptor,
 	findElementDescriptor,
-	FlowValueType,
 	IBoundingBox,
 	Point,
 	SnapLine,
@@ -31,7 +30,7 @@ import {
 import { LinkConnectLineDrawPayload, moveConnectLinePointsByDelta } from '../connectLines';
 import { createSnapLinesByConnectPoint, createSnapLinesByElement } from '../snapLines';
 import { AnimationKey } from '../../animation';
-import { ObservableEvent, SimulationState } from '../simulation';
+import { SimulationState } from '../simulation';
 import { moveConnectPointsByDelta } from '../connectPoints';
 
 export interface StartConnectLineDrawPayload {
@@ -155,7 +154,6 @@ export interface StageSlice {
 	updateCanvasState: (canvasUpdate: Partial<CanvasState>) => void;
 	pinConnectLine: (payload: PinConnectLinePayload) => void;
 	unpinConnectLine: (payload: UnpinConnectLinePayload) => void;
-	removeSimulationAnimation: (animationId: string) => void;
 	createElementSnapLines: (payload: CreateElementSnapLinesPayload) => SnapLine[];
 	clearCanvasAutoDragInterval: () => void;
 	changeTheme: (themeId?: string) => void;
@@ -562,30 +560,31 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			animationId: payload.animationId,
 		});
 	},
-	removeSimulationAnimation: (animationId: string) => {
-		const state = get();
-		const animationIndex = state.simulation.animationsQueue.findIndex(
-			(a) => a.id === animationId,
-		);
+	// TODO remove?
+	// removeSimulationAnimation: (animationId: string) => {
+	// 	const state = get();
+	// 	const animationIndex = state.simulation.animationsQueue.findIndex(
+	// 		(a) => a.id === animationId,
+	// 	);
 
-		if (animationIndex === -1) {
-			return;
-		}
+	// 	if (animationIndex === -1) {
+	// 		return;
+	// 	}
 
-		const animation = state.simulation.animationsQueue[animationIndex];
-		const event = animation.data as ObservableEvent;
-		if (event?.type === FlowValueType.Error) {
-			state.createElementError({
-				elementId: event.sourceElementId,
-				errorId: event.id,
-				errorMessage: event.value,
-			});
-		} else {
-			state.clearErrors();
-		}
+	// 	const animation = state.simulation.animationsQueue[animationIndex];
+	// 	const event = animation.data as ObservableEvent;
+	// 	if (event?.type === FlowValueType.Error) {
+	// 		state.createElementError({
+	// 			elementId: event.sourceElementId,
+	// 			errorId: event.id,
+	// 			errorMessage: event.value,
+	// 		});
+	// 	} else {
+	// 		state.clearErrors();
+	// 	}
 
-		state.removeSimulationAnimationAtIndex(animationIndex);
-	},
+	// 	state.removeSimulationAnimationAtIndex(animationIndex);
+	// },
 });
 
 function clearCanvasAutoDragInterval(state: RootState) {
@@ -670,3 +669,4 @@ export const selectElementTooltip = () =>
 
 export const selectIsDraggable = (state: RootState) =>
 	state.simulation.state !== SimulationState.Running && isElementDragAllowed(state.state);
+
