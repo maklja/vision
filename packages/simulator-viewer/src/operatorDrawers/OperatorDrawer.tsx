@@ -47,9 +47,9 @@ export function OperatorDrawer({ element, visibleConnectPoints, draggable }: Ope
 					properties={element.properties}
 					animation={animationConfig}
 					theme={theme}
-					select={select}
-					highlight={highlight}
-					draggable={draggable}
+					select={false}
+					highlight={false}
+					draggable={false}
 					hash={(element as ResultElement).properties.hash}
 				/>
 			);

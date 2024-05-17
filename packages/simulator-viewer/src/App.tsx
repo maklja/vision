@@ -1,7 +1,7 @@
 import { get, set } from 'idb-keyval';
 import { useEffect, useState } from 'react';
 import { shallow } from 'zustand/shallow';
-import { ConnectLine, Element } from '@maklja/vision-simulator-model';
+import { ConnectLine, Element, resultOperators } from '@maklja/vision-simulator-model';
 import { Simulator } from './simulator';
 import { createRootStore, RootStore, StateProps, StoreContext } from './store/rootStore';
 import { CanvasState } from './store/stage';
@@ -39,7 +39,7 @@ function App() {
 			async (state) => {
 				const [elements, connectLines, canvasState, themeId] = state;
 				await set(diagramId, {
-					elements: Object.values(elements),
+					elements: Object.values(elements).filter((el) => !resultOperators.has(el.type)),
 					connectLines: Object.values(connectLines),
 					canvasState: {
 						x: canvasState.x,
@@ -69,3 +69,4 @@ function App() {
 }
 
 export default App;
+

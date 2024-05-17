@@ -3,6 +3,7 @@ import { StateCreator } from 'zustand';
 import { AnimationKey } from '../../animation';
 import { RootState } from '../rootStore';
 import { ObservableEvent } from '../simulation';
+import { updateElement } from '../elements';
 
 export interface DestroyDrawerAnimationPayload {
 	drawerId: string;
@@ -48,7 +49,23 @@ const SUPPORTED_ANIMATIONS: readonly AnimationKey[] = [
 export function retrieveNextAnimations(state: RootState) {
 	const { simulation } = state;
 	return Object.values(simulation.animations.queue)
-		.map((eventQueue) => eventQueue[0])
+		.flatMap((eventQueue) => {
+			const nextAnimation = eventQueue[0];
+			if (nextAnimation.key !== AnimationKey.MoveDrawer) {
+				return [nextAnimation];
+			}
+
+			const movingAnimations = [nextAnimation];
+			for (const animation of eventQueue.slice(1)) {
+				if (animation.key !== AnimationKey.MoveDrawer) {
+					break;
+				}
+
+				movingAnimations.push(animation);
+			}
+
+			return movingAnimations;
+		})
 		.filter((animation) => {
 			if (!animation || !SUPPORTED_ANIMATIONS.includes(animation.key)) {
 				return false;
@@ -77,6 +94,10 @@ function scheduleSimulationAnimations(state: RootState) {
 
 		if (!drawerAnimations) {
 			state.animations[drawerId] = [newAnimation];
+			updateElement(state, {
+				id: groupId,
+				visible: key === AnimationKey.MoveDrawer,
+			});
 			return;
 		}
 
@@ -119,8 +140,8 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 			return state;
 		}, true),
 	destroyDrawerAnimation: (payload: DestroyDrawerAnimationPayload) => {
-		get().removeDrawerAnimation(payload);
 		get().removeSimulationAnimation(payload.animationGroupId, payload.animationId);
+		get().removeDrawerAnimation(payload);
 	},
 	removeAllDrawerAnimations: (drawerId: string) =>
 		set((state) => {
@@ -136,15 +157,12 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 				return state;
 			}
 
-			const updatedQueue = drawerAnimations.map((a) =>
-				a.id === animationId
-					? {
-							...a,
-							dispose: true,
-						}
-					: a,
-			);
-			state.animations[drawerId] = updatedQueue;
+			const animation = drawerAnimations.find((animation) => animation.id === animationId);
+			if (!animation) {
+				return state;
+			}
+
+			animation.dispose = true;
 
 			return state;
 		}, true),

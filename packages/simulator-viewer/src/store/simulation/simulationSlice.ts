@@ -10,6 +10,7 @@ import {
 import { DrawerAnimation } from '../drawerAnimations';
 import { RootState } from '../rootStore';
 import { AnimationKey, MoveAnimation } from '../../animation';
+import { moveElementToPosition, updateElement } from '../elements';
 
 export interface ObservableEvent {
 	id: string;
@@ -45,7 +46,6 @@ export interface Simulation {
 	state: SimulationState;
 	completed: boolean;
 	events: ObservableEvent[];
-	animationsQueue: DrawerAnimation[];
 	animations: {
 		subscribed: string[];
 		queue: Record<string, DrawerAnimation[]>;
@@ -141,7 +141,10 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			const { simulation } = state;
 			simulation.completed = false;
 			simulation.state = SimulationState.Running;
-			simulation.animationsQueue = [];
+			simulation.animations = {
+				queue: {},
+				subscribed: [],
+			};
 			simulation.events = [];
 
 			return state;
@@ -149,9 +152,18 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 	resetSimulation: () =>
 		set((state) => {
 			const { simulation } = state;
+
+			// remove all results drawers
+			Object.keys(simulation.animations.queue).forEach((animationGroupId) => {
+				delete state.elements[animationGroupId];
+			});
+
 			simulation.completed = false;
 			simulation.state = SimulationState.Stopped;
-			simulation.animationsQueue = [];
+			simulation.animations = {
+				queue: {},
+				subscribed: [],
+			};
 			simulation.events = [];
 
 			return state;
@@ -160,10 +172,9 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 		set((state) => {
 			const { simulation } = state;
 			simulation.completed = true;
-			simulation.state =
-				simulation.animationsQueue.length > 0
-					? SimulationState.Running
-					: SimulationState.Stopped;
+
+			const hasAnimations = Object.keys(simulation.animations.queue).length > 0;
+			simulation.state = hasAnimations ? SimulationState.Running : SimulationState.Stopped;
 
 			return state;
 		}, true),
@@ -183,7 +194,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 				id,
 				name: id,
 				type: ElementType.Result,
-				visible: true,
+				visible: false,
 				x: secondPoint.x,
 				y: secondPoint.y,
 				properties: {
@@ -194,6 +205,10 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			return state;
 		}),
 	simulateObservableEvent: (event: ObservableEvent) => {
+		if (get().simulation.state === SimulationState.Stopped) {
+			return;
+		}
+
 		get().createResultElement(event);
 		get().addObservableEvent(event);
 		get().scheduleSimulationAnimations();
@@ -226,13 +241,28 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			}
 
 			const [removedAnimation] = eventAnimations.splice(animationIdx, 1);
-			if (eventAnimations.length === 0) {
-				delete simulation.animations.queue[animationGroupId];
-			}
+			const [nextAnimation] = eventAnimations;
 
 			const eventData = removedAnimation.data as ObservableEvent;
 			if (eventAnimations.length === 0 && eventData.type === FlowValueType.Subscribe) {
 				simulation.animations.subscribed.push(eventData.id);
+			}
+
+			if (eventAnimations.length === 0) {
+				delete simulation.animations.queue[animationGroupId];
+				delete state.elements[animationGroupId];
+			} else if (nextAnimation?.key === AnimationKey.MoveDrawer) {
+				const moveAnimationData = nextAnimation.data as MoveAnimation;
+				moveElementToPosition(state, {
+					id: nextAnimation.groupId,
+					x: moveAnimationData.sourcePosition.x,
+					y: moveAnimationData.sourcePosition.y,
+				});
+			} else {
+				updateElement(state, {
+					id: animationGroupId,
+					visible: false,
+				});
 			}
 
 			const animationCompleted = Object.keys(simulation.animations.queue).length === 0;
@@ -244,8 +274,4 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 });
 
 export const selectSimulation = (state: RootState) => state.simulation;
-
-// TODO remove
-export const selectSimulationNextAnimation = (state: RootState): DrawerAnimation | null =>
-	state.simulation.animationsQueue.at(0) ?? null;
 
