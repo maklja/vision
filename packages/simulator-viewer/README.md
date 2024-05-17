@@ -17,4 +17,4 @@
 -   settings windows for theme and grid configuration
 -   change MaterialUI with tailwind
 -   elements tree
-
+-   enable drag of the line with multiple points

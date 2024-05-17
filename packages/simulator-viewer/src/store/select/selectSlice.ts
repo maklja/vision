@@ -3,6 +3,9 @@ import { useShallow } from 'zustand/react/shallow';
 import { boundingBoxLinesIntersection, normalizeBoundingBox } from '@maklja/vision-simulator-model';
 import { RootState } from '../rootStore';
 import { calculateShapeSizeBoundingBox, findElementSize } from '../../theme';
+import { clearSelectedConnectPoints } from '../connectPoints';
+import { deselectAllConnectLines } from '../connectLines';
+import { setSelectElements } from '../elements';
 
 export interface SelectSlice {
 	removeSelectedElements: () => void;
@@ -23,12 +26,7 @@ export const createSelectSlice: StateCreator<RootState, [], [], SelectSlice> = (
 		state.removeElementsConnectPoints(elementIds);
 		elementIds.forEach((elementId) => state.removeElementConnectLines({ elementId }));
 	},
-	clearAllSelectedElements: () => {
-		const state = get();
-		state.setSelectElements([]);
-		state.deselectAllConnectLines();
-		state.clearSelectedConnectPoints();
-	},
+	clearAllSelectedElements: () => set((state) => clearAllSelectedElements(state), true),
 	markElementAsSelected: (elId: string) => {
 		const state = get();
 
@@ -102,8 +100,15 @@ export const createSelectSlice: StateCreator<RootState, [], [], SelectSlice> = (
 	},
 });
 
+export function clearAllSelectedElements(state: RootState) {
+	setSelectElements(state, []);
+	deselectAllConnectLines(state);
+	clearSelectedConnectPoints(state);
+
+	return state;
+}
+
 export const selectElementsInSelection = () =>
 	useShallow((state: RootState) =>
 		Object.values(state.elements).filter((el) => state.selectedElements.includes(el.id)),
 	);
-
