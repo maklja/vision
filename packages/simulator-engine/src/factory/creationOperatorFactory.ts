@@ -25,7 +25,6 @@ import {
 	ElementGroup,
 	ElementProps,
 	ElementType,
-	EmptyElement,
 	FromElement,
 	FromElementProperties,
 	GenerateElement,
@@ -55,14 +54,11 @@ import {
 	MissingReferenceObservableError,
 	UnsupportedElementTypeError,
 } from '../errors';
-import { createFlowValue, wrapGeneratorCallback } from './utils';
+import { wrapGeneratorCallback } from './utils';
 
 const createFromCreationOperator =
 	(el: Element, props: OperatorProps) =>
-	(
-		overrideProperties?: Partial<ElementProps>,
-		parentSubscribeId?: string,
-	): Observable<FlowValue> => {
+	(overrideProperties?: ElementProps, parentSubscribeId?: string): Observable<FlowValue> => {
 		const fromEl = el as FromElement;
 		const fromElProperties: FromElementProperties = {
 			...fromEl.properties,
@@ -103,21 +99,24 @@ const createFromCreationOperator =
 				FlowValue.createSubscribeEvent(fromEl.id, subscribeId, parentSubscribeId),
 			);
 			return from(observableRefInvokerFn());
-		}).pipe(map((item) => createFlowValue(item, fromEl.id)));
+		});
 	};
 
-const createOfCreationOperator = (el: Element) => (overrideProperties?: Partial<ElementProps>) => {
-	const ofEl = el as OfElement;
-	const ofElProperties: OfElementProperties = {
-		...ofEl.properties,
-		...overrideProperties,
-	};
+const createOfCreationOperator =
+	(el: Element) => (overrideProperties?: ElementProps, subscribeId?: string) => {
+		const ofEl = el as OfElement;
+		const ofElProperties: OfElementProperties = {
+			...ofEl.properties,
+			...overrideProperties,
+		};
 
-	const argsFn = new Function(`return ${ofElProperties.argsFactoryExpression}`)();
-	const args = argsFn();
-	const observable = Array.isArray(args) ? of(...args) : of(args);
-	return observable.pipe(map<unknown, FlowValue>((item) => createFlowValue(item, ofEl.id)));
-};
+		const argsFn = new Function(`return ${ofElProperties.argsFactoryExpression}`)();
+		const args = argsFn();
+		const observable = Array.isArray(args) ? of(...args) : of(args);
+		return observable.pipe(
+			map<unknown, FlowValue>((item) => FlowValue.createNextEvent(item, el.id, subscribeId)),
+		);
+	};
 
 const createIntervalCreationOperator =
 	(el: Element) =>
@@ -135,7 +134,7 @@ const createIntervalCreationOperator =
 
 const createIifCreationOperator =
 	(el: Element, props: OperatorProps) =>
-	(overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
+	(overrideProperties?: ElementProps, parentSubscribeId?: string): Observable<FlowValue> => {
 		const iifEl = el as IifElement;
 		const iifElProps: IifElementProperties = {
 			...iifEl.properties,
@@ -167,23 +166,37 @@ const createIifCreationOperator =
 			);
 		}
 
+		const subscribeId = v1();
+		const trueWrappedObservableGenerator = wrapGeneratorCallback(
+			trueRefObservableGenerator.observableGenerator,
+			subscribeId,
+		);
 		const trueRefInvokerFn: () => Observable<FlowValue> = new Function(
 			OBSERVABLE_GENERATOR_NAME,
 			`return ${iifElProps.trueCallbackExpression}`,
-		)(trueRefObservableGenerator.observableGenerator);
+		)(trueWrappedObservableGenerator);
+
+		const falseWrappedObservableGenerator = wrapGeneratorCallback(
+			falseRefObservableGenerator.observableGenerator,
+			subscribeId,
+		);
 		const falseRefInvokerFn: () => Observable<FlowValue> = new Function(
 			OBSERVABLE_GENERATOR_NAME,
 			`return ${iifElProps.falseCallbackExpression}`,
-		)(falseRefObservableGenerator.observableGenerator);
+		)(falseWrappedObservableGenerator);
 
 		return iif(
 			conditionFn(),
 			defer(() => {
-				trueRefObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(iifEl.id));
+				trueRefObservableGenerator.onSubscribe?.(
+					FlowValue.createSubscribeEvent(iifEl.id, subscribeId, parentSubscribeId),
+				);
 				return trueRefInvokerFn();
 			}),
 			defer(() => {
-				falseRefObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(iifEl.id));
+				falseRefObservableGenerator.onSubscribe?.(
+					FlowValue.createSubscribeEvent(iifEl.id, subscribeId, parentSubscribeId),
+				);
 				return falseRefInvokerFn();
 			}),
 		);
@@ -191,7 +204,7 @@ const createIifCreationOperator =
 
 const createAjaxCreationOperator =
 	(el: Element) =>
-	(overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
+	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
 		const ajaxEl = el as AjaxElement;
 		const ajaxElProperties: AjaxElementProperties = {
 			...ajaxEl.properties,
@@ -243,13 +256,14 @@ const createAjaxCreationOperator =
 			responseType,
 			timeout,
 			body: bodyJson,
-		}).pipe(map((item) => createFlowValue(item, ajaxEl.id)));
+		}).pipe(map((item) => FlowValue.createNextEvent(item, ajaxEl.id, subscribeId)));
 	};
 
-const createEmptyCreationOperator = (el: Element) => (): Observable<FlowValue> => {
-	const emptyEl = el as EmptyElement;
-	return EMPTY.pipe(map((item) => createFlowValue(item, emptyEl.id)));
-};
+const createEmptyCreationOperator =
+	(el: Element) =>
+	(_overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
+		return EMPTY.pipe(map((item) => FlowValue.createNextEvent(item, el.id, subscribeId)));
+	};
 
 const createDeferCreationOperator =
 	(el: Element, props: OperatorProps) =>
@@ -287,7 +301,7 @@ const createDeferCreationOperator =
 
 const createGenerateCreationOperator =
 	(el: Element) =>
-	(overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
+	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
 		const generateEl = el as GenerateElement;
 		const generateElProperties: GenerateElementProperties = {
 			...generateEl.properties,
@@ -304,12 +318,12 @@ const createGenerateCreationOperator =
 			condition: conditionFn?.(),
 			iterate: iterateFn(),
 			resultSelector: resultSelectorFn(),
-		}).pipe(map((item) => createFlowValue(item, generateEl.id)));
+		}).pipe(map((item) => FlowValue.createNextEvent(item, generateEl.id, subscribeId)));
 	};
 
 const createThrowErrorCreationOperator =
 	(el: Element) =>
-	(overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
+	(overrideProperties?: ElementProps): Observable<FlowValue> => {
 		const throwErrorEl = el as ThrowErrorElement;
 		const throwErrorElProperties: ThrowErrorElementProperties = {
 			...throwErrorEl.properties,
@@ -324,7 +338,7 @@ const createThrowErrorCreationOperator =
 
 const createRangeCreationOperator =
 	(el: Element) =>
-	(overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
+	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
 		const rangeEl = el as RangeElement;
 		const rangeElProperties: RangeElementProperties = {
 			...rangeEl.properties,
@@ -332,13 +346,13 @@ const createRangeCreationOperator =
 		};
 
 		return range(rangeElProperties.start, rangeElProperties.count).pipe(
-			map((item) => createFlowValue(item, rangeEl.id)),
+			map((item) => FlowValue.createNextEvent(item, rangeEl.id, subscribeId)),
 		);
 	};
 
 const createTimerCreationOperator =
 	(el: Element) =>
-	(overrideProperties?: Partial<ElementProps>): Observable<FlowValue> => {
+	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
 		const timerEl = el as TimerElement;
 		const timerElProperties: TimerElementProperties = {
 			...timerEl.properties,
@@ -350,7 +364,7 @@ const createTimerCreationOperator =
 				? new Date(timerElProperties.startDue)
 				: timerElProperties.startDue;
 		return timer(startDue, timerElProperties.intervalDuration).pipe(
-			map((item) => createFlowValue(item, el.id)),
+			map((item) => FlowValue.createNextEvent(item, timerEl.id, subscribeId)),
 		);
 	};
 
