@@ -82,7 +82,7 @@ function compressAnimations(
 	allowedAnimationCompression = [AnimationKey.HighlightDrawer],
 ) {
 	const nextAnimation = animations[0];
-	if (!allowedAnimationCompression.includes(nextAnimation.key)) {
+	if (nextAnimation.dispose || !allowedAnimationCompression.includes(nextAnimation.key)) {
 		return animations;
 	}
 
@@ -92,7 +92,6 @@ function compressAnimations(
 			return animations;
 		}
 
-		console.log('disposed');
 		animation.dispose = true;
 	}
 
@@ -230,4 +229,3 @@ export const selectDrawerAnimationByDrawerId =
 	(drawerId: string) =>
 	(state: RootState): DrawerAnimation | null =>
 		state.animations[drawerId]?.at(0) ?? null;
-
