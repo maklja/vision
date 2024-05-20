@@ -2,7 +2,7 @@ import Konva from 'konva';
 import { Circle, Group } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
 import { useState } from 'react';
-import { useAnimationGroups } from '../../animation';
+import { useAnimation } from '../../animation';
 import { useCircleSizeScale, useElementDrawerTheme } from '../../theme';
 import { handleDragBoundFunc } from '../utils';
 
@@ -37,29 +37,22 @@ export function DotCircleOperatorDrawer({
 	});
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [innerShapeRef, setInnerShapeRef] = useState<Konva.Circle | null>(null);
-	useAnimationGroups(animation, {
-		animationFactories: [
-			{
-				node: mainShapeRef,
-				mapper: (a) => ({
-					config: a.mainShape,
-				}),
-			},
-			{
-				node: innerShapeRef,
-				mapper: (a) => ({
-					config: a.secondaryShape,
-				}),
-			},
+
+	useAnimation(
+		animation,
+		[
+			[mainShapeRef, animation?.mainShape],
+			[innerShapeRef, animation?.secondaryShape],
 		],
-		onAnimationBegin,
-		onAnimationComplete,
-		onAnimationDestroy,
-		drawerId: id,
-	});
+		{
+			onAnimationBegin,
+			onAnimationComplete,
+			onAnimationDestroy,
+			drawerId: id,
+		},
+	);
 
 	const innerSizes = useCircleSizeScale(size, 0.6);
-
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
 			id,
@@ -136,3 +129,4 @@ export function DotCircleOperatorDrawer({
 		</Group>
 	);
 }
+
