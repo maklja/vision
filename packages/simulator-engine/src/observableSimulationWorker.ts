@@ -7,7 +7,6 @@ import {
 	MissingReferenceObservableError,
 	UnsupportedElementTypeError,
 } from './errors';
-import { FlowValueEvent } from './context';
 
 export interface StartSimulationMessageEvent {
 	type: ObservableSimulationMessageType.StartSimulation;
@@ -47,9 +46,20 @@ self.addEventListener(
 			);
 
 			observableSimulation.start({
-				next: (value) => self.postMessage(value),
-				error: (error) => self.postMessage(error),
-				complete: () => self.postMessage(null),
+				next: (value) =>
+					self.postMessage({
+						type: ObservableSimulationMessageType.Next,
+						value,
+					}),
+				error: (error) =>
+					self.postMessage({
+						type: ObservableSimulationMessageType.Error,
+						value: error,
+					}),
+				complete: () =>
+					self.postMessage({
+						type: ObservableSimulationMessageType.Complete,
+					}),
 			});
 		} catch (e) {
 			if (
@@ -58,20 +68,24 @@ self.addEventListener(
 				e instanceof UnsupportedElementTypeError ||
 				e instanceof InvalidElementPropertyValueError
 			) {
-				const event: FlowValueEvent = {
-					id: e.id,
-					sourceElementId: e.elementId,
-					targetElementId: e.elementId,
-					connectLinesId: [],
-					hash: '',
-					index: -1,
-					type: FlowValueType.CreationError,
-					value: e.message,
-				};
-				self.postMessage(event);
+				self.postMessage({
+					type: ObservableSimulationMessageType.CreationError,
+					value: {
+						id: e.id,
+						sourceElementId: e.elementId,
+						targetElementId: e.elementId,
+						connectLinesId: [],
+						hash: '',
+						index: -1,
+						type: FlowValueType.Error,
+						value: e.message,
+						subscribeId: null,
+					},
+				});
 			}
 
 			throw e;
 		}
 	},
 );
+

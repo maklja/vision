@@ -1,5 +1,5 @@
 import { Unsubscribable } from 'rxjs';
-import { ConnectLine, Element, FlowValueType } from '@maklja/vision-simulator-model';
+import { ConnectLine, Element } from '@maklja/vision-simulator-model';
 import { createSimulationModel, ObservableSimulation } from './ObservableSimulation';
 import { FlowValueEvent } from './context';
 import {
@@ -12,7 +12,25 @@ import {
 export enum ObservableSimulationMessageType {
 	StartSimulation = 'startSimulation',
 	StopSimulation = 'stopSimulation',
+	Next = 'next',
+	Error = 'error',
+	Complete = 'complete',
+	CreationError = 'creationError',
 }
+
+interface ResultMessageEvent {
+	type:
+		| ObservableSimulationMessageType.Next
+		| ObservableSimulationMessageType.Error
+		| ObservableSimulationMessageType.CreationError;
+	value: FlowValueEvent;
+}
+
+interface CompleteMessageEvent {
+	type: ObservableSimulationMessageType.Complete;
+}
+
+type FlowValueMessageEvent = ResultMessageEvent | CompleteMessageEvent;
 
 export interface CreationErrorEvent {
 	elementId: string;
@@ -45,23 +63,21 @@ export function startObservableSimulation({
 			{ name: 'ObservableWorker', type: 'module' },
 		);
 
-		backgroundWorker.addEventListener('message', (ev: MessageEvent<FlowValueEvent | null>) => {
+		backgroundWorker.addEventListener('message', (ev: MessageEvent<FlowValueMessageEvent>) => {
 			const { data } = ev;
-			if (data === null) {
-				return onComplete?.();
-			}
 
 			switch (data.type) {
-				case FlowValueType.Next:
-				case FlowValueType.Subscribe:
-					return onNext?.(data);
-				case FlowValueType.Error:
-					return onError?.(data);
-				case FlowValueType.CreationError:
+				case ObservableSimulationMessageType.Next:
+					return onNext?.(data.value);
+				case ObservableSimulationMessageType.Error:
+					return onError?.(data.value);
+				case ObservableSimulationMessageType.Complete:
+					return onComplete?.();
+				case ObservableSimulationMessageType.CreationError:
 					return onCreationError?.({
-						elementId: data.sourceElementId,
-						errorId: data.id,
-						errorMessage: data.value,
+						elementId: data.value.sourceElementId,
+						errorId: data.value.id,
+						errorMessage: data.value.value,
 					});
 			}
 		});
@@ -84,6 +100,9 @@ export function startObservableSimulation({
 
 		return {
 			unsubscribe() {
+				backgroundWorker.postMessage({
+					type: ObservableSimulationMessageType.StopSimulation,
+				});
 				backgroundWorker.terminate();
 			},
 		};
@@ -116,3 +135,4 @@ export function startObservableSimulation({
 		throw e;
 	}
 }
+

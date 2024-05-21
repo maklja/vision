@@ -24,6 +24,10 @@ export class FlowValue<T = unknown> {
 		return new FlowValue(value, elementId, FlowValueType.Next, v1(), subscribeId);
 	}
 
+	static createErrorEvent(error: unknown, elementId: string, subscribeId?: string) {
+		return new FlowValue(error, elementId, FlowValueType.Error, v1(), subscribeId);
+	}
+
 	static createEmptyValue(elementId: string) {
 		return new FlowValue(null, elementId, FlowValueType.Next, 'EMPTY_FLOW_VALUE');
 	}

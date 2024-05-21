@@ -560,31 +560,6 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 			animationId: payload.animationId,
 		});
 	},
-	// TODO remove?
-	// removeSimulationAnimation: (animationId: string) => {
-	// 	const state = get();
-	// 	const animationIndex = state.simulation.animationsQueue.findIndex(
-	// 		(a) => a.id === animationId,
-	// 	);
-
-	// 	if (animationIndex === -1) {
-	// 		return;
-	// 	}
-
-	// 	const animation = state.simulation.animationsQueue[animationIndex];
-	// 	const event = animation.data as ObservableEvent;
-	// 	if (event?.type === FlowValueType.Error) {
-	// 		state.createElementError({
-	// 			elementId: event.sourceElementId,
-	// 			errorId: event.id,
-	// 			errorMessage: event.value,
-	// 		});
-	// 	} else {
-	// 		state.clearErrors();
-	// 	}
-
-	// 	state.removeSimulationAnimationAtIndex(animationIndex);
-	// },
 });
 
 function clearCanvasAutoDragInterval(state: RootState) {
