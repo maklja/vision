@@ -17,6 +17,17 @@ export class FlowValue<T = unknown> {
 		this.hash = createHash({ id }, { algorithm: 'md5' });
 	}
 
+	copy(raw: T) {
+		return new FlowValue(
+			raw,
+			this.elementId,
+			this.type,
+			this.id,
+			this.subscribeId,
+			this.dependencies,
+		);
+	}
+
 	static createSubscribeEvent({
 		elementId,
 		id = v1(),
@@ -85,3 +96,4 @@ export interface FlowManager {
 
 	asObservable(): Observable<FlowValueEvent>;
 }
+

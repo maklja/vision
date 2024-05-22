@@ -14,7 +14,7 @@ export function mapOutputToFlowValue(operatorFn: OperatorFunction<unknown, unkno
 	return concatMap((flowValue: FlowValue) =>
 		of(flowValue.raw).pipe(
 			operatorFn,
-			map((value) => new FlowValue(value, flowValue.elementId, flowValue.type, flowValue.id)),
+			map((value) => flowValue.copy(value)),
 		),
 	);
 }
