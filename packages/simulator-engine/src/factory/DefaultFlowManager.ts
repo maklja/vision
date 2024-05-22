@@ -29,6 +29,7 @@ export class DefaultFlowManager implements FlowManager {
 		this.eventObserver.next({
 			id: value.id,
 			subscribeId: value.subscribeId,
+			dependencies: value.dependencies,
 			index: ++this.eventIndex,
 			hash: value.hash,
 			value: `${value.raw}`,
@@ -54,6 +55,7 @@ export class DefaultFlowManager implements FlowManager {
 		this.eventObserver.next({
 			id: value.id,
 			subscribeId: value.subscribeId,
+			dependencies: value.dependencies,
 			index: ++this.eventIndex,
 			hash: value.hash,
 			value: `${value.raw}`,

@@ -1,5 +1,6 @@
 import { v1 } from 'uuid';
 import {
+	catchError,
 	defer,
 	EMPTY,
 	from,
@@ -68,7 +69,13 @@ const createFromCreationOperator =
 		if (!fromElProperties.enableObservableEvent) {
 			const inputFn = new Function(`return ${fromElProperties.inputCallbackExpression}`);
 			return from(inputFn()()).pipe(
-				map((item) => FlowValue.createNextEvent(item, el.id, parentSubscribeId)),
+				map((item) =>
+					FlowValue.createNextEvent({
+						value: item,
+						elementId: el.id,
+						subscribeId: parentSubscribeId,
+					}),
+				),
 			);
 		}
 
@@ -96,7 +103,11 @@ const createFromCreationOperator =
 		)(wrappedObservableGenerator);
 		return defer(() => {
 			refObservableGenerator.onSubscribe?.(
-				FlowValue.createSubscribeEvent(fromEl.id, subscribeId, parentSubscribeId),
+				FlowValue.createSubscribeEvent({
+					elementId: fromEl.id,
+					id: subscribeId,
+					subscribeId: parentSubscribeId,
+				}),
 			);
 			return from(observableRefInvokerFn());
 		});
@@ -114,7 +125,13 @@ const createOfCreationOperator =
 		const args = argsFn();
 		const observable = Array.isArray(args) ? of(...args) : of(args);
 		return observable.pipe(
-			map<unknown, FlowValue>((item) => FlowValue.createNextEvent(item, el.id, subscribeId)),
+			map<unknown, FlowValue>((item) =>
+				FlowValue.createNextEvent({
+					value: item,
+					elementId: el.id,
+					subscribeId,
+				}),
+			),
 		);
 	};
 
@@ -128,7 +145,13 @@ const createIntervalCreationOperator =
 		};
 
 		return interval(intervalElProps.period).pipe(
-			map((item) => FlowValue.createNextEvent(item, el.id, subscribeId)),
+			map((item) =>
+				FlowValue.createNextEvent({
+					value: item,
+					elementId: intervalEl.id,
+					subscribeId,
+				}),
+			),
 		);
 	};
 
@@ -189,13 +212,21 @@ const createIifCreationOperator =
 			conditionFn(),
 			defer(() => {
 				trueRefObservableGenerator.onSubscribe?.(
-					FlowValue.createSubscribeEvent(iifEl.id, subscribeId, parentSubscribeId),
+					FlowValue.createSubscribeEvent({
+						elementId: iifEl.id,
+						id: subscribeId,
+						subscribeId: parentSubscribeId,
+					}),
 				);
 				return trueRefInvokerFn();
 			}),
 			defer(() => {
 				falseRefObservableGenerator.onSubscribe?.(
-					FlowValue.createSubscribeEvent(iifEl.id, subscribeId, parentSubscribeId),
+					FlowValue.createSubscribeEvent({
+						elementId: iifEl.id,
+						id: subscribeId,
+						subscribeId: parentSubscribeId,
+					}),
 				);
 				return falseRefInvokerFn();
 			}),
@@ -256,13 +287,29 @@ const createAjaxCreationOperator =
 			responseType,
 			timeout,
 			body: bodyJson,
-		}).pipe(map((item) => FlowValue.createNextEvent(item, ajaxEl.id, subscribeId)));
+		}).pipe(
+			map((item) =>
+				FlowValue.createNextEvent({
+					value: item,
+					elementId: ajaxEl.id,
+					subscribeId,
+				}),
+			),
+		);
 	};
 
 const createEmptyCreationOperator =
 	(el: Element) =>
 	(_overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
-		return EMPTY.pipe(map((item) => FlowValue.createNextEvent(item, el.id, subscribeId)));
+		return EMPTY.pipe(
+			map((item) =>
+				FlowValue.createNextEvent({
+					value: item,
+					elementId: el.id,
+					subscribeId,
+				}),
+			),
+		);
 	};
 
 const createDeferCreationOperator =
@@ -293,7 +340,11 @@ const createDeferCreationOperator =
 		)(wrappedObservableGenerator);
 		return defer(() => {
 			refObservableGenerator.onSubscribe?.(
-				FlowValue.createSubscribeEvent(deferEl.id, subscribeId, parentSubscribeId),
+				FlowValue.createSubscribeEvent({
+					elementId: deferEl.id,
+					id: subscribeId,
+					subscribeId: parentSubscribeId,
+				}),
 			);
 			return observableRefInvokerFn();
 		});
@@ -318,12 +369,20 @@ const createGenerateCreationOperator =
 			condition: conditionFn?.(),
 			iterate: iterateFn(),
 			resultSelector: resultSelectorFn(),
-		}).pipe(map((item) => FlowValue.createNextEvent(item, generateEl.id, subscribeId)));
+		}).pipe(
+			map((item) =>
+				FlowValue.createNextEvent({
+					value: item,
+					elementId: generateEl.id,
+					subscribeId,
+				}),
+			),
+		);
 	};
 
 const createThrowErrorCreationOperator =
 	(el: Element) =>
-	(overrideProperties?: ElementProps): Observable<FlowValue> => {
+	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
 		const throwErrorEl = el as ThrowErrorElement;
 		const throwErrorElProperties: ThrowErrorElementProperties = {
 			...throwErrorEl.properties,
@@ -333,7 +392,11 @@ const createThrowErrorCreationOperator =
 			`return ${throwErrorElProperties.errorOrErrorFactory}`,
 		)();
 
-		return throwError(errorFactoryFn as () => unknown);
+		return throwError(errorFactoryFn as () => unknown).pipe(
+			catchError((error) => {
+				throw FlowValue.createErrorEvent(error, throwErrorEl.id, subscribeId);
+			}),
+		);
 	};
 
 const createRangeCreationOperator =
@@ -346,7 +409,13 @@ const createRangeCreationOperator =
 		};
 
 		return range(rangeElProperties.start, rangeElProperties.count).pipe(
-			map((item) => FlowValue.createNextEvent(item, rangeEl.id, subscribeId)),
+			map((item) =>
+				FlowValue.createNextEvent({
+					value: item,
+					elementId: rangeEl.id,
+					subscribeId,
+				}),
+			),
 		);
 	};
 
@@ -364,7 +433,13 @@ const createTimerCreationOperator =
 				? new Date(timerElProperties.startDue)
 				: timerElProperties.startDue;
 		return timer(startDue, timerElProperties.intervalDuration).pipe(
-			map((item) => FlowValue.createNextEvent(item, timerEl.id, subscribeId)),
+			map((item) =>
+				FlowValue.createNextEvent({
+					value: item,
+					elementId: timerEl.id,
+					subscribeId,
+				}),
+			),
 		);
 	};
 
@@ -400,4 +475,3 @@ export const creationOperatorFactory: CreationOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
-

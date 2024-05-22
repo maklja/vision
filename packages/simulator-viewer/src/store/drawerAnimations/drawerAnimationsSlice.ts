@@ -4,6 +4,7 @@ import { AnimationKey } from '../../animation';
 import { RootState } from '../rootStore';
 import { ObservableEvent } from '../simulation';
 import { updateElement } from '../elements';
+import { FlowValueType } from '@maklja/vision-simulator-model';
 
 export interface DestroyDrawerAnimationPayload {
 	drawerId: string;
@@ -68,11 +69,14 @@ export function retrieveNextAnimations(state: RootState) {
 			}
 
 			const animationData = animation.data as ObservableEvent;
-			if (!animationData.subscribeId) {
-				return true;
-			}
+			const isSubscribed =
+				animationData.subscribeId == null ||
+				simulation.animations.subscribed.includes(animationData.subscribeId);
+			const ensuredDeps = animationData.dependencies.every((depId) =>
+				simulation.animations.completed.includes(depId),
+			);
 
-			return simulation.animations.subscribed.includes(animationData.subscribeId);
+			return isSubscribed && ensuredDeps;
 		});
 }
 
@@ -155,8 +159,25 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 			return state;
 		}, true),
 	destroyDrawerAnimation: (payload: DestroyDrawerAnimationPayload) => {
+		const animation = get().animations[payload.animationGroupId]?.find(
+			(a) => a.id === payload.animationId,
+		);
+
 		get().removeSimulationAnimation(payload.animationGroupId, payload.animationId);
 		get().removeDrawerAnimation(payload);
+
+		const event = animation?.data as ObservableEvent;
+		if (event?.type === FlowValueType.Error) {
+			get().createElementError({
+				elementId: event.sourceElementId,
+				errorId: event.id,
+				errorMessage: event.value,
+			});
+		}
+		// else {
+		// 	get().clearErrors();
+		// }
+
 		get().scheduleSimulationAnimations();
 	},
 	removeAllDrawerAnimations: (drawerId: string) =>

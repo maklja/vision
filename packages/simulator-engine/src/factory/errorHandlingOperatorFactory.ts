@@ -1,5 +1,11 @@
+import { v1 } from 'uuid';
 import { Observable, ObservableInput, catchError } from 'rxjs';
-import { Element, ElementType, FlowValueType } from '@maklja/vision-simulator-model';
+import {
+	CatchErrorElement,
+	Element,
+	ElementType,
+	OBSERVABLE_GENERATOR_NAME,
+} from '@maklja/vision-simulator-model';
 import {
 	OperatorProps,
 	PipeObservableFactory,
@@ -8,6 +14,7 @@ import {
 } from './OperatorFactory';
 import { FlowValue } from '../context';
 import { MissingReferenceObservableError } from '../errors';
+import { wrapGeneratorCallback } from './utils';
 
 const createCatchErrorOperator =
 	(el: Element, props: OperatorProps) => (o: Observable<FlowValue>) => {
@@ -22,14 +29,32 @@ const createCatchErrorOperator =
 			throw new Error('Too many reference observables for catchError operator');
 		}
 
+		const catchEl = el as CatchErrorElement;
 		const [refObservableGenerator] = props.refObservableGenerators;
+		const subscribeId = v1();
+		const wrappedObservableGenerator = wrapGeneratorCallback(
+			refObservableGenerator.observableGenerator,
+			subscribeId,
+		);
+
+		console.log(refObservableGenerator.observableGenerator, el.properties.observableFactory);
+		const observableRefInvokerFn: () => Observable<FlowValue> = new Function(
+			OBSERVABLE_GENERATOR_NAME,
+			`return ${el.properties.observableFactory}`,
+		)(wrappedObservableGenerator);
+
 		return o.pipe(
-			catchError<FlowValue, ObservableInput<FlowValue>>((error) => {
-				refObservableGenerator.onSubscribe?.({
-					...error,
-					type: FlowValueType.Next,
-				});
-				return refObservableGenerator.observableGenerator();
+			catchError<FlowValue, ObservableInput<FlowValue>>((error: FlowValue) => {
+				// TODO error
+				refObservableGenerator.onSubscribe?.(
+					FlowValue.createSubscribeEvent({
+						elementId: el.id,
+						id: subscribeId,
+						dependencies: [error.id],
+					}),
+				);
+				console.log(observableRefInvokerFn, '+++', subscribeId, wrappedObservableGenerator);
+				return observableRefInvokerFn();
 			}),
 		);
 	};

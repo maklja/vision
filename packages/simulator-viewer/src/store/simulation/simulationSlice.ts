@@ -22,6 +22,7 @@ export interface ObservableEvent {
 	targetElementId: string;
 	value: string;
 	subscribeId: string | null;
+	dependencies: string[];
 }
 
 export interface MoveSimulationAnimation extends DrawerAnimation<MoveAnimation & ObservableEvent> {
@@ -48,6 +49,7 @@ export interface Simulation {
 	events: ObservableEvent[];
 	animations: {
 		subscribed: string[];
+		completed: string[];
 		queue: Record<string, DrawerAnimation[]>;
 	};
 }
@@ -133,6 +135,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 		events: [],
 		animations: {
 			queue: {},
+			completed: [],
 			subscribed: [],
 		},
 	},
@@ -143,6 +146,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			simulation.state = SimulationState.Running;
 			simulation.animations = {
 				queue: {},
+				completed: [],
 				subscribed: [],
 			};
 			simulation.events = [];
@@ -162,6 +166,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			simulation.state = SimulationState.Stopped;
 			simulation.animations = {
 				queue: {},
+				completed: [],
 				subscribed: [],
 			};
 			simulation.events = [];
@@ -251,6 +256,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			if (eventAnimations.length === 0) {
 				delete simulation.animations.queue[animationGroupId];
 				delete state.elements[animationGroupId];
+				simulation.animations.completed.push(animationGroupId);
 			} else if (nextAnimation?.key === AnimationKey.MoveDrawer) {
 				const moveAnimationData = nextAnimation.data as MoveAnimation;
 				moveElementToPosition(state, {

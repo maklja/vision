@@ -49,7 +49,8 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 
 		const { startObservableSimulation } = await import('@maklja/vision-simulator-engine');
 
-		const dispatchObservableEvent = (event: FlowValueEvent) =>
+		const dispatchObservableEvent = (event: FlowValueEvent) => {
+			console.log(event);
 			simulateObservableEvent({
 				id: event.id,
 				hash: event.hash,
@@ -60,7 +61,9 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 				type: event.type,
 				value: event.value,
 				subscribeId: event.subscribeId,
+				dependencies: [...event.dependencies],
 			});
+		};
 
 		clearErrors();
 		startSimulation();
@@ -152,4 +155,3 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 		</Box>
 	);
 }
-
