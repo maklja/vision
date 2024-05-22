@@ -1,5 +1,5 @@
 import { v1 } from 'uuid';
-import { Observable, ObservableInput, catchError } from 'rxjs';
+import { Observable, ObservableInput, catchError, map } from 'rxjs';
 import {
 	CatchErrorElement,
 	Element,
@@ -29,32 +29,34 @@ const createCatchErrorOperator =
 			throw new Error('Too many reference observables for catchError operator');
 		}
 
+		const subscribeId = v1();
 		const catchEl = el as CatchErrorElement;
 		const [refObservableGenerator] = props.refObservableGenerators;
-		const subscribeId = v1();
 		const wrappedObservableGenerator = wrapGeneratorCallback(
 			refObservableGenerator.observableGenerator,
 			subscribeId,
 		);
 
-		console.log(refObservableGenerator.observableGenerator, el.properties.observableFactory);
-		const observableRefInvokerFn: () => Observable<FlowValue> = new Function(
+		const observableRefInvokerFn: (
+			err: unknown,
+			caughtRaw: Observable<unknown>,
+		) => Observable<FlowValue> = new Function(
 			OBSERVABLE_GENERATOR_NAME,
-			`return ${el.properties.observableFactory}`,
+			`return ${catchEl.properties.selectorExpression}`,
 		)(wrappedObservableGenerator);
 
 		return o.pipe(
-			catchError<FlowValue, ObservableInput<FlowValue>>((error: FlowValue) => {
-				// TODO error
+			catchError<FlowValue, ObservableInput<FlowValue>>((error: FlowValue, caught) => {
 				refObservableGenerator.onSubscribe?.(
 					FlowValue.createSubscribeEvent({
-						elementId: el.id,
+						elementId: catchEl.id,
 						id: subscribeId,
 						dependencies: [error.id],
 					}),
 				);
-				console.log(observableRefInvokerFn, '+++', subscribeId, wrappedObservableGenerator);
-				return observableRefInvokerFn();
+
+				const caughtRaw = caught.pipe(map((flowValue) => flowValue.raw));
+				return observableRefInvokerFn(error.raw, caughtRaw);
 			}),
 		);
 	};
@@ -77,3 +79,4 @@ export const errorHandlingOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
+

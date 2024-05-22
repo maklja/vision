@@ -173,10 +173,9 @@ export const createAnimationSlice: StateCreator<RootState, [], [], AnimationSlic
 				errorId: event.id,
 				errorMessage: event.value,
 			});
+		} else {
+			get().clearErrors();
 		}
-		// else {
-		// 	get().clearErrors();
-		// }
 
 		get().scheduleSimulationAnimations();
 	},
@@ -250,3 +249,4 @@ export const selectDrawerAnimationByDrawerId =
 	(drawerId: string) =>
 	(state: RootState): DrawerAnimation | null =>
 		state.animations[drawerId]?.at(0) ?? null;
+

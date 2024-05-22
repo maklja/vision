@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import {
 	combineLatest,
 	concat,
@@ -28,7 +29,7 @@ import {
 } from './OperatorFactory';
 import { FlowValue } from '../context';
 import { UnsupportedElementTypeError } from '../errors';
-import { createFlowValue, mapFlowValuesArray } from './utils';
+import { createFlowValue, mapFlowValuesArray, wrapGeneratorCallback } from './utils';
 
 type JoinCreationOperatorFunctionFactory = (
 	el: Element,
@@ -66,7 +67,8 @@ function createNamedObservableInput(
 }
 
 const createMergeOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) =>
+	(overrideProperties?: ElementProps, parentSubscribeId?: string) => {
 		const mergeEl = el as MergeElement;
 		const mergeElProperties: MergeElementProperties = {
 			...mergeEl.properties,
@@ -77,8 +79,19 @@ const createMergeOperator =
 			...props.refObservableGenerators.map(
 				(refObservableGenerator) =>
 					defer(() => {
-						refObservableGenerator.onSubscribe?.(FlowValue.createEmptyValue(el.id));
-						return refObservableGenerator.observableGenerator();
+						const subscribeId = v1();
+						refObservableGenerator.onSubscribe?.(
+							FlowValue.createSubscribeEvent({
+								elementId: mergeEl.id,
+								id: subscribeId,
+								subscribeId: parentSubscribeId,
+							}),
+						);
+						const wrappedObservableGenerator = wrapGeneratorCallback(
+							refObservableGenerator.observableGenerator,
+							subscribeId,
+						);
+						return wrappedObservableGenerator();
 					}),
 				mergeElProperties.limitConcurrent > 0
 					? mergeElProperties.limitConcurrent
@@ -88,7 +101,7 @@ const createMergeOperator =
 	};
 
 const createCombineLatestOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) => (overrideProperties?: ElementProps) => {
 		const combineLatestEl = el as CombineLatestElement;
 
 		if (combineLatestEl.properties.observableInputsType === ObservableInputsType.Array) {
@@ -111,7 +124,7 @@ const createCombineLatestOperator =
 	};
 
 const createConcatOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) => (overrideProperties?: ElementProps) => {
 		return concat<FlowValue[]>(
 			...props.refObservableGenerators.map((refObservableGenerator) =>
 				defer(() => {
@@ -123,7 +136,7 @@ const createConcatOperator =
 	};
 
 const createForkJoinOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) => (overrideProperties?: ElementProps) => {
 		const forkJoinEl = el as ForkJoinElement;
 
 		if (forkJoinEl.properties.observableInputsType === ObservableInputsType.Array) {
@@ -146,7 +159,7 @@ const createForkJoinOperator =
 	};
 
 const createRaceOperator =
-	(el: Element, props: OperatorProps) => (overrideProperties?: Partial<ElementProps>) => {
+	(el: Element, props: OperatorProps) => (overrideProperties?: ElementProps) => {
 		return race<FlowValue[]>(
 			props.refObservableGenerators.map((refObservableGenerator) =>
 				defer(() => {
@@ -191,3 +204,4 @@ export const joinCreationOperatorFactory: JoinCreationOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
+
