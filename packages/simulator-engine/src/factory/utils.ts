@@ -1,11 +1,7 @@
 import { OperatorFunction, concatMap, map, of } from 'rxjs';
-import { ElementProps, FlowValueType } from '@maklja/vision-simulator-model';
+import { ElementProps } from '@maklja/vision-simulator-model';
 import { FlowValue } from '../context';
 import { CreationObservableFactory } from './OperatorFactory';
-
-export function createFlowValue(value: unknown, elementId: string): FlowValue {
-	return new FlowValue(value, elementId, FlowValueType.Next);
-}
 
 export function wrapGeneratorCallback(
 	observableFactory: CreationObservableFactory,
@@ -36,13 +32,12 @@ export function mapArrayOutputToFlowValue(operatorFn: OperatorFunction<unknown, 
 }
 
 export function mapFlowValuesArray(elementId: string) {
-	return map(
-		(flowValues: FlowValue[]) =>
-			new FlowValue(
-				flowValues.map((flowValue) => flowValue.raw),
-				elementId,
-				FlowValueType.Next,
-			),
+	return map((flowValues: FlowValue[]) =>
+		FlowValue.createNextEvent({
+			value: flowValues.map((flowValue) => flowValue.raw),
+			elementId,
+			dependencies: flowValues.map((flowValue) => flowValue.id),
+		}),
 	);
 }
 
