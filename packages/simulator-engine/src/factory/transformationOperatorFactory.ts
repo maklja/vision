@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import {
 	Observable,
 	ObservableInput,
@@ -36,7 +37,7 @@ import {
 	OBSERVABLE_GENERATOR_NAME,
 } from '@maklja/vision-simulator-model';
 import { MissingReferenceObservableError } from '../errors';
-import { mapFlowValuesArray, mapOutputToFlowValue } from './utils';
+import { mapFlowValuesArray, mapOutputToFlowValue, wrapGeneratorCallback } from './utils';
 
 const createBufferOperator = (el: Element, props: OperatorProps) => (o: Observable<FlowValue>) => {
 	if (props.refObservableGenerators.length === 0) {
@@ -50,8 +51,20 @@ const createBufferOperator = (el: Element, props: OperatorProps) => (o: Observab
 		throw new Error('Too many reference observables for buffer operator');
 	}
 
+	const subscribeId = v1();
 	const [refObservableGenerator] = props.refObservableGenerators;
-	return o.pipe(buffer(refObservableGenerator.observableGenerator()), mapFlowValuesArray(el.id));
+	const wrappedObservableGenerator = wrapGeneratorCallback(
+		refObservableGenerator.observableGenerator,
+		subscribeId,
+	);
+
+	refObservableGenerator.onSubscribe?.(
+		FlowValue.createSubscribeEvent({
+			elementId: el.id,
+			id: subscribeId,
+		}),
+	);
+	return o.pipe(buffer(wrappedObservableGenerator()), mapFlowValuesArray(el.id));
 };
 
 const createBufferCountOperator = (el: Element) => (o: Observable<FlowValue>) => {
@@ -289,3 +302,4 @@ export const transformationOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
+
