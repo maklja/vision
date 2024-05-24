@@ -11,8 +11,7 @@ export interface BufferWhenElement extends Element {
 }
 
 export const bufferWhenElementPropsTemplate: BufferWhenElementProperties = {
-	closingSelectorExpression: dedent`function project(value, index) { 
+	closingSelectorExpression: dedent`function closingSelector() { 
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
-

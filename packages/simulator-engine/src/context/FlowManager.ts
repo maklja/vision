@@ -66,10 +66,6 @@ export class FlowValue<T = unknown> {
 	static createErrorEvent(error: unknown, elementId: string, subscribeId?: string) {
 		return new FlowValue(error, elementId, FlowValueType.Error, v1(), subscribeId);
 	}
-
-	static createEmptyValue(elementId: string) {
-		return new FlowValue(null, elementId, FlowValueType.Next, 'EMPTY_FLOW_VALUE');
-	}
 }
 
 export interface FlowValueEvent {
@@ -96,4 +92,3 @@ export interface FlowManager {
 
 	asObservable(): Observable<FlowValueEvent>;
 }
-
