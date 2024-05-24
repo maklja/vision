@@ -7,7 +7,7 @@ import { SimulatorProperties } from './SimulatorProperties';
 import { SimulatorOperators } from './SimulatorOperators';
 import { SimulatorZoom } from './SimulatorZoom';
 
-export const Simulator = () => {
+export function Simulator() {
 	const [stage, setStage] = useState<Konva.Stage | null>(null);
 
 	return (
@@ -23,5 +23,5 @@ export const Simulator = () => {
 			<SimulatorProperties />
 		</Box>
 	);
-};
+}
 
