@@ -6,7 +6,7 @@ export interface BufferWhenElementProperties extends ElementProps {
 	closingSelectorExpression: string;
 }
 
-export interface BufferWhenElement extends Element {
+export interface BufferWhenElement extends Element<BufferWhenElementProperties> {
 	type: ElementType.BufferWhen;
 }
 
@@ -15,3 +15,4 @@ export const bufferWhenElementPropsTemplate: BufferWhenElementProperties = {
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
+

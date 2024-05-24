@@ -6,7 +6,7 @@ export interface BufferToggleElementProperties extends ElementProps {
 	closingSelectorExpression: string;
 }
 
-export interface BufferToggleElement extends Element {
+export interface BufferToggleElement extends Element<BufferToggleElementProperties> {
 	type: ElementType.BufferToggle;
 }
 

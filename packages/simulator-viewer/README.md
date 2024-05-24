@@ -1,4 +1,3 @@
--   scheduler, multi result animations
 -   results preview
 -   DOM events
 -   form validation
