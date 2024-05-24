@@ -435,6 +435,15 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 
 			const connectLines = Object.values(state.connectLines);
 			connectLines.forEach((cl) => {
+				if (state.selectedConnectLines.includes(cl.id)) {
+					moveConnectLinePointsByDelta(state, {
+						id: cl.id,
+						pointIndexes: cl.points.slice(2, -2).map((_, i) => i + 2),
+						dx,
+						dy,
+					});
+				}
+
 				if (selectedElements.includes(cl.source.id)) {
 					moveConnectLinePointsByDelta(state, {
 						id: cl.id,
