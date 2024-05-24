@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
-import { useAnimationGroups } from '../../animation';
+import { useAnimation } from '../../animation';
 import { RectangleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme } from '../../theme';
 import { handleDragBoundFunc } from '../utils';
@@ -43,26 +43,20 @@ export function RectangleOperatorDrawer({
 	const { width, height, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Rect | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
-	useAnimationGroups(animation, {
-		animationFactories: [
-			{
-				node: mainShapeRef,
-				mapper: (a) => ({
-					config: a.mainShape,
-				}),
-			},
-			{
-				node: mainTextRef,
-				mapper: (a) => ({
-					config: a.text,
-				}),
-			},
+
+	useAnimation(
+		animation,
+		[
+			[mainShapeRef, animation?.mainShape],
+			[mainTextRef, animation?.text],
 		],
-		onAnimationBegin,
-		onAnimationComplete,
-		onAnimationDestroy,
-		drawerId: id,
-	});
+		{
+			onAnimationBegin,
+			onAnimationComplete,
+			onAnimationDestroy,
+			drawerId: id,
+		},
+	);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -145,3 +139,4 @@ export function RectangleOperatorDrawer({
 		</Group>
 	);
 }
+

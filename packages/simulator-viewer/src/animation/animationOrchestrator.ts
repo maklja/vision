@@ -23,10 +23,10 @@ export const REVERSE_SINGLE_TIMELINE_PATTERNS: AnimationOrchestratorEventType[][
 	[AnimationEventType.Finish, AnimationEventType.Reset],
 ];
 
-export const animationOrchestrator = (
+export function animationOrchestrator(
 	animation: Animation,
 	patterns: AnimationOrchestratorEventType[][],
-) => {
+) {
 	const maxStateLength = Math.max(...patterns.map((pattern) => pattern.length));
 	const patternChecker$ = animation.observable().pipe(
 		filter((event) => PATTERN_ANIMATION_EVENT_TYPES.has(event.type)),
@@ -47,4 +47,5 @@ export const animationOrchestrator = (
 	);
 
 	return firstValueFrom(patternChecker$);
-};
+}
+

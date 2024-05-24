@@ -2,7 +2,7 @@ import Konva from 'konva';
 import { useState } from 'react';
 import { Group, Rect, Text, Ellipse, Path } from 'react-konva';
 import { Point } from '@maklja/vision-simulator-model';
-import { useAnimationGroups } from '../../animation';
+import { useAnimation } from '../../animation';
 import { RectangleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme } from '../../theme';
 import { handleDragBoundFunc } from '../utils';
@@ -47,38 +47,21 @@ export function RollerOperatorDrawer({
 	const [bodyShapeRef, setBodyShapeRef] = useState<Konva.Path | null>(null);
 
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
-	useAnimationGroups(animation, {
-		animationFactories: [
-			{
-				node: leftEllipseShapeRef,
-				mapper: (a) => ({
-					config: a.mainShape,
-				}),
-			},
-			{
-				node: rightEllipseShapeRef,
-				mapper: (a) => ({
-					config: a.mainShape,
-				}),
-			},
-			{
-				node: bodyShapeRef,
-				mapper: (a) => ({
-					config: a.mainShape,
-				}),
-			},
-			{
-				node: mainTextRef,
-				mapper: (a) => ({
-					config: a.text,
-				}),
-			},
+	useAnimation(
+		animation,
+		[
+			[leftEllipseShapeRef, animation?.mainShape],
+			[rightEllipseShapeRef, animation?.mainShape],
+			[bodyShapeRef, animation?.mainShape],
+			[mainTextRef, animation?.text],
 		],
-		onAnimationBegin,
-		onAnimationComplete,
-		onAnimationDestroy,
-		drawerId: id,
-	});
+		{
+			onAnimationBegin,
+			onAnimationComplete,
+			onAnimationDestroy,
+			drawerId: id,
+		},
+	);
 
 	const handleMouseOver = (e: Konva.KonvaEventObject<MouseEvent>) =>
 		onMouseOver?.({
@@ -223,3 +206,4 @@ export function RollerOperatorDrawer({
 		</Group>
 	);
 }
+

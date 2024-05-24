@@ -6,12 +6,12 @@ export interface BufferWhenElementProperties extends ElementProps {
 	closingSelectorExpression: string;
 }
 
-export interface BufferWhenElement extends Element {
+export interface BufferWhenElement extends Element<BufferWhenElementProperties> {
 	type: ElementType.BufferWhen;
 }
 
 export const bufferWhenElementPropsTemplate: BufferWhenElementProperties = {
-	closingSelectorExpression: dedent`function project(value, index) { 
+	closingSelectorExpression: dedent`function closingSelector() { 
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };

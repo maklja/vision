@@ -27,11 +27,7 @@ export function CircleResultDrawer({
 	const { simulation } = theme;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 
-	useAnimation(mainShapeRef, {
-		animationTemplate: animation,
-		mapper: (a) => ({
-			config: a.mainShape,
-		}),
+	useAnimation(animation, [[mainShapeRef, animation?.mainShape]], {
 		onAnimationBegin,
 		onAnimationComplete,
 		onAnimationDestroy,

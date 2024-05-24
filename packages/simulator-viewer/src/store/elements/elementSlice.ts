@@ -108,20 +108,7 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 		}, true),
 	addElement: (newElement: Element) => set((state) => addElement(state, newElement), true),
 	updateElement: (payload: UpdateElementPayload) =>
-		set((state) => {
-			const el = state.elements[payload.id];
-			if (!el) {
-				return state;
-			}
-
-			el.name = payload.name ?? el.name;
-			el.visible = payload.visible ?? el.visible;
-			el.properties = {
-				...el.properties,
-				...payload.properties,
-			};
-			return state;
-		}, true),
+		set((state) => updateElement(state, payload), true),
 	removeElements: (elementIds: string[]) =>
 		set((state) => {
 			if (elementIds.length === 0) {
@@ -180,6 +167,22 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 	moveElementByDelta: (payload: MoveElementByDeltaPayload) =>
 		set((state) => moveElementByDelta(state, payload), true),
 });
+
+export function updateElement(state: RootState, payload: UpdateElementPayload) {
+	const el = state.elements[payload.id];
+	if (!el) {
+		return state;
+	}
+
+	el.name = payload.name ?? el.name;
+	el.visible = payload.visible ?? el.visible;
+	el.properties = {
+		...el.properties,
+		...payload.properties,
+	};
+
+	return state;
+}
 
 export function setSelectElements(state: RootState, elementIds: string[]) {
 	if (state.selectedElements.length === 0 && elementIds.length === 0) {

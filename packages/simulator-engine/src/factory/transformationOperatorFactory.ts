@@ -1,3 +1,4 @@
+import { v1 } from 'uuid';
 import {
 	Observable,
 	ObservableInput,
@@ -11,6 +12,7 @@ import {
 	expand,
 	map,
 	mergeMap,
+	tap,
 } from 'rxjs';
 import {
 	OperatorProps,
@@ -23,8 +25,6 @@ import {
 	BufferCountElement,
 	BufferTimeElement,
 	BufferToggleElement,
-	BufferWhenElement,
-	ConcatElement,
 	ConnectPointPosition,
 	ConnectPointType,
 	Element,
@@ -36,7 +36,7 @@ import {
 	OBSERVABLE_GENERATOR_NAME,
 } from '@maklja/vision-simulator-model';
 import { MissingReferenceObservableError } from '../errors';
-import { mapFlowValuesArray, mapOutputToFlowValue } from './utils';
+import { mapFlowValuesArray, mapOutputToFlowValue, wrapGeneratorCallback } from './utils';
 
 const createBufferOperator = (el: Element, props: OperatorProps) => (o: Observable<FlowValue>) => {
 	if (props.refObservableGenerators.length === 0) {
@@ -50,8 +50,34 @@ const createBufferOperator = (el: Element, props: OperatorProps) => (o: Observab
 		throw new Error('Too many reference observables for buffer operator');
 	}
 
+	const subscribeId = v1();
 	const [refObservableGenerator] = props.refObservableGenerators;
-	return o.pipe(buffer(refObservableGenerator.observableGenerator()), mapFlowValuesArray(el.id));
+	const wrappedObservableGenerator = wrapGeneratorCallback(
+		refObservableGenerator.observableGenerator,
+		subscribeId,
+	);
+
+	refObservableGenerator.onSubscribe?.(
+		FlowValue.createSubscribeEvent({
+			elementId: el.id,
+			id: subscribeId,
+		}),
+	);
+	const bufferCache: string[] = [];
+	return o.pipe(
+		buffer(
+			wrappedObservableGenerator().pipe(tap((flowValue) => bufferCache.push(flowValue.id))),
+		),
+		map((flowValues: FlowValue[]) => {
+			const flowValueId = bufferCache.shift();
+			const dependencies = flowValues.map((flowValue) => flowValue.id);
+			return FlowValue.createNextEvent({
+				value: flowValues.map((flowValue) => flowValue.raw),
+				elementId: el.id,
+				dependencies: flowValueId ? [...dependencies, flowValueId] : dependencies,
+			});
+		}),
+	);
 };
 
 const createBufferCountOperator = (el: Element) => (o: Observable<FlowValue>) => {
@@ -108,14 +134,40 @@ const createBufferToggleOperator =
 			);
 		}
 
+		const subscribeId = v1();
 		const { properties } = el as BufferToggleElement;
+		const sourceWrappedObservableGenerator = wrapGeneratorCallback(
+			sourceRefObservable.observableGenerator,
+			subscribeId,
+		);
+
+		const closingWrappedObservableGenerator = wrapGeneratorCallback(
+			closingRefObservable.observableGenerator,
+			subscribeId,
+		);
+
 		const closingNotifierRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> =
-			new Function(OBSERVABLE_GENERATOR_NAME, `return ${properties.projectExpression}`)(
-				closingRefObservable.observableGenerator,
-			);
+			new Function(
+				OBSERVABLE_GENERATOR_NAME,
+				`return ${properties.closingSelectorExpression}`,
+			)(closingWrappedObservableGenerator);
+
+		sourceRefObservable.onSubscribe?.(
+			FlowValue.createSubscribeEvent({
+				elementId: el.id,
+				id: subscribeId,
+			}),
+		);
 		return o.pipe(
-			bufferToggle(sourceRefObservable.observableGenerator(), (value) => {
-				closingRefObservable.onSubscribe?.(value);
+			bufferToggle(sourceWrappedObservableGenerator(), (value) => {
+				const subscribeId = v1();
+				closingRefObservable.onSubscribe?.(
+					FlowValue.createSubscribeEvent({
+						elementId: el.id,
+						id: subscribeId,
+						dependencies: [value.id],
+					}),
+				);
 				return closingNotifierRefInvokerFn(value.raw);
 			}),
 			mapFlowValuesArray(el.id),
@@ -135,15 +187,26 @@ const createBufferWhenOperator =
 			throw new Error('Too many reference observables for bufferWhen operator');
 		}
 
-		const { id, properties } = el as BufferWhenElement;
-		const [refObservable] = props.refObservableGenerators;
-		const closingSelectorRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> =
-			new Function(OBSERVABLE_GENERATOR_NAME, `return ${properties.projectExpression}`)(
-				refObservable.observableGenerator,
-			);
 		return o.pipe(
 			bufferWhen(() => {
-				refObservable.onSubscribe?.(FlowValue.createEmptyValue(id));
+				const subscribeId = v1();
+				const [refObservableGenerator] = props.refObservableGenerators;
+				const wrappedObservableGenerator = wrapGeneratorCallback(
+					refObservableGenerator.observableGenerator,
+					subscribeId,
+				);
+				const closingSelectorRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> =
+					new Function(
+						OBSERVABLE_GENERATOR_NAME,
+						`return ${el.properties.closingSelectorExpression}`,
+					)(wrappedObservableGenerator);
+
+				refObservableGenerator.onSubscribe?.(
+					FlowValue.createSubscribeEvent({
+						elementId: el.id,
+						id: subscribeId,
+					}),
+				);
 				return closingSelectorRefInvokerFn();
 			}),
 			mapFlowValuesArray(el.id),
@@ -163,15 +226,27 @@ const createConcatMapOperator =
 			throw new Error('Too many reference observables for concatMap operator');
 		}
 
-		const { properties } = el as ConcatElement;
-		const [refObservable] = props.refObservableGenerators;
-		const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> = new Function(
-			OBSERVABLE_GENERATOR_NAME,
-			`return ${properties.projectExpression}`,
-		)(refObservable.observableGenerator);
+		const [refObservableGenerator] = props.refObservableGenerators;
 		return o.pipe(
 			concatMap<FlowValue, ObservableInput<FlowValue>>((value, index) => {
-				refObservable.onSubscribe?.(value);
+				const subscribeId = v1();
+				const wrappedObservableGenerator = wrapGeneratorCallback(
+					refObservableGenerator.observableGenerator,
+					subscribeId,
+				);
+				const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> =
+					new Function(
+						OBSERVABLE_GENERATOR_NAME,
+						`return ${el.properties.projectExpression}`,
+					)(wrappedObservableGenerator);
+
+				refObservableGenerator.onSubscribe?.(
+					FlowValue.createSubscribeEvent({
+						elementId: el.id,
+						id: subscribeId,
+						dependencies: [value.id],
+					}),
+				);
 				return projectRefInvokerFn(value.raw, index);
 			}),
 		);
@@ -199,13 +274,26 @@ const createMergeMapOperator =
 
 		const [refObservableGenerator] = props.refObservableGenerators;
 		const { properties } = el as MergeMapElement;
-		const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> = new Function(
-			OBSERVABLE_GENERATOR_NAME,
-			`return ${properties.projectExpression}`,
-		)(refObservableGenerator.observableGenerator);
 		return o.pipe(
 			mergeMap<FlowValue, ObservableInput<FlowValue>>((value, index) => {
-				refObservableGenerator.onSubscribe?.(value);
+				const subscribeId = v1();
+				const wrappedObservableGenerator = wrapGeneratorCallback(
+					refObservableGenerator.observableGenerator,
+					subscribeId,
+				);
+				const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> =
+					new Function(
+						OBSERVABLE_GENERATOR_NAME,
+						`return ${properties.projectExpression}`,
+					)(wrappedObservableGenerator);
+
+				refObservableGenerator.onSubscribe?.(
+					FlowValue.createSubscribeEvent({
+						elementId: el.id,
+						id: subscribeId,
+						dependencies: [value.id],
+					}),
+				);
 				return projectRefInvokerFn(value.raw, index);
 			}, properties.concurrent),
 		);
@@ -225,13 +313,25 @@ const createExhaustOperator = (el: Element, props: OperatorProps) => (o: Observa
 
 	const { properties } = el as ExhaustMapElement;
 	const [refObservableGenerator] = props.refObservableGenerators;
-	const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> = new Function(
-		OBSERVABLE_GENERATOR_NAME,
-		`return ${properties.projectExpression}`,
-	)(refObservableGenerator.observableGenerator);
 	return o.pipe(
 		exhaustMap<FlowValue, ObservableInput<FlowValue>>((value, index) => {
-			refObservableGenerator.onSubscribe?.(value);
+			const subscribeId = v1();
+			const wrappedObservableGenerator = wrapGeneratorCallback(
+				refObservableGenerator.observableGenerator,
+				subscribeId,
+			);
+			const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> = new Function(
+				OBSERVABLE_GENERATOR_NAME,
+				`return ${properties.projectExpression}`,
+			)(wrappedObservableGenerator);
+
+			refObservableGenerator.onSubscribe?.(
+				FlowValue.createSubscribeEvent({
+					elementId: el.id,
+					id: subscribeId,
+					dependencies: [value.id],
+				}),
+			);
 			return projectRefInvokerFn(value.raw, index);
 		}),
 	);
@@ -251,13 +351,26 @@ const createExpandOperator = (el: Element, props: OperatorProps) => (o: Observab
 
 	const { properties } = el as ExpandElement;
 	const [refObservableGenerator] = props.refObservableGenerators;
-	const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> = new Function(
-		OBSERVABLE_GENERATOR_NAME,
-		`return ${properties.projectExpression}`,
-	)(refObservableGenerator.observableGenerator);
 	return o.pipe(
 		expand<FlowValue, ObservableInput<FlowValue>>((value, index) => {
-			refObservableGenerator.onSubscribe?.(value);
+			const subscribeId = v1();
+			const wrappedObservableGenerator = wrapGeneratorCallback(
+				refObservableGenerator.observableGenerator,
+				subscribeId,
+			);
+			const projectRefInvokerFn: (...args: unknown[]) => Observable<FlowValue> = new Function(
+				OBSERVABLE_GENERATOR_NAME,
+				`return ${properties.projectExpression}`,
+			)(wrappedObservableGenerator);
+
+			refObservableGenerator.onSubscribe?.(
+				FlowValue.createSubscribeEvent({
+					elementId: el.id,
+					id: subscribeId,
+					dependencies: [value.id],
+				}),
+			);
+
 			return projectRefInvokerFn(value.raw, index);
 		}, properties.concurrent),
 	);
@@ -289,3 +402,4 @@ export const transformationOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
+

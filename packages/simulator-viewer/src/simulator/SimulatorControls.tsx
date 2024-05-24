@@ -34,7 +34,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	const startSimulation = useRootStore((state) => state.startSimulation);
 	const resetSimulation = useRootStore((state) => state.resetSimulation);
 	const completeSimulation = useRootStore((state) => state.completeSimulation);
-	const addObservableEvent = useRootStore((state) => state.addObservableEvent);
+	const simulateObservableEvent = useRootStore((state) => state.simulateObservableEvent);
 	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
 	const setSelectElements = useRootStore((state) => state.setSelectElements);
 
@@ -50,7 +50,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 		const { startObservableSimulation } = await import('@maklja/vision-simulator-engine');
 
 		const dispatchObservableEvent = (event: FlowValueEvent) =>
-			addObservableEvent({
+			simulateObservableEvent({
 				id: event.id,
 				hash: event.hash,
 				index: event.index,
@@ -59,6 +59,8 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 				targetElementId: event.targetElementId,
 				type: event.type,
 				value: event.value,
+				subscribeId: event.subscribeId,
+				dependencies: [...event.dependencies],
 			});
 
 		clearErrors();

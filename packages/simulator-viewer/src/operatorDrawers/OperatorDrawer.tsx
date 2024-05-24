@@ -29,6 +29,7 @@ export function OperatorDrawer({ element, visibleConnectPoints, draggable }: Ope
 		? {
 				...animationRegistry.retrieveAnimationConfig(animation.key)(theme, animation.data),
 				id: animation.id,
+				groupId: animation.groupId,
 				dispose: animation.dispose,
 			}
 		: null;
@@ -46,9 +47,9 @@ export function OperatorDrawer({ element, visibleConnectPoints, draggable }: Ope
 					properties={element.properties}
 					animation={animationConfig}
 					theme={theme}
-					select={select}
-					highlight={highlight}
-					draggable={draggable}
+					select={false}
+					highlight={false}
+					draggable={false}
 					hash={(element as ResultElement).properties.hash}
 				/>
 			);

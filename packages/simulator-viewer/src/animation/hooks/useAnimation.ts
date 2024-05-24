@@ -4,43 +4,50 @@ import { TweenAnimation } from '../tween';
 import { DrawerAnimationTemplate } from '../AnimationTemplate';
 import { useAnimationEffect } from './useAnimationEffect';
 import { AnimationEffectEvent } from './AnimationEffectEvent';
+import { AnimationGroup } from '../AnimationGroup';
+import { Animation } from '../Animation';
 
-export const useAnimation = (
-	node: Konva.Node | null,
+export function useAnimation(
+	animationTemplate: DrawerAnimationTemplate | null = null,
+	animationParts: [Konva.Node | null, Konva.NodeConfig | undefined][],
 	options: {
 		drawerId: string;
-		animationTemplate: DrawerAnimationTemplate | undefined | null;
-		mapper: (animation: DrawerAnimationTemplate) => {
-			config?: Konva.NodeConfig;
-		};
 		onAnimationBegin?: (event: AnimationEffectEvent) => void;
 		onAnimationComplete?: (event: AnimationEffectEvent) => void;
 		onAnimationDestroy?: (event: AnimationEffectEvent) => void;
 	},
-) => {
-	const {
-		drawerId,
-		animationTemplate,
-		mapper,
-		onAnimationBegin,
-		onAnimationComplete,
-		onAnimationDestroy,
-	} = options;
+) {
+	const { drawerId, onAnimationBegin, onAnimationComplete, onAnimationDestroy } = options;
+	const animationNodes = animationParts.map((animationPart) => animationPart[0]);
+
 	const animation = useMemo(() => {
-		if (!node || !animationTemplate) {
+		if (!animationTemplate) {
 			return null;
 		}
 
-		const { config } = mapper(animationTemplate);
-		return new TweenAnimation(
-			{
-				...config,
-				node,
-			},
-			animationTemplate.options,
-			animationTemplate?.id,
-		);
-	}, [node, animationTemplate?.id]);
+		const animations = animationParts.map(([node, nodeConfig]) => {
+			if (!node) {
+				return null;
+			}
+
+			return new TweenAnimation(
+				{
+					...nodeConfig,
+					node,
+				},
+				animationTemplate.options,
+				animationTemplate.id,
+			);
+		});
+
+		if (animations.some((a) => a == null)) {
+			return null;
+		}
+
+		return animations.length === 1
+			? animations[0]
+			: new AnimationGroup(animations as Animation[], animationTemplate.id);
+	}, [...animationNodes, animationTemplate?.id]);
 
 	useAnimationEffect(animation, {
 		onAnimationBegin: (animation) => {
@@ -50,6 +57,7 @@ export const useAnimation = (
 
 			onAnimationBegin?.({
 				animationId: animation.id,
+				animationGroupId: animationTemplate.groupId,
 				animationKey: animationTemplate.key,
 				drawerId,
 			});
@@ -61,6 +69,7 @@ export const useAnimation = (
 
 			onAnimationComplete?.({
 				animationId: animation.id,
+				animationGroupId: animationTemplate.groupId,
 				animationKey: animationTemplate.key,
 				drawerId,
 			});
@@ -72,13 +81,14 @@ export const useAnimation = (
 
 			onAnimationDestroy?.({
 				animationId: animation.id,
+				animationGroupId: animationTemplate.groupId,
 				animationKey: animationTemplate.key,
 				drawerId,
 			});
 		},
 	});
 
-	const disposeAnimation = async () => {
+	async function disposeAnimation() {
 		try {
 			if (animationTemplate?.options?.autoReverse) {
 				await animation?.reverse();
@@ -89,15 +99,15 @@ export const useAnimation = (
 		} catch {
 			// no need to handle this error if animation dispose fails
 		}
-	};
+	}
 
-	const startAnimation = async () => {
+	async function startAnimation() {
 		try {
 			await animation?.play();
 		} catch {
 			// no need to handle this error if animation play fails
 		}
-	};
+	}
 
 	useEffect(() => {
 		if (!animationTemplate) {
@@ -109,11 +119,12 @@ export const useAnimation = (
 		} else {
 			startAnimation();
 		}
-	}, [animationTemplate?.dispose]);
+	}, [animationTemplate?.id, animationTemplate?.dispose]);
 
 	useEffect(() => {
 		return () => animation?.destroy();
 	}, [animation]);
 
 	return animation;
-};
+}
+

@@ -2,7 +2,7 @@ import { ElementType } from '@maklja/vision-simulator-model';
 import { ElementDrawerProps } from '../ElementDrawerProps';
 import { JoinCreationOperatorDrawer } from './JoinCreationOperatorDrawer';
 
-export const CombineLatestOperatorDrawer = (props: ElementDrawerProps) => {
+export function CombineLatestOperatorDrawer(props: ElementDrawerProps) {
 	return (
 		<JoinCreationOperatorDrawer
 			{...props}
@@ -10,4 +10,5 @@ export const CombineLatestOperatorDrawer = (props: ElementDrawerProps) => {
 			title={'Combine\nLatest'}
 		/>
 	);
-};
+}
+

@@ -3,7 +3,7 @@ import Konva from 'konva';
 import { Circle, Group, Text } from 'react-konva';
 import { CircleDrawerProps } from '../DrawerProps';
 import { useElementDrawerTheme } from '../../theme';
-import { useAnimationGroups } from '../../animation';
+import { useAnimation } from '../../animation';
 import { handleDragBoundFunc } from '../utils';
 
 export interface CircleOperatorDrawerProps extends CircleDrawerProps {
@@ -43,26 +43,20 @@ export function CircleOperatorDrawer({
 	const { radius, fontSizes } = size;
 	const [mainShapeRef, setMainShapeRef] = useState<Konva.Circle | null>(null);
 	const [mainTextRef, setMainTextRef] = useState<Konva.Text | null>(null);
-	useAnimationGroups(animation, {
-		animationFactories: [
-			{
-				node: mainShapeRef,
-				mapper: (a) => ({
-					config: a.mainShape,
-				}),
-			},
-			{
-				node: mainTextRef,
-				mapper: (a) => ({
-					config: a.text,
-				}),
-			},
+
+	useAnimation(
+		animation,
+		[
+			[mainShapeRef, animation?.mainShape],
+			[mainTextRef, animation?.text],
 		],
-		onAnimationBegin,
-		onAnimationComplete,
-		onAnimationDestroy,
-		drawerId: id,
-	});
+		{
+			onAnimationBegin,
+			onAnimationComplete,
+			onAnimationDestroy,
+			drawerId: id,
+		},
+	);
 
 	const textX = radius - (mainTextRef?.width() ?? 0) / 2;
 	const textY = radius - (mainTextRef?.height() ?? 0) / 2;
@@ -146,3 +140,4 @@ export function CircleOperatorDrawer({
 		</Group>
 	);
 }
+

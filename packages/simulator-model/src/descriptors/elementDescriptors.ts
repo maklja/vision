@@ -21,7 +21,11 @@ export const joinCreationElementDescriptor: ElementDescriptor = {
 		cardinality: 1,
 	},
 	output: {
-		allowedTypes: new Set<ElementType>([...eventPipeOperators, ...subscriberOperators]),
+		allowedTypes: new Set<ElementType>([
+			...pipeOperators,
+			...eventPipeOperators,
+			...subscriberOperators,
+		]),
 		cardinality: 1,
 	},
 	event: {
@@ -36,7 +40,11 @@ export const creationElementDescriptor: ElementDescriptor = {
 		cardinality: 1,
 	},
 	output: {
-		allowedTypes: new Set<ElementType>([...eventPipeOperators, ...subscriberOperators]),
+		allowedTypes: new Set<ElementType>([
+			...pipeOperators,
+			...eventPipeOperators,
+			...subscriberOperators,
+		]),
 		cardinality: 1,
 	},
 };
@@ -101,6 +109,7 @@ export const subscriberElementDescriptor: ElementDescriptor = {
 		allowedTypes: new Set<ElementType>([
 			...joinCreationOperators,
 			...creationOperators,
+			...pipeOperators,
 			...eventPipeOperators,
 		]),
 		cardinality: 1,

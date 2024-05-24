@@ -102,7 +102,9 @@ export class SimulationGraph {
 
 		const directEdges = graphEdges.filter((edge) => edge.type === GraphNodeType.Direct);
 		if (directEdges.length !== 1) {
-			throw new Error(`Unexpected number(${directEdges.length}) direct edges`);
+			throw directEdges.length === 0
+				? new MissingNextElementError(el.id, `Element ${el.id} has no next element`)
+				: new Error(`Unexpected number(${directEdges.length}) direct edges`);
 		}
 
 		return [
@@ -118,3 +120,4 @@ export class SimulationGraph {
 		return isEntryOperatorType(elType);
 	}
 }
+

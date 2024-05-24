@@ -1,5 +1,11 @@
-import { Observable, ObservableInput, catchError } from 'rxjs';
-import { Element, ElementType, FlowValueType } from '@maklja/vision-simulator-model';
+import { v1 } from 'uuid';
+import { Observable, ObservableInput, catchError, map } from 'rxjs';
+import {
+	CatchErrorElement,
+	Element,
+	ElementType,
+	OBSERVABLE_GENERATOR_NAME,
+} from '@maklja/vision-simulator-model';
 import {
 	OperatorProps,
 	PipeObservableFactory,
@@ -8,6 +14,7 @@ import {
 } from './OperatorFactory';
 import { FlowValue } from '../context';
 import { MissingReferenceObservableError } from '../errors';
+import { wrapGeneratorCallback } from './utils';
 
 const createCatchErrorOperator =
 	(el: Element, props: OperatorProps) => (o: Observable<FlowValue>) => {
@@ -22,14 +29,34 @@ const createCatchErrorOperator =
 			throw new Error('Too many reference observables for catchError operator');
 		}
 
+		const subscribeId = v1();
+		const catchEl = el as CatchErrorElement;
 		const [refObservableGenerator] = props.refObservableGenerators;
+		const wrappedObservableGenerator = wrapGeneratorCallback(
+			refObservableGenerator.observableGenerator,
+			subscribeId,
+		);
+
+		const observableRefInvokerFn: (
+			err: unknown,
+			caughtRaw: Observable<unknown>,
+		) => Observable<FlowValue> = new Function(
+			OBSERVABLE_GENERATOR_NAME,
+			`return ${catchEl.properties.selectorExpression}`,
+		)(wrappedObservableGenerator);
+
 		return o.pipe(
-			catchError<FlowValue, ObservableInput<FlowValue>>((error) => {
-				refObservableGenerator.onSubscribe?.({
-					...error,
-					type: FlowValueType.Next,
-				});
-				return refObservableGenerator.observableGenerator();
+			catchError<FlowValue, ObservableInput<FlowValue>>((error: FlowValue, caught) => {
+				refObservableGenerator.onSubscribe?.(
+					FlowValue.createSubscribeEvent({
+						elementId: catchEl.id,
+						id: subscribeId,
+						dependencies: [error.id],
+					}),
+				);
+
+				const caughtRaw = caught.pipe(map((flowValue) => flowValue.raw));
+				return observableRefInvokerFn(error.raw, caughtRaw);
 			}),
 		);
 	};
@@ -52,3 +79,4 @@ export const errorHandlingOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
+

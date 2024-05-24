@@ -9,9 +9,11 @@ export const drawerAnimationStateHandlers = (state: RootState): DrawerEvents => 
 		});
 	},
 	onAnimationDestroy: (aEvent) => {
-		state.removeDrawerAnimation({
+		state.destroyDrawerAnimation({
 			drawerId: aEvent.drawerId,
 			animationId: aEvent.animationId,
+			animationGroupId: aEvent.animationGroupId,
 		});
 	},
 });
+
