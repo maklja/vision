@@ -1,4 +1,12 @@
--   observable events -> animation backpresure
+# RxJS Vision
+
+[Live demo](https://maklja.github.io/vision/)
+
+A library that visualizes how RxJS works.
+
+Note that this application is in alpha version, so bugs are expected.
+
+<!-- -   observable events -> animation backpresure
 -   results preview
 -   DOM events
 -   form validation
@@ -16,5 +24,5 @@
 -   join creation operators pass arguments to creation operators
 -   settings windows for theme and grid configuration
 -   change MaterialUI with tailwind
--   elements tree
+-   elements tree -->
 
