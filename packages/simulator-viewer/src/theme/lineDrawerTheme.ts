@@ -2,6 +2,8 @@ import { ColorTheme } from './colors';
 
 export interface LineElementStyle {
 	readonly stroke: string;
+	readonly strokeWidth: number;
+	readonly dash?: number[];
 }
 
 export interface ArrowElementStyle {
@@ -30,17 +32,18 @@ export interface LineThemeOverride {
 	line?: Partial<LineElementStyle>;
 	arrow?: Partial<ArrowElementStyle>;
 	dot?: Partial<DotElementStyle>;
-	selectedLine?: Partial<ArrowElementStyle>;
+	selectedLine?: Partial<LineElementStyle>;
 	selectedArrow?: Partial<ArrowElementStyle>;
 	selectedDot?: Partial<DotElementStyle>;
-	highlightLine?: Partial<ArrowElementStyle>;
+	highlightLine?: Partial<LineElementStyle>;
 	highlightArrow?: Partial<ArrowElementStyle>;
 	highlightDot?: Partial<DotElementStyle>;
 }
 
-export const lineDrawerTheme = (themeColors: ColorTheme): LineTheme => {
+export function lineDrawerTheme(themeColors: ColorTheme): LineTheme {
 	const defaultLine: LineElementStyle = {
 		stroke: themeColors.secondaryColor,
+		strokeWidth: 1,
 	};
 
 	const defaultArrow: ArrowElementStyle = {
@@ -84,5 +87,20 @@ export const lineDrawerTheme = (themeColors: ColorTheme): LineTheme => {
 			stroke: themeColors.secondaryColor,
 		},
 	};
-};
+}
+
+export function subscribeLineDrawerTheme(): LineThemeOverride {
+	const dash = [10, 3];
+	return {
+		line: {
+			dash,
+		},
+		selectedLine: {
+			dash,
+		},
+		highlightLine: {
+			dash,
+		},
+	};
+}
 

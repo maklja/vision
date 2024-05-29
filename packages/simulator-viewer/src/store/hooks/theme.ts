@@ -1,5 +1,5 @@
 import { useShallow } from 'zustand/react/shallow';
-import { BoundingBox, ElementType, Point } from '@maklja/vision-simulator-model';
+import { BoundingBox, ConnectLineType, ElementType, Point } from '@maklja/vision-simulator-model';
 import { RootState, useRootStore } from '../rootStore';
 import {
 	Theme,
@@ -13,14 +13,14 @@ import {
 
 export const selectElementSizeOptions = (state: RootState) => state.elementSizes.options;
 
-export const useThemeContext = (elType?: ElementType): Theme =>
+export const useThemeContext = (type?: ElementType | ConnectLineType): Theme =>
 	useRootStore(
 		useShallow((state: RootState) => {
-			if (!elType) {
+			if (!type) {
 				return state.theme.default;
 			}
 
-			return state.theme[elType] ?? state.theme.default;
+			return state.theme[type] ?? state.theme.default;
 		}),
 	);
 
@@ -61,3 +61,4 @@ export const useConnectPointBoundingBox = (position: Point = { x: 0, y: 0 }) =>
 			return calculateShapeSizeBoundingBox(position, shapeSize);
 		}),
 	);
+

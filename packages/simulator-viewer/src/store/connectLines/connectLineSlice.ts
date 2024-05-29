@@ -3,9 +3,11 @@ import { RootState } from '../rootStore';
 import {
 	ConnectedElement,
 	ConnectLine,
+	ConnectLineType,
 	ConnectPointPosition,
 	ConnectPointType,
 	distanceBetweenPoints,
+	isEntryOperatorType,
 	Point,
 } from '@maklja/vision-simulator-model';
 import { StageState, StartConnectLineDrawPayload } from '../stage';
@@ -151,9 +153,13 @@ export const createConnectLineSlice: StateCreator<RootState, [], [], ConnectLine
 				return state;
 			}
 
+			const clType = isEntryOperatorType(el.type)
+				? ConnectLineType.Subscribe
+				: ConnectLineType.Pipe;
 			const clId = v1();
 			state.connectLines[clId] = {
 				id: clId,
+				type: clType,
 				index: state.draftConnectLine.index,
 				name: state.draftConnectLine.name,
 				locked: false,
@@ -375,3 +381,4 @@ export const selectRelatedElementElements = (elementId: string | null) => (state
 		};
 	});
 };
+

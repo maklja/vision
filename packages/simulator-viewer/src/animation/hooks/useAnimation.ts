@@ -7,6 +7,30 @@ import { AnimationEffectEvent } from './AnimationEffectEvent';
 import { AnimationGroup } from '../AnimationGroup';
 import { Animation } from '../Animation';
 
+async function disposeAnimation(
+	animationTemplate: DrawerAnimationTemplate | undefined | null,
+	animation: TweenAnimation | Animation | null,
+) {
+	try {
+		if (animationTemplate?.options?.autoReverse) {
+			await animation?.reverse();
+		} else {
+			await animation?.reset();
+		}
+		animation?.destroy();
+	} catch {
+		// no need to handle this error if animation dispose fails
+	}
+}
+
+async function startAnimation(animation: TweenAnimation | Animation | null) {
+	try {
+		await animation?.play();
+	} catch {
+		// no need to handle this error if animation play fails
+	}
+}
+
 export function useAnimation(
 	animationTemplate: DrawerAnimationTemplate | null = null,
 	animationParts: [Konva.Node | null, Konva.NodeConfig | undefined][],
@@ -88,40 +112,19 @@ export function useAnimation(
 		},
 	});
 
-	async function disposeAnimation() {
-		try {
-			if (animationTemplate?.options?.autoReverse) {
-				await animation?.reverse();
-			} else {
-				await animation?.reset();
-			}
-			animation?.destroy();
-		} catch {
-			// no need to handle this error if animation dispose fails
-		}
-	}
-
-	async function startAnimation() {
-		try {
-			await animation?.play();
-		} catch {
-			// no need to handle this error if animation play fails
-		}
-	}
-
 	useEffect(() => {
 		if (!animationTemplate) {
 			return;
 		}
 
 		if (animationTemplate.dispose) {
-			disposeAnimation();
+			disposeAnimation(animationTemplate, animation);
 		} else {
-			startAnimation();
+			startAnimation(animation);
 		}
 	}, [animationTemplate?.id, animationTemplate?.dispose]);
 
-	useEffect(() => {
+useEffect(() => {
 		return () => animation?.destroy();
 	}, [animation]);
 
