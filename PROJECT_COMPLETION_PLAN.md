@@ -22,7 +22,7 @@ No new operator or product feature should be implemented before phases 1 through
 | Work item | Status | Notes |
 | --- | --- | --- |
 | Project analysis and roadmap | Complete | Merged in PR #54. |
-| Phase 1.1A: unit-test foundation | In progress | Adds Vitest, coverage, root validation commands, CI, and one smoke test per workspace package. |
+| Phase 1.1A: unit-test foundation | In review | [PR #55](https://github.com/maklja/vision/pull/55) adds Vitest, coverage, root validation commands, CI, and one smoke test per workspace package. |
 | Phase 1.1B: browser test foundation | Not started | Add React Testing Library, `fake-indexeddb`, Playwright, and the first critical browser journey. |
 | Phases 1.2-1.5: characterization suites | Not started | Split by model, engine, viewer state, and browser journeys. |
 | Phase 2: dependency updates | Blocked | Starts only after the Phase 1 characterization gate is complete. |
