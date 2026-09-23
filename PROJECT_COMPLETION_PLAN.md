@@ -23,8 +23,10 @@ No new operator or product feature should be implemented before phases 1 through
 | --- | --- | --- |
 | Project analysis and roadmap | Complete | Merged in PR #54. |
 | Phase 1.1A: unit-test foundation | Complete | Merged in [PR #55](https://github.com/maklja/vision/pull/55): Vitest, coverage, root validation commands, CI, and one smoke test per workspace package. |
-| Phase 1.1B: browser test foundation | In review | [PR #56](https://github.com/maklja/vision/pull/56) adds React Testing Library persistence characterization with `fake-indexeddb`, Playwright, and the first critical browser journey. |
-| Phases 1.2-1.5: characterization suites | Not started | Split by model, engine, viewer state, and browser journeys. |
+| Phase 1.1B: browser test foundation | Complete | Merged in [PR #56](https://github.com/maklja/vision/pull/56): React Testing Library persistence characterization with `fake-indexeddb`, Playwright, and the first critical browser journey. |
+| Phase 1.2A: model metadata characterization | In review | Exhaustive tests for operator groups, entry classification, default templates, connection descriptors, cardinality, visibility, and malformed or unknown model inputs. |
+| Phase 1.2B: model geometry and fixture characterization | Not started | Cover bounding boxes, intersections, snapping boundaries, serialized model shapes, and representative saved-diagram fixtures. |
+| Phases 1.3-1.5: characterization suites | Not started | Split by engine, viewer state, and browser journeys. |
 | Phase 2: dependency updates | Blocked | Starts only after the Phase 1 characterization gate is complete. |
 | Phase 3: old PR triage | Blocked | Starts only after dependency modernization is complete. |
 
