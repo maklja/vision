@@ -64,9 +64,14 @@ pnpm --filter @maklja/vision-simulator-viewer start
 Run the available validation checks:
 
 ```bash
-pnpm -r eslint
-pnpm --filter @maklja/vision-simulator-viewer build
+pnpm typecheck
+pnpm test
+pnpm test:coverage
+pnpm build
 ```
+
+The existing lint configuration will join the required CI checks after its ESLint and TypeScript
+ESLint dependency mismatch is repaired in the dependency-modernization phase.
 
 The production viewer build is written to `packages/simulator-viewer/build`. The versioned `docs/`
 directory contains the static build served by GitHub Pages.

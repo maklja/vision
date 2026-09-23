@@ -1,6 +1,7 @@
 # RxJS Vision completion plan
 
-Status: proposed roadmap, based on `main` and the open pull requests reviewed on 2026-09-23.
+Status: implementation in progress, based on `main` and the open pull requests reviewed on
+2026-09-23.
 
 ## Goal
 
@@ -15,6 +16,17 @@ Work must proceed in this order:
 6. Complete the editor, learning, accessibility, performance, and release features.
 
 No new operator or product feature should be implemented before phases 1 through 3 are complete.
+
+## Progress
+
+| Work item | Status | Notes |
+| --- | --- | --- |
+| Project analysis and roadmap | Complete | Merged in PR #54. |
+| Phase 1.1A: unit-test foundation | In review | [PR #55](https://github.com/maklja/vision/pull/55) adds Vitest, coverage, root validation commands, CI, and one smoke test per workspace package. |
+| Phase 1.1B: browser test foundation | Not started | Add React Testing Library, `fake-indexeddb`, Playwright, and the first critical browser journey. |
+| Phases 1.2-1.5: characterization suites | Not started | Split by model, engine, viewer state, and browser journeys. |
+| Phase 2: dependency updates | Blocked | Starts only after the Phase 1 characterization gate is complete. |
+| Phase 3: old PR triage | Blocked | Starts only after dependency modernization is complete. |
 
 ## Definition of complete
 
@@ -50,8 +62,8 @@ The project can be called complete when all of the following are true:
 | Viewer | React, React Konva, Material UI, React DnD, Zustand, and Immer. |
 | Persistence | One diagram is stored in IndexedDB under the temporary key `test`; no schema version exists. |
 | Existing operators | 11 creation, 6 join-creation, 10 transformation, `filter`, and `catchError`. |
-| Tests | No automated test files or test script are present. |
-| CI | No GitHub Actions checks currently run for pull requests. |
+| Tests | Vitest and V8 coverage foundation with smoke coverage in all three packages; full characterization remains in progress. |
+| CI | Pull requests run type checking, tests with coverage, and the production build; lint, formatting, and browser tests remain pending. |
 | Lint | `pnpm -r eslint` currently crashes because the installed ESLint and TypeScript ESLint packages are incompatible. |
 | Build | The viewer production build succeeds. |
 | Backlog | No open GitHub issues; three older feature pull requests are still open. |
