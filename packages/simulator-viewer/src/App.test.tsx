@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import 'fake-indexeddb/auto';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { clear, get, set } from 'idb-keyval';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ElementType } from '@maklja/vision-simulator-model';
@@ -83,6 +83,9 @@ describe('App persistence', () => {
 		expect((await screen.findByLabelText('loaded elements')).textContent).toBe(
 			'of_0, transient-result',
 		);
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
 
 		fireEvent.click(screen.getByRole('button', { name: 'Move canvas' }));
 
