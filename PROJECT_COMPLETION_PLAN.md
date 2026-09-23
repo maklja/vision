@@ -22,8 +22,8 @@ No new operator or product feature should be implemented before phases 1 through
 | Work item | Status | Notes |
 | --- | --- | --- |
 | Project analysis and roadmap | Complete | Merged in PR #54. |
-| Phase 1.1A: unit-test foundation | In review | [PR #55](https://github.com/maklja/vision/pull/55) adds Vitest, coverage, root validation commands, CI, and one smoke test per workspace package. |
-| Phase 1.1B: browser test foundation | Not started | Add React Testing Library, `fake-indexeddb`, Playwright, and the first critical browser journey. |
+| Phase 1.1A: unit-test foundation | Complete | Merged in [PR #55](https://github.com/maklja/vision/pull/55): Vitest, coverage, root validation commands, CI, and one smoke test per workspace package. |
+| Phase 1.1B: browser test foundation | In progress | Adds React Testing Library persistence characterization with `fake-indexeddb`, Playwright, and the first critical browser journey. |
 | Phases 1.2-1.5: characterization suites | Not started | Split by model, engine, viewer state, and browser journeys. |
 | Phase 2: dependency updates | Blocked | Starts only after the Phase 1 characterization gate is complete. |
 | Phase 3: old PR triage | Blocked | Starts only after dependency modernization is complete. |
@@ -62,8 +62,8 @@ The project can be called complete when all of the following are true:
 | Viewer | React, React Konva, Material UI, React DnD, Zustand, and Immer. |
 | Persistence | One diagram is stored in IndexedDB under the temporary key `test`; no schema version exists. |
 | Existing operators | 11 creation, 6 join-creation, 10 transformation, `filter`, and `catchError`. |
-| Tests | Vitest and V8 coverage foundation with smoke coverage in all three packages; full characterization remains in progress. |
-| CI | Pull requests run type checking, tests with coverage, and the production build; lint, formatting, and browser tests remain pending. |
+| Tests | Vitest and V8 coverage with smoke coverage in all three packages, IndexedDB persistence characterization, and one Playwright editor journey; full characterization remains in progress. |
+| CI | Pull requests run type checking, tests with coverage, the production build, and the Chromium browser journey; lint and formatting remain pending. |
 | Lint | `pnpm -r eslint` currently crashes because the installed ESLint and TypeScript ESLint packages are incompatible. |
 | Build | The viewer production build succeeds. |
 | Backlog | No open GitHub issues; three older feature pull requests are still open. |
@@ -176,7 +176,8 @@ then use browser tests for the rendered canvas behavior.
 
 Add Playwright journeys for:
 
-1. Build `of -> map -> filter -> subscriber`, run it, and observe the expected result events.
+1. Build `of -> map -> filter -> subscriber`, run it, and observe the expected result events. The
+   first Playwright journey now covers this path.
 2. Build a branch and a join graph and verify connection and execution order.
 3. Configure an operator, reload, and verify that the diagram and viewport are restored.
 4. Copy, paste, multi-select, move, reconnect, and delete a group.

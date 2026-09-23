@@ -67,6 +67,8 @@ Run the available validation checks:
 pnpm typecheck
 pnpm test
 pnpm test:coverage
+pnpm exec playwright install chromium
+pnpm test:e2e
 pnpm build
 ```
 
