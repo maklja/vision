@@ -4,7 +4,12 @@ import { Unsubscribable } from 'rxjs';
 import Box from '@mui/material/Box';
 import { useShallow } from 'zustand/react/shallow';
 import type { FlowValueEvent } from '@maklja/vision-simulator-engine';
-import { Element, isEntryOperatorType } from '@maklja/vision-simulator-model';
+import {
+	Element,
+	FlowValueType,
+	isEntryOperatorType,
+	isSubscriberType,
+} from '@maklja/vision-simulator-model';
 import { SimulationControls } from '../ui';
 import { useRootStore } from '../store/rootStore';
 import { selectSimulation } from '../store/simulation';
@@ -37,6 +42,15 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	const simulateObservableEvent = useRootStore((state) => state.simulateObservableEvent);
 	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
 	const setSelectElements = useRootStore((state) => state.setSelectElements);
+	const subscriberIds = new Set(
+		elements.filter((element) => isSubscriberType(element.type)).map((element) => element.id),
+	);
+	const simulationResults = simulation.events
+		.filter(
+			(event) =>
+				event.type === FlowValueType.Next && subscriberIds.has(event.targetElementId),
+		)
+		.map((event) => event.value);
 
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
@@ -145,6 +159,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 				simulatorId={simulation.id}
 				simulationState={simulation.state}
 				entryElements={entryElements}
+				simulationResults={simulationResults}
 				onSimulationStart={handleSimulationStart}
 				onSimulationStop={handleSimulationStop}
 				onSimulationReset={handleSimulationReset}
@@ -153,4 +168,3 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 		</Box>
 	);
 }
-

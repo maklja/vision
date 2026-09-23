@@ -45,6 +45,12 @@ jobs:
       - name: Build viewer
         run: pnpm build
 
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run browser tests
+        run: pnpm test:e2e
+
       - name: Upload coverage summary
         if: always()
         uses: actions/upload-artifact@v4

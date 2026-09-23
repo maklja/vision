@@ -64,7 +64,7 @@ export const OperatorButton = ({ elementType, padding = 4, scale = 0.65 }: Opera
 	}, [dragPreview]);
 
 	return (
-		<Box ref={dragRef}>
+		<Box ref={dragRef} data-testid={`operator-${elementType}`}>
 			<Stage
 				width={buttonBoundingBox.width + 2 * padding}
 				height={buttonBoundingBox.height + 2 * padding}
