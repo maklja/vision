@@ -59,16 +59,19 @@ Run commands from the repository root.
 ```bash
 pnpm install --frozen-lockfile
 pnpm --filter @maklja/vision-simulator-viewer start
+pnpm typecheck
+pnpm test
+pnpm test:coverage
 pnpm -r eslint
-pnpm --filter @maklja/vision-simulator-viewer build
+pnpm build
 ```
 
 The development server uses port 3000. The viewer build is written to
 `packages/simulator-viewer/build`.
 
-There is currently no automated test suite. For every change, run the linters for the affected
-packages and build the viewer. Manually exercise relevant editor behavior for interaction or
-animation changes.
+The automated characterization suite is being built incrementally. For every change, run the tests
+and type checks, run the linters for the affected packages, and build the viewer. Manually exercise
+relevant editor behavior for interaction or animation changes until its browser journey is covered.
 
 ## Coding conventions
 
