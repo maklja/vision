@@ -37,6 +37,7 @@ export interface SimulationControlsProps {
 	simulatorId: string;
 	simulationState: SimulationState;
 	entryElements: Element[];
+	simulationResults?: string[];
 	onSimulationStart?: (entryElementId: string, simulatorId: string) => void;
 	onSimulationStop?: (entryElementId: string, simulatorId: string) => void;
 	onSimulationReset?: (entryElementId: string, simulatorId: string) => void;
@@ -47,6 +48,7 @@ export function SimulationControls({
 	simulatorId,
 	simulationState,
 	entryElements,
+	simulationResults = [],
 	onSimulationStart,
 	onSimulationStop,
 	onSimulationReset,
@@ -73,6 +75,24 @@ export function SimulationControls({
 				height: '100%',
 			}}
 		>
+			<Box
+				component="output"
+				aria-label="simulation results"
+				aria-live="polite"
+				sx={{
+					border: 0,
+					clip: 'rect(0 0 0 0)',
+					height: '1px',
+					margin: '-1px',
+					overflow: 'hidden',
+					padding: 0,
+					position: 'absolute',
+					whiteSpace: 'nowrap',
+					width: '1px',
+				}}
+			>
+				{simulationResults.join(', ')}
+			</Box>
 			<Paper
 				sx={{
 					display: 'flex',
@@ -138,4 +158,3 @@ export function SimulationControls({
 		</Box>
 	);
 }
-

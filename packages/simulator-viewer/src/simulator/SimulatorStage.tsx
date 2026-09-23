@@ -117,7 +117,7 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(
 		}
 
 		return (
-			<div ref={drop}>
+			<div ref={drop} data-testid="simulator-stage">
 				<Stage
 					{...stageHandlers}
 					style={{ backgroundColor: theme.colors.backgroundPrimaryColor }}
@@ -139,4 +139,3 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(
 		);
 	},
 );
-
