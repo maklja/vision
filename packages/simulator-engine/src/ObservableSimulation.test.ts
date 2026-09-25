@@ -118,8 +118,11 @@ describe('ObservableSimulation', () => {
 
 			vi.advanceTimersByTime(2_500);
 			expect(events.map((event) => event.value)).toEqual(['0', '1']);
+			expect(vi.getTimerCount()).toBe(1);
 
 			subscription.unsubscribe();
+			expect(vi.getTimerCount()).toBe(0);
+
 			vi.advanceTimersByTime(5_000);
 			expect(events.map((event) => event.value)).toEqual(['0', '1']);
 		} finally {
