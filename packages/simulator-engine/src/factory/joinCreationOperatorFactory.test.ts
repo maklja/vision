@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { of } from 'rxjs';
 import {
 	ConnectLine,
 	ConnectPointPosition,
@@ -10,7 +11,8 @@ import {
 	ObservableInputsType,
 } from '@maklja/vision-simulator-model';
 import { createSimulationModel, ObservableSimulation } from '../ObservableSimulation';
-import { FlowValueEvent } from '../context';
+import { FlowValue, FlowValueEvent } from '../context';
+import { joinCreationOperatorFactory } from './joinCreationOperatorFactory';
 
 type ConnectPoint = [string, ConnectPointType, ConnectPointPosition];
 
@@ -133,6 +135,38 @@ function joinWithOfInputs(type: ElementType, properties: ElementProps): Simulati
 	);
 }
 
+function collectRawJoinOutput(
+	type: ElementType,
+	namedInputs: ReadonlyArray<readonly [string, unknown]>,
+): FlowValue[] {
+	const join = element('join', type, {
+		observableInputsType: ObservableInputsType.Object,
+	});
+	const createObservable = joinCreationOperatorFactory.create(join, {
+		refObservableGenerators: namedInputs.map(([name, raw], index) => ({
+			observableGenerator: () =>
+				of(new FlowValue(raw, name, FlowValueType.Next, `${name}-flow`)),
+			connectPoint: {
+				id: join.id,
+				connectPointType: ConnectPointType.Event,
+				connectPosition: ConnectPointPosition.Top,
+			},
+			connectLine: connectLine(
+				`join-${name}`,
+				eventPoint(join.id),
+				input(name),
+				index + 1,
+				name,
+			),
+		})),
+	});
+
+	const values: FlowValue[] = [];
+	createObservable().subscribe((value) => values.push(value));
+
+	return values;
+}
+
 describe('joinCreationOperatorFactory', () => {
 	it('combineLatest: should combine the latest values of multiple reference observables', () => {
 		const result = joinWithOfInputs(ElementType.CombineLatest, {
@@ -146,7 +180,7 @@ describe('joinCreationOperatorFactory', () => {
 		expect(result.completed).toBe(true);
 	});
 
-	it('combineLatest: should emit named dependencies in object input mode', () => {
+	it('combineLatest: should emit a serialized Next event per object-input emission', () => {
 		const result = joinWithOfInputs(ElementType.CombineLatest, {
 			observableInputsType: ObservableInputsType.Object,
 		});
@@ -159,6 +193,17 @@ describe('joinCreationOperatorFactory', () => {
 			'[object Object]',
 		]);
 		expect(joinEvents.map((event) => event.dependencies.length)).toEqual([2, 2]);
+	});
+
+	it('combineLatest: should map ConnectLine names to input values in object input mode', () => {
+		const values = collectRawJoinOutput(ElementType.CombineLatest, [
+			['left', 3],
+			['right', 10],
+		]);
+
+		expect(values).toHaveLength(1);
+		expect(values[0].raw).toEqual({ left: 3, right: 10 });
+		expect(values[0].dependencies).toEqual(['left-flow', 'right-flow']);
 	});
 
 	it('concat: should concatenate multiple reference observables sequentially', () => {

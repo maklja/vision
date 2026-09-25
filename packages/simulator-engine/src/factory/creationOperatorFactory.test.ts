@@ -334,7 +334,7 @@ describe('creationOperatorFactory', () => {
 		expect(nextValues(result, 'source')).toEqual(['99']);
 	});
 
-	it('iif: should throw MissingReferenceObservableError if either branch is missing', () => {
+	it('iif: should throw MissingReferenceObservableError if the true branch is missing', () => {
 		const iif = element('source', ElementType.IIf, {
 			conditionExpression: 'function condition() { return true; }',
 			trueCallbackExpression: 'function trueResult() { return createObservable(); }',
@@ -351,6 +351,43 @@ describe('creationOperatorFactory', () => {
 
 		error.toThrow(MissingReferenceObservableError);
 		error.toThrow('Not found true branch observable operator');
+	});
+
+	it('iif: should throw MissingReferenceObservableError if the false branch is missing', () => {
+		const iif = element('source', ElementType.IIf, {
+			conditionExpression: 'function condition() { return true; }',
+			trueCallbackExpression: 'function trueResult() { return createObservable(); }',
+			falseCallbackExpression: 'function falseResult() { return createObservable(); }',
+		});
+
+		const error = expect(() =>
+			runSimulation(
+				'source',
+				[
+					iif,
+					ofElement('trueBranch', [1]),
+					subscriber('subscriber'),
+					subscriber('trueSubscriber'),
+				],
+				[
+					connectLine('source-subscriber', output('source'), input('subscriber')),
+					connectLine(
+						'source-true',
+						eventPoint('source', ConnectPointPosition.Top),
+						input('trueBranch'),
+					),
+					connectLine(
+						'true-subscriber',
+						output('trueBranch'),
+						input('trueSubscriber'),
+						1,
+					),
+				],
+			),
+		);
+
+		error.toThrow(MissingReferenceObservableError);
+		error.toThrow('Not found false branch observable operator');
 	});
 
 	it('interval: should emit sequential numbers at the specified period', () => {
