@@ -226,6 +226,17 @@ describe('joinCreationOperatorFactory', () => {
 		).toHaveLength(1);
 	});
 
+	it('forkJoin: should map ConnectLine names to input values in object input mode', () => {
+		const values = collectRawJoinOutput(ElementType.ForkJoin, [
+			['left', 3],
+			['right', 10],
+		]);
+
+		expect(values).toHaveLength(1);
+		expect(values[0].raw).toEqual({ left: 3, right: 10 });
+		expect(values[0].dependencies).toEqual(['left-flow', 'right-flow']);
+	});
+
 	it('merge: should merge emissions from multiple reference observables concurrently', () => {
 		const result = joinWithOfInputs(ElementType.Merge, { limitConcurrent: 0 });
 
@@ -249,6 +260,37 @@ describe('joinCreationOperatorFactory', () => {
 			vi.advanceTimersByTime(2_100);
 
 			expect(nextValues(result, 'join')).toEqual(['0', '0', '1', '1']);
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	it('merge: should currently subscribe to all reference observables regardless of limitConcurrent', () => {
+		vi.useFakeTimers();
+		try {
+			const timer = (id: string, startDue: number) =>
+				element(id, ElementType.Timer, { dueDateType: 0, startDue, intervalDuration: -1 });
+			const result = joinGraph(
+				element('join', ElementType.Merge, { limitConcurrent: 1 }),
+				timer('left', 100),
+				timer('right', 300),
+			);
+
+			const subscribedTargets = () =>
+				eventsFrom(result, 'join')
+					.filter((event) => event.type === FlowValueType.Subscribe)
+					.map((event) => event.targetElementId);
+
+			expect(subscribedTargets()).toEqual(['left', 'right']);
+			expect(nextValues(result, 'join')).toEqual([]);
+
+			vi.advanceTimersByTime(100);
+
+			expect(nextValues(result, 'join')).toEqual(['0']);
+
+			vi.advanceTimersByTime(200);
+
+			expect(nextValues(result, 'join')).toEqual(['0', '0']);
 		} finally {
 			vi.useRealTimers();
 		}
