@@ -59,9 +59,9 @@ const timerElement = (id: string, startDue: number) =>
 	element(id, ElementType.Timer, { dueDateType: 0, startDue, intervalDuration: -1 });
 
 interface SimulationRun {
-	events: FlowValueEvent[];
-	error: unknown;
-	completed: boolean;
+	readonly events: FlowValueEvent[];
+	readonly error: unknown;
+	readonly completed: boolean;
 	unsubscribe: () => void;
 }
 
@@ -84,7 +84,16 @@ function startSimulation(
 		},
 	});
 
-	return { events, error, completed, unsubscribe: () => subscription.unsubscribe() };
+	return {
+		events,
+		get error() {
+			return error;
+		},
+		get completed() {
+			return completed;
+		},
+		unsubscribe: () => subscription.unsubscribe(),
+	};
 }
 
 function eventsFrom(run: SimulationRun, elementId: string): FlowValueEvent[] {
@@ -155,6 +164,32 @@ describe('transformationOperatorFactory', () => {
 
 		expect(nextValues(run, 'operator')).toEqual(['10', '20', '30']);
 		expect(run.completed).toBe(true);
+	});
+
+	it('map: should report completion after a time based source finishes', () => {
+		vi.useFakeTimers();
+		try {
+			const map = element('operator', ElementType.Map, {
+				projectExpression: 'function project(value) { return value * 10; }',
+			});
+			const run = startSimulation(
+				'source',
+				[timerElement('source', 100), map, subscriber('subscriber')],
+				[
+					connectLine('source-operator', output('source'), input('operator')),
+					connectLine('operator-subscriber', output('operator'), input('subscriber'), 1),
+				],
+			);
+
+			expect(run.completed).toBe(false);
+
+			vi.advanceTimersByTime(100);
+
+			expect(nextValues(run, 'operator')).toEqual(['0']);
+			expect(run.completed).toBe(true);
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 
 	it('buffer: should buffer values until the reference observable emits', () => {
