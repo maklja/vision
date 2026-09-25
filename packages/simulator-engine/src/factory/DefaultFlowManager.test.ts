@@ -75,7 +75,32 @@ function createErrorHandlerSimulationModel(): SimulationModel {
 }
 
 describe('DefaultFlowManager', () => {
-	it('should buffer flow paths and emit a Next event when reaching a non-ErrorHandler target', () => {
+	it('should buffer a flow path through an ErrorHandler and emit one Next event with the full path', () => {
+		const simulationModel = createErrorHandlerSimulationModel();
+		const flowManager = new DefaultFlowManager(simulationModel);
+		const events: FlowValueEvent[] = [];
+		flowManager.asObservable().subscribe((event) => events.push(event));
+
+		const flowValue = FlowValue.createNextEvent({ value: 7, elementId: 'source' });
+		flowManager.handleNextEvent(flowValue, simulationModel.getConnectLine('source-catch'));
+
+		expect(events).toHaveLength(0);
+
+		flowManager.handleNextEvent(flowValue, simulationModel.getConnectLine('catch-subscriber'));
+
+		expect(events).toHaveLength(1);
+		expect(events[0]).toMatchObject({
+			id: flowValue.id,
+			type: FlowValueType.Next,
+			value: '7',
+			index: 1,
+			connectLinesId: ['source-catch', 'catch-subscriber'],
+			sourceElementId: 'source',
+			targetElementId: 'subscriber',
+		});
+	});
+
+	it('should emit a Next event per direct edge when no ErrorHandler is on the path', () => {
 		const simulationModel = createSimulationModelFixture();
 		const flowManager = new DefaultFlowManager(simulationModel);
 		const events: FlowValueEvent[] = [];
@@ -96,6 +121,7 @@ describe('DefaultFlowManager', () => {
 			targetElementId: 'pipe',
 		});
 		expect(events[1]).toMatchObject({
+			id: flowValue.id,
 			type: FlowValueType.Next,
 			value: '7',
 			index: 2,
