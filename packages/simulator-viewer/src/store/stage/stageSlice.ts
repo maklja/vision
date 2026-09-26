@@ -375,10 +375,10 @@ export const createStageSlice: StateCreator<RootState, [], [], StageSlice> = (se
 				return state;
 			}
 
-			moveElementToPosition(state, payload);
-
 			const dx = payload.x - el.x;
 			const dy = payload.y - el.y;
+
+			moveElementToPosition(state, payload);
 
 			moveConnectPointsByDelta(state, {
 				ids: [el.id],
