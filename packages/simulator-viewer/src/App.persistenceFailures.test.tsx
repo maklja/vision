@@ -394,4 +394,34 @@ describe('diagram persistence recovery', () => {
 
 		expect(setMock).toHaveBeenCalledTimes(1);
 	});
+
+	it('does not schedule a retry when an in-flight write rejects after unsubscribe', async () => {
+		let rejectWrite!: (error: unknown) => void;
+		setMock.mockImplementationOnce(
+			() =>
+				new Promise<void>((_resolve, reject) => {
+					rejectWrite = reject;
+				}),
+		);
+		const { scheduler, scheduled } = createTestScheduler();
+		const store = createRootStore();
+		const errors: unknown[] = [];
+
+		const unsubscribe = subscribeDiagramPersistence(store, (error) => errors.push(error), {
+			scheduler,
+		});
+
+		store.getState().updateCanvasState({ x: 1 });
+		await flushPromises();
+		expect(setMock).toHaveBeenCalledTimes(1);
+
+		unsubscribe();
+
+		rejectWrite(new Error('write failed'));
+		await flushPromises();
+
+		expect(scheduled).toHaveLength(0);
+		expect(errors).toHaveLength(0);
+		expect(setMock).toHaveBeenCalledTimes(1);
+	});
 });

@@ -109,6 +109,13 @@ export function subscribeDiagramPersistence(
 			})
 			.catch((error) => {
 				writing = false;
+
+				// The subscription was disposed while this write was in flight. Do not report or
+				// re-queue: schedule nothing that would outlive teardown.
+				if (disposed) {
+					return;
+				}
+
 				onError(error);
 
 				// A newer snapshot arrived while this write was failing. Retry the newest value with
