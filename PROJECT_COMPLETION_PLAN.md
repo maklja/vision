@@ -1,7 +1,7 @@
 # RxJS Vision completion plan
 
-Status: implementation in progress, based on `main` and the open pull requests reviewed on
-2026-09-23.
+Status: implementation in progress. Phase 1.3 engine characterization was completed on
+2026-09-26; the remaining Phase 1 work is viewer and browser characterization.
 
 ## Goal
 
@@ -26,7 +26,7 @@ No new operator or product feature should be implemented before phases 1 through
 | Phase 1.1B: browser test foundation | Complete | Merged in [PR #56](https://github.com/maklja/vision/pull/56): React Testing Library persistence characterization with `fake-indexeddb`, Playwright, and the first critical browser journey. |
 | Phase 1.2A: model metadata characterization | Complete | Merged in [PR #57](https://github.com/maklja/vision/pull/57): exhaustive tests for operator groups, entry classification, default templates, connection descriptors, cardinality, visibility, and malformed or unknown model inputs. |
 | Phase 1.2B: model geometry and fixture characterization | Complete | Merged in [PR #58](https://github.com/maklja/vision/pull/58): tests cover bounding boxes, line and polygon geometry, snap-line and grid boundaries, serialized model shapes, and a representative current-release saved-diagram fixture. |
-| Phase 1.3: engine characterization | In progress | Tracked in issues [#59](https://github.com/maklja/vision/issues/59), [#60](https://github.com/maklja/vision/issues/60), and [#61](https://github.com/maklja/vision/issues/61). |
+| Phase 1.3: engine characterization | Complete | Merged in [PR #63](https://github.com/maklja/vision/pull/63), [PR #64](https://github.com/maklja/vision/pull/64), and [PR #65](https://github.com/maklja/vision/pull/65): core engine and worker protocol, creation and join-creation operators, and transformation, filtering, and error operators. |
 | Phases 1.4-1.5: characterization suites | Not started | Split by viewer state and browser journeys. |
 | Phase 2: dependency updates | Blocked | Starts only after the Phase 1 characterization gate is complete. |
 | Phase 3: old PR triage | Blocked | Starts only after dependency modernization is complete. |
