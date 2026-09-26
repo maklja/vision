@@ -138,9 +138,10 @@ function joinWithOfInputs(type: ElementType, properties: ElementProps): Simulati
 function collectRawJoinOutput(
 	type: ElementType,
 	namedInputs: ReadonlyArray<readonly [string, unknown]>,
+	observableInputsType = ObservableInputsType.Object,
 ): FlowValue[] {
 	const join = element('join', type, {
-		observableInputsType: ObservableInputsType.Object,
+		observableInputsType,
 	});
 	const createObservable = joinCreationOperatorFactory.create(join, {
 		refObservableGenerators: namedInputs.map(([name, raw], index) => ({
@@ -206,6 +207,21 @@ describe('joinCreationOperatorFactory', () => {
 		expect(values[0].dependencies).toEqual(['left-flow', 'right-flow']);
 	});
 
+	it('combineLatest: should preserve indexed input dependencies in array input mode', () => {
+		const values = collectRawJoinOutput(
+			ElementType.CombineLatest,
+			[
+				['left', 3],
+				['right', 10],
+			],
+			ObservableInputsType.Array,
+		);
+
+		expect(values).toHaveLength(1);
+		expect(values[0].raw).toEqual([3, 10]);
+		expect(values[0].dependencies).toEqual(['left-flow', 'right-flow']);
+	});
+
 	it('concat: should concatenate multiple reference observables sequentially', () => {
 		const result = joinWithOfInputs(ElementType.Concat, {});
 
@@ -218,7 +234,12 @@ describe('joinCreationOperatorFactory', () => {
 	it('should handle an empty reference observable according to the join operator contract', () => {
 		const emptyReference = ofElement('left', []);
 		const populatedReference = ofElement('right', [10, 20]);
-		const noEmissionOperators = [ElementType.CombineLatest, ElementType.ForkJoin, ElementType.Zip];
+		const noEmissionOperators = [
+			ElementType.CombineLatest,
+			ElementType.ForkJoin,
+			ElementType.Race,
+			ElementType.Zip,
+		];
 
 		for (const type of noEmissionOperators) {
 			const result = joinGraph(element('join', type, {}), emptyReference, populatedReference);
