@@ -127,7 +127,12 @@ describe('observableSimulationWorker', () => {
 			scope.dispatch('message', intervalStartMessage());
 			vi.advanceTimersByTime(100);
 
-			expect(sentMessages(scope)).toHaveLength(messagesAfterFirstTick + 1);
+			const messages = sentMessages(scope);
+			expect(messages).toHaveLength(messagesAfterFirstTick + 1);
+			expect(messages.map((message) => (message.value as { value: string }).value)).toEqual([
+				'0',
+				'1',
+			]);
 			scope.dispatch('message', {
 				data: { type: ObservableSimulationMessageType.StopSimulation },
 			});
