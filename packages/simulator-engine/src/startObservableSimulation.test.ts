@@ -23,7 +23,7 @@ class FakeWorker {
 		FakeWorker.instances = [];
 	}
 
-	readonly postMessage = vi.fn();
+	readonly postMessage = vi.fn((message: unknown) => structuredClone(message));
 	readonly terminate = vi.fn();
 	private readonly listeners = new Map<string, Listener[]>();
 

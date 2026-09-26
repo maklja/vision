@@ -66,6 +66,19 @@ function startMessage(): unknown {
 	};
 }
 
+function intervalStartMessage(): unknown {
+	const intervalSource = element('source', ElementType.Interval, { period: 100 });
+
+	return {
+		data: {
+			type: ObservableSimulationMessageType.StartSimulation,
+			entryElementId: 'source',
+			elements: [intervalSource, subscriber],
+			connectLines: [link('source-subscriber', 'source', 'subscriber')],
+		},
+	};
+}
+
 function sentMessages(scope: FakeWorkerScope): Record<string, unknown>[] {
 	return scope.postMessage.mock.calls.map(([message]) => message as Record<string, unknown>);
 }
@@ -105,28 +118,28 @@ describe('observableSimulationWorker', () => {
 	});
 
 	it('should ignore a start message while a simulation is already running', () => {
-		scope.dispatch('message', startMessage());
-		const messagesAfterFirstStart = sentMessages(scope).length;
+		vi.useFakeTimers();
+		try {
+			scope.dispatch('message', intervalStartMessage());
+			vi.advanceTimersByTime(100);
+			const messagesAfterFirstTick = sentMessages(scope).length;
 
-		scope.dispatch('message', startMessage());
+			scope.dispatch('message', intervalStartMessage());
+			vi.advanceTimersByTime(100);
 
-		expect(sentMessages(scope)).toHaveLength(messagesAfterFirstStart);
+			expect(sentMessages(scope)).toHaveLength(messagesAfterFirstTick + 1);
+			scope.dispatch('message', {
+				data: { type: ObservableSimulationMessageType.StopSimulation },
+			});
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 
 	it('should stop the running simulation and allow a fresh simulation to start', () => {
 		vi.useFakeTimers();
 		try {
-			const intervalSource = element('source', ElementType.Interval, { period: 100 });
-			const intervalStartMessage = {
-				data: {
-					type: ObservableSimulationMessageType.StartSimulation,
-					entryElementId: 'source',
-					elements: [intervalSource, subscriber],
-					connectLines: [link('source-subscriber', 'source', 'subscriber')],
-				},
-			};
-
-			scope.dispatch('message', intervalStartMessage);
+			scope.dispatch('message', intervalStartMessage());
 			expect(sentMessages(scope)).toHaveLength(0);
 
 			vi.advanceTimersByTime(100);
@@ -140,7 +153,7 @@ describe('observableSimulationWorker', () => {
 			vi.advanceTimersByTime(1_000);
 			expect(sentMessages(scope)).toHaveLength(messagesAfterFirstTick);
 
-			scope.dispatch('message', intervalStartMessage);
+			scope.dispatch('message', intervalStartMessage());
 			vi.advanceTimersByTime(100);
 			expect(sentMessages(scope)).toHaveLength(messagesAfterFirstTick + 1);
 
