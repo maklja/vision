@@ -29,7 +29,6 @@ export function FromElementPropertiesForm({
 		checked: boolean,
 	) => onPropertyValueChange?.(id, 'enableObservableEvent', checked);
 
-	// TODO you have bug here that code doesn't switch
 	const helperText = properties.enableObservableEvent
 		? 'Creation of the observable.'
 		: 'A subscription object, a Promise, an Observable-like, an Array, an iterable, or an array-like object to be converted.';

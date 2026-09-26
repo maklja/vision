@@ -53,25 +53,22 @@ vi.mock('react-konva', () => {
 // Monaco cannot mount in jsdom. The lightweight double keeps the code value and change callback
 // observable through a real textarea so property forms can be characterized without the editor.
 vi.mock('@monaco-editor/react', async () => {
-	const { createElement, useMemo } = await import('react');
+	const { createElement } = await import('react');
 
 	const Editor = (props: {
 		defaultValue?: string;
+		value?: string;
 		defaultLanguage?: string;
 		height?: string | number;
 		options?: Record<string, unknown>;
 		onChange?: (value: string | undefined) => void;
 	}) => {
-		// Monaco treats `defaultValue` as the initial model value and ignores later changes. The
-		// double captures the value on mount so the characterization keeps that behavior.
-		const initialValue = useMemo(() => props.defaultValue ?? '', []);
-
 		return createElement('textarea', {
 			'data-testid': 'monaco-editor',
 			'data-language': props.defaultLanguage ?? '',
 			'data-height': String(props.height ?? ''),
 			'data-read-only': String(Boolean(props.options?.readOnly)),
-			defaultValue: initialValue,
+			value: props.value ?? props.defaultValue ?? '',
 			onChange: (event: { target: { value: string } }) =>
 				props.onChange?.(event.target.value),
 		});
