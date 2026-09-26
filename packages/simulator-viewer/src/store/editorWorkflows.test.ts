@@ -13,6 +13,7 @@ import {
 import {
 	calculateShapeSizeBoundingBox,
 	createElementSizesContext,
+	findCircleShapeSize,
 	findElementSize,
 } from '../theme';
 import { StageState } from './stage';
@@ -60,6 +61,14 @@ function elementCenter(store: Store, id: string) {
 		{ x: element.x, y: element.y },
 		findElementSize(createElementSizesContext(), element.type),
 	).center;
+}
+
+function connectPointCenter(store: Store, elementId: string, position: ConnectPointPosition) {
+	const connectPoint = store
+		.getState()
+		.connectPoints[elementId].find((cp) => cp.position === position)!;
+	const radius = findCircleShapeSize(createElementSizesContext(), ElementType.ConnectPoint).radius;
+	return { x: connectPoint.x + radius, y: connectPoint.y + radius };
 }
 
 const DEFAULT_LINE_POINTS = [
@@ -206,15 +215,19 @@ describe('editor workflows', () => {
 			const store = createTestStore();
 			loadOfAndMap(store);
 			store.getState().markElementAsSelected('of-1');
+			const sourceCenter = elementCenter(store, 'of-1');
+			const sourceConnectPointCenter = connectPointCenter(
+				store,
+				'of-1',
+				ConnectPointPosition.Right,
+			);
+			const targetCenter = elementCenter(store, 'map-1');
 
 			store.getState().startConnectLineDraw({
 				sourceId: 'of-1',
 				type: ConnectPointType.Output,
 				position: ConnectPointPosition.Right,
-				points: [
-					{ x: 110, y: 34 },
-					{ x: 180, y: 34 },
-				],
+				points: [sourceCenter, sourceConnectPointCenter, sourceConnectPointCenter],
 			});
 			store.getState().updateConnectPoints({
 				connectPointUpdates: [
@@ -231,7 +244,7 @@ describe('editor workflows', () => {
 			store.getState().linkConnectLineDraw({
 				connectPointId: 'map-1-left',
 				targetId: 'map-1',
-				targetPoint: { x: 258, y: 34 },
+				targetPoint: targetCenter,
 				targetConnectPointType: ConnectPointType.Input,
 				targetConnectPointPosition: ConnectPointPosition.Left,
 			});
@@ -245,11 +258,7 @@ describe('editor workflows', () => {
 				name: 'output_right',
 				source: outputOf('of-1'),
 				target: inputOf('map-1'),
-				points: [
-					{ x: 110, y: 34 },
-					{ x: 180, y: 34 },
-					{ x: 258, y: 34 },
-				],
+				points: [sourceCenter, sourceConnectPointCenter, sourceConnectPointCenter, targetCenter],
 			});
 			expect(state.selectedElements).toEqual(['of-1']);
 			expect(state.selectedConnectLines).toEqual([]);
