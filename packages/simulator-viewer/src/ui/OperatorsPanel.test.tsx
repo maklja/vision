@@ -52,6 +52,15 @@ function popperVisibility() {
 	return popper ? getComputedStyle(popper).visibility : null;
 }
 
+const populatedGroups: { group: ElementGroup; ariaLabel: string }[] = [
+	{ group: ElementGroup.Creation, ariaLabel: 'creation operators' },
+	{ group: ElementGroup.JoinCreation, ariaLabel: 'join creation operators' },
+	{ group: ElementGroup.Transformation, ariaLabel: 'transformation operators' },
+	{ group: ElementGroup.Filtering, ariaLabel: 'filtering operators' },
+	{ group: ElementGroup.ErrorHandling, ariaLabel: 'error handling operators' },
+	{ group: ElementGroup.Subscriber, ariaLabel: 'subscriber' },
+];
+
 describe('OperatorsPanel', () => {
 	afterEach(() => {
 		cleanup();
@@ -80,6 +89,21 @@ describe('OperatorsPanel', () => {
 		expect(expectedTypes).toEqual([...expectedTypes].sort());
 		expect(renderedTypes).toContain(ElementType.Of);
 		expect(renderedTypes).not.toContain(ElementType.Map);
+	});
+
+	it('renders every populated group from the model mappings, including join creation', () => {
+		const { click } = renderOperatorsPanel();
+
+		for (const { group, ariaLabel } of populatedGroups) {
+			click(ariaLabel);
+
+			const expectedTypes = [...mapElementGroupToTypes(group)].sort();
+			const renderedTypes = screen
+				.getAllByTestId(/^operator-/)
+				.map((el) => el.getAttribute('data-testid')?.replace('operator-', '') as ElementType);
+
+			expect(renderedTypes).toEqual(expectedTypes);
+		}
 	});
 
 	it('switches between groups and closes the popper when the open group is clicked again', () => {

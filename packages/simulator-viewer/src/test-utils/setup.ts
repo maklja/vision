@@ -42,6 +42,9 @@ vi.mock('react-konva', () => {
 		Arrow: NoopMock,
 		Path: NoopMock,
 		Text: RefMock,
+		// Join-creation drawers render an octagon through `RegularPolygon` and attach a measurement
+		// ref to it, so it uses the ref-dropping stand-in like `Text`.
+		RegularPolygon: RefMock,
 		Image: NoopMock,
 		Transformer: NoopMock,
 	};
