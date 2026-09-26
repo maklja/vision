@@ -118,8 +118,7 @@ const createMergeOperator =
 			...overrideProperties,
 		};
 
-		return merge<FlowValue[]>(
-			...props.refObservableGenerators.map(
+		const observables = props.refObservableGenerators.map(
 				(refObservableGenerator) =>
 					defer(() => {
 						const subscribeId = v1();
@@ -136,11 +135,11 @@ const createMergeOperator =
 						);
 						return wrappedObservableGenerator();
 					}),
-				mergeElProperties.limitConcurrent > 0
-					? mergeElProperties.limitConcurrent
-					: undefined,
-			),
-		);
+			);
+
+		return mergeElProperties.limitConcurrent > 0
+			? merge<FlowValue[]>(...observables, mergeElProperties.limitConcurrent)
+			: merge<FlowValue[]>(...observables);
 	};
 
 const createCombineLatestOperator =
@@ -291,4 +290,3 @@ export const joinCreationOperatorFactory: JoinCreationOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
-

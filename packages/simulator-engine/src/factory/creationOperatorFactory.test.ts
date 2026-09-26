@@ -4,6 +4,7 @@ import {
 	ConnectLine,
 	ConnectPointPosition,
 	ConnectPointType,
+	DueDateType,
 	Element,
 	ElementProps,
 	ElementType,
@@ -517,11 +518,47 @@ describe('creationOperatorFactory', () => {
 		}
 	});
 
+	it('timer: should schedule from an absolute date when dueDateType is Date', () => {
+		vi.useFakeTimers();
+		try {
+			vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+			const timer = element('source', ElementType.Timer, {
+				dueDateType: DueDateType.Date,
+				startDue: Date.parse('2026-01-01T00:00:01.000Z'),
+				intervalDuration: -1,
+			});
+			const events: FlowValueEvent[] = [];
+			const model = createSimulationModel(
+				'source',
+				[timer, subscriber('subscriber')],
+				[connectLine('source-subscriber', output('source'), input('subscriber'))],
+			);
+			new ObservableSimulation(model).start({ next: (event) => events.push(event) });
+
+			vi.advanceTimersByTime(999);
+			expect(events).toEqual([]);
+
+			vi.advanceTimersByTime(1);
+			expect(events.map((event) => event.value)).toEqual(['0']);
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
 	it('ajax: should map successful ajax responses to FlowValues', () => {
 		ajaxMock.mockReturnValue(of('ajax-result'));
 		const ajax = element('source', ElementType.Ajax, {
 			url: 'https://example.com/api',
 			method: HttpMethod.Get,
+			headers: [
+				['Authorization', 'Bearer token'],
+				['Accept', 'application/json'],
+			],
+			queryParams: [
+				['tag', 'rxjs'],
+				['tag', 'testing'],
+				['page', '1'],
+			],
 		});
 
 		const result = runSimulation(
@@ -530,9 +567,15 @@ describe('creationOperatorFactory', () => {
 			[connectLine('source-subscriber', output('source'), input('subscriber'))],
 		);
 
-		expect(ajaxMock).toHaveBeenCalledWith(
-			expect.objectContaining({ url: 'https://example.com/api', method: HttpMethod.Get }),
-		);
+		expect(ajaxMock).toHaveBeenCalledWith({
+			url: 'https://example.com/api',
+			method: HttpMethod.Get,
+			headers: { Authorization: 'Bearer token', Accept: 'application/json' },
+			queryParams: { tag: ['rxjs', 'testing'], page: '1' },
+			responseType: undefined,
+			timeout: undefined,
+			body: undefined,
+		});
 		expect(nextValues(result, 'source')).toEqual(['ajax-result']);
 		expect(result.completed).toBe(true);
 	});

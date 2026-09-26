@@ -215,6 +215,26 @@ describe('joinCreationOperatorFactory', () => {
 		expect(result.completed).toBe(true);
 	});
 
+	it('should handle an empty reference observable according to the join operator contract', () => {
+		const emptyReference = ofElement('left', []);
+		const populatedReference = ofElement('right', [10, 20]);
+		const noEmissionOperators = [ElementType.CombineLatest, ElementType.ForkJoin, ElementType.Zip];
+
+		for (const type of noEmissionOperators) {
+			const result = joinGraph(element('join', type, {}), emptyReference, populatedReference);
+
+			expect(nextValues(result, 'join')).toEqual([]);
+			expect(result.completed).toBe(true);
+		}
+
+		for (const type of [ElementType.Concat, ElementType.Merge]) {
+			const result = joinGraph(element('join', type, {}), emptyReference, populatedReference);
+
+			expect(nextValues(result, 'join')).toEqual(['10', '20']);
+			expect(result.completed).toBe(true);
+		}
+	});
+
 	it('forkJoin: should wait for all reference observables to complete and emit their last values', () => {
 		const result = joinWithOfInputs(ElementType.ForkJoin, {
 			observableInputsType: ObservableInputsType.Array,
@@ -265,7 +285,7 @@ describe('joinCreationOperatorFactory', () => {
 		}
 	});
 
-	it('merge: should currently subscribe to all reference observables regardless of limitConcurrent', () => {
+	it('merge: should subscribe to reference observables up to limitConcurrent', () => {
 		vi.useFakeTimers();
 		try {
 			const timer = (id: string, startDue: number) =>
@@ -281,14 +301,15 @@ describe('joinCreationOperatorFactory', () => {
 					.filter((event) => event.type === FlowValueType.Subscribe)
 					.map((event) => event.targetElementId);
 
-			expect(subscribedTargets()).toEqual(['left', 'right']);
+			expect(subscribedTargets()).toEqual(['left']);
 			expect(nextValues(result, 'join')).toEqual([]);
 
 			vi.advanceTimersByTime(100);
 
+			expect(subscribedTargets()).toEqual(['left', 'right']);
 			expect(nextValues(result, 'join')).toEqual(['0']);
 
-			vi.advanceTimersByTime(200);
+			vi.advanceTimersByTime(300);
 
 			expect(nextValues(result, 'join')).toEqual(['0', '0']);
 		} finally {
