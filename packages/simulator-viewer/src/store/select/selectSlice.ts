@@ -25,6 +25,7 @@ export const createSelectSlice: StateCreator<RootState, [], [], SelectSlice> = (
 		state.removeConnectLines(state.selectedConnectLines);
 		state.removeElementsConnectPoints(elementIds);
 		elementIds.forEach((elementId) => state.removeElementConnectLines({ elementId }));
+		state.clearAllSelectedElements();
 	},
 	clearAllSelectedElements: () => set((state) => clearAllSelectedElements(state), true),
 	markElementAsSelected: (elId: string) => {

@@ -159,7 +159,7 @@ describe('select slice', () => {
 	});
 
 	describe('removing selected elements', () => {
-		it('removes selected elements, their connect points and every incident line', () => {
+		it('removes selected graph data and clears the selection', () => {
 			const store = createTestStore();
 			loadSelectionGraph(store);
 			store.getState().markElementAsSelected('of-1');
@@ -171,6 +171,8 @@ describe('select slice', () => {
 			expect(store.getState().connectPoints['of-1']).toBeUndefined();
 			expect(store.getState().connectPoints['map-1']).toHaveLength(4);
 			expect(store.getState().connectLines).toEqual({});
+			expect(store.getState().selectedElements).toEqual([]);
+			expect(store.getState().selectedConnectLines).toEqual([]);
 		});
 	});
 
