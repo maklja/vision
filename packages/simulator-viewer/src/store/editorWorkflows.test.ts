@@ -54,6 +54,16 @@ const DEFAULT_LINE_POINTS = [
 	{ x: 258, y: 34 },
 ];
 
+// A realistic UI-created line: the first two points belong to the source side and the last two to
+// the target side, with the endpoints anchored to `of-1`'s output and `map-1`'s input.
+const OF_TO_MAP_LINE_POINTS = [
+	{ x: 110, y: 34 },
+	{ x: 150, y: 34 },
+	{ x: 190, y: 34 },
+	{ x: 230, y: 34 },
+	{ x: 258, y: 34 },
+];
+
 function loadOfMapLine(store: Store, points = DEFAULT_LINE_POINTS) {
 	store.getState().loadConnectLines([
 		createConnectLine({
@@ -367,10 +377,10 @@ describe('editor workflows', () => {
 			},
 		);
 
-		it.skip(`moves a single element together with its connect points and attached line endpoints (${MOVEMENT_REGRESSION_ISSUE})`, () => {
+		it.skip(`moves a single element together with its connect points and source-side line endpoints (${MOVEMENT_REGRESSION_ISSUE})`, () => {
 			const store = createTestStore();
 			loadOfAndMap(store);
-			loadOfMapLine(store);
+			loadOfMapLine(store, OF_TO_MAP_LINE_POINTS);
 
 			store.getState().moveElement({ id: 'of-1', x: 100, y: 0 });
 
@@ -379,16 +389,27 @@ describe('editor workflows', () => {
 			expect(
 				state.connectPoints['of-1'].find((cp) => cp.position === ConnectPointPosition.Right),
 			).toMatchObject({ x: 210, y: 34 });
+			// Only the two source-side points follow the moved element; the internal point and the
+			// two target-side points stay anchored to the stationary `map-1` input.
 			expect(state.connectLines['cl-1'].points).toEqual([
 				{ x: 210, y: 34 },
-				{ x: 358, y: 34 },
+				{ x: 250, y: 34 },
+				{ x: 190, y: 34 },
+				{ x: 230, y: 34 },
+				{ x: 258, y: 34 },
 			]);
+			const mapInput = state
+				.connectPoints['map-1'].find((cp) => cp.position === ConnectPointPosition.Left)!;
+			expect(state.connectLines['cl-1'].points.at(-1)).toEqual({
+				x: mapInput.x,
+				y: mapInput.y,
+			});
 		});
 
 		it('characterizes the current single-element move behavior for dependent geometry', () => {
 			const store = createTestStore();
 			loadOfAndMap(store);
-			loadOfMapLine(store);
+			loadOfMapLine(store, OF_TO_MAP_LINE_POINTS);
 
 			store.getState().moveElement({ id: 'of-1', x: 100, y: 0 });
 
@@ -396,26 +417,24 @@ describe('editor workflows', () => {
 			// The element position updates correctly.
 			expect(state.elements['of-1']).toMatchObject({ x: 100, y: 0 });
 			expect(state.elements['map-1']).toMatchObject({ x: 300, y: 0 });
-			// Characterization of issue #72: dependent geometry keeps its original coordinates.
+			// Characterization of issue #72: dependent geometry keeps its original coordinates, so
+			// the source-side points stay behind while the target end remains anchored.
 			expect(
 				state.connectPoints['of-1'].find((cp) => cp.position === ConnectPointPosition.Right),
 			).toMatchObject({ x: 110, y: 34 });
-			expect(state.connectLines['cl-1'].points).toEqual([
-				{ x: 110, y: 34 },
-				{ x: 258, y: 34 },
-			]);
+			expect(state.connectLines['cl-1'].points).toEqual(OF_TO_MAP_LINE_POINTS);
+			const mapInput = state
+				.connectPoints['map-1'].find((cp) => cp.position === ConnectPointPosition.Left)!;
+			expect(state.connectLines['cl-1'].points.at(-1)).toEqual({
+				x: mapInput.x,
+				y: mapInput.y,
+			});
 		});
 
 		it('moves the selected group, its connect points, attached endpoints, and internal points of selected lines', () => {
 			const store = createTestStore();
 			loadOfAndMap(store);
-			loadOfMapLine(store, [
-				{ x: 110, y: 34 },
-				{ x: 180, y: 34 },
-				{ x: 220, y: 34 },
-				{ x: 258, y: 34 },
-				{ x: 300, y: 34 },
-			]);
+			loadOfMapLine(store, OF_TO_MAP_LINE_POINTS);
 			store.getState().setSelectElements(['of-1']);
 			store.getState().markConnectLineAsSelected('cl-1');
 
@@ -433,10 +452,10 @@ describe('editor workflows', () => {
 			).toMatchObject({ x: 120, y: 34 });
 			expect(state.connectLines['cl-1'].points).toEqual([
 				{ x: 120, y: 34 },
-				{ x: 190, y: 34 },
+				{ x: 160, y: 34 },
+				{ x: 200, y: 34 },
 				{ x: 230, y: 34 },
 				{ x: 258, y: 34 },
-				{ x: 300, y: 34 },
 			]);
 		});
 	});
