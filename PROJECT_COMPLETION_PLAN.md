@@ -1,9 +1,6 @@
 # RxJS Vision completion plan
 
-Status: implementation in progress. Phase 1.3 engine characterization was completed on 2026-09-26
-and Phase 1.4 viewer state and component characterization is in review in
-[issue #70](https://github.com/maklja/vision/issues/70); the remaining Phase 1 work is the Phase 1.5
-browser journeys.
+Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26; the remaining Phase 1 work is the Phase 1.5 browser journeys.
 
 ## Goal
 
@@ -29,7 +26,7 @@ No new operator or product feature should be implemented before phases 1 through
 | Phase 1.2A: model metadata characterization | Complete | Merged in [PR #57](https://github.com/maklja/vision/pull/57): exhaustive tests for operator groups, entry classification, default templates, connection descriptors, cardinality, visibility, and malformed or unknown model inputs. |
 | Phase 1.2B: model geometry and fixture characterization | Complete | Merged in [PR #58](https://github.com/maklja/vision/pull/58): tests cover bounding boxes, line and polygon geometry, snap-line and grid boundaries, serialized model shapes, and a representative current-release saved-diagram fixture. |
 | Phase 1.3: engine characterization | Complete | Merged in [PR #63](https://github.com/maklja/vision/pull/63), [PR #64](https://github.com/maklja/vision/pull/64), and [PR #65](https://github.com/maklja/vision/pull/65): core engine and worker protocol, creation and join-creation operators, and transformation, filtering, and error operators. |
-| Phase 1.4: viewer state and component characterization | In progress | Merged in [PR #71](https://github.com/maklja/vision/pull/71), [PR #74](https://github.com/maklja/vision/pull/74), [PR #75](https://github.com/maklja/vision/pull/75), and [PR #79](https://github.com/maklja/vision/pull/79) for the store slices, editor workflows, simulation state, and IndexedDB persistence; [issue #70](https://github.com/maklja/vision/issues/70) adds palette, entry/simulation control, error/property panel, and property-form characterization with scoped Vitest coverage thresholds for viewer store and non-canvas UI. |
+| Phase 1.4: viewer state and component characterization | Complete | Merged in [PR #71](https://github.com/maklja/vision/pull/71), [PR #74](https://github.com/maklja/vision/pull/74), [PR #75](https://github.com/maklja/vision/pull/75), [PR #79](https://github.com/maklja/vision/pull/79), and [PR #82](https://github.com/maklja/vision/pull/82): store slices, editor workflows, simulation state, IndexedDB persistence, palette, entry/simulation controls, error/property panel, and property forms; scoped Vitest coverage thresholds protect viewer store and non-canvas UI. Follow-up defects found during characterization were fixed in [PR #76](https://github.com/maklja/vision/pull/76), [PR #77](https://github.com/maklja/vision/pull/77), [PR #80](https://github.com/maklja/vision/pull/80), and [PR #83](https://github.com/maklja/vision/pull/83). |
 | Phase 1.5: critical browser journeys | Not started | Playwright journeys for branches, joins, reload, clipboard, pan/zoom, errors, cancellation, and the GitHub Pages base path. |
 | Phase 2: dependency updates | Blocked | Starts only after the Phase 1 characterization gate is complete. |
 | Phase 3: old PR triage | Blocked | Starts only after dependency modernization is complete. |
@@ -68,7 +65,7 @@ The project can be called complete when all of the following are true:
 | Viewer | React, React Konva, Material UI, React DnD, Zustand, and Immer. |
 | Persistence | One diagram is stored in IndexedDB under the temporary key `test`; no schema version exists. |
 | Existing operators | 11 creation, 6 join-creation, 10 transformation, `filter`, and `catchError`. |
-| Tests | Vitest and V8 coverage with characterization suites for the model, engine, and viewer store and non-canvas UI, IndexedDB persistence, and one Playwright editor journey; browser journeys remain in progress. Coverage thresholds enforce 70% for viewer store and non-canvas UI. |
+| Tests | Vitest and V8 coverage with characterization suites for the model, engine, viewer state and non-canvas UI, and IndexedDB persistence; one Playwright editor journey is in place. The broader browser-journey suite remains Phase 1.5. Coverage thresholds enforce 70% for viewer store and non-canvas UI. |
 | CI | Pull requests run type checking, tests with coverage, the production build, and the Chromium browser journey; lint and formatting remain pending. |
 | Lint | `pnpm -r eslint` currently crashes before linting anything: every package runs `eslint src/**/*.{js,ts,tsx}` and ESLint 8 aborts with `No files matching the pattern "src/**/*.js" were found.` because no `.js` sources exist, so the brace pattern matches nothing. Bypassing the glob with `eslint src` then exposes the pre-existing `@typescript-eslint/no-empty-function` API mismatch in `simulator-model` and `simulator-engine`; the viewer configuration does not enable that rule and lints cleanly (0 errors). Both defects are pre-existing tooling issues scheduled for Phase 2.2 and are intentionally left out of the characterization changes. |
 | Build | The viewer production build succeeds. |
@@ -182,9 +179,6 @@ Phase 1.4 notes:
 
 - Viewer component tests replace `react-konva` and `@monaco-editor/react` with light doubles so
   accessible controls, callbacks, and store state can be asserted without canvas pixels.
-- The `From` operator's observable-event checkbox does not refresh the code editor value because the
-  editor only honors its initial `defaultValue`. The intended behavior is recorded as a skipped test
-  linked to [issue #81](https://github.com/maklja/vision/issues/81) instead of being fixed here.
 - `pnpm -r eslint` is currently unusable: the `src/**/*.{js,ts,tsx}` glob matches no `.js` file and
   aborts before linting, and linting `simulator-model`/`simulator-engine` sources directly crashes on
   the pre-existing `@typescript-eslint/no-empty-function` API mismatch. The viewer's own sources
