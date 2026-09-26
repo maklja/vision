@@ -23,6 +23,22 @@ export default defineConfig({
 				'packages/simulator-viewer/src/test-utils/**',
 				'packages/simulator-viewer/src/reportWebVitals.ts',
 			],
+			// Phase 1.4 gate: viewer store code and non-canvas UI code must stay characterized.
+			// Canvas drawers and Konva rendering stay in the report but outside this threshold.
+			thresholds: {
+				'packages/simulator-viewer/src/store/**': {
+					statements: 70,
+					functions: 70,
+					branches: 70,
+					lines: 70,
+				},
+				'packages/simulator-viewer/src/ui/**': {
+					statements: 70,
+					functions: 70,
+					branches: 70,
+					lines: 70,
+				},
+			},
 		},
 	},
 });

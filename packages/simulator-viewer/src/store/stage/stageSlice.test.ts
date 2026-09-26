@@ -274,8 +274,37 @@ describe('stage slice', () => {
 			expect(result.current?.text).toBe('boom');
 		});
 
+		it('prefers the element error message over explicit tooltip text', () => {
+			store.getState().showTooltip({ elementId: 'of-1', text: 'hello' });
+			act(() => {
+				store.getState().createElementError({
+					elementId: 'of-1',
+					errorId: 'error-1',
+					errorMessage: 'boom',
+				});
+			});
+
+			const { result } = renderHook(() => useRootStore(selectElementTooltip()), {
+				wrapper: createStoreWrapper(store),
+			});
+
+			expect(result.current?.text).toBe('boom');
+		});
+
 		it('returns null for a missing tooltip element', () => {
 			store.getState().showTooltip({ elementId: 'missing', text: 'hello' });
+
+			const { result } = renderHook(() => useRootStore(selectElementTooltip()), {
+				wrapper: createStoreWrapper(store),
+			});
+
+			expect(result.current).toBeNull();
+		});
+
+		it('returns null when neither the tooltip nor the element provides text', () => {
+			store.getState().removeElements(['of-1']);
+			store.getState().loadElements([createElement(ElementType.Of, { id: 'of-1', name: '' })]);
+			store.getState().showTooltip({ elementId: 'of-1' });
 
 			const { result } = renderHook(() => useRootStore(selectElementTooltip()), {
 				wrapper: createStoreWrapper(store),
