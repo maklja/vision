@@ -58,6 +58,18 @@ describe('SimpleCodeEditor', () => {
 		expect(onCodeChange).toHaveBeenCalledWith('');
 	});
 
+	it('syncs changed code props without discarding local edits on unrelated rerenders', () => {
+		const { rerender } = render(<SimpleCodeEditor label="Project" code="x => x" />);
+		const editor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+
+		fireEvent.change(editor, { target: { value: 'x => x + 1' } });
+		rerender(<SimpleCodeEditor label="Updated project" code="x => x" />);
+		expect(editor.value).toBe('x => x + 1');
+
+		rerender(<SimpleCodeEditor label="Updated project" code="y => y" />);
+		expect(editor.value).toBe('y => y');
+	});
+
 	it('forwards editor options to the code editor', () => {
 		render(<SimpleCodeEditor label="Project" code="x => x" options={{ readOnly: true }} />);
 

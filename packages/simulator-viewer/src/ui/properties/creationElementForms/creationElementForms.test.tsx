@@ -259,7 +259,7 @@ describe('FromElementPropertiesForm', () => {
 		expect(onPropertyValueChange).toHaveBeenCalledWith('from-1', 'observableFactory', '() => of(2)');
 	});
 
-	it('keeps the previous expression in the editor when the observable event mode changes', () => {
+	it('shows the observable factory in the editor when the observable event mode turns on (#81)', () => {
 		const { rerender } = render(
 			<FromElementPropertiesForm
 				id="from-1"
@@ -284,35 +284,7 @@ describe('FromElementPropertiesForm', () => {
 			/>,
 		);
 
-		// The form switches the edited property and its helper text, but the editor content stays
-		// on the expression it mounted with. See the skipped intended-behavior test below.
 		expect(screen.getByText('Creation of the observable.')).toBeDefined();
-		expect(code().value).toBe('[1, 2]');
-	});
-
-	it.skip('shows the observable factory in the editor when the observable event mode turns on (#81)', () => {
-		const { rerender } = render(
-			<FromElementPropertiesForm
-				id="from-1"
-				properties={{
-					enableObservableEvent: false,
-					inputCallbackExpression: '[1, 2]',
-					observableFactory: '() => of(1)',
-				}}
-			/>,
-		);
-
-		rerender(
-			<FromElementPropertiesForm
-				id="from-1"
-				properties={{
-					enableObservableEvent: true,
-					inputCallbackExpression: '[1, 2]',
-					observableFactory: '() => of(1)',
-				}}
-			/>,
-		);
-
 		expect(code().value).toBe('() => of(1)');
 	});
 

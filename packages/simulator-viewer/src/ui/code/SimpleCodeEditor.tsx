@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type monaco from 'monaco-editor';
 import Box from '@mui/material/Box';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -96,15 +96,23 @@ export const SimpleCodeEditor = ({
 	options = {},
 }: SimpleCodeEditorProps) => {
 	const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-
+	const [editorValue, setEditorValue] = useState<string>(code);
 	const [hover, setHover] = useState<boolean>(false);
 	const [focus, setFocus] = useState<boolean>(false);
+
+	useEffect(() => {
+		setEditorValue(code);
+	}, [code]);
 
 	const handleEditorMount: OnMount = (editor) => {
 		editorRef.current = editor;
 	};
 
-	const handleEditorChange: OnChange = (value) => onCodeChange?.(value ?? '');
+	const handleEditorChange: OnChange = (value) => {
+		const newValue = value ?? '';
+		setEditorValue(newValue);
+		onCodeChange?.(newValue);
+	};
 
 	const handleEditorFocus = () => {
 		setFocus(true);
@@ -182,7 +190,7 @@ export const SimpleCodeEditor = ({
 						}}
 						height={height}
 						defaultLanguage={language}
-						defaultValue={code}
+						value={editorValue}
 						onChange={handleEditorChange}
 					/>
 				</Box>
