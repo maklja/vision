@@ -10,6 +10,11 @@ import {
 	createTestStore,
 	spyOnConsole,
 } from '../test-utils';
+import {
+	calculateShapeSizeBoundingBox,
+	createElementSizesContext,
+	findElementSize,
+} from '../theme';
 import { StageState } from './stage';
 
 type Store = ReturnType<typeof createTestStore>;
@@ -49,19 +54,27 @@ function loadOfAndMap(store: Store) {
 	store.getState().loadConnectPoints(Object.values(store.getState().elements));
 }
 
+function elementCenter(store: Store, id: string) {
+	const element = store.getState().elements[id];
+	return calculateShapeSizeBoundingBox(
+		{ x: element.x, y: element.y },
+		findElementSize(createElementSizesContext(), element.type),
+	).center;
+}
+
 const DEFAULT_LINE_POINTS = [
 	{ x: 110, y: 34 },
 	{ x: 258, y: 34 },
 ];
 
 // A realistic UI-created line: the first two points belong to the source side and the last two to
-// the target side, with the endpoints anchored to `of-1`'s output and `map-1`'s input.
+// the target side, with endpoints anchored to the element centers used by the draw handlers.
 const OF_TO_MAP_LINE_POINTS = [
-	{ x: 110, y: 34 },
-	{ x: 150, y: 34 },
-	{ x: 190, y: 34 },
-	{ x: 230, y: 34 },
-	{ x: 258, y: 34 },
+	{ x: 50, y: 50 },
+	{ x: 90, y: 50 },
+	{ x: 190, y: 50 },
+	{ x: 322.5, y: 50 },
+	{ x: 362.5, y: 50 },
 ];
 
 function loadOfMapLine(store: Store, points = DEFAULT_LINE_POINTS) {
@@ -390,20 +403,15 @@ describe('editor workflows', () => {
 				state.connectPoints['of-1'].find((cp) => cp.position === ConnectPointPosition.Right),
 			).toMatchObject({ x: 210, y: 34 });
 			// Only the two source-side points follow the moved element; the internal point and the
-			// two target-side points stay anchored to the stationary `map-1` input.
+			// two target-side points stay anchored to the stationary `map-1` center.
 			expect(state.connectLines['cl-1'].points).toEqual([
-				{ x: 210, y: 34 },
-				{ x: 250, y: 34 },
-				{ x: 190, y: 34 },
-				{ x: 230, y: 34 },
-				{ x: 258, y: 34 },
+				{ x: 150, y: 50 },
+				{ x: 190, y: 50 },
+				{ x: 190, y: 50 },
+				{ x: 322.5, y: 50 },
+				{ x: 362.5, y: 50 },
 			]);
-			const mapInput = state
-				.connectPoints['map-1'].find((cp) => cp.position === ConnectPointPosition.Left)!;
-			expect(state.connectLines['cl-1'].points.at(-1)).toEqual({
-				x: mapInput.x,
-				y: mapInput.y,
-			});
+			expect(state.connectLines['cl-1'].points.at(-1)).toEqual(elementCenter(store, 'map-1'));
 		});
 
 		it('characterizes the current single-element move behavior for dependent geometry', () => {
@@ -423,12 +431,7 @@ describe('editor workflows', () => {
 				state.connectPoints['of-1'].find((cp) => cp.position === ConnectPointPosition.Right),
 			).toMatchObject({ x: 110, y: 34 });
 			expect(state.connectLines['cl-1'].points).toEqual(OF_TO_MAP_LINE_POINTS);
-			const mapInput = state
-				.connectPoints['map-1'].find((cp) => cp.position === ConnectPointPosition.Left)!;
-			expect(state.connectLines['cl-1'].points.at(-1)).toEqual({
-				x: mapInput.x,
-				y: mapInput.y,
-			});
+			expect(state.connectLines['cl-1'].points.at(-1)).toEqual(elementCenter(store, 'map-1'));
 		});
 
 		it('moves the selected group, its connect points, attached endpoints, and internal points of selected lines', () => {
@@ -451,11 +454,11 @@ describe('editor workflows', () => {
 				state.connectPoints['of-1'].find((cp) => cp.position === ConnectPointPosition.Right),
 			).toMatchObject({ x: 120, y: 34 });
 			expect(state.connectLines['cl-1'].points).toEqual([
-				{ x: 120, y: 34 },
-				{ x: 160, y: 34 },
-				{ x: 200, y: 34 },
-				{ x: 230, y: 34 },
-				{ x: 258, y: 34 },
+				{ x: 60, y: 50 },
+				{ x: 100, y: 50 },
+				{ x: 200, y: 50 },
+				{ x: 322.5, y: 50 },
+				{ x: 362.5, y: 50 },
 			]);
 		});
 	});
