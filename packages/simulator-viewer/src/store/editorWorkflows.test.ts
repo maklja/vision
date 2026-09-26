@@ -430,7 +430,7 @@ describe('editor workflows', () => {
 			},
 		);
 
-		it.skip(`moves a single element together with its connect points and source-side line endpoints (${MOVEMENT_REGRESSION_ISSUE})`, () => {
+		it(`moves a single element together with its connect points and source-side line endpoints (${MOVEMENT_REGRESSION_ISSUE})`, () => {
 			const store = createTestStore();
 			loadOfAndMap(store);
 			const linePoints = uiOfToMapLinePoints(store);
@@ -455,26 +455,6 @@ describe('editor workflows', () => {
 			expect(state.connectLines['cl-1'].points.at(-1)).toEqual(elementCenter(store, 'map-1'));
 		});
 
-		it('characterizes the current single-element move behavior for dependent geometry', () => {
-			const store = createTestStore();
-			loadOfAndMap(store);
-			const linePoints = uiOfToMapLinePoints(store);
-			loadOfMapLine(store, linePoints);
-
-			store.getState().moveElement({ id: 'of-1', x: 100, y: 0 });
-
-			const state = store.getState();
-			// The element position updates correctly.
-			expect(state.elements['of-1']).toMatchObject({ x: 100, y: 0 });
-			expect(state.elements['map-1']).toMatchObject({ x: 300, y: 0 });
-			// Characterization of issue #72: dependent geometry keeps its original coordinates, so
-			// the source-side points stay behind while the target end remains anchored.
-			expect(
-				state.connectPoints['of-1'].find((cp) => cp.position === ConnectPointPosition.Right),
-			).toMatchObject({ x: 110, y: 34 });
-			expect(state.connectLines['cl-1'].points).toEqual(linePoints);
-			expect(state.connectLines['cl-1'].points.at(-1)).toEqual(elementCenter(store, 'map-1'));
-		});
 
 		it('moves the selected group, its connect points, attached endpoints, and internal points of selected lines', () => {
 			const store = createTestStore();

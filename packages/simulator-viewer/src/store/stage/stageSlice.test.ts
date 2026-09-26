@@ -478,16 +478,19 @@ describe('stage slice', () => {
 			]);
 		});
 
-		it('moves a single element to a position', () => {
-			const connectPointsBefore = store.getState().connectPoints['of-1'];
-			const lineBefore = store.getState().connectLines['cl-1'].points;
-
+		it('moves a single element, its connect points and line endpoints to a position', () => {
 			store.getState().moveElement({ id: 'of-1', x: 100, y: 0 });
 
 			expect(store.getState().elements['of-1']).toMatchObject({ x: 100, y: 0 });
-			// Characterization: the element moves but its connect points keep their coordinates.
-			expect(store.getState().connectPoints['of-1']).toEqual(connectPointsBefore);
-			expect(store.getState().connectLines['cl-1'].points).toEqual(lineBefore);
+			const sourcePoint = store
+				.getState()
+				.connectPoints['of-1'].find((cp) => cp.position === ConnectPointPosition.Right);
+			expect(sourcePoint).toMatchObject({ x: 210, y: 34 });
+			expect(store.getState().connectLines['cl-1'].points).toEqual([
+				{ x: 210, y: 50 },
+				{ x: 280, y: 50 },
+				{ x: 258, y: 50 },
+			]);
 		});
 
 		it('ignores moving a missing element', () => {
