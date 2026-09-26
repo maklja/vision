@@ -4,7 +4,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRootStore } from './store/rootStore';
 import { spyOnConsole } from './test-utils';
-import { persistDiagram } from './persistence';
+import { persistDiagram, subscribeDiagramPersistence } from './persistence';
 
 const { getMock, setMock, capturedStore } = vi.hoisted(() => ({
 	getMock: vi.fn(),
@@ -72,6 +72,41 @@ const emptyDiagram = {
 	canvasState: { x: 0, y: 0, scaleX: 1, scaleY: 1 },
 	themeId: 'sea',
 };
+
+async function flushPromises() {
+	await new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+interface ScheduledRetry {
+	callback: () => void;
+	delayMs: number;
+	cancelled: boolean;
+}
+
+// Deterministic scheduler so recovery tests never depend on real timers.
+function createTestScheduler() {
+	const scheduled: ScheduledRetry[] = [];
+
+	return {
+		scheduled,
+		scheduler: {
+			schedule(callback: () => void, delayMs: number) {
+				const retry: ScheduledRetry = { callback, delayMs, cancelled: false };
+				scheduled.push(retry);
+				return () => {
+					retry.cancelled = true;
+				};
+			},
+		},
+		runScheduledRetry() {
+			const retry = scheduled.shift();
+			if (!retry) {
+				throw new Error('No retry was scheduled.');
+			}
+			retry.callback();
+		},
+	};
+}
 
 describe('App persistence failures', () => {
 	let console_: ReturnType<typeof spyOnConsole>;
@@ -155,22 +190,208 @@ describe('App persistence failures', () => {
 		await flushPersistence();
 		expect(setMock).not.toHaveBeenCalled();
 	});
+});
 
-	// Recovery (retry/backoff for a rejected write) is a product behavior change deliberately left
-	// out of this characterization. See https://github.com/maklja/vision/issues/78.
-	it.skip('recovers a rejected write without a subsequent editor change', async () => {
+describe('diagram persistence recovery', () => {
+	beforeEach(() => {
+		getMock.mockReset();
+		setMock.mockReset();
+		getMock.mockResolvedValue(undefined);
+		setMock.mockResolvedValue(undefined);
+	});
+
+	it('retries a rejected write and persists the latest diagram without another editor change', async () => {
+		const { scheduler, runScheduledRetry, scheduled } = createTestScheduler();
+		const store = createRootStore();
+		const errors: unknown[] = [];
 		setMock.mockRejectedValueOnce(new Error('write failed')).mockResolvedValue(undefined);
 
-		render(<App />);
-		await screen.findByLabelText('loaded elements');
-		await flushPersistence();
+		const unsubscribe = subscribeDiagramPersistence(store, (error) => errors.push(error), {
+			scheduler,
+		});
 
-		fireEvent.click(screen.getByRole('button', { name: 'Add element' }));
-		await flushPersistence();
+		store.getState().updateCanvasState({ x: 10 });
+		await flushPromises();
 
-		// Once recovery exists, the failed snapshot should be retried without another editor change.
+		expect(setMock).toHaveBeenCalledTimes(1);
+		expect(errors).toHaveLength(1);
+		expect(scheduled).toHaveLength(1);
+		expect(scheduled[0].delayMs).toBe(1000);
+
+		runScheduledRetry();
+		await flushPromises();
+
+		expect(setMock).toHaveBeenCalledTimes(2);
+		expect(setMock).toHaveBeenLastCalledWith(
+			'test',
+			expect.objectContaining({ canvasState: { x: 10, y: 0, scaleX: 1, scaleY: 1 } }),
+		);
+
+		unsubscribe();
+	});
+
+	it('retries through the default scheduler after the configured backoff', async () => {
+		const store = createRootStore();
+		setMock.mockRejectedValueOnce(new Error('write failed')).mockResolvedValue(undefined);
+
+		subscribeDiagramPersistence(store, () => undefined, { retryDelayMs: 5 });
+
+		store.getState().updateCanvasState({ x: 42 });
+		await flushPromises();
+		expect(setMock).toHaveBeenCalledTimes(1);
+
 		await waitFor(() => {
 			expect(setMock).toHaveBeenCalledTimes(2);
 		});
+		expect(setMock).toHaveBeenLastCalledWith(
+			'test',
+			expect.objectContaining({ canvasState: { x: 42, y: 0, scaleX: 1, scaleY: 1 } }),
+		);
+	});
+
+	it('backs off exponentially and gives up after the bounded number of attempts', async () => {
+		const { scheduler, runScheduledRetry, scheduled } = createTestScheduler();
+		const store = createRootStore();
+		const errors: unknown[] = [];
+		setMock.mockRejectedValue(new Error('write failed'));
+
+		subscribeDiagramPersistence(store, (error) => errors.push(error), {
+			scheduler,
+			maxAttempts: 3,
+			retryDelayMs: 100,
+		});
+
+		store.getState().updateCanvasState({ x: 1 });
+		await flushPromises();
+		expect(setMock).toHaveBeenCalledTimes(1);
+		expect(scheduled[0].delayMs).toBe(100);
+
+		runScheduledRetry();
+		await flushPromises();
+		expect(setMock).toHaveBeenCalledTimes(2);
+		expect(scheduled[0].delayMs).toBe(200);
+
+		runScheduledRetry();
+		await flushPromises();
+		expect(setMock).toHaveBeenCalledTimes(3);
+		expect(scheduled).toHaveLength(0);
+		expect(errors).toHaveLength(3);
+	});
+
+	it('persists only the latest state when a change arrives during a failing write', async () => {
+		const { scheduler, scheduled } = createTestScheduler();
+		const store = createRootStore();
+		setMock.mockRejectedValueOnce(new Error('write failed')).mockResolvedValue(undefined);
+
+		subscribeDiagramPersistence(store, () => undefined, { scheduler });
+
+		store.getState().updateCanvasState({ x: 1 });
+		await flushPromises();
+		expect(scheduled).toHaveLength(1);
+
+		store.getState().updateCanvasState({ x: 2 });
+		await flushPromises();
+
+		expect(setMock).toHaveBeenCalledTimes(2);
+		expect(scheduled[0].cancelled).toBe(true);
+		expect(setMock).toHaveBeenLastCalledWith(
+			'test',
+			expect.objectContaining({ canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 } }),
+		);
+	});
+
+	it('writes the newest snapshot queued during a successful write', async () => {
+		let resolveFirstWrite!: () => void;
+		setMock
+			.mockImplementationOnce(
+				() =>
+					new Promise<void>((resolve) => {
+						resolveFirstWrite = resolve;
+					}),
+			)
+			.mockResolvedValue(undefined);
+		const { scheduler } = createTestScheduler();
+		const store = createRootStore();
+
+		subscribeDiagramPersistence(store, () => undefined, { scheduler });
+
+		store.getState().updateCanvasState({ x: 1 });
+		await flushPromises();
+		expect(setMock).toHaveBeenCalledTimes(1);
+
+		store.getState().updateCanvasState({ x: 2 });
+		await flushPromises();
+		expect(setMock).toHaveBeenCalledTimes(1);
+
+		resolveFirstWrite();
+		await flushPromises();
+
+		expect(setMock).toHaveBeenCalledTimes(2);
+		expect(setMock).toHaveBeenLastCalledWith(
+			'test',
+			expect.objectContaining({ canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 } }),
+		);
+	});
+
+	it('persists the newest snapshot with a fresh budget when a change arrives during a failing write', async () => {
+		let rejectFirstWrite!: (error: unknown) => void;
+		setMock
+			.mockImplementationOnce(
+				() =>
+					new Promise<void>((_resolve, reject) => {
+						rejectFirstWrite = reject;
+					}),
+			)
+			.mockResolvedValue(undefined);
+		const { scheduler, scheduled } = createTestScheduler();
+		const store = createRootStore();
+		const errors: unknown[] = [];
+
+		subscribeDiagramPersistence(store, (error) => errors.push(error), {
+			scheduler,
+			maxAttempts: 1,
+		});
+
+		store.getState().updateCanvasState({ x: 1 });
+		await flushPromises();
+
+		// A newer change arrives while the first write is still in flight.
+		store.getState().updateCanvasState({ x: 2 });
+		await flushPromises();
+		expect(setMock).toHaveBeenCalledTimes(1);
+
+		rejectFirstWrite(new Error('write failed'));
+		await flushPromises();
+
+		expect(errors).toHaveLength(1);
+		expect(scheduled).toHaveLength(0);
+		expect(setMock).toHaveBeenCalledTimes(2);
+		expect(setMock).toHaveBeenLastCalledWith(
+			'test',
+			expect.objectContaining({ canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 } }),
+		);
+	});
+
+	it('cancels a pending retry and stops writing after unsubscribe', async () => {
+		const { scheduler, scheduled, runScheduledRetry } = createTestScheduler();
+		const store = createRootStore();
+		setMock.mockRejectedValue(new Error('write failed'));
+
+		const unsubscribe = subscribeDiagramPersistence(store, () => undefined, { scheduler });
+
+		store.getState().updateCanvasState({ x: 1 });
+		await flushPromises();
+		expect(scheduled).toHaveLength(1);
+
+		unsubscribe();
+		expect(scheduled[0].cancelled).toBe(true);
+
+		store.getState().updateCanvasState({ x: 2 });
+		await flushPromises();
+
+		runScheduledRetry();
+		await flushPromises();
+
+		expect(setMock).toHaveBeenCalledTimes(1);
 	});
 });
