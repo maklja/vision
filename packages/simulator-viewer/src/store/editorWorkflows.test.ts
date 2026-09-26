@@ -533,7 +533,7 @@ describe('editor workflows', () => {
 			expect(state.connectLines).toEqual({});
 		});
 
-		it.skip(`clears stale selection ids after deletion (${DELETION_REGRESSION_ISSUE})`, () => {
+		it(`clears stale selection ids after deletion (${DELETION_REGRESSION_ISSUE})`, () => {
 			const store = createTestStore();
 			loadDeletionGraph(store);
 			store.getState().setSelectElements(['of-1']);
@@ -545,18 +545,6 @@ describe('editor workflows', () => {
 			expect(store.getState().selectedConnectLines).toEqual([]);
 		});
 
-		it('characterizes the current stale selection ids left after deletion', () => {
-			const store = createTestStore();
-			loadDeletionGraph(store);
-			store.getState().setSelectElements(['of-1']);
-			store.getState().markConnectLineAsSelected('cl-2');
-
-			store.getState().removeSelectedElements();
-
-			// Characterization of issue #73: the graph is cleaned up but the selection is not.
-			expect(store.getState().selectedElements).toEqual(['of-1']);
-			expect(store.getState().selectedConnectLines).toEqual(['cl-2']);
-		});
 
 		it('copies both endpoint elements when only a connect line is selected', () => {
 			const store = createTestStore();
