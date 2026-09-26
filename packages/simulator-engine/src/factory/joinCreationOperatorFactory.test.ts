@@ -332,8 +332,14 @@ describe('joinCreationOperatorFactory', () => {
 			const result = joinGraph(
 				element('join', ElementType.Race, {}),
 				element('left', ElementType.Interval, { period: 1_000 }),
-				element('right', ElementType.Interval, { period: 2_000 }),
+				 element('right', ElementType.Interval, { period: 2_000 }),
 			);
+
+			expect(
+				eventsFrom(result, 'join')
+					.filter((event) => event.type === FlowValueType.Subscribe)
+					.map((event) => event.targetElementId),
+			).toEqual(['left', 'right']);
 
 			vi.advanceTimersByTime(2_100);
 
