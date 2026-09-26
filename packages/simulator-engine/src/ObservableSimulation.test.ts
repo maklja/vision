@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
 	ConnectLine,
 	ConnectPointPosition,
@@ -74,5 +74,81 @@ describe('ObservableSimulation', () => {
 		expect(completed).toBe(true);
 
 		subscription.unsubscribe();
+	});
+
+	it('should unsubscribe from the simulation and trigger cleanup', () => {
+		vi.useFakeTimers();
+		try {
+			const intervalSource: Element = {
+				id: 'interval',
+				type: ElementType.Interval,
+				name: 'interval',
+				x: 0,
+				y: 0,
+				visible: true,
+				properties: { period: 1_000 },
+			};
+			const model = createSimulationModel(
+				intervalSource.id,
+				[intervalSource, subscriber],
+				[
+					{
+						id: 'interval-to-subscriber',
+						source: {
+							id: intervalSource.id,
+							connectPointType: ConnectPointType.Output,
+							connectPosition: ConnectPointPosition.Right,
+						},
+						target: {
+							id: subscriber.id,
+							connectPointType: ConnectPointType.Input,
+							connectPosition: ConnectPointPosition.Left,
+						},
+						points: [],
+						locked: false,
+						index: 0,
+						name: '',
+					},
+				],
+			);
+			const events: FlowValueEvent[] = [];
+			const subscription = new ObservableSimulation(model).start({
+				next: (event) => events.push(event),
+			});
+
+			vi.advanceTimersByTime(2_500);
+			expect(events.map((event) => event.value)).toEqual(['0', '1']);
+			expect(vi.getTimerCount()).toBe(1);
+
+			subscription.unsubscribe();
+			expect(vi.getTimerCount()).toBe(0);
+
+			vi.advanceTimersByTime(5_000);
+			expect(events.map((event) => event.value)).toEqual(['0', '1']);
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	it('should handle restart properly by creating a fresh execution', () => {
+		const model = createSimulationModel(source.id, [source, subscriber], [connection]);
+		const simulation = new ObservableSimulation(model);
+		const firstRun: FlowValueEvent[] = [];
+		simulation.start({
+			next: (event) => firstRun.push(event),
+		});
+		simulation.stop();
+
+		const secondRun: FlowValueEvent[] = [];
+		simulation.start({
+			next: (event) => secondRun.push(event),
+		});
+		simulation.stop();
+
+		expect(firstRun.map((event) => event.value)).toEqual(['1', '2']);
+		expect(secondRun.map((event) => event.value)).toEqual(['1', '2']);
+		expect(firstRun.map((event) => event.id)).not.toEqual(
+			secondRun.map((event) => event.id),
+		);
 	});
 });
