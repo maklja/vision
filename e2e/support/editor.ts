@@ -23,6 +23,8 @@ const SNAP_TOLERANCE = 6;
 export interface ConnectOperatorsOptions {
 	sourcePosition?: ConnectPointPosition;
 	targetPosition?: ConnectPointPosition;
+	/** World-space polyline waypoints clicked between the source and target connect points. */
+	waypoints?: Point[];
 }
 
 /** Opens the application and waits for the Konva stage to render. */
@@ -99,6 +101,17 @@ export async function addOperator(
 export async function selectElement(page: Page, element: Element): Promise<void> {
 	const center = await toBrowserPoint(page, getElementCenter(element));
 	await page.mouse.click(center.x, center.y);
+}
+
+/**
+ * Control-clicks an element so the editor adds it to the current selection instead of replacing
+ * it, mirroring the Control-modified multi-selection used elsewhere in the editor.
+ */
+export async function ctrlClickElement(page: Page, element: Element): Promise<void> {
+	const center = await toBrowserPoint(page, getElementCenter(element));
+	await page.keyboard.down('Control');
+	await page.mouse.click(center.x, center.y);
+	await page.keyboard.up('Control');
 }
 
 /** Drags an element so its top-left corner lands on the requested world position. */
@@ -258,6 +271,15 @@ export async function connectOperators(
 
 	await page.mouse.move(sourceOutput.x, sourceOutput.y);
 	await page.mouse.down();
+
+	// Each waypoint click pins a polyline segment before the line is linked to its target.
+	for (const waypoint of options.waypoints ?? []) {
+		const waypointPoint = worldToBrowser(waypoint, canvasState, stageOrigin);
+		await page.mouse.move(waypointPoint.x, waypointPoint.y, { steps: 10 });
+		await page.mouse.down();
+		await page.mouse.up();
+	}
+
 	await page.mouse.move(targetInput.x, targetInput.y, { steps: 10 });
 	await page.mouse.up();
 
@@ -328,4 +350,24 @@ export async function setObservableInputIndex(
 		.nth(rowIndex)
 		.locator('xpath=ancestor::div[contains(@class,"MuiStack-root")][1]');
 	await row.getByLabel('Index', { exact: true }).fill(`${index}`);
+}
+
+/** Copies the current selection with the application's Control+C shortcut. */
+export async function copySelection(page: Page): Promise<void> {
+	await page.keyboard.press('Control+c');
+}
+
+/**
+ * Moves the pointer to a world position and pastes with Control+V. The application reads the
+ * paste origin from the pointer, so the pointer move is part of the interaction.
+ */
+export async function pasteSelectionAt(page: Page, position: Point): Promise<void> {
+	const browserPoint = await toBrowserPoint(page, position);
+	await page.mouse.move(browserPoint.x, browserPoint.y);
+	await page.keyboard.press('Control+v');
+}
+
+/** Deletes the current selection with the Delete key. */
+export async function deleteSelection(page: Page): Promise<void> {
+	await page.keyboard.press('Delete');
 }
