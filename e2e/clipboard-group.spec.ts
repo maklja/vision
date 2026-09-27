@@ -14,7 +14,7 @@ import {
 } from './support/editor';
 import { findElementById, PersistedDiagram, requireConnectLineById } from './support/diagram';
 import { getElementBounds } from './support/geometry';
-import { readPersistedDiagram, waitForDiagram, waitForDiagramCounts } from './support/indexedDb';
+import { readPersistedDiagram, waitForDiagramCounts } from './support/indexedDb';
 
 /**
  * Two floating panels sit above the stage: the operator palette popper stays open after an
@@ -213,46 +213,41 @@ test('copies, pastes and edits a grouped graph through the rendered editor', asy
 	);
 	expect(afterGroupDelete.connectLines.map((line) => line.id)).toEqual([originalLine.id]);
 
-	// The connect-line selection is not persisted either, so it needs its own observable. The
-	// clipboard still holds the group copied before the paste; Control+C replaces it, and with an
-	// empty selection the copy stores nothing, so the following paste adds nothing. A deleted
-	// replacement line that had outlived the group deletion would make the copy fail on the
-	// missing line, leaving the earlier group in the clipboard, and the paste would then duplicate
-	// the original graph back into the diagram.
+	// A stale selection is neither persisted nor rendered in the DOM, and it is only observable
+	// while it survives: a later Delete would run removeSelectedElements() and clear it. Both
+	// selection kinds are therefore checked here, straight after the group deletion.
+
+	// Connect lines: Control+C replaces the clipboard, and with an empty selection the copy stores
+	// nothing, so the following paste adds nothing. A deleted replacement line that outlived the
+	// group deletion would make the copy throw on the missing line, keep the earlier group in the
+	// clipboard, and the paste would then duplicate and select the original graph again.
 	await copySelection(page);
 	await pasteSelectionAt(page, { x: 546.25, y: 690 });
-	const afterStaleConnectLines = await waitForDiagramCounts(page, 2, 1);
-	expect(sortIds(afterStaleConnectLines.elements.map((element) => element.id))).toEqual(
-		sortIds(originalIds),
-	);
-	expect(afterStaleConnectLines.connectLines.map((line) => line.id)).toEqual([originalLine.id]);
 
-	// A later click and keyboard action must not act on the deleted ids: the group deletion already
-	// cleared the selection, so the empty-canvas click keeps it empty and the Delete press runs
-	// against nothing and leaves the original graph untouched.
-	await page.mouse.click(700, 850);
-	await deleteSelection(page);
-	const afterStaleCheck = await waitForDiagram(
-		page,
-		(diagram) =>
-			(diagram?.elements.length ?? 0) === 2 && (diagram?.connectLines.length ?? 0) === 1,
+	// Adding an operator is the positive post-shortcut synchronization point for that assertion: its
+	// write lands after the shortcuts, so a duplicated graph cannot hide behind a snapshot the
+	// predicate had already matched.
+	const addedOperator = await addOperator(page, 'creation operators', ElementType.Of, {
+		x: 700,
+		y: 700,
+	});
+	const afterPasteShortcuts = await waitForDiagramCounts(page, 3, 1);
+	expect(sortIds(afterPasteShortcuts.elements.map((element) => element.id))).toEqual(
+		sortIds([...originalIds, addedOperator.id]),
 	);
-	expect(sortIds(afterStaleCheck.elements.map((element) => element.id))).toEqual(
-		sortIds(originalIds),
-	);
-	expect(afterStaleCheck.connectLines.map((line) => line.id)).toEqual([originalLine.id]);
+	expect(afterPasteShortcuts.connectLines.map((line) => line.id)).toEqual([originalLine.id]);
 
-	// Control-clicking adds to the selection instead of replacing it, which makes the properties
-	// panel an observable for leftover selected ids: it renders only while exactly one element is
-	// selected. An id that survived the group deletion would keep the panel hidden here, whereas a
-	// plain click would replace the selection and hide the evidence.
-	const survivingOf = requireElement(afterStaleCheck, originalOf.id);
+	// Elements: a Control-click adds to the selection instead of replacing it, which makes the
+	// properties panel an observable for leftover selected ids: it renders only while exactly one
+	// element is selected. An id that survived the group deletion would keep the panel hidden here,
+	// whereas a plain click would replace the selection and hide the evidence.
+	const survivingOf = requireElement(afterPasteShortcuts, originalOf.id);
 	await ctrlClickElement(page, survivingOf);
 	await expect(page.getByText(`Element details: ${survivingOf.name}`)).toBeVisible();
 	await expect(page.getByLabel('Id', { exact: true })).toHaveValue(survivingOf.id);
 
 	// Adding the second surviving element hides the panel again, which is the outcome the check
 	// above would have observed if the deleted ids had outlived the group deletion.
-	await ctrlClickElement(page, requireElement(afterStaleCheck, originalMap.id));
+	await ctrlClickElement(page, requireElement(afterPasteShortcuts, originalMap.id));
 	await expectNoElementDetails(page);
 });
