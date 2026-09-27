@@ -127,6 +127,76 @@ export async function dragElementTo(page: Page, element: Element, target: Point)
 	return findElementById(diagram, element.id) as Element;
 }
 
+/**
+ * Shift-drags an element while Konva's drag bound snaps to the theme grid. The element ends
+ * up on the nearest grid multiple rather than at the raw drop point, so the helper waits for
+ * the snapped target instead of the requested one.
+ */
+export async function shiftDragElementTo(
+	page: Page,
+	element: Element,
+	target: Point,
+	gridSize: number,
+): Promise<Element> {
+	const bounds = getElementBounds(element);
+	const start = await toBrowserPoint(page, getElementCenter(element));
+	const targetCenter = await toBrowserPoint(page, {
+		x: target.x + bounds.width / 2,
+		y: target.y + bounds.height / 2,
+	});
+
+	await page.keyboard.down('Shift');
+	await page.mouse.move(start.x, start.y);
+	await page.mouse.down();
+	await page.mouse.move(targetCenter.x, targetCenter.y, { steps: 10 });
+	await page.mouse.up();
+	await page.keyboard.up('Shift');
+
+	const snappedTarget = {
+		x: Math.round(target.x / gridSize) * gridSize,
+		y: Math.round(target.y / gridSize) * gridSize,
+	};
+
+	const diagram = await waitForDiagram(page, (current) => {
+		const moved = findElementById(current, element.id);
+		return (
+			!!moved &&
+			Math.abs(moved.x - snappedTarget.x) <= 1 &&
+			Math.abs(moved.y - snappedTarget.y) <= 1
+		);
+	});
+
+	return findElementById(diagram, element.id) as Element;
+}
+
+/** Resolves the browser viewport point of an element's rendered center. */
+export async function getElementBrowserCenter(page: Page, element: Element): Promise<Point> {
+	return toBrowserPoint(page, getElementCenter(element));
+}
+
+/** Pans the stage with a middle-button drag between two browser viewport points. */
+export async function panStage(page: Page, start: Point, end: Point): Promise<void> {
+	await page.mouse.move(start.x, start.y);
+	await page.mouse.down({ button: 'middle' });
+	await page.mouse.move(end.x, end.y, { steps: 10 });
+	await page.mouse.up({ button: 'middle' });
+}
+
+/** Zooms the stage in one step through the rendered zoom controls. */
+export async function zoomIn(page: Page): Promise<void> {
+	await page.getByRole('button', { name: 'zoom in' }).click();
+}
+
+/**
+ * Opens the Entry operator autocomplete and activates the nested locate control of the given
+ * entry element, which resets the scale and re-centers the stage on the element's shape center.
+ */
+export async function locateEntryOperator(page: Page, element: Element): Promise<void> {
+	await page.getByLabel('Entry operator').click();
+	const option = page.getByRole('option', { name: `${element.type} - ${element.name}` });
+	await option.getByRole('button').click();
+}
+
 /** Ctrl-drag lasso selection between two world points. */
 export async function lassoSelect(page: Page, start: Point, end: Point): Promise<void> {
 	const [startBrowser, endBrowser] = await Promise.all([

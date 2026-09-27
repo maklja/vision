@@ -27,7 +27,7 @@ No new operator or product feature should be implemented before phases 1 through
 | Phase 1.2B: model geometry and fixture characterization | Complete | Merged in [PR #58](https://github.com/maklja/vision/pull/58): tests cover bounding boxes, line and polygon geometry, snap-line and grid boundaries, serialized model shapes, and a representative current-release saved-diagram fixture. |
 | Phase 1.3: engine characterization | Complete | Merged in [PR #63](https://github.com/maklja/vision/pull/63), [PR #64](https://github.com/maklja/vision/pull/64), and [PR #65](https://github.com/maklja/vision/pull/65): core engine and worker protocol, creation and join-creation operators, and transformation, filtering, and error operators. |
 | Phase 1.4: viewer state and component characterization | Complete | Merged in [PR #71](https://github.com/maklja/vision/pull/71), [PR #74](https://github.com/maklja/vision/pull/74), [PR #75](https://github.com/maklja/vision/pull/75), [PR #79](https://github.com/maklja/vision/pull/79), and [PR #82](https://github.com/maklja/vision/pull/82): store slices, editor workflows, simulation state, IndexedDB persistence, palette, entry/simulation controls, error/property panel, and property forms; scoped Vitest coverage thresholds protect viewer store and non-canvas UI. Follow-up defects found during characterization were fixed in [PR #76](https://github.com/maklja/vision/pull/76), [PR #77](https://github.com/maklja/vision/pull/77), [PR #80](https://github.com/maklja/vision/pull/80), and [PR #83](https://github.com/maklja/vision/pull/83). |
-| Phase 1.5: critical browser journeys | In progress | Issue #85 added the shared Playwright support modules (IndexedDB, editor bootstrap, theme-based geometry, reusable canvas actions, and a test-only Worker probe), pinned the runner to one worker with retries disabled, and migrated the `of -> map -> filter -> subscriber` journey to the helpers. Issue #86 added the `concat` branch/join journey that builds the graph through palette drops and canvas gestures, edits the ordered event inputs, and asserts Worker execution and subscription order. Remaining: Playwright journeys for reload, clipboard, pan/zoom, errors, cancellation, and the GitHub Pages base path. |
+| Phase 1.5: critical browser journeys | In progress | Issue #85 added the shared Playwright support modules (IndexedDB, editor bootstrap, theme-based geometry, reusable canvas actions, and a test-only Worker probe), pinned the runner to one worker with retries disabled, and migrated the `of -> map -> filter -> subscriber` journey to the helpers. Issue #86 added the `concat` branch/join journey that builds the graph through palette drops and canvas gestures, edits the ordered event inputs, and asserts Worker execution and subscription order. Issue #87 added the persistence/reload journey (name, properties, and viewport restored through a real reload) and the viewport journey (middle-button pan, zoom control, grid-snapped entry drag, and entry location), and filed defect issue #93 for the operator palette covering the zoom controls on short viewports. Remaining: Playwright journeys for clipboard, errors, cancellation, and the GitHub Pages base path. |
 | Phase 2: dependency updates | Blocked | Starts only after the Phase 1 characterization gate is complete. |
 | Phase 3: old PR triage | Blocked | Starts only after dependency modernization is complete. |
 
@@ -65,11 +65,11 @@ The project can be called complete when all of the following are true:
 | Viewer | React, React Konva, Material UI, React DnD, Zustand, and Immer. |
 | Persistence | One diagram is stored in IndexedDB under the temporary key `test`; no schema version exists. |
 | Existing operators | 11 creation, 6 join-creation, 10 transformation, `filter`, and `catchError`. |
-| Tests | Vitest and V8 coverage with characterization suites for the model, engine, viewer state and non-canvas UI, and IndexedDB persistence; the Playwright editor journeys (linear pipeline and `concat` branch/join) run on a shared support foundation (`e2e/support`) with a test-only Worker probe (issues #85 and #86). The remaining browser journeys stay in Phase 1.5. Coverage thresholds enforce 70% for viewer store and non-canvas UI. |
+| Tests | Vitest and V8 coverage with characterization suites for the model, engine, viewer state and non-canvas UI, and IndexedDB persistence; the Playwright editor journeys (linear pipeline, `concat` branch/join, and persistence/viewport/grid/entry-location) run on a shared support foundation (`e2e/support`) with a test-only Worker probe (issues #85, #86, and #87). The remaining browser journeys stay in Phase 1.5. Coverage thresholds enforce 70% for viewer store and non-canvas UI. |
 | CI | Pull requests run type checking, tests with coverage, the production build, and the Chromium browser journey; lint and formatting remain pending. |
 | Lint | `pnpm -r eslint` currently crashes before linting anything: every package runs `eslint src/**/*.{js,ts,tsx}` and ESLint 8 aborts with `No files matching the pattern "src/**/*.js" were found.` because no `.js` sources exist, so the brace pattern matches nothing. Bypassing the glob with `eslint src` then exposes the pre-existing `@typescript-eslint/no-empty-function` API mismatch in `simulator-model` and `simulator-engine`; the viewer configuration does not enable that rule and lints cleanly (0 errors). Both defects are pre-existing tooling issues scheduled for Phase 2.2 and are intentionally left out of the characterization changes. |
 | Build | The viewer production build succeeds. |
-| Backlog | No open GitHub issues; three older feature pull requests are still open. |
+| Backlog | Open defect issue #93 tracks the operator palette covering the zoom controls on short viewports; three older feature pull requests are still open. |
 
 ## Delivery rules
 
@@ -196,12 +196,22 @@ remaining Playwright journeys for:
    first Playwright journey now covers this path.
 2. Build a branch and a join graph and verify connection and execution order. Covered for a `concat`
    fan-in graph by the branch/join journey.
-3. Configure an operator, reload, and verify that the diagram and viewport are restored.
+3. Configure an operator, reload, and verify that the diagram and viewport are restored. Covered
+   by the persistence journey, which renames and reconfigures a `range` element, pans and zooms the
+   stage, reloads, and asserts the restored graph, viewport, and property panel.
 4. Copy, paste, multi-select, move, reconnect, and delete a group.
-5. Pan, zoom, snap to grid, and locate an entry element.
+5. Pan, zoom, snap to grid, and locate an entry element. Covered by the viewport journey, which
+   shift-drags a `range` entry onto a 25-unit grid multiple, checks that its connect-line endpoint
+   follows, pans and zooms, then locates the element and asserts the reset scale, centered viewport,
+   and sole selection.
 6. Trigger a creation error and a runtime error and recover without reloading.
 7. Start an infinite source, stop it, and verify that the worker and animations are cleaned up.
 8. Load the production build under the GitHub Pages base path.
+
+The viewport journey runs at a 900px-tall viewport because the operator palette overflows its
+50%-height container and covers the zoom controls below roughly 836px (#93). The intended behavior
+is kept as a skipped test in `e2e/persistence-viewport.spec.ts` linked to issue #93, and the defect
+is deliberately not fixed within the characterization work.
 
 ### Phase 1 gate
 
