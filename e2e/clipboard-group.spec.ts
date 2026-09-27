@@ -213,6 +213,20 @@ test('copies, pastes and edits a grouped graph through the rendered editor', asy
 	);
 	expect(afterGroupDelete.connectLines.map((line) => line.id)).toEqual([originalLine.id]);
 
+	// The connect-line selection is not persisted either, so it needs its own observable. The
+	// clipboard still holds the group copied before the paste; Control+C replaces it, and with an
+	// empty selection the copy stores nothing, so the following paste adds nothing. A deleted
+	// replacement line that had outlived the group deletion would make the copy fail on the
+	// missing line, leaving the earlier group in the clipboard, and the paste would then duplicate
+	// the original graph back into the diagram.
+	await copySelection(page);
+	await pasteSelectionAt(page, { x: 546.25, y: 690 });
+	const afterStaleConnectLines = await waitForDiagramCounts(page, 2, 1);
+	expect(sortIds(afterStaleConnectLines.elements.map((element) => element.id))).toEqual(
+		sortIds(originalIds),
+	);
+	expect(afterStaleConnectLines.connectLines.map((line) => line.id)).toEqual([originalLine.id]);
+
 	// A later click and keyboard action must not act on the deleted ids: the group deletion already
 	// cleared the selection, so the empty-canvas click keeps it empty and the Delete press runs
 	// against nothing and leaves the original graph untouched.
