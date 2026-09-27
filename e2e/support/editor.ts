@@ -74,10 +74,14 @@ export async function addOperator(
 	const before = await readPersistedDiagram(page);
 	const existingIds = new Set((before?.elements ?? []).map((element) => element.id));
 
-	await page.getByRole('button', { name: groupName, exact: true }).click();
-	await page
-		.getByTestId(`operator-${operatorType}`)
-		.dragTo(page.getByTestId(STAGE_TEST_ID), { targetPosition: position });
+	// The group button toggles its popper, so only click it when the operator is not already
+	// listed. Otherwise a second add from the same group would close the open popper.
+	const operatorButton = page.getByTestId(`operator-${operatorType}`);
+	if (!(await operatorButton.isVisible())) {
+		await page.getByRole('button', { name: groupName, exact: true }).click();
+	}
+
+	await operatorButton.dragTo(page.getByTestId(STAGE_TEST_ID), { targetPosition: position });
 
 	const diagram = await waitForDiagram(
 		page,
