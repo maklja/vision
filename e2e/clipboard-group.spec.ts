@@ -5,12 +5,12 @@ import {
 	bootstrapEditor,
 	connectOperators,
 	copySelection,
+	ctrlClickElement,
 	deleteSelection,
 	dragElementTo,
 	lassoSelect,
 	pasteSelectionAt,
 	selectConnectLine,
-	selectElement,
 } from './support/editor';
 import { findElementById, PersistedDiagram, requireConnectLineById } from './support/diagram';
 import { getElementBounds } from './support/geometry';
@@ -213,8 +213,9 @@ test('copies, pastes and edits a grouped graph through the rendered editor', asy
 	);
 	expect(afterGroupDelete.connectLines.map((line) => line.id)).toEqual([originalLine.id]);
 
-	// A later click and keyboard action must not act on the deleted ids: an empty-canvas click
-	// followed by Delete leaves the original graph untouched.
+	// A later click and keyboard action must not act on the deleted ids: the group deletion already
+	// cleared the selection, so the empty-canvas click keeps it empty and the Delete press runs
+	// against nothing and leaves the original graph untouched.
 	await page.mouse.click(700, 850);
 	await deleteSelection(page);
 	const afterStaleCheck = await waitForDiagram(
@@ -227,8 +228,17 @@ test('copies, pastes and edits a grouped graph through the rendered editor', asy
 	);
 	expect(afterStaleCheck.connectLines.map((line) => line.id)).toEqual([originalLine.id]);
 
-	// Selecting a surviving element still resolves to a single selection, so no deleted id lingers.
-	await selectElement(page, requireElement(afterStaleCheck, originalOf.id));
-	await expect(page.getByText(`Element details: ${originalOf.name}`)).toBeVisible();
-	await expect(page.getByLabel('Id', { exact: true })).toHaveValue(originalOf.id);
+	// Control-clicking adds to the selection instead of replacing it, which makes the properties
+	// panel an observable for leftover selected ids: it renders only while exactly one element is
+	// selected. An id that survived the group deletion would keep the panel hidden here, whereas a
+	// plain click would replace the selection and hide the evidence.
+	const survivingOf = requireElement(afterStaleCheck, originalOf.id);
+	await ctrlClickElement(page, survivingOf);
+	await expect(page.getByText(`Element details: ${survivingOf.name}`)).toBeVisible();
+	await expect(page.getByLabel('Id', { exact: true })).toHaveValue(survivingOf.id);
+
+	// Adding the second surviving element hides the panel again, which is the outcome the check
+	// above would have observed if the deleted ids had outlived the group deletion.
+	await ctrlClickElement(page, requireElement(afterStaleCheck, originalMap.id));
+	await expectNoElementDetails(page);
 });

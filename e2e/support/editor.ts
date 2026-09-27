@@ -103,6 +103,17 @@ export async function selectElement(page: Page, element: Element): Promise<void>
 	await page.mouse.click(center.x, center.y);
 }
 
+/**
+ * Control-clicks an element so the editor adds it to the current selection instead of replacing
+ * it, mirroring the Control-modified multi-selection used elsewhere in the editor.
+ */
+export async function ctrlClickElement(page: Page, element: Element): Promise<void> {
+	const center = await toBrowserPoint(page, getElementCenter(element));
+	await page.keyboard.down('Control');
+	await page.mouse.click(center.x, center.y);
+	await page.keyboard.up('Control');
+}
+
 /** Drags an element so its top-left corner lands on the requested world position. */
 export async function dragElementTo(page: Page, element: Element, target: Point): Promise<Element> {
 	const bounds = getElementBounds(element);
