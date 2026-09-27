@@ -19,9 +19,8 @@ const STAGE_TEST_ID = 'simulator-stage';
 /** The viewer theme places element drags on a 25-unit grid (see gridTheme). */
 const GRID_SIZE = 25;
 
-// The operator palette overflows its 50%-height container and covers the zoom controls below
-// roughly 836px of viewport height (#93). These journeys run tall enough to reach the rendered
-// zoom controls; the overlap itself is kept as a skipped intended-behavior test at the end.
+// These journeys run tall enough to reach all palette groups without scrolling. The palette's
+// short-viewport behavior is covered separately at the end.
 test.use({ viewport: { width: 1280, height: 900 } });
 
 /** Sorts persisted records by id so reload comparisons ignore unrelated ordering. */
@@ -221,12 +220,10 @@ test('snaps a dragged entry element to the grid and locates it in the viewport',
 test.describe('operator palette layout', () => {
 	test.use({ viewport: { width: 1280, height: 720 } });
 
-	// Intended behavior: the zoom controls stay operable at every reasonable window size. At the
-	// default viewport the operator palette overflows its container and covers them (#93), so the
-	// test stays skipped rather than masking the defect.
-	test.fixme('keeps the zoom controls operable at the default viewport', async ({ page }) => {
+	test('keeps the palette and zoom controls operable at the default viewport', async ({ page }) => {
 		await bootstrapEditor(page);
 		await addOperator(page, 'creation operators', ElementType.Range, { x: 480, y: 250 });
+		await addOperator(page, 'subscriber', ElementType.Subscriber, { x: 700, y: 250 });
 
 		await zoomIn(page);
 		const diagram = await waitForDiagram(

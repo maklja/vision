@@ -25,6 +25,8 @@ export function SimulatorOperators() {
 				left: '2px',
 				width: '70px',
 				height: '50%',
+				overflowX: 'hidden',
+				overflowY: 'auto',
 			}}
 		>
 			<OperatorsPanel
@@ -34,4 +36,3 @@ export function SimulatorOperators() {
 		</Box>
 	);
 }
-
