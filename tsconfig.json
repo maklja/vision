@@ -1,3 +1,12 @@
 {
-  "extends": "./tsconfig.base.json"
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		// Map the workspace packages to their TypeScript sources so both `tsc` and the
+		// Playwright transform (e2e/support) can resolve them without a build step.
+		"paths": {
+			"@maklja/vision-simulator-model": ["packages/simulator-model/src/index.ts"],
+			"@maklja/vision-simulator-engine": ["packages/simulator-engine/src/index.ts"]
+		}
+	}
 }

@@ -4,12 +4,17 @@ export default defineConfig({
 	testDir: './e2e',
 	fullyParallel: false,
 	forbidOnly: Boolean(process.env.CI),
-	retries: process.env.CI ? 2 : 0,
-	workers: process.env.CI ? 1 : undefined,
+	// Characterization journeys must fail loudly: no retries, one worker, no fixed delays.
+	retries: 0,
+	workers: 1,
 	reporter: [['list'], ['html', { open: 'never' }]],
+	expect: {
+		timeout: 15_000,
+	},
 	use: {
 		baseURL: 'http://127.0.0.1:4173',
 		trace: 'retain-on-failure',
+		screenshot: 'only-on-failure',
 		viewport: { width: 1280, height: 720 },
 	},
 	projects: [

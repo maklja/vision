@@ -15,8 +15,14 @@
 		"isolatedModules": true,
 		"noEmit": true,
 		"useDefineForClassFields": true,
-		"jsx": "react-jsx"
+		"jsx": "react-jsx",
+		// Playwright resolves imports in these sources with this tsconfig, so map the
+		// workspace packages to their TypeScript sources here as well.
+		"baseUrl": ".",
+		"paths": {
+			"@maklja/vision-simulator-model": ["../simulator-model/src/index.ts"],
+			"@maklja/vision-simulator-engine": ["../simulator-engine/src/index.ts"]
+		}
 	},
 	"include": ["src"]
 }
-
