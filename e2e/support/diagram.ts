@@ -40,3 +40,12 @@ export function requireElementByName(diagram: PersistedDiagram, name: string): E
 
 	return element;
 }
+
+export function requireConnectLineById(diagram: PersistedDiagram, id: string): ConnectLine {
+	const connectLine = diagram.connectLines.find((candidate) => candidate.id === id);
+	if (!connectLine) {
+		throw new Error(`No persisted connect line with id "${id}"`);
+	}
+
+	return connectLine;
+}

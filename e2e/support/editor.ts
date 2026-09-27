@@ -211,3 +211,51 @@ export async function startSimulation(page: Page): Promise<void> {
 export function simulationResults(page: Page) {
 	return page.getByLabel('simulation results');
 }
+
+/**
+ * Scopes the "Observable inputs order" section rendered by join creation property forms.
+ */
+function observableInputsOrderSection(page: Page) {
+	return page
+		.getByText('Observable inputs order', { exact: true })
+		.locator('xpath=ancestor::div[contains(@class,"MuiStack-root")][1]');
+}
+
+/**
+ * Reads the target element type of every ordered observable input row. The rows are the
+ * event connect lines of the selected join creation element, and each one is named after
+ * the element it feeds.
+ */
+export async function observableInputTargets(page: Page): Promise<string[]> {
+	const nameFields = observableInputsOrderSection(page).locator('input[readonly]');
+	return nameFields.evaluateAll((inputs) =>
+		inputs.map((input) => (input as HTMLInputElement).value),
+	);
+}
+
+/**
+ * Sets the ordering index of the observable input that targets the given element type.
+ * The row is located by its target name instead of its position, so editing never depends
+ * on the order the rows happen to be rendered in.
+ */
+export async function setObservableInputIndex(
+	page: Page,
+	targetType: string,
+	index: number,
+): Promise<void> {
+	const section = observableInputsOrderSection(page);
+	const nameFields = section.locator('input[readonly]');
+	const targets = await nameFields.evaluateAll((inputs) =>
+		inputs.map((input) => (input as HTMLInputElement).value),
+	);
+
+	const rowIndex = targets.indexOf(targetType);
+	if (rowIndex === -1) {
+		throw new Error(`No observable input targets "${targetType}"`);
+	}
+
+	const row = nameFields
+		.nth(rowIndex)
+		.locator('xpath=ancestor::div[contains(@class,"MuiStack-root")][1]');
+	await row.getByLabel('Index', { exact: true }).fill(`${index}`);
+}
