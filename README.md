@@ -46,8 +46,13 @@ browser; the application has no server-side component.
 
 ### Prerequisites
 
-- A current Node.js LTS release
-- pnpm compatible with lockfile version 9 (pnpm 9 or newer)
+- Node.js 24.19.0 LTS (Krypton). The exact version is pinned in `.nvmrc` and `.node-version` and
+  declared by the root `engines` field.
+- pnpm 12.6.0. The exact version is pinned by the root `packageManager` field, so Corepack and CI
+  install the same release.
+
+`pnpm-lock.yaml` is the only tracked dependency lockfile. Do not add a `package-lock.json` or a
+`yarn.lock`.
 
 Install the workspace dependencies:
 
@@ -58,7 +63,7 @@ pnpm install --frozen-lockfile
 Start the viewer at `http://localhost:3000`:
 
 ```bash
-pnpm --filter @maklja/vision-simulator-viewer start
+pnpm start
 ```
 
 Run the available validation checks:
@@ -72,11 +77,20 @@ pnpm test:e2e
 pnpm build
 ```
 
+These root workspace scripts are the canonical local and CI commands; the workflow in
+`.github/workflows/ci.yml` runs the same scripts after installing with `--frozen-lockfile`.
+
 The existing lint configuration will join the required CI checks after its ESLint and TypeScript
 ESLint dependency mismatch is repaired in the dependency-modernization phase.
 
 The production viewer build is written to `packages/simulator-viewer/build`. The versioned `docs/`
 directory contains the static build served by GitHub Pages.
+
+### Supported browsers
+
+RxJS Vision supports the current and previous stable release of Chromium, Firefox, and
+WebKit/Safari. Browser automation uses the Playwright-managed browser revisions pinned by the exact
+`@playwright/test` version in `pnpm-lock.yaml`.
 
 ## Repository structure
 
