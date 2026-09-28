@@ -74,9 +74,12 @@ export class DefaultFlowManager implements FlowManager {
 		const lastConnectLine = cls[cls.length - 1];
 		this.eventObserver.error({
 			id: value.id,
+			subscribeId: value.subscribeId,
+			dependencies: value.dependencies,
 			index: ++this.eventIndex,
 			hash: value.hash,
-			value: value,
+			value: `${value.raw}`,
+			type: value.type,
 			connectLinesId: cls.splice(0).map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
@@ -97,4 +100,3 @@ export class DefaultFlowManager implements FlowManager {
 		return cls;
 	}
 }
-

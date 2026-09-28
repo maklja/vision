@@ -106,9 +106,7 @@ test('recovers from a creation error and runs the sibling pipeline without reloa
 	expect(consoleErrors).toEqual([expect.stringContaining('Error is throw by ObservableWorker')]);
 });
 
-// Skipped pending #97: the fatal runtime-error payload has no `dependencies` field, so the viewer
-// throws before posting `stopSimulation`. Remove the skip once #97 is fixed.
-test.skip('recovers from a runtime error and runs the sibling pipeline without reloading', async ({
+test('recovers from a runtime error and runs the sibling pipeline without reloading', async ({
 	page,
 }) => {
 	const { consoleErrors, pageErrors } = captureErrorLogging(page);

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { config } from 'rxjs';
 import {
 	ConnectLine,
 	ConnectPointPosition,
@@ -126,6 +127,53 @@ describe('ObservableSimulation', () => {
 			vi.advanceTimersByTime(5_000);
 			expect(events.map((event) => event.value)).toEqual(['0', '1']);
 		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	it('reports a fatal error without leaving an unhandled RxJS error', () => {
+		vi.useFakeTimers();
+		const previousUnhandledErrorHandler = config.onUnhandledError;
+		const onUnhandledError = vi.fn();
+		config.onUnhandledError = onUnhandledError;
+
+		try {
+			const errorSource: Element = {
+				id: 'error-source',
+				type: ElementType.ThrowError,
+				name: 'throwError',
+				x: 0,
+				y: 0,
+				visible: true,
+				properties: {
+					errorOrErrorFactory: 'function errorFactory() { return new Error("boom"); }',
+				},
+			};
+			const errorConnection: ConnectLine = {
+				...connection,
+				id: 'error-source-to-subscriber',
+				source: { ...connection.source, id: errorSource.id },
+			};
+			const model = createSimulationModel(
+				errorSource.id,
+				[errorSource, subscriber],
+				[errorConnection],
+			);
+			const errors: FlowValueEvent[] = [];
+
+			new ObservableSimulation(model).start({ error: (error) => errors.push(error) });
+			vi.runAllTimers();
+
+			expect(errors).toHaveLength(1);
+			expect(errors[0]).toMatchObject({
+				type: FlowValueType.Error,
+				value: 'Error: boom',
+				sourceElementId: errorSource.id,
+				targetElementId: subscriber.id,
+			});
+			expect(onUnhandledError).not.toHaveBeenCalled();
+		} finally {
+			config.onUnhandledError = previousUnhandledErrorHandler;
 			vi.useRealTimers();
 		}
 	});

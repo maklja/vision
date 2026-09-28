@@ -208,7 +208,7 @@ describe('DefaultFlowManager', () => {
 	it('should correctly call eventObserver.error on handleFatalError', () => {
 		const simulationModel = createSimulationModelFixture();
 		const flowManager = new DefaultFlowManager(simulationModel);
-		const errors: (FlowValueEvent | FlowValue)[] = [];
+		const errors: FlowValueEvent[] = [];
 		let completed = false;
 		flowManager.asObservable().subscribe({
 			error: (error) => errors.push(error),
@@ -217,20 +217,29 @@ describe('DefaultFlowManager', () => {
 			},
 		});
 
-		const flowValue = new FlowValue('boom', 'source', FlowValueType.Error, 'fatal-id');
+		const flowValue = new FlowValue(
+			'boom',
+			'source',
+			FlowValueType.Error,
+			'fatal-id',
+			'subscribe-id',
+			['dependency-1', 'dependency-2'],
+		);
 		flowManager.handleFatalError(flowValue, simulationModel.getConnectLine('source-pipe'));
 
 		expect(errors).toHaveLength(1);
-		const errorEvent = errors[0] as FlowValueEvent & { value: FlowValue };
-		expect(errorEvent).toMatchObject({
+		expect(errors[0]).toMatchObject({
 			id: 'fatal-id',
+			subscribeId: 'subscribe-id',
+			dependencies: ['dependency-1', 'dependency-2'],
 			index: 1,
 			hash: flowValue.hash,
+			value: 'boom',
+			type: FlowValueType.Error,
 			connectLinesId: ['source-pipe'],
 			sourceElementId: 'source',
 			targetElementId: 'pipe',
 		});
-		expect(errorEvent.value).toBeInstanceOf(FlowValue);
 		expect(completed).toBe(false);
 	});
 
