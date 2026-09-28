@@ -6,8 +6,13 @@ import {
 	ElementType,
 	Point,
 } from '@maklja/vision-simulator-model';
-import { PersistedCanvasState, findElementById } from './diagram';
-import { clearPersistedDiagram, readPersistedDiagram, waitForDiagram } from './indexedDb';
+import { PersistedCanvasState, PersistedDiagram, findElementById } from './diagram';
+import {
+	clearPersistedDiagram,
+	readPersistedDiagram,
+	seedPersistedDiagram,
+	waitForDiagram,
+} from './indexedDb';
 import {
 	getConnectLineClickPoint,
 	getConnectPointCenter,
@@ -38,6 +43,22 @@ export async function bootstrapEditor(page: Page): Promise<void> {
 		await page.reload();
 		await expect(page.getByTestId(STAGE_TEST_ID)).toBeVisible();
 	}
+}
+
+/**
+ * Opens the application on a persisted fixture. The first load gives the viewer an origin to seed
+ * IndexedDB from, and the reload then loads the diagram exactly like a returning user's session.
+ */
+export async function bootstrapEditorWithDiagram(
+	page: Page,
+	diagram: PersistedDiagram,
+): Promise<void> {
+	await page.goto('/');
+	await expect(page.getByTestId(STAGE_TEST_ID)).toBeVisible();
+
+	await seedPersistedDiagram(page, diagram);
+	await page.reload();
+	await expect(page.getByTestId(STAGE_TEST_ID)).toBeVisible();
 }
 
 async function getStageOrigin(page: Page): Promise<Point> {
