@@ -7,6 +7,7 @@ export interface WorkerProbeOutboundMessage {
 export interface WorkerProbeInboundMessage {
 	type: string;
 	value: unknown;
+	workerId: number;
 }
 
 export interface WorkerProbeSnapshot {
@@ -57,6 +58,7 @@ export async function installWorkerProbe(page: Page): Promise<void> {
 			}
 
 			created += 1;
+			const workerId = created;
 			const nativePostMessage = worker.postMessage.bind(worker);
 			const nativeTerminate = worker.terminate.bind(worker);
 
@@ -83,7 +85,7 @@ export async function installWorkerProbe(page: Page): Promise<void> {
 					return;
 				}
 
-				inbound.push({ type: data.type, value: data.value });
+				inbound.push({ type: data.type, value: data.value, workerId });
 			});
 
 			return worker;
@@ -133,75 +135,4 @@ export async function waitForWorkerProbe(
 		})
 		.toBe(true);
 	return readWorkerProbe(page);
-}
-
-/**
- * Yields the page's task queue until messages already posted by a terminated worker have been
- * delivered. This is an explicit event-loop synchronization signal rather than a fixed sleep: the
- * worker is stopped, so only a bounded set of queued message tasks remains to drain.
- */
-export async function drainWorkerProbeTasks(page: Page): Promise<void> {
-	await page.evaluate(
-		() =>
-			new Promise<void>((resolve) => {
-				let remaining = 4;
-				const tick = () => {
-					remaining -= 1;
-					if (remaining <= 0) {
-						resolve();
-						return;
-					}
-
-					setTimeout(tick, 0);
-				};
-
-				setTimeout(tick, 0);
-			}),
-	);
-}
-
-export interface WorkerProbeSilence {
-	/** Real milliseconds observed in the page, measured with `performance.now()`. */
-	elapsedMs: number;
-	before: WorkerProbeSnapshot;
-	after: WorkerProbeSnapshot;
-}
-
-/**
- * Observes an idle probe for at least `minimumMs` of real time and reports whether the page kept
- * running. The window is measured in the page so a caller can assert that real time actually
- * elapsed before trusting the lack of new messages. Cancellation of the `interval` source is proven
- * by worker termination; this only confirms no late message keeps reaching the viewer.
- */
-export async function observeWorkerProbeSilence(
-	page: Page,
-	minimumMs: number,
-): Promise<WorkerProbeSilence> {
-	const observed = await page.evaluate(async (ms) => {
-		const probe = (window as unknown as { __visionWorkerProbe?: { snapshot: () => unknown } })
-			.__visionWorkerProbe;
-		if (!probe) {
-			throw new Error('Worker probe is not installed; call installWorkerProbe first');
-		}
-
-		const before = probe.snapshot();
-		const start = performance.now();
-		const sliceMs = Math.max(1, Math.floor(ms / 6));
-		await new Promise<void>((resolve) => {
-			const tick = () => {
-				if (performance.now() - start >= ms) {
-					resolve();
-					return;
-				}
-
-				setTimeout(tick, sliceMs);
-			};
-
-			setTimeout(tick, sliceMs);
-		});
-
-		return { elapsedMs: performance.now() - start, before, after: probe.snapshot() };
-	}, minimumMs);
-
-	return observed as WorkerProbeSilence;
 }
