@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { E2E_BASE_PATH, E2E_EDITOR_URL } from './e2e/support/base';
 
 export default defineConfig({
 	testDir: './e2e',
@@ -12,7 +13,8 @@ export default defineConfig({
 		timeout: 15_000,
 	},
 	use: {
-		baseURL: 'http://127.0.0.1:4173',
+		// Every journey navigates through the configured base path instead of assuming `/`.
+		baseURL: E2E_EDITOR_URL,
 		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
 		viewport: { width: 1280, height: 720 },
@@ -24,9 +26,15 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: 'pnpm --filter @maklja/vision-simulator-viewer start --host 127.0.0.1 --port 4173',
-		url: 'http://127.0.0.1:4173',
-		reuseExistingServer: !process.env.CI,
-		timeout: 120_000,
+		// Build the production viewer with the GitHub Pages base path and serve that exact
+		// artifact with Vite preview. The ordinary `pnpm build` stays on the root base.
+		command:
+			'pnpm --filter @maklja/vision-simulator-viewer build && ' +
+			'pnpm --filter @maklja/vision-simulator-viewer serve --host 127.0.0.1 --port 4173 --strictPort',
+		env: { VISION_BASE_PATH: E2E_BASE_PATH },
+		url: E2E_EDITOR_URL,
+		// The suite owns its build and preview lifecycle; never reuse a stray server on the port.
+		reuseExistingServer: false,
+		timeout: 180_000,
 	},
 });

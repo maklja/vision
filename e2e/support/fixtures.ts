@@ -190,6 +190,37 @@ export const infiniteSourceFixture: PersistedDiagram = createDiagram(
 	[{ id: 'interval-to-subscriber', sourceId: 'interval', targetId: 'interval-subscriber' }],
 );
 
+/**
+ * Minimal deterministic `of -> subscriber` graph for the GitHub Pages base-path journey. The
+ * values are fixed so the journey can assert the exact subscriber output under the subpath.
+ */
+export const basePathFixture: PersistedDiagram = createDiagram(
+	[
+		{
+			id: 'base-path-source',
+			type: ElementType.Of,
+			name: 'source_0',
+			x: 200,
+			y: 160,
+			properties: { argsFactoryExpression: ofArgs([1, 2, 3, 4]) },
+		},
+		{
+			id: 'base-path-subscriber',
+			type: ElementType.Subscriber,
+			name: 'sink_0',
+			x: 420,
+			y: 160,
+		},
+	],
+	[
+		{
+			id: 'base-path-source-to-subscriber',
+			sourceId: 'base-path-source',
+			targetId: 'base-path-subscriber',
+		},
+	],
+);
+
 /** Elements are exported by id so journeys never repeat fixture literals. */
 export function fixtureElement(diagram: PersistedDiagram, id: string): Element {
 	const element = diagram.elements.find((candidate) => candidate.id === id);

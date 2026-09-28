@@ -6,6 +6,7 @@ import {
 	ElementType,
 	Point,
 } from '@maklja/vision-simulator-model';
+import { E2E_EDITOR_URL } from './base';
 import { PersistedCanvasState, PersistedDiagram, findElementById } from './diagram';
 import {
 	clearPersistedDiagram,
@@ -34,7 +35,7 @@ export interface ConnectOperatorsOptions {
 
 /** Opens the application and waits for the Konva stage to render. */
 export async function bootstrapEditor(page: Page): Promise<void> {
-	await page.goto('/');
+	await page.goto(E2E_EDITOR_URL);
 	await expect(page.getByTestId(STAGE_TEST_ID)).toBeVisible();
 
 	const existing = await readPersistedDiagram(page);
@@ -53,7 +54,7 @@ export async function bootstrapEditorWithDiagram(
 	page: Page,
 	diagram: PersistedDiagram,
 ): Promise<void> {
-	await page.goto('/');
+	await page.goto(E2E_EDITOR_URL);
 	await expect(page.getByTestId(STAGE_TEST_ID)).toBeVisible();
 
 	await seedPersistedDiagram(page, diagram);
