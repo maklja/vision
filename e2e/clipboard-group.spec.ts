@@ -11,6 +11,7 @@ import {
 	lassoSelect,
 	pasteSelectionAt,
 	selectConnectLine,
+	selectElement,
 } from './support/editor';
 import { findElementById, PersistedDiagram, requireConnectLineById } from './support/diagram';
 import { getElementBounds } from './support/geometry';
@@ -62,6 +63,42 @@ async function expectNoElementDetails(page: Page): Promise<void> {
 }
 
 test.use({ viewport: { width: 1280, height: 900 } });
+
+test('keeps element selection usable when a lasso is released over the properties panel', async ({
+	page,
+}) => {
+	await bootstrapEditor(page);
+	const ofElement = await addOperator(page, 'creation operators', ElementType.Of, {
+		x: 480,
+		y: 250,
+	});
+	const mapElement = await addOperator(page, 'transformation operators', ElementType.Map, {
+		x: 700,
+		y: 250,
+	});
+
+	await selectElement(page, ofElement);
+	await expect(page.getByText(`Element details: ${ofElement.name}`)).toBeVisible();
+
+	const nameInputBox = await page.getByLabel('Name', { exact: true }).boundingBox();
+	if (!nameInputBox) {
+		throw new Error('The selected element properties panel is not visible');
+	}
+
+	await page.keyboard.down('Control');
+	await page.mouse.move(600, 700);
+	await page.mouse.down();
+	await page.mouse.move(
+		nameInputBox.x + nameInputBox.width / 2,
+		nameInputBox.y + nameInputBox.height / 2,
+		{ steps: 10 },
+	);
+	await page.mouse.up();
+	await page.keyboard.up('Control');
+
+	await selectElement(page, mapElement);
+	await expect(page.getByText(`Element details: ${mapElement.name}`)).toBeVisible();
+});
 
 test('copies, pastes and edits a grouped graph through the rendered editor', async ({ page }) => {
 	await bootstrapEditor(page);

@@ -35,6 +35,10 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(
 		const addDraftElement = useRootStore((state) => state.addDraftElement);
 		const stopElementDraw = useRootStore((state) => state.stopElementDraw);
 		const clearSnapLines = useRootStore((state) => state.clearSnapLines);
+		const selectElementsInLassoBoundingBox = useRootStore(
+			(state) => state.selectElementsInLassoBoundingBox,
+		);
+		const stopLassoSelection = useRootStore((state) => state.stopLassoSelection);
 		const updateCanvasState = useRootStore((state) => state.updateCanvasState);
 		const canvasState = useRootStore(useShallow((state) => state.canvasState));
 		const stageState = useRootStore(selectStageState());
@@ -87,6 +91,21 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(
 				window.removeEventListener('resize', resizeHandler, false);
 			};
 		}, [stageHandlers]);
+
+		useEffect(() => {
+			if (stageState !== StageState.LassoSelect) {
+				return;
+			}
+
+			const mouseUpHandler = () => {
+				selectElementsInLassoBoundingBox();
+				stopLassoSelection();
+			};
+
+			window.addEventListener('mouseup', mouseUpHandler, false);
+
+			return () => window.removeEventListener('mouseup', mouseUpHandler, false);
+		}, [stageState, selectElementsInLassoBoundingBox, stopLassoSelection]);
 
 		useEffect(() => {
 			if (!stageRef.current) {
