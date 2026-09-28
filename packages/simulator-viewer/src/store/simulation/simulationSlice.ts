@@ -169,6 +169,7 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 				completed: [],
 				subscribed: [],
 			};
+			state.animations = {};
 			simulation.events = [];
 
 			return state;
@@ -280,4 +281,3 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 });
 
 export const selectSimulation = (state: RootState) => state.simulation;
-

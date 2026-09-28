@@ -162,10 +162,7 @@ test('stops an infinite interval source and restarts it in a fresh worker', asyn
 	expect(consoleErrors).toEqual([]);
 });
 
-// Skipped pending #99: stopping clears the simulation queue but not the drawer animation registry, so
-// the restarted run keeps the previous run's stale entries and never starts another canvas
-// animation. Remove the skip once those animations are cleared on reset.
-test.skip('restarts the infinite interval source with fresh canvas animations', async ({
+test('restarts the infinite interval source with fresh canvas animations', async ({
 	page,
 }) => {
 	await installWorkerProbe(page);
