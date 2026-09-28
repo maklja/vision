@@ -321,29 +321,6 @@ export async function startSimulation(page: Page): Promise<void> {
 	await page.getByRole('button', { name: 'start simulation' }).click();
 }
 
-/**
- * Resolves the pointer target of a labelled control while the page is idle. A journey that clicks a
- * control later, while a time-based source keeps the main thread busy, can then reuse the point with
- * {@link clickControlAt}.
- */
-export async function resolveControlPoint(page: Page, name: string): Promise<Point> {
-	const box = await page.getByRole('button', { name }).boundingBox();
-	if (!box) {
-		throw new Error(`Control "${name}" is not visible`);
-	}
-
-	return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
-}
-
-/**
- * Clicks a resolved point with a raw pointer press. `locator.click` verifies the hit target inside
- * the page, which cannot keep up while a time-based source floods animation frames, so the
- * cancellation journey dispatches the pointer event directly and asserts the resulting state.
- */
-export async function clickControlAt(page: Page, point: Point): Promise<void> {
-	await page.mouse.click(point.x, point.y);
-}
-
 export function simulationResults(page: Page) {
 	return page.getByLabel('simulation results');
 }

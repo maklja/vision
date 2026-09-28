@@ -1,8 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, Page, test } from '@playwright/test';
 import {
 	bootstrapEditorWithDiagram,
-	clickControlAt,
-	resolveControlPoint,
 	selectEntryOperator,
 	simulationResults,
 	startSimulation,
@@ -36,6 +34,62 @@ function subscriberValues(
 		.map((event) => event.value);
 }
 
+/**
+ * Stops through the real control in the same browser task that observes the third subscriber value.
+ * Keeping detection and the click together prevents a fast source from starving a later CDP input
+ * event on constrained CI runners.
+ */
+async function stopAfterSubscriberValues(
+	page: Page,
+	subscriberId: string,
+	workerId: number,
+): Promise<WorkerProbeSnapshot> {
+	await expect
+		.poll(
+			() =>
+				page.evaluate(
+					({ expectedSubscriberId, expectedWorkerId }) => {
+						const probe = (
+							window as unknown as {
+								__visionWorkerProbe?: { snapshot: () => WorkerProbeSnapshot };
+							}
+						).__visionWorkerProbe;
+						if (!probe) {
+							throw new Error('Worker probe is not installed; call installWorkerProbe first');
+						}
+
+						const snapshot = probe.snapshot();
+						const valueCount = snapshot.inbound.filter((message) => {
+							if (message.workerId !== expectedWorkerId || message.type !== 'next') {
+								return false;
+							}
+
+							const event = message.value as FlowValueEventPayload;
+							return event.targetElementId === expectedSubscriberId;
+						}).length;
+						if (valueCount < 3) {
+							return false;
+						}
+
+						const stopButton = document.querySelector<HTMLButtonElement>(
+							'button[aria-label="stop simulation"]',
+						);
+						if (!stopButton) {
+							throw new Error('Stop simulation control is unavailable');
+						}
+
+						stopButton.click();
+						return true;
+					},
+					{ expectedSubscriberId: subscriberId, expectedWorkerId: workerId },
+				),
+			{ intervals: [0, 10, 25, 50, 100] },
+		)
+		.toBe(true);
+
+	return waitForWorkerProbe(page, (snapshot) => snapshot.terminated >= workerId);
+}
+
 test('stops an infinite interval source and restarts it in a fresh worker', async ({ page }) => {
 	const consoleErrors: string[] = [];
 	const pageErrors: string[] = [];
@@ -52,31 +106,18 @@ test('stops an infinite interval source and restarts it in a fresh worker', asyn
 	const interval = fixtureElement(infiniteSourceFixture, 'interval');
 	const subscriber = fixtureElement(infiniteSourceFixture, 'interval-subscriber');
 	const palette = page.getByRole('button', { name: 'creation operators', exact: true });
-	// Resolve the Stop target while the editor is idle. The time-based source keeps the main thread
-	// busy while it runs, so the pointer event is dispatched directly instead of asking the page to
-	// verify the hit target.
-	const stopPoint = await resolveControlPoint(page, 'stop simulation');
 
 	// First run: the time-based source emits a strictly ordered value sequence.
 	await selectEntryOperator(page, interval);
 	await startSimulation(page);
 	await expect(palette).toBeDisabled();
 
-	const running = await waitForWorkerProbe(
-		page,
-		(snapshot) => subscriberValues(snapshot, subscriber.id, 1).length >= 3,
-	);
-	expect(running.created).toBe(1);
-	const firstRunValues = subscriberValues(running, subscriber.id, 1);
+	const stopped = await stopAfterSubscriberValues(page, subscriber.id, 1);
+	expect(stopped.created).toBe(1);
+	const firstRunValues = subscriberValues(stopped, subscriber.id, 1);
 	expect(firstRunValues.slice(0, 3)).toEqual(['0', '1', '2']);
 	expect(firstRunValues).toEqual(firstRunValues.map((_value, index) => String(index)));
 
-	// Stop the real time-based source.
-	await clickControlAt(page, stopPoint);
-
-	const stopped = await waitForWorkerProbe(page, (snapshot) =>
-		snapshot.outbound.some((message) => message.type === 'stopSimulation'),
-	);
 	expect(stopped.outbound.map((message) => message.type)).toEqual([
 		'startSimulation',
 		'stopSimulation',
@@ -98,17 +139,15 @@ test('stops an infinite interval source and restarts it in a fresh worker', asyn
 	// message that was already queued when the old worker terminated.
 	await startSimulation(page);
 
-	const restarted = await waitForWorkerProbe(
-		page,
-		(snapshot) => subscriberValues(snapshot, subscriber.id, 2).length >= 3,
-	);
-	expect(restarted.created).toBe(2);
-	expect(subscriberValues(restarted, subscriber.id, 2).slice(0, 3)).toEqual(['0', '1', '2']);
+	const afterSecondStop = await stopAfterSubscriberValues(page, subscriber.id, 2);
+	expect(afterSecondStop.created).toBe(2);
+	expect(subscriberValues(afterSecondStop, subscriber.id, 2).slice(0, 3)).toEqual([
+		'0',
+		'1',
+		'2',
+	]);
 
-	// The second worker is torn down independently. The control did not move while the page was idle,
-	// so the Stop point resolved before the first run is still valid.
-	await clickControlAt(page, stopPoint);
-	const afterSecondStop = await waitForWorkerProbe(page, (snapshot) => snapshot.terminated >= 2);
+	// The second worker is torn down independently.
 	expect(afterSecondStop.terminated).toBe(2);
 	expect(afterSecondStop.outbound.map((message) => message.type)).toEqual([
 		'startSimulation',
@@ -134,15 +173,10 @@ test.skip('restarts the infinite interval source with fresh canvas animations', 
 
 	const interval = fixtureElement(infiniteSourceFixture, 'interval');
 	const subscriber = fixtureElement(infiniteSourceFixture, 'interval-subscriber');
-	const stopPoint = await resolveControlPoint(page, 'stop simulation');
 
 	await selectEntryOperator(page, interval);
 	await startSimulation(page);
-	await waitForWorkerProbe(
-		page,
-		(snapshot) => subscriberValues(snapshot, subscriber.id, 1).length >= 3,
-	);
-	await clickControlAt(page, stopPoint);
+	await stopAfterSubscriberValues(page, subscriber.id, 1);
 	await waitForCanvasAnimationsToSettle(page);
 
 	await startSimulation(page);
