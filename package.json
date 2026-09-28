@@ -2,7 +2,13 @@
 	"name": "@maklja/vision-simulator",
 	"version": "0.1.0",
 	"private": true,
+	"packageManager": "pnpm@12.6.0",
+	"engines": {
+		"node": ">=24.19.0 <25",
+		"pnpm": "12.6.0"
+	},
 	"scripts": {
+		"start": "pnpm --filter @maklja/vision-simulator-viewer start",
 		"build": "pnpm --filter @maklja/vision-simulator-viewer build",
 		"lint": "pnpm -r --if-present run eslint",
 		"test": "vitest run",

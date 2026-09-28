@@ -5,6 +5,10 @@ node_modules
 /.pnp
 .pnp.js
 
+# pnpm is the only supported package manager
+package-lock.json
+yarn.lock
+
 # testing
 coverage
 playwright-report
