@@ -6,9 +6,7 @@ import { useShallow } from 'zustand/react/shallow';
 import type { FlowValueEvent } from '@maklja/vision-simulator-engine';
 import {
 	Element,
-	FlowValueType,
 	isEntryOperatorType,
-	isSubscriberType,
 } from '@maklja/vision-simulator-model';
 import { SimulationControls } from '../ui';
 import { useRootStore } from '../store/rootStore';
@@ -42,16 +40,6 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	const simulateObservableEvent = useRootStore((state) => state.simulateObservableEvent);
 	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
 	const setSelectElements = useRootStore((state) => state.setSelectElements);
-	const subscriberIds = new Set(
-		elements.filter((element) => isSubscriberType(element.type)).map((element) => element.id),
-	);
-	const simulationResults = simulation.events
-		.filter(
-			(event) =>
-				event.type === FlowValueType.Next && subscriberIds.has(event.targetElementId),
-		)
-		.map((event) => event.value);
-
 	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
 		null,
 	);
@@ -159,7 +147,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 				simulatorId={simulation.id}
 				simulationState={simulation.state}
 				entryElements={entryElements}
-				simulationResults={simulationResults}
+				simulationResults={simulation.results}
 				onSimulationStart={handleSimulationStart}
 				onSimulationStop={handleSimulationStop}
 				onSimulationReset={handleSimulationReset}

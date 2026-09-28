@@ -75,6 +75,23 @@ function createErrorHandlerSimulationModel(): SimulationModel {
 }
 
 describe('DefaultFlowManager', () => {
+	it('should release completed flow paths instead of retaining every emitted value id', () => {
+		const simulationModel = createSimulationModelFixture();
+		const flowManager = new DefaultFlowManager(simulationModel);
+		const retainedPaths = (
+			flowManager as unknown as { connectLinesPath: Map<string, ConnectLine[]> }
+		).connectLinesPath;
+
+		for (let index = 0; index < 1_000; index += 1) {
+			flowManager.handleNextEvent(
+				new FlowValue(index, 'source', FlowValueType.Next, `flow-${index}`),
+				simulationModel.getConnectLine('source-pipe'),
+			);
+		}
+
+		expect(retainedPaths.size).toBe(0);
+	});
+
 	it('should buffer a flow path through an ErrorHandler and emit one Next event with the full path', () => {
 		const simulationModel = createErrorHandlerSimulationModel();
 		const flowManager = new DefaultFlowManager(simulationModel);

@@ -12,7 +12,12 @@ import {
 	createObservableEvent,
 	createTestStore,
 } from '../../test-utils';
-import { ObservableEvent, SimulationState } from './simulationSlice';
+import {
+	MAX_PENDING_ANIMATION_GROUPS,
+	MAX_SIMULATION_RESULTS,
+	ObservableEvent,
+	SimulationState,
+} from './simulationSlice';
 
 type Store = ReturnType<typeof createTestStore>;
 
@@ -56,6 +61,31 @@ function createDiagramStore(points = CONNECT_LINE_POINTS): Store {
 	});
 }
 
+function createSubscriberStore(): Store {
+	return createTestStore({
+		elements: [
+			createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
+			createElement(ElementType.Subscriber, { id: 'subscriber-1', x: 300, y: 0 }),
+		],
+		connectLines: [
+			createConnectLine({
+				id: 'line-1',
+				source: {
+					id: 'of-1',
+					connectPointType: ConnectPointType.Output,
+					connectPosition: ConnectPointPosition.Right,
+				},
+				target: {
+					id: 'subscriber-1',
+					connectPointType: ConnectPointType.Input,
+					connectPosition: ConnectPointPosition.Left,
+				},
+				points: CONNECT_LINE_POINTS,
+			}),
+		],
+	});
+}
+
 function observableEvent(overrides: Partial<ObservableEvent> = {}): ObservableEvent {
 	return createObservableEvent({
 		id: 'event-1',
@@ -94,8 +124,8 @@ describe('simulation slice', () => {
 		expect(simulation.id).toBe(generatedUuid(1));
 		expect(simulation.state).toBe(SimulationState.Stopped);
 		expect(simulation.completed).toBe(false);
-		expect(simulation.events).toEqual([]);
-		expect(simulation.animations).toEqual({ queue: {}, subscribed: [], completed: [] });
+		expect(simulation.results).toEqual([]);
+		expect(simulation.animations).toEqual({ queue: {} });
 	});
 
 	describe('lifecycle', () => {
@@ -104,12 +134,12 @@ describe('simulation slice', () => {
 
 			store.getState().simulateObservableEvent(observableEvent());
 
-			expect(store.getState().simulation.events).toEqual([]);
+			expect(store.getState().simulation.results).toEqual([]);
 			expect(store.getState().simulation.animations.queue).toEqual({});
 			expect(store.getState().elements['event-1']).toBeUndefined();
 		});
 
-		it('clears events, queues and subscription bookkeeping on restart', () => {
+		it('clears results and queues on restart', () => {
 			const store = createDiagramStore();
 			store.getState().startSimulation();
 			store
@@ -119,17 +149,11 @@ describe('simulation slice', () => {
 				);
 			drainQueue(store, 'sub-1');
 
-			expect(store.getState().simulation.animations.subscribed).toEqual(['sub-1']);
-
 			store.getState().simulateObservableEvent(observableEvent({ id: 'next-1' }));
 			store.getState().startSimulation();
 
-			expect(store.getState().simulation.events).toEqual([]);
-			expect(store.getState().simulation.animations).toEqual({
-				queue: {},
-				subscribed: [],
-				completed: [],
-			});
+			expect(store.getState().simulation.results).toEqual([]);
+			expect(store.getState().simulation.animations).toEqual({ queue: {} });
 			expect(store.getState().simulation.state).toBe(SimulationState.Running);
 			expect(store.getState().simulation.completed).toBe(false);
 		});
@@ -173,12 +197,8 @@ describe('simulation slice', () => {
 			expect(store.getState().elements['map-1']).toBeDefined();
 			expect(store.getState().simulation.state).toBe(SimulationState.Stopped);
 			expect(store.getState().simulation.completed).toBe(false);
-			expect(store.getState().simulation.events).toEqual([]);
-			expect(store.getState().simulation.animations).toEqual({
-				queue: {},
-				subscribed: [],
-				completed: [],
-			});
+			expect(store.getState().simulation.results).toEqual([]);
+			expect(store.getState().simulation.animations).toEqual({ queue: {} });
 			expect(store.getState().animations).toEqual({});
 		});
 
@@ -191,27 +211,20 @@ describe('simulation slice', () => {
 			store.getState().startSimulation();
 			store.getState().simulateObservableEvent(observableEvent({ id: 'event-2' }));
 
-			expect(store.getState().simulation.events.map((event) => event.id)).toEqual([
-				'event-2',
-			]);
+			expect(Object.keys(store.getState().simulation.animations.queue)).toEqual(['event-2']);
 			expect(store.getState().simulation.state).toBe(SimulationState.Running);
 			expect(store.getState().elements['event-1']).toBeUndefined();
 			expect(store.getState().elements['event-2']).toBeDefined();
 		});
 	});
 
-	describe('events and result elements', () => {
-		it('stores events in arrival order with deterministic source, segment and target animations', () => {
+		describe('events and result elements', () => {
+		it('creates deterministic source, segment and target animations', () => {
 			const store = createDiagramStore();
 			store.getState().startSimulation();
 
 			store.getState().simulateObservableEvent(observableEvent({ id: 'next-1' }));
 			store.getState().simulateObservableEvent(observableEvent({ id: 'next-2' }));
-
-			expect(store.getState().simulation.events.map((event) => event.id)).toEqual([
-				'next-1',
-				'next-2',
-			]);
 
 			const animations = queueOf(store, 'next-1');
 			expect(animations.map((animation) => animation.key)).toEqual([
@@ -237,7 +250,7 @@ describe('simulation slice', () => {
 			]);
 		});
 
-		it('records next, subscribe, complete and error events in order and tracks completion', () => {
+		it('tracks completion from the latest event type', () => {
 			const store = createDiagramStore();
 			store.getState().startSimulation();
 
@@ -264,13 +277,11 @@ describe('simulation slice', () => {
 					observableEvent({ id: 'error-1', type: FlowValueType.Error, value: 'boom' }),
 				);
 
-			expect(
-				store.getState().simulation.events.map((event) => [event.id, event.type]),
-			).toEqual([
-				['next-1', FlowValueType.Next],
-				['subscribe-1', FlowValueType.Subscribe],
-				['complete-1', FlowValueType.Complete],
-				['error-1', FlowValueType.Error],
+			expect(Object.keys(store.getState().simulation.animations.queue)).toEqual([
+				'next-1',
+				'subscribe-1',
+				'complete-1',
+				'error-1',
 			]);
 			expect(store.getState().simulation.completed).toBe(true);
 		});
@@ -338,7 +349,6 @@ describe('simulation slice', () => {
 			store.getState().simulateObservableEvent(observableEvent());
 			store.getState().simulateObservableEvent(observableEvent());
 
-			expect(store.getState().simulation.events).toHaveLength(2);
 			expect(queueOf(store, 'event-1')).toHaveLength(8);
 			expect(store.getState().animations['of-1']).toHaveLength(1);
 		});
@@ -352,11 +362,77 @@ describe('simulation slice', () => {
 				.simulateObservableEvent(observableEvent({ connectLinesId: ['missing-line'] }));
 
 			expect(store.getState().elements['event-1']).toBeUndefined();
-			expect(store.getState().simulation.events).toHaveLength(1);
 			expect(queueOf(store, 'event-1').map((animation) => animation.key)).toEqual([
 				AnimationKey.HighlightDrawer,
 				AnimationKey.HighlightDrawer,
 			]);
+		});
+
+		it('bounds pending animations and keeps the newest visual work', () => {
+			const store = createDiagramStore();
+			store.getState().startSimulation();
+
+			for (let index = 0; index < MAX_PENDING_ANIMATION_GROUPS + 4; index += 1) {
+				store
+					.getState()
+					.simulateObservableEvent(observableEvent({ id: `event-${index}`, index }));
+			}
+
+			const queuedGroupIds = Object.keys(store.getState().simulation.animations.queue);
+			const resultElementIds = Object.values(store.getState().elements)
+				.filter((element) => element.type === ElementType.Result)
+				.map((element) => element.id);
+			const scheduledGroupIds = Object.values(store.getState().animations)
+				.flat()
+				.map((animation) => animation.groupId);
+
+			expect(queuedGroupIds).toHaveLength(MAX_PENDING_ANIMATION_GROUPS);
+			expect(queuedGroupIds).toContain('event-0');
+			expect(queuedGroupIds).toContain(`event-${MAX_PENDING_ANIMATION_GROUPS + 3}`);
+			expect(queuedGroupIds).not.toContain('event-1');
+			expect(resultElementIds).toHaveLength(MAX_PENDING_ANIMATION_GROUPS);
+			expect(scheduledGroupIds.every((groupId) => queuedGroupIds.includes(groupId))).toBe(true);
+		});
+
+		it('retains only the latest subscriber results independently of animation shedding', () => {
+			const store = createSubscriberStore();
+			store.getState().startSimulation();
+
+			for (let index = 0; index < MAX_SIMULATION_RESULTS + 5; index += 1) {
+				store.getState().simulateObservableEvent(
+					observableEvent({
+						id: `event-${index}`,
+						index,
+						targetElementId: 'subscriber-1',
+						value: String(index),
+					}),
+				);
+			}
+
+			expect(store.getState().simulation.results).toHaveLength(MAX_SIMULATION_RESULTS);
+			expect(store.getState().simulation.results[0]).toBe('5');
+			expect(store.getState().simulation.results.at(-1)).toBe(
+				String(MAX_SIMULATION_RESULTS + 4),
+			);
+		});
+
+		it('admits an error event while the animation queue is saturated', () => {
+			const store = createDiagramStore();
+			store.getState().startSimulation();
+
+			for (let index = 0; index < MAX_PENDING_ANIMATION_GROUPS; index += 1) {
+				store
+					.getState()
+					.simulateObservableEvent(observableEvent({ id: `event-${index}`, index }));
+			}
+			store.getState().simulateObservableEvent(
+				observableEvent({ id: 'error-event', type: FlowValueType.Error, value: 'boom' }),
+			);
+
+			expect(Object.keys(store.getState().simulation.animations.queue)).toHaveLength(
+				MAX_PENDING_ANIMATION_GROUPS,
+			);
+			expect(store.getState().simulation.animations.queue['error-event']).toBeDefined();
 		});
 
 		it('removes the result element after the final animation completes', () => {
@@ -410,18 +486,16 @@ describe('simulation slice', () => {
 			store.getState().startSimulation();
 			store
 				.getState()
-				.simulateObservableEvent(observableEvent({ id: 'child-1', subscribeId: 'sub-1' }));
-
-			expect(store.getState().animations['of-1']).toBeUndefined();
-
-			store
-				.getState()
 				.simulateObservableEvent(
 					observableEvent({ id: 'sub-1', type: FlowValueType.Subscribe }),
 				);
+			store
+				.getState()
+				.simulateObservableEvent(observableEvent({ id: 'child-1', subscribeId: 'sub-1' }));
+
+			expect(store.getState().animations['of-1'][0].groupId).toBe('sub-1');
 			drainQueue(store, 'sub-1');
 
-			expect(store.getState().simulation.animations.subscribed).toEqual(['sub-1']);
 			expect(store.getState().animations['of-1'].map((animation) => animation.id)).toEqual([
 				queueOf(store, 'child-1')[0].id,
 			]);
@@ -430,18 +504,16 @@ describe('simulation slice', () => {
 		it('gates events on completed dependencies', () => {
 			const store = createDiagramStore();
 			store.getState().startSimulation();
+			store.getState().simulateObservableEvent(observableEvent({ id: 'dep-1' }));
 			store
 				.getState()
 				.simulateObservableEvent(
 					observableEvent({ id: 'dependent-1', dependencies: ['dep-1'] }),
 				);
 
-			expect(store.getState().animations['of-1']).toBeUndefined();
-
-			store.getState().simulateObservableEvent(observableEvent({ id: 'dep-1' }));
+			expect(store.getState().animations['of-1'][0].groupId).toBe('dep-1');
 			drainQueue(store, 'dep-1');
 
-			expect(store.getState().simulation.animations.completed).toEqual(['dep-1']);
 			expect(store.getState().animations['of-1'].map((animation) => animation.id)).toEqual([
 				queueOf(store, 'dependent-1')[0].id,
 			]);

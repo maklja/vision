@@ -26,6 +26,7 @@ export class DefaultFlowManager implements FlowManager {
 
 		const firstConnectLine = cls[0];
 		const lastConnectLine = cls[cls.length - 1];
+		this.connectLinesPath.delete(value.id);
 		this.eventObserver.next({
 			id: value.id,
 			subscribeId: value.subscribeId,
@@ -34,7 +35,7 @@ export class DefaultFlowManager implements FlowManager {
 			hash: value.hash,
 			value: `${value.raw}`,
 			type: value.type,
-			connectLinesId: cls.splice(0).map((cl) => cl.id),
+			connectLinesId: cls.map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
 		});
@@ -52,6 +53,7 @@ export class DefaultFlowManager implements FlowManager {
 
 		const firstConnectLine = cls[0];
 		const lastConnectLine = cls[cls.length - 1];
+		this.connectLinesPath.delete(value.id);
 		this.eventObserver.next({
 			id: value.id,
 			subscribeId: value.subscribeId,
@@ -60,7 +62,7 @@ export class DefaultFlowManager implements FlowManager {
 			hash: value.hash,
 			value: `${value.raw}`,
 			type: value.type,
-			connectLinesId: cls.splice(0).map((cl) => cl.id),
+			connectLinesId: cls.map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
 		});
@@ -72,6 +74,7 @@ export class DefaultFlowManager implements FlowManager {
 
 		const firstConnectLine = cls[0];
 		const lastConnectLine = cls[cls.length - 1];
+		this.connectLinesPath.delete(value.id);
 		this.eventObserver.error({
 			id: value.id,
 			subscribeId: value.subscribeId,
@@ -80,7 +83,7 @@ export class DefaultFlowManager implements FlowManager {
 			hash: value.hash,
 			value: `${value.raw}`,
 			type: value.type,
-			connectLinesId: cls.splice(0).map((cl) => cl.id),
+			connectLinesId: cls.map((cl) => cl.id),
 			sourceElementId: firstConnectLine.source.id,
 			targetElementId: lastConnectLine.target.id,
 		});
