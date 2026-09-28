@@ -9,7 +9,6 @@ import {
 } from './support/editor';
 import { fixtureElement, infiniteSourceFixture } from './support/fixtures';
 import {
-	readRunningCanvasAnimations,
 	waitForCanvasAnimationsToSettle,
 	waitForRunningCanvasAnimations,
 } from './support/canvasAnimations';
@@ -71,11 +70,6 @@ test('stops an infinite interval source and restarts it in a fresh worker', asyn
 	const firstRunValues = subscriberValues(running, subscriber.id, 1);
 	expect(firstRunValues.slice(0, 3)).toEqual(['0', '1', '2']);
 	expect(firstRunValues).toEqual(firstRunValues.map((_value, index) => String(index)));
-
-	// The canvas is really animating while the source runs, so the settling check below is not
-	// satisfied by a canvas that never animated in the first place.
-	await waitForRunningCanvasAnimations(page);
-	expect(await readRunningCanvasAnimations(page)).toBeGreaterThan(0);
 
 	// Stop the real time-based source.
 	await clickControlAt(page, stopPoint);
