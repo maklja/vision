@@ -46,6 +46,7 @@ export class ObservableSimulation {
 		const observable = observableFactory.createObservable();
 
 		const subscription = observable.subscribe({
+			error: () => undefined,
 			complete: () => flowManager.handleComplete(),
 		});
 
