@@ -2,7 +2,7 @@ import { v1 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { AnimationKey } from '../../animation';
 import { RootState } from '../rootStore';
-import { ObservableEvent } from '../simulation';
+import type { ObservableEvent } from '../simulation';
 import { updateElement } from '../elements';
 import { FlowValueType } from '@maklja/vision-simulator-model';
 
@@ -71,9 +71,9 @@ export function retrieveNextAnimations(state: RootState) {
 			const animationData = animation.data as ObservableEvent;
 			const isSubscribed =
 				animationData.subscribeId == null ||
-				simulation.animations.subscribed.includes(animationData.subscribeId);
+				simulation.animations.queue[animationData.subscribeId] == null;
 			const ensuredDeps = animationData.dependencies.every((depId) =>
-				simulation.animations.completed.includes(depId),
+				simulation.animations.queue[depId] == null,
 			);
 
 			return isSubscribed && ensuredDeps;
@@ -102,7 +102,7 @@ function compressAnimations(
 	return animations;
 }
 
-function scheduleSimulationAnimations(state: RootState) {
+export function scheduleSimulationAnimations(state: RootState) {
 	retrieveNextAnimations(state).forEach(({ id, groupId, key, dispose, drawerId, data }) => {
 		const animationExists = state.animations[drawerId]?.some((a) => a.id === id);
 		if (animationExists) {
@@ -249,4 +249,3 @@ export const selectDrawerAnimationByDrawerId =
 	(drawerId: string) =>
 	(state: RootState): DrawerAnimation | null =>
 		state.animations[drawerId]?.at(0) ?? null;
-

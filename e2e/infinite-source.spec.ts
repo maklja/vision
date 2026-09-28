@@ -185,3 +185,35 @@ test('restarts the infinite interval source with fresh canvas animations', async
 	// The fresh subscription animates again instead of reusing the stopped run's animations.
 	await waitForRunningCanvasAnimations(page);
 });
+
+test('keeps the editor responsive while a fast infinite source outruns its animations', async ({
+	page,
+}) => {
+	await installWorkerProbe(page);
+	await bootstrapEditorWithDiagram(page, infiniteSourceFixture);
+
+	const interval = fixtureElement(infiniteSourceFixture, 'interval');
+	const subscriber = fixtureElement(infiniteSourceFixture, 'interval-subscriber');
+
+	await selectEntryOperator(page, interval);
+	await startSimulation(page);
+	const sustainedRun = await waitForWorkerProbe(
+		page,
+		(snapshot) => subscriberValues(snapshot, subscriber.id, 1).length >= 150,
+	);
+	expect(subscriberValues(sustainedRun, subscriber.id, 1).slice(0, 3)).toEqual(['0', '1', '2']);
+
+	await expect
+		.poll(async () => {
+			const text = await simulationResults(page).textContent();
+			return text ? text.split(', ').length : 0;
+		})
+		.toBe(100);
+
+	// This intentionally uses Playwright's normal actionability checks. Before the animation
+	// backlog was bounded, the main thread stopped responding before this click could complete.
+	await page.getByRole('button', { name: 'stop simulation' }).click();
+	await waitForWorkerProbe(page, (snapshot) => snapshot.terminated === 1);
+	await expect(page.getByRole('button', { name: 'stop simulation' })).toBeDisabled();
+	await expect(simulationResults(page)).toHaveText('');
+});

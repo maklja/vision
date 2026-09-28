@@ -169,7 +169,7 @@ describe('SimulatorControls', () => {
 		expect(store.getState().errors).toEqual({});
 		expect(store.getState().selectedElements).toEqual([]);
 		expect(store.getState().simulation.state).toBe(SimulationState.Running);
-		expect(store.getState().simulation.events).toEqual([]);
+		expect(store.getState().simulation.results).toEqual([]);
 
 		expect(engine.startObservableSimulation).toHaveBeenCalledTimes(1);
 		const call = startCallbacks();
@@ -194,21 +194,16 @@ describe('SimulatorControls', () => {
 		const event = createObservableEvent({
 			id: 'event-1',
 			type: FlowValueType.Next,
-			connectLinesId: ['cl-1'],
-			sourceElementId: 'of-1',
-			targetElementId: 'map-1',
+			connectLinesId: ['cl-2'],
+			sourceElementId: 'map-1',
+			targetElementId: 'subscriber-1',
 			value: '42',
 		});
 		act(() => {
 			startCallbacks().onNext(event as unknown as FlowValueEvent);
 		});
 
-		expect(store.getState().simulation.events).toHaveLength(1);
-		expect(store.getState().simulation.events[0]).toEqual({
-			...event,
-			connectLinesId: ['cl-1'],
-			dependencies: [],
-		});
+		expect(store.getState().simulation.results).toEqual(['42']);
 		expect(store.getState().simulation.animations.queue['event-1']).toBeDefined();
 		expect(store.getState().elements['event-1']).toBeDefined();
 		expect(store.getState().elements['event-1'].type).toBe(ElementType.Result);
@@ -242,7 +237,9 @@ describe('SimulatorControls', () => {
 			startCallbacks().onError(errorEvent as unknown as FlowValueEvent);
 		});
 
-		expect(store.getState().simulation.events[0].type).toBe(FlowValueType.Error);
+		expect(
+			store.getState().simulation.animations.queue['error-event'][0].data,
+		).toMatchObject({ type: FlowValueType.Error });
 		expect(subscription.unsubscribe).toHaveBeenCalledTimes(1);
 	});
 
@@ -260,7 +257,7 @@ describe('SimulatorControls', () => {
 
 		expect(subscription.unsubscribe).toHaveBeenCalledTimes(1);
 		expect(store.getState().simulation.state).toBe(SimulationState.Stopped);
-		expect(store.getState().simulation.events).toEqual([]);
+		expect(store.getState().simulation.results).toEqual([]);
 		expect(store.getState().errors).toEqual({
 			'map-1': { errorId: 'creation-error', errorMessage: 'Cannot create the observable' },
 		});

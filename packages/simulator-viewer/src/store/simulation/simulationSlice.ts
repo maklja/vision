@@ -6,8 +6,9 @@ import {
 	FlowValueType,
 	Point,
 	ResultElement,
+	isSubscriberType,
 } from '@maklja/vision-simulator-model';
-import { DrawerAnimation } from '../drawerAnimations';
+import { DrawerAnimation, scheduleSimulationAnimations } from '../drawerAnimations';
 import { RootState } from '../rootStore';
 import { AnimationKey, MoveAnimation } from '../../animation';
 import { moveElementToPosition, updateElement } from '../elements';
@@ -42,14 +43,15 @@ export enum SimulationState {
 	Running = 'running',
 }
 
+export const MAX_PENDING_ANIMATION_GROUPS = 16;
+export const MAX_SIMULATION_RESULTS = 100;
+
 export interface Simulation {
 	id: string;
 	state: SimulationState;
 	completed: boolean;
-	events: ObservableEvent[];
+	results: string[];
 	animations: {
-		subscribed: string[];
-		completed: string[];
 		queue: Record<string, DrawerAnimation[]>;
 	};
 }
@@ -123,20 +125,110 @@ function createAnimations(
 	];
 }
 
-export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSlice> = (
-	set,
-	get,
-) => ({
+function createResultElement(state: RootState, { id, connectLinesId, hash }: ObservableEvent) {
+	if (state.elements[id]) {
+		return;
+	}
+
+	const resultConnectLine = state.connectLines[connectLinesId[0]];
+	if (!resultConnectLine) {
+		return;
+	}
+
+	const [, secondPoint] = resultConnectLine.points;
+	const resultEl: ResultElement = {
+		id,
+		name: id,
+		type: ElementType.Result,
+		visible: false,
+		x: secondPoint.x,
+		y: secondPoint.y,
+		properties: {
+			hash,
+		},
+	};
+	state.elements[id] = resultEl;
+}
+
+function addObservableEvent(state: RootState, event: ObservableEvent) {
+	const animations = createAnimations(event, state.connectLines);
+	const eventSimulations = state.simulation.animations.queue[event.id] ?? [];
+	eventSimulations.push(...animations);
+	state.simulation.animations.queue[event.id] = eventSimulations;
+	state.simulation.completed = event.type !== FlowValueType.Next;
+}
+
+function recordSimulationResult(state: RootState, event: ObservableEvent) {
+	const targetElement = state.elements[event.targetElementId];
+	if (event.type !== FlowValueType.Next || !targetElement || !isSubscriberType(targetElement.type)) {
+		return;
+	}
+
+	state.simulation.results.push(event.value);
+	if (state.simulation.results.length > MAX_SIMULATION_RESULTS) {
+		state.simulation.results.splice(
+			0,
+			state.simulation.results.length - MAX_SIMULATION_RESULTS,
+		);
+	}
+}
+
+function isAnimationGroupActive(state: RootState, animationGroupId: string) {
+	return Object.values(state.animations).some(
+		(drawerAnimations) => drawerAnimations[0]?.groupId === animationGroupId,
+	);
+}
+
+function removeAnimationGroup(state: RootState, animationGroupId: string) {
+	delete state.simulation.animations.queue[animationGroupId];
+	delete state.elements[animationGroupId];
+
+	Object.entries(state.animations).forEach(([drawerId, drawerAnimations]) => {
+		const retainedAnimations = drawerAnimations.filter(
+			(animation) => animation.groupId !== animationGroupId,
+		);
+		if (retainedAnimations.length === 0) {
+			delete state.animations[drawerId];
+		} else if (retainedAnimations.length !== drawerAnimations.length) {
+			state.animations[drawerId] = retainedAnimations;
+		}
+	});
+}
+
+function admitAnimationGroup(state: RootState, event: ObservableEvent) {
+	const queuedAnimationGroups = Object.keys(state.simulation.animations.queue);
+	if (
+		state.simulation.animations.queue[event.id] ||
+		queuedAnimationGroups.length < MAX_PENDING_ANIMATION_GROUPS
+	) {
+		return true;
+	}
+
+	const evictableGroupId = queuedAnimationGroups.find(
+		(animationGroupId) => !isAnimationGroupActive(state, animationGroupId),
+	);
+	if (evictableGroupId) {
+		removeAnimationGroup(state, evictableGroupId);
+		return true;
+	}
+
+	if (event.type === FlowValueType.Next) {
+		return false;
+	}
+
+	const [oldestAnimationGroupId] = queuedAnimationGroups;
+	removeAnimationGroup(state, oldestAnimationGroupId);
+	return true;
+}
+
+export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSlice> = (set) => ({
 	simulation: {
 		id: v1(),
 		state: SimulationState.Stopped,
 		completed: false,
-		animationsQueue: [],
-		events: [],
+		results: [],
 		animations: {
 			queue: {},
-			completed: [],
-			subscribed: [],
 		},
 	},
 	startSimulation: () =>
@@ -146,10 +238,8 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			simulation.state = SimulationState.Running;
 			simulation.animations = {
 				queue: {},
-				completed: [],
-				subscribed: [],
 			};
-			simulation.events = [];
+			simulation.results = [];
 
 			return state;
 		}, true),
@@ -166,11 +256,9 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 			simulation.state = SimulationState.Stopped;
 			simulation.animations = {
 				queue: {},
-				completed: [],
-				subscribed: [],
 			};
 			state.animations = {};
-			simulation.events = [];
+			simulation.results = [];
 
 			return state;
 		}, true),
@@ -184,51 +272,31 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 
 			return state;
 		}, true),
-	createResultElement: ({ id, connectLinesId, hash }: ObservableEvent) =>
+	createResultElement: (event: ObservableEvent) =>
 		set((state) => {
-			if (state.elements[id]) {
-				return state;
-			}
-
-			const resultConnectLine = state.connectLines[connectLinesId[0]];
-			if (!resultConnectLine) {
-				return state;
-			}
-
-			const [, secondPoint] = resultConnectLine.points;
-			const resultEl: ResultElement = {
-				id,
-				name: id,
-				type: ElementType.Result,
-				visible: false,
-				x: secondPoint.x,
-				y: secondPoint.y,
-				properties: {
-					hash,
-				},
-			};
-			state.elements[id] = resultEl;
+			createResultElement(state, event);
 			return state;
 		}),
-	simulateObservableEvent: (event: ObservableEvent) => {
-		if (get().simulation.state === SimulationState.Stopped) {
-			return;
-		}
+	simulateObservableEvent: (event: ObservableEvent) =>
+		set((state) => {
+			if (state.simulation.state === SimulationState.Stopped) {
+				return state;
+			}
 
-		get().createResultElement(event);
-		get().addObservableEvent(event);
-		get().scheduleSimulationAnimations();
-	},
+			recordSimulationResult(state, event);
+			if (!admitAnimationGroup(state, event)) {
+				state.simulation.completed = event.type !== FlowValueType.Next;
+				return state;
+			}
+
+			createResultElement(state, event);
+			addObservableEvent(state, event);
+			scheduleSimulationAnimations(state);
+			return state;
+		}, true),
 	addObservableEvent: (event: ObservableEvent) =>
 		set((state) => {
-			const { simulation, connectLines } = state;
-			const animations = createAnimations(event, connectLines);
-			const eventSimulations = simulation.animations.queue[event.id] ?? [];
-			eventSimulations.push(...animations);
-			simulation.animations.queue[event.id] = eventSimulations;
-			simulation.events.push(event);
-			simulation.completed = event.type !== FlowValueType.Next;
-
+			addObservableEvent(state, event);
 			return state;
 		}, true),
 	removeSimulationAnimation: (animationGroupId: string, animationId: string) =>
@@ -246,18 +314,12 @@ export const createSimulationSlice: StateCreator<RootState, [], [], SimulationSl
 				return state;
 			}
 
-			const [removedAnimation] = eventAnimations.splice(animationIdx, 1);
+			eventAnimations.splice(animationIdx, 1);
 			const [nextAnimation] = eventAnimations;
-
-			const eventData = removedAnimation.data as ObservableEvent;
-			if (eventAnimations.length === 0 && eventData.type === FlowValueType.Subscribe) {
-				simulation.animations.subscribed.push(eventData.id);
-			}
 
 			if (eventAnimations.length === 0) {
 				delete simulation.animations.queue[animationGroupId];
 				delete state.elements[animationGroupId];
-				simulation.animations.completed.push(animationGroupId);
 			} else if (nextAnimation?.key === AnimationKey.MoveDrawer) {
 				const moveAnimationData = nextAnimation.data as MoveAnimation;
 				moveElementToPosition(state, {

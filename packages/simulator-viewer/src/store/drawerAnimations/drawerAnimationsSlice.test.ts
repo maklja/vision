@@ -36,8 +36,6 @@ function setSimulation(
 	store: Store,
 	animations: {
 		queue: Record<string, DrawerAnimationType<unknown>[]>;
-		subscribed?: string[];
-		completed?: string[];
 	},
 	completed = false,
 ) {
@@ -45,11 +43,9 @@ function setSimulation(
 		id: 'simulation',
 		state: SimulationState.Running,
 		completed,
-		events: [],
+		results: [],
 		animations: {
 			queue: animations.queue,
-			subscribed: animations.subscribed ?? [],
-			completed: animations.completed ?? [],
 		},
 	};
 	store.setState({ simulation } as Partial<SimulationSlice>);
@@ -83,9 +79,11 @@ describe('drawer animation slice', () => {
 			const store = createTestStore();
 			setSimulation(store, {
 				queue: {
+					'sub-2': [animation('subscription')],
+					'dep-1': [animation('dependency')],
 					ready: [
 						animation('ready', {
-							data: createObservableEvent({ subscribeId: 'sub-1', dependencies: [] }),
+							data: createObservableEvent({ subscribeId: null, dependencies: [] }),
 						}),
 					],
 					waitingSubscription: [
@@ -102,10 +100,13 @@ describe('drawer animation slice', () => {
 						}),
 					],
 				},
-				subscribed: ['sub-1'],
 			});
 
-			expect(retrieveNextAnimations(store.getState()).map((a) => a.id)).toEqual(['ready']);
+			expect(retrieveNextAnimations(store.getState()).map((a) => a.id)).toEqual([
+				'subscription',
+				'dependency',
+				'ready',
+			]);
 		});
 
 		it('releases animations once their subscription and dependencies complete', () => {
@@ -121,9 +122,7 @@ describe('drawer animation slice', () => {
 						}),
 					],
 				},
-				subscribed: ['sub-1'],
-				completed: ['dep-1'],
-			});
+				});
 
 			expect(retrieveNextAnimations(store.getState()).map((a) => a.id)).toEqual(['ready']);
 		});
