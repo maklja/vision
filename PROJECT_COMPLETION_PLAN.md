@@ -27,7 +27,7 @@ No new operator or product feature should be implemented before phases 1 through
 | Phase 1.2B: model geometry and fixture characterization | Complete | Merged in [PR #58](https://github.com/maklja/vision/pull/58): tests cover bounding boxes, line and polygon geometry, snap-line and grid boundaries, serialized model shapes, and a representative current-release saved-diagram fixture. |
 | Phase 1.3: engine characterization | Complete | Merged in [PR #63](https://github.com/maklja/vision/pull/63), [PR #64](https://github.com/maklja/vision/pull/64), and [PR #65](https://github.com/maklja/vision/pull/65): core engine and worker protocol, creation and join-creation operators, and transformation, filtering, and error operators. |
 | Phase 1.4: viewer state and component characterization | Complete | Merged in [PR #71](https://github.com/maklja/vision/pull/71), [PR #74](https://github.com/maklja/vision/pull/74), [PR #75](https://github.com/maklja/vision/pull/75), [PR #79](https://github.com/maklja/vision/pull/79), and [PR #82](https://github.com/maklja/vision/pull/82): store slices, editor workflows, simulation state, IndexedDB persistence, palette, entry/simulation controls, error/property panel, and property forms; scoped Vitest coverage thresholds protect viewer store and non-canvas UI. Follow-up defects found during characterization were fixed in [PR #76](https://github.com/maklja/vision/pull/76), [PR #77](https://github.com/maklja/vision/pull/77), [PR #80](https://github.com/maklja/vision/pull/80), and [PR #83](https://github.com/maklja/vision/pull/83). |
-| Phase 1.5: critical browser journeys | Complete | Merged through issue #85 ([PR #91](https://github.com/maklja/vision/pull/91)), issue #86 ([PR #92](https://github.com/maklja/vision/pull/92)), issue #87 ([PR #94](https://github.com/maklja/vision/pull/94)), issue #88 ([PR #96](https://github.com/maklja/vision/pull/96)), issue #89 ([PR #98](https://github.com/maklja/vision/pull/98)), and issue #90 ([PR #103](https://github.com/maklja/vision/pull/103)): the shared Playwright foundation and Worker probe, the linear, branch/join, persistence/viewport, clipboard/grouped-editing, error-recovery, cancellation, and GitHub Pages base-path journeys. Defects found while characterizing were fixed in issue #93 ([PR #95](https://github.com/maklja/vision/pull/95)) and issue #97 ([PR #101](https://github.com/maklja/vision/pull/101)); open defect #99 stays represented by a skipped journey. |
+| Phase 1.5: critical browser journeys | Complete | Merged through issue #85 ([PR #91](https://github.com/maklja/vision/pull/91)), issue #86 ([PR #92](https://github.com/maklja/vision/pull/92)), issue #87 ([PR #94](https://github.com/maklja/vision/pull/94)), issue #88 ([PR #96](https://github.com/maklja/vision/pull/96)), issue #89 ([PR #98](https://github.com/maklja/vision/pull/98)), and issue #90 ([PR #103](https://github.com/maklja/vision/pull/103)): the shared Playwright foundation and Worker probe, the linear, branch/join, persistence/viewport, clipboard/grouped-editing, error-recovery, cancellation, and GitHub Pages base-path journeys. Defects found while characterizing were fixed in issue #93 ([PR #95](https://github.com/maklja/vision/pull/95)), issue #97 ([PR #101](https://github.com/maklja/vision/pull/101)), and issue #99. |
 | Phase 2: dependency updates | Not started | Unblocked by the completed Phase 1 characterization gate. |
 | Phase 3: old PR triage | Blocked | Starts only after dependency modernization is complete. |
 
@@ -69,7 +69,7 @@ The project can be called complete when all of the following are true:
 | CI | Pull requests run type checking, tests with coverage, the production build, and the Chromium browser suite against the generated GitHub Pages base-path build; lint and formatting remain pending. |
 | Lint | `pnpm -r eslint` currently crashes before linting anything: every package runs `eslint src/**/*.{js,ts,tsx}` and ESLint 8 aborts with `No files matching the pattern "src/**/*.js" were found.` because no `.js` sources exist, so the brace pattern matches nothing. Bypassing the glob with `eslint src` then exposes the pre-existing `@typescript-eslint/no-empty-function` API mismatch in `simulator-model` and `simulator-engine`; the viewer configuration does not enable that rule and lints cleanly (0 errors). Both defects are pre-existing tooling issues scheduled for Phase 2.2 and are intentionally left out of the characterization changes. |
 | Build | The viewer production build succeeds. |
-| Backlog | Open defect issue #99 (stale drawer animations survive Stop and block the next run, represented by a skipped journey in `e2e/infinite-source.spec.ts`); three older feature pull requests are still open. |
+| Backlog | Three older feature pull requests are still open. |
 
 ## Delivery rules
 
@@ -210,8 +210,8 @@ and served by Vite preview, so every journey also exercises the GitHub Pages sub
    covered from persisted fixtures in `e2e/error-recovery.spec.ts`.
 7. Start an infinite source, stop it, and verify that the worker and animations are cleaned up.
    Covered by `e2e/infinite-source.spec.ts`, which stops an `interval` entry, observes the cleared
-   state, and restarts it in a fresh worker. The related "fresh canvas animations on restart" case
-   stays a skipped test linked to open defect #99.
+   state, restarts it in a fresh worker, and verifies that the restarted run renders fresh canvas
+   animations.
 8. Load the production build under the GitHub Pages base path. Covered by
    `e2e/github-pages-base.spec.ts`, which mounts the editor at `/vision/`, fails on any unsuccessful
    or off-base script, stylesheet, dynamic chunk, or Worker request, and runs a seeded
@@ -238,7 +238,7 @@ Complete as of 2026-09-28:
 - The production build remains unchanged in behavior: `pnpm build` still emits the root-`/` base and
   `docs/` is not regenerated.
 - Known failures are written as explicit skipped tests linked to issues, never left undocumented. The
-  only skip is defect #99 in `e2e/infinite-source.spec.ts`, and the suite contains no focused tests.
+  suite currently contains no skipped or focused tests.
 
 ## Phase 2: update dependencies and repair tooling
 

@@ -164,6 +164,7 @@ describe('simulation slice', () => {
 			const store = createDiagramStore();
 			store.getState().startSimulation();
 			store.getState().simulateObservableEvent(observableEvent());
+			expect(store.getState().animations).not.toEqual({});
 
 			store.getState().resetSimulation();
 
@@ -178,6 +179,7 @@ describe('simulation slice', () => {
 				subscribed: [],
 				completed: [],
 			});
+			expect(store.getState().animations).toEqual({});
 		});
 
 		it('starts a fresh run after a reset', () => {
