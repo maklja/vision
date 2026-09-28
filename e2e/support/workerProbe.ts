@@ -117,11 +117,21 @@ export async function readWorkerProbe(page: Page): Promise<WorkerProbeSnapshot> 
 	return snapshot as WorkerProbeSnapshot;
 }
 
+/**
+ * Polling cadence for worker messages. The first evaluation is immediate and the following ones stay
+ * tight so a journey notices a fast source promptly instead of waiting out the default backoff.
+ */
+const PROBE_POLL_INTERVALS = [0, 10, 25, 50, 100];
+
 export async function waitForWorkerProbe(
 	page: Page,
 	predicate: (snapshot: WorkerProbeSnapshot) => boolean,
 ): Promise<WorkerProbeSnapshot> {
-	await expect.poll(async () => predicate(await readWorkerProbe(page))).toBe(true);
+	await expect
+		.poll(async () => predicate(await readWorkerProbe(page)), {
+			intervals: PROBE_POLL_INTERVALS,
+		})
+		.toBe(true);
 	return readWorkerProbe(page);
 }
 
