@@ -22,4 +22,3 @@ export function mapToOperatorPropsTemplate(elType: ElementType): ElementProps {
 			return {};
 	}
 }
-

@@ -7,12 +7,7 @@ import {
 	retrieveNextAnimations,
 	selectDrawerAnimationByDrawerId,
 } from './drawerAnimationsSlice';
-import {
-	ObservableEvent,
-	Simulation,
-	SimulationSlice,
-	SimulationState,
-} from '../simulation';
+import { ObservableEvent, Simulation, SimulationSlice, SimulationState } from '../simulation';
 
 type Store = ReturnType<typeof createTestStore>;
 
@@ -122,7 +117,7 @@ describe('drawer animation slice', () => {
 						}),
 					],
 				},
-				});
+			});
 
 			expect(retrieveNextAnimations(store.getState()).map((a) => a.id)).toEqual(['ready']);
 		});
@@ -257,7 +252,9 @@ describe('drawer animation slice', () => {
 		it('ignores disposing unknown drawer animations', () => {
 			const before = store.getState().animations;
 
-			store.getState().disposeDrawerAnimation({ drawerId: 'missing', animationId: 'missing' });
+			store
+				.getState()
+				.disposeDrawerAnimation({ drawerId: 'missing', animationId: 'missing' });
 
 			expect(store.getState().animations).toBe(before);
 		});

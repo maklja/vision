@@ -11,4 +11,3 @@ export interface MergeElement extends Element<MergeElementProperties> {
 export const mergeElementPropsTemplate: MergeElementProperties = {
 	limitConcurrent: 0,
 };
-

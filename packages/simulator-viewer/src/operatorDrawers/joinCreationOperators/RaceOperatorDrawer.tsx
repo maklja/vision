@@ -5,4 +5,3 @@ import { JoinCreationOperatorDrawer } from './JoinCreationOperatorDrawer';
 export function RaceOperatorDrawer(props: ElementDrawerProps) {
 	return <JoinCreationOperatorDrawer {...props} elementType={ElementType.Race} title="Race" />;
 }
-

@@ -1,15 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { ConnectPointPosition, ConnectPointType, ElementType } from '@maklja/vision-simulator-model';
+import {
+	ConnectPointPosition,
+	ConnectPointType,
+	ElementType,
+} from '@maklja/vision-simulator-model';
 import { createConnectLine, createElement, createTestStore } from '../../test-utils';
 
 type Store = ReturnType<typeof createTestStore>;
 
 function createClipboardStore(): Store {
 	const store = createTestStore();
-	store.getState().loadElements([
-		createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
-		createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
-	]);
+	store
+		.getState()
+		.loadElements([
+			createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
+			createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
+		]);
 	store.getState().loadConnectPoints(Object.values(store.getState().elements));
 	store.getState().loadConnectLines([
 		createConnectLine({
@@ -56,10 +62,12 @@ describe('clipboard slice', () => {
 
 		store.getState().copySelected();
 
-		expect(store.getState().clipboard.elements.map((el) => el.id).sort()).toEqual([
-			'map-1',
-			'of-1',
-		]);
+		expect(
+			store
+				.getState()
+				.clipboard.elements.map((el) => el.id)
+				.sort(),
+		).toEqual(['map-1', 'of-1']);
 		expect(store.getState().clipboard.connectLines.map((cl) => cl.id)).toEqual(['cl-1']);
 	});
 

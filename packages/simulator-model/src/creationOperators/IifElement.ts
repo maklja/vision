@@ -23,4 +23,3 @@ export const iifElementPropsTemplate: IifElementProperties = {
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
-

@@ -85,10 +85,12 @@ describe('connect point slice', () => {
 
 		it('removes connect points for elements and ignores an empty removal', () => {
 			const store = createTestStore();
-			store.getState().loadConnectPoints([
-				createElement(ElementType.Of, { id: 'of-1' }),
-				createElement(ElementType.Map, { id: 'map-1' }),
-			]);
+			store
+				.getState()
+				.loadConnectPoints([
+					createElement(ElementType.Of, { id: 'of-1' }),
+					createElement(ElementType.Map, { id: 'map-1' }),
+				]);
 			const before = store.getState().connectPoints;
 
 			store.getState().removeElementsConnectPoints([]);
@@ -105,11 +107,13 @@ describe('connect point slice', () => {
 
 		beforeEach(() => {
 			store = createTestStore();
-			store.getState().loadElements([
-				createElement(ElementType.Of, { id: 'of-1' }),
-				createElement(ElementType.Map, { id: 'map-1' }),
-				createElement(ElementType.Subscriber, { id: 'subscriber-1' }),
-			]);
+			store
+				.getState()
+				.loadElements([
+					createElement(ElementType.Of, { id: 'of-1' }),
+					createElement(ElementType.Map, { id: 'map-1' }),
+					createElement(ElementType.Subscriber, { id: 'subscriber-1' }),
+				]);
 			store.getState().loadConnectPoints(Object.values(store.getState().elements));
 		});
 
@@ -146,8 +150,12 @@ describe('connect point slice', () => {
 		it('leaves subscriber connect points hidden because only outputs and events are toggled', () => {
 			store.getState().selectConnectPoints('subscriber-1');
 
-			expect(byPosition(store, 'subscriber-1', ConnectPointPosition.Left).visible).toBe(false);
-			expect(byPosition(store, 'subscriber-1', ConnectPointPosition.Right).visible).toBe(false);
+			expect(byPosition(store, 'subscriber-1', ConnectPointPosition.Left).visible).toBe(
+				false,
+			);
+			expect(byPosition(store, 'subscriber-1', ConnectPointPosition.Right).visible).toBe(
+				false,
+			);
 		});
 
 		it('hides all connect points when clearing the selection', () => {
@@ -251,7 +259,9 @@ describe('connect point slice', () => {
 
 		beforeEach(() => {
 			store = createTestStore();
-			store.getState().loadConnectPoints([createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 })]);
+			store
+				.getState()
+				.loadConnectPoints([createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 })]);
 		});
 
 		it('moves connect points by delta', () => {
@@ -313,9 +323,7 @@ describe('connect point slice', () => {
 			const storeWithoutDraft = createTestStore();
 
 			expect(() =>
-				storeWithoutDraft
-					.getState()
-					.lockConnectLine({ x: 0, y: 0, width: 10, height: 10 }),
+				storeWithoutDraft.getState().lockConnectLine({ x: 0, y: 0, width: 10, height: 10 }),
 			).not.toThrow();
 			expect(storeWithoutDraft.getState().draftConnectLine).toBeNull();
 		});

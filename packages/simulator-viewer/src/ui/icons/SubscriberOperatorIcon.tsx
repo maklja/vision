@@ -20,4 +20,3 @@ export const SubscriberOperatorIcon = (props: SvgIconProps) => {
 		</SvgIcon>
 	);
 };
-

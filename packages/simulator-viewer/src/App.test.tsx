@@ -12,15 +12,13 @@ import {
 import type { StateProps } from './store/rootStore';
 
 vi.mock('./simulator', async () => {
-	const { useRootStore } = await vi.importActual<typeof import('./store/rootStore')>(
-		'./store/rootStore',
-	);
+	const { useRootStore } =
+		await vi.importActual<typeof import('./store/rootStore')>('./store/rootStore');
 	const { ElementType: MockedElementType } = await vi.importActual<
 		typeof import('@maklja/vision-simulator-model')
 	>('@maklja/vision-simulator-model');
-	const { createConnectLine, createElement } = await vi.importActual<
-		typeof import('./test-utils')
-	>('./test-utils');
+	const { createConnectLine, createElement } =
+		await vi.importActual<typeof import('./test-utils')>('./test-utils');
 
 	return {
 		Simulator() {
@@ -29,7 +27,9 @@ vi.mock('./simulator', async () => {
 					.map((element) => element.name)
 					.join(', '),
 			);
-			const connectLineCount = useRootStore((state) => Object.keys(state.connectLines).length);
+			const connectLineCount = useRootStore(
+				(state) => Object.keys(state.connectLines).length,
+			);
 			const viewport = useRootStore(
 				(state) =>
 					`${state.canvasState.x},${state.canvasState.y},${state.canvasState.scaleX},${state.canvasState.scaleY}`,
@@ -54,13 +54,17 @@ vi.mock('./simulator', async () => {
 					</button>
 					<button
 						type="button"
-						onClick={() => addElement(createElement(MockedElementType.Map, { id: 'added' }))}
+						onClick={() =>
+							addElement(createElement(MockedElementType.Map, { id: 'added' }))
+						}
 					>
 						Add element
 					</button>
 					<button
 						type="button"
-						onClick={() => addElement(createElement(MockedElementType.Result, { id: 'transient' }))}
+						onClick={() =>
+							addElement(createElement(MockedElementType.Result, { id: 'transient' }))
+						}
 					>
 						Add result element
 					</button>
@@ -143,16 +147,19 @@ describe('App IndexedDB persistence', () => {
 				{
 					id: 'source-transformation',
 					source: {
-					id: 'source',
-					connectPointType: ConnectPointType.Output,
-					connectPosition: ConnectPointPosition.Right,
-				},
+						id: 'source',
+						connectPointType: ConnectPointType.Output,
+						connectPosition: ConnectPointPosition.Right,
+					},
 					target: {
-					id: 'transformation',
-					connectPointType: ConnectPointType.Input,
-					connectPosition: ConnectPointPosition.Left,
-				},
-					points: [{ x: 0, y: 0 }, { x: 10, y: 0 }],
+						id: 'transformation',
+						connectPointType: ConnectPointType.Input,
+						connectPosition: ConnectPointPosition.Left,
+					},
+					points: [
+						{ x: 0, y: 0 },
+						{ x: 10, y: 0 },
+					],
 					locked: false,
 					index: 1,
 					name: 'source-transformation',

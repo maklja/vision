@@ -15,4 +15,3 @@ export const deferElementPropsTemplate: DeferElementProperties = {
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
-

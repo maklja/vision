@@ -5,4 +5,3 @@ import { CreationOperatorDrawer } from './CreationOperatorDrawer';
 export function EmptyOperatorDrawer(props: ElementDrawerProps) {
 	return <CreationOperatorDrawer {...props} elementType={ElementType.Empty} title="Empty" />;
 }
-

@@ -14,4 +14,3 @@ export const throwErrorElementPropsTemplate: ThrowErrorElementProperties = {
 		return new Error('Unexpected error!');
 	}`,
 };
-

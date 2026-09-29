@@ -112,4 +112,3 @@ export const elementDrawerTheme = (themeColors: ColorTheme): ElementDrawerTheme 
 		},
 	};
 };
-

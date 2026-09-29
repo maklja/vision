@@ -123,4 +123,3 @@ export function GridLayer({ stage }: GridLayerProps) {
 		</Layer>
 	) : null;
 }
-

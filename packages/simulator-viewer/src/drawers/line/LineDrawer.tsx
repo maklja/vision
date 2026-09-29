@@ -185,9 +185,8 @@ export function LineDrawer({
 								y={p.y}
 							/>
 						);
-				  })
+					})
 				: null}
 		</Group>
 	);
 }
-

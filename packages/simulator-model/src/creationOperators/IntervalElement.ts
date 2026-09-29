@@ -11,4 +11,3 @@ export interface IntervalElement extends Element<IntervalElementProperties> {
 export const intervalElementPropsTemplate: IntervalElementProperties = {
 	period: 1_000,
 };
-

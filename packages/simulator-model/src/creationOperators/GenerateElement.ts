@@ -24,4 +24,3 @@ export const generateElementPropsTemplate: GenerateElementProperties = {
 		return value * 1000;
 	}`,
 };
-

@@ -16,4 +16,3 @@ export function linesIntersection(p0: Point, p1: Point, p2: Point, p3: Point): P
 
 	return { x, y };
 }
-

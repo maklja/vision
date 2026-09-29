@@ -25,4 +25,3 @@ export class AnimationRegistry {
 		return animationConfig;
 	}
 }
-

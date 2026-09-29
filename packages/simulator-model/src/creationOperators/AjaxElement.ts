@@ -30,4 +30,3 @@ export const ajaxElementPropsTemplate: AjaxElementProperties = {
 	url: 'https://api.github.com/users/mralexgray/repos',
 	method: HttpMethod.Get,
 };
-

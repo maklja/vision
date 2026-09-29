@@ -72,8 +72,8 @@ export function retrieveNextAnimations(state: RootState) {
 			const isSubscribed =
 				animationData.subscribeId == null ||
 				simulation.animations.queue[animationData.subscribeId] == null;
-			const ensuredDeps = animationData.dependencies.every((depId) =>
-				simulation.animations.queue[depId] == null,
+			const ensuredDeps = animationData.dependencies.every(
+				(depId) => simulation.animations.queue[depId] == null,
 			);
 
 			return isSubscribed && ensuredDeps;

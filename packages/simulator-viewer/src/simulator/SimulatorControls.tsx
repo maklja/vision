@@ -4,10 +4,7 @@ import { Unsubscribable } from 'rxjs';
 import Box from '@mui/material/Box';
 import { useShallow } from 'zustand/react/shallow';
 import type { FlowValueEvent } from '@maklja/vision-simulator-engine';
-import {
-	Element,
-	isEntryOperatorType,
-} from '@maklja/vision-simulator-model';
+import { Element, isEntryOperatorType } from '@maklja/vision-simulator-model';
 import { SimulationControls } from '../ui';
 import { useRootStore } from '../store/rootStore';
 import { selectSimulation } from '../store/simulation';

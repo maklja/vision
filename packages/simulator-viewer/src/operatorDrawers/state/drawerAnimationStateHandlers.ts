@@ -16,4 +16,3 @@ export const drawerAnimationStateHandlers = (state: RootState): DrawerEvents => 
 		});
 	},
 });
-

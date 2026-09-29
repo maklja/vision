@@ -11,4 +11,3 @@ export interface ForkJoinElement extends Element<ForkJoinElementProperties> {
 export const forkJoinElementPropsTemplate: ForkJoinElementProperties = {
 	observableInputsType: ObservableInputsType.Array,
 };
-

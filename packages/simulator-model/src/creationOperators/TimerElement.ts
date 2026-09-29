@@ -20,4 +20,3 @@ export const timerElementPropsTemplate: TimerElementProperties = {
 	startDue: 1_000,
 	intervalDuration: -1,
 };
-

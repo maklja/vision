@@ -13,4 +13,3 @@ export const rangeElementPropsTemplate: RangeElementProperties = {
 	start: 1,
 	count: 10,
 };
-

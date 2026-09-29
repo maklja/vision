@@ -8,4 +8,3 @@ export * from './ExpandOperatorDrawer';
 export * from './MapOperatorDrawer';
 export * from './ConcatMapOperatorDrawer';
 export * from './MergeMapOperatorDrawer';
-

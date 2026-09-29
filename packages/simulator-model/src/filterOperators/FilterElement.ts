@@ -14,4 +14,3 @@ export const filterElementPropsTemplate: FilterElementProperties = {
 		return true;
 	}`,
 };
-

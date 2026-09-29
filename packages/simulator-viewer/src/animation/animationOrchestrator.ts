@@ -48,4 +48,3 @@ export function animationOrchestrator(
 
 	return firstValueFrom(patternChecker$);
 }
-

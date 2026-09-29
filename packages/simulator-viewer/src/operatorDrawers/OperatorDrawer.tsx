@@ -72,4 +72,3 @@ export function OperatorDrawer({ element, visibleConnectPoints, draggable }: Ope
 			});
 	}
 }
-

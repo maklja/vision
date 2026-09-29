@@ -13,4 +13,3 @@ export interface BufferTimeElement extends Element<BufferTimeElementProperties> 
 export const bufferTimeElementPropsTemplate: BufferTimeElementProperties = {
 	bufferTimeSpan: 100,
 };
-

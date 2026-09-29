@@ -11,4 +11,3 @@ export const BufferCountOperatorDrawer = (props: ElementDrawerProps) => {
 		/>
 	);
 };
-

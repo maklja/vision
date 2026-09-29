@@ -72,7 +72,12 @@ describe('handleOptionalNumberInputChanged', () => {
 
 	it('reports undefined when an unparseable optional input has no default value', () => {
 		const onPropertyValueChange = vi.fn();
-		const handler = handleOptionalNumberInputChanged('of-1', 'count', undefined, onPropertyValueChange);
+		const handler = handleOptionalNumberInputChanged(
+			'of-1',
+			'count',
+			undefined,
+			onPropertyValueChange,
+		);
 
 		handler(changeEvent('abc'));
 

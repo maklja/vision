@@ -31,4 +31,3 @@ export function ConnectLineDrawer({ connectLine, select, draggable }: ConnectLin
 		/>
 	);
 }
-

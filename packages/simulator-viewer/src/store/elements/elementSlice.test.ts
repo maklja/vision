@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ElementType, ofElementPropsTemplate, mapElementPropsTemplate } from '@maklja/vision-simulator-model';
+import {
+	ElementType,
+	ofElementPropsTemplate,
+	mapElementPropsTemplate,
+} from '@maklja/vision-simulator-model';
 import { createElement, createTestStore } from '../../test-utils';
 
 const deterministicIdPattern = /^00000000-0000-4000-8000-\d{12}$/;
@@ -16,7 +20,9 @@ describe('element slice', () => {
 	describe('draft elements', () => {
 		it('creates a uniquely named draft with the operator default properties', () => {
 			const store = createTestStore();
-			store.getState().addElement(createElement(ElementType.Of, { id: 'of-1', name: 'of_0' }));
+			store
+				.getState()
+				.addElement(createElement(ElementType.Of, { id: 'of-1', name: 'of_0' }));
 
 			store.getState().createDraftElement({ type: ElementType.Of, x: 25, y: 50 });
 
@@ -35,7 +41,9 @@ describe('element slice', () => {
 
 		it('reuses the first free index when names are already taken non-sequentially', () => {
 			const store = createTestStore();
-			store.getState().addElement(createElement(ElementType.Of, { id: 'of-2', name: 'of_2' }));
+			store
+				.getState()
+				.addElement(createElement(ElementType.Of, { id: 'of-2', name: 'of_2' }));
 
 			store.getState().createDraftElement({ type: ElementType.Of, x: 0, y: 0 });
 
@@ -91,10 +99,12 @@ describe('element slice', () => {
 
 		it('loads elements into a keyed record', () => {
 			const store2 = createTestStore();
-			store2.getState().loadElements([
-				createElement(ElementType.Of, { id: 'a' }),
-				createElement(ElementType.Map, { id: 'b' }),
-			]);
+			store2
+				.getState()
+				.loadElements([
+					createElement(ElementType.Of, { id: 'a' }),
+					createElement(ElementType.Map, { id: 'b' }),
+				]);
 
 			expect(Object.keys(store2.getState().elements).sort()).toEqual(['a', 'b']);
 			expect(store2.getState().elements.b.type).toBe(ElementType.Map);
@@ -170,7 +180,9 @@ describe('element slice', () => {
 		});
 
 		it('renames a newly added element when its name collides', () => {
-			store.getState().addElement(createElement(ElementType.Of, { id: 'of-2', name: 'of_0' }));
+			store
+				.getState()
+				.addElement(createElement(ElementType.Of, { id: 'of-2', name: 'of_0' }));
 
 			expect(store.getState().elements['of-2'].name).toBe('of_1');
 		});
@@ -192,10 +204,12 @@ describe('element slice', () => {
 
 		beforeEach(() => {
 			store = createTestStore();
-			store.getState().loadElements([
-				createElement(ElementType.Of, { id: 'a' }),
-				createElement(ElementType.Map, { id: 'b' }),
-			]);
+			store
+				.getState()
+				.loadElements([
+					createElement(ElementType.Of, { id: 'a' }),
+					createElement(ElementType.Map, { id: 'b' }),
+				]);
 		});
 
 		it('selects and deselects a single element without duplicates', () => {

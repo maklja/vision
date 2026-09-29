@@ -21,4 +21,3 @@ export const fromElementPropsTemplate: FromElementProperties = {
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
-

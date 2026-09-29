@@ -5,4 +5,3 @@ import { JoinCreationOperatorDrawer } from './JoinCreationOperatorDrawer';
 export function ZipOperatorDrawer(props: ElementDrawerProps) {
 	return <JoinCreationOperatorDrawer {...props} elementType={ElementType.Zip} title="Zip" />;
 }
-

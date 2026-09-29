@@ -16,4 +16,3 @@ export interface ConnectLine {
 	index: number;
 	name: string;
 }
-

@@ -8,4 +8,3 @@ export const FilteringOperatorIcon = (props: SvgIconProps) => {
 		</SvgIcon>
 	);
 };
-

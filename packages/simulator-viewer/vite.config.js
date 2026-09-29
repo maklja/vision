@@ -17,9 +17,12 @@ export default defineConfig(() => {
 		},
 		plugins: [
 			react(),
-			checker({
-				typescript: true,
-			}),
+			// CI has a dedicated TypeScript gate. Playwright starts a short-lived preview process,
+			// so its web-server command disables the checker's long-lived worker explicitly.
+			process.env.VITE_CHECKER_ENABLE !== 'false' &&
+				checker({
+					typescript: true,
+				}),
 		],
 	};
 });

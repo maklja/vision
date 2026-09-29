@@ -77,12 +77,14 @@ describe('createRootStore', () => {
 		expect(Object.keys(state.connectPoints).sort()).toEqual(['source', 'transformation']);
 		const sourcePoints = state.connectPoints.source;
 		expect(sourcePoints).toHaveLength(4);
-		expect(sourcePoints.find((cp) => cp.position === ConnectPointPosition.Right)).toMatchObject({
-			type: ConnectPointType.Output,
-			elementId: 'source',
-			x: 130,
-			y: 64,
-		});
+		expect(sourcePoints.find((cp) => cp.position === ConnectPointPosition.Right)).toMatchObject(
+			{
+				type: ConnectPointType.Output,
+				elementId: 'source',
+				x: 130,
+				y: 64,
+			},
+		);
 	});
 
 	it('loads a diagram after creation and replaces the previous graph', () => {

@@ -100,7 +100,9 @@ describe('OperatorsPanel', () => {
 			const expectedTypes = [...mapElementGroupToTypes(group)].sort();
 			const renderedTypes = screen
 				.getAllByTestId(/^operator-/)
-				.map((el) => el.getAttribute('data-testid')?.replace('operator-', '') as ElementType);
+				.map(
+					(el) => el.getAttribute('data-testid')?.replace('operator-', '') as ElementType,
+				);
 
 			expect(renderedTypes).toEqual(expectedTypes);
 		}
@@ -118,7 +120,9 @@ describe('OperatorsPanel', () => {
 		const transformedTypes = screen
 			.getAllByTestId(/^operator-/)
 			.map((el) => el.getAttribute('data-testid')?.replace('operator-', '') as ElementType);
-		expect(transformedTypes).toEqual([...mapElementGroupToTypes(ElementGroup.Transformation)].sort());
+		expect(transformedTypes).toEqual(
+			[...mapElementGroupToTypes(ElementGroup.Transformation)].sort(),
+		);
 
 		click('transformation operators');
 		expect(screen.queryAllByTestId(/^operator-/)).toHaveLength(0);
@@ -186,8 +190,8 @@ describe('OperatorsPanel', () => {
 		const buttons = screen.getAllByTestId(/^operator-/);
 		expect(buttons).toHaveLength(1);
 		expect(buttons[0].getAttribute('data-testid')).toBe(`operator-${ElementType.CatchError}`);
-		expect(within(screen.getByLabelText('RxJS operator types')).getAllByRole('button')).toHaveLength(
-			groupButtons.length,
-		);
+		expect(
+			within(screen.getByLabelText('RxJS operator types')).getAllByRole('button'),
+		).toHaveLength(groupButtons.length);
 	});
 });

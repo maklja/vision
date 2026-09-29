@@ -229,4 +229,3 @@ export function CircleConnectPointsDrawer({
 		</Group>
 	);
 }
-

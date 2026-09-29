@@ -35,4 +35,3 @@ export function mapTransformationOperatorTemplates(elType: ElementType): Element
 			return {};
 	}
 }
-

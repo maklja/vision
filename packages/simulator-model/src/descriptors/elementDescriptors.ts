@@ -185,4 +185,3 @@ export function calcConnectPointVisibility(elType: ElementType, elementProps: El
 		eventsVisible,
 	};
 }
-

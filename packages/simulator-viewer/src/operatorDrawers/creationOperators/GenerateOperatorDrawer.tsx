@@ -7,4 +7,3 @@ export function GenerateOperatorDrawer(props: ElementDrawerProps) {
 		<CreationOperatorDrawer {...props} elementType={ElementType.Generate} title="Generate" />
 	);
 }
-

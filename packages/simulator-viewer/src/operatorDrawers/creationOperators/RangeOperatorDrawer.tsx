@@ -5,4 +5,3 @@ import { CreationOperatorDrawer } from './CreationOperatorDrawer';
 export function RangeOperatorDrawer(props: ElementDrawerProps) {
 	return <CreationOperatorDrawer {...props} elementType={ElementType.Range} title="Range" />;
 }
-

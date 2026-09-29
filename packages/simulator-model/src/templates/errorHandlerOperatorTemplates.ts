@@ -9,4 +9,3 @@ export function mapErrorHandlingOperatorPropsTemplates(elType: ElementType): Ele
 			return {};
 	}
 }
-

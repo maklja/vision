@@ -5,7 +5,12 @@ import { clear } from 'idb-keyval';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ElementType } from '@maklja/vision-simulator-model';
 import { createConnectLine, createElement } from '../test-utils';
-import { createPersistedDiagram, diagramId, loadDiagram, persistDiagram } from './diagramPersistence';
+import {
+	createPersistedDiagram,
+	diagramId,
+	loadDiagram,
+	persistDiagram,
+} from './diagramPersistence';
 
 describe('diagram persistence helpers', () => {
 	beforeEach(async () => {

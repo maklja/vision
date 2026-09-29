@@ -16,4 +16,3 @@ export const expandElementPropsTemplate: ExpandElementProperties = {
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
-

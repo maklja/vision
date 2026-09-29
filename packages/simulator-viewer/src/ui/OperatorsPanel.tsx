@@ -203,4 +203,3 @@ export function OperatorsPanel({ popperVisible = true, disabled = false }: Opera
 		</div>
 	);
 }
-

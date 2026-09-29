@@ -7,4 +7,3 @@ export function IntervalOperatorDrawer(props: ElementDrawerProps) {
 		<CreationOperatorDrawer {...props} elementType={ElementType.Interval} title="Interval" />
 	);
 }
-

@@ -4,12 +4,7 @@ import {
 	ConnectPointType,
 	ElementType,
 } from '@maklja/vision-simulator-model';
-import {
-	createConnectLine,
-	createElement,
-	createTestStore,
-	spyOnConsole,
-} from '../test-utils';
+import { createConnectLine, createElement, createTestStore, spyOnConsole } from '../test-utils';
 import {
 	calculateShapeSizeBoundingBox,
 	createElementSizesContext,
@@ -48,10 +43,12 @@ function inputOf(id: string) {
 }
 
 function loadOfAndMap(store: Store) {
-	store.getState().loadElements([
-		createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
-		createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
-	]);
+	store
+		.getState()
+		.loadElements([
+			createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
+			createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
+		]);
 	store.getState().loadConnectPoints(Object.values(store.getState().elements));
 }
 
@@ -67,7 +64,10 @@ function connectPointCenter(store: Store, elementId: string, position: ConnectPo
 	const connectPoint = store
 		.getState()
 		.connectPoints[elementId].find((cp) => cp.position === position)!;
-	const radius = findCircleShapeSize(createElementSizesContext(), ElementType.ConnectPoint).radius;
+	const radius = findCircleShapeSize(
+		createElementSizesContext(),
+		ElementType.ConnectPoint,
+	).radius;
 	return { x: connectPoint.x + radius, y: connectPoint.y + radius };
 }
 
@@ -75,7 +75,10 @@ function connectPointBoundingBox(store: Store, elementId: string, position: Conn
 	const connectPoint = store
 		.getState()
 		.connectPoints[elementId].find((cp) => cp.position === position)!;
-	const radius = findCircleShapeSize(createElementSizesContext(), ElementType.ConnectPoint).radius;
+	const radius = findCircleShapeSize(
+		createElementSizesContext(),
+		ElementType.ConnectPoint,
+	).radius;
 	return { x: connectPoint.x, y: connectPoint.y, width: radius * 2, height: radius * 2 };
 }
 
@@ -156,13 +159,15 @@ describe('editor workflows', () => {
 
 		it('clears prior selection and exposes only compatible, non-saturated targets when drawing a connection', () => {
 			const store = createTestStore();
-			store.getState().loadElements([
-				createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
-				createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
-				createElement(ElementType.Map, { id: 'map-2', x: 600, y: 0 }),
-				createElement(ElementType.From, { id: 'from-1', x: 0, y: 200 }),
-				createElement(ElementType.Interval, { id: 'interval-1', x: 300, y: 200 }),
-			]);
+			store
+				.getState()
+				.loadElements([
+					createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
+					createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
+					createElement(ElementType.Map, { id: 'map-2', x: 600, y: 0 }),
+					createElement(ElementType.From, { id: 'from-1', x: 0, y: 200 }),
+					createElement(ElementType.Interval, { id: 'interval-1', x: 300, y: 200 }),
+				]);
 			store.getState().loadConnectPoints(Object.values(store.getState().elements));
 			loadOfMapLine(store);
 			store.getState().markElementAsSelected('of-1');
@@ -191,9 +196,9 @@ describe('editor workflows', () => {
 					.connectPoints['map-1'].find((cp) => cp.position === ConnectPointPosition.Left)
 					?.visible,
 			).toBe(false);
-			expect(
-				store.getState().connectPoints['interval-1'].some((cp) => cp.visible),
-			).toBe(false);
+			expect(store.getState().connectPoints['interval-1'].some((cp) => cp.visible)).toBe(
+				false,
+			);
 			expect(store.getState().connectPoints['of-1'].every((cp) => !cp.visible)).toBe(true);
 		});
 
@@ -289,12 +294,19 @@ describe('editor workflows', () => {
 				name: 'output_right',
 				source: outputOf('of-1'),
 				target: inputOf('map-1'),
-				points: [sourceCenter, sourceConnectPointCenter, targetConnectPointCenter, targetCenter],
+				points: [
+					sourceCenter,
+					sourceConnectPointCenter,
+					targetConnectPointCenter,
+					targetCenter,
+				],
 			});
 			expect(state.selectedElements).toEqual(['of-1']);
 			expect(state.selectedConnectLines).toEqual([]);
 			expect(
-				state.connectPoints['map-1'].find((cp) => cp.position === ConnectPointPosition.Left),
+				state.connectPoints['map-1'].find(
+					(cp) => cp.position === ConnectPointPosition.Left,
+				),
 			).toMatchObject({ visible: false, highlight: false });
 			expect(
 				state.connectPoints['of-1'].find((cp) => cp.position === ConnectPointPosition.Right)
@@ -327,7 +339,9 @@ describe('editor workflows', () => {
 			expect(state.selectedElements).toEqual(['of-1']);
 			expect(state.selectedConnectLines).toEqual([]);
 			expect(
-				state.connectPoints['map-1'].find((cp) => cp.position === ConnectPointPosition.Left),
+				state.connectPoints['map-1'].find(
+					(cp) => cp.position === ConnectPointPosition.Left,
+				),
 			).toMatchObject({ visible: false, highlight: false });
 		});
 	});
@@ -367,10 +381,26 @@ describe('editor workflows', () => {
 		}
 
 		const lassoDirections: LassoDrag[] = [
-			{ label: 'top-left to bottom-right', start: { x: -20, y: -20 }, end: { x: 150, y: 150 } },
-			{ label: 'bottom-right to top-left', start: { x: 150, y: 150 }, end: { x: -20, y: -20 } },
-			{ label: 'top-right to bottom-left', start: { x: 150, y: -20 }, end: { x: -20, y: 150 } },
-			{ label: 'bottom-left to top-right', start: { x: -20, y: 150 }, end: { x: 150, y: -20 } },
+			{
+				label: 'top-left to bottom-right',
+				start: { x: -20, y: -20 },
+				end: { x: 150, y: 150 },
+			},
+			{
+				label: 'bottom-right to top-left',
+				start: { x: 150, y: 150 },
+				end: { x: -20, y: -20 },
+			},
+			{
+				label: 'top-right to bottom-left',
+				start: { x: 150, y: -20 },
+				end: { x: -20, y: 150 },
+			},
+			{
+				label: 'bottom-left to top-right',
+				start: { x: -20, y: 150 },
+				end: { x: 150, y: -20 },
+			},
 		];
 
 		it.each(lassoDirections)(
@@ -441,7 +471,9 @@ describe('editor workflows', () => {
 			const state = store.getState();
 			expect(state.elements['of-1']).toMatchObject({ x: 100, y: 0 });
 			expect(
-				state.connectPoints['of-1'].find((cp) => cp.position === ConnectPointPosition.Right),
+				state.connectPoints['of-1'].find(
+					(cp) => cp.position === ConnectPointPosition.Right,
+				),
 			).toMatchObject({ x: 210, y: 34 });
 			// Only the two source-side points follow the moved element; the internal point and the
 			// two target-side points stay anchored to the stationary `map-1` center.
@@ -454,7 +486,6 @@ describe('editor workflows', () => {
 			]);
 			expect(state.connectLines['cl-1'].points.at(-1)).toEqual(elementCenter(store, 'map-1'));
 		});
-
 
 		it('moves the selected group, its connect points, attached endpoints, and internal points of selected lines', () => {
 			const store = createTestStore();
@@ -474,7 +505,9 @@ describe('editor workflows', () => {
 			expect(state.elements['of-1']).toMatchObject({ x: 10, y: 0 });
 			expect(state.elements['map-1']).toMatchObject({ x: 300, y: 0 });
 			expect(
-				state.connectPoints['of-1'].find((cp) => cp.position === ConnectPointPosition.Right),
+				state.connectPoints['of-1'].find(
+					(cp) => cp.position === ConnectPointPosition.Right,
+				),
 			).toMatchObject({ x: 120, y: 34 });
 			expect(state.connectLines['cl-1'].points).toEqual([
 				elementCenter(store, 'of-1'),
@@ -488,11 +521,13 @@ describe('editor workflows', () => {
 
 	describe('deletion and clipboard', () => {
 		function loadDeletionGraph(store: Store) {
-			store.getState().loadElements([
-				createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
-				createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
-				createElement(ElementType.Map, { id: 'map-2', x: 600, y: 0 }),
-			]);
+			store
+				.getState()
+				.loadElements([
+					createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
+					createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
+					createElement(ElementType.Map, { id: 'map-2', x: 600, y: 0 }),
+				]);
 			store.getState().loadConnectPoints(Object.values(store.getState().elements));
 			store.getState().loadConnectLines([
 				createConnectLine({
@@ -545,7 +580,6 @@ describe('editor workflows', () => {
 			expect(store.getState().selectedConnectLines).toEqual([]);
 		});
 
-
 		it('copies both endpoint elements when only a connect line is selected', () => {
 			const store = createTestStore();
 			loadOfAndMap(store);
@@ -555,10 +589,12 @@ describe('editor workflows', () => {
 			store.getState().copySelected();
 
 			expect(store.getState().clipboard.connectLines.map((cl) => cl.id)).toEqual(['cl-1']);
-			expect(store.getState().clipboard.elements.map((el) => el.id).sort()).toEqual([
-				'map-1',
-				'of-1',
-			]);
+			expect(
+				store
+					.getState()
+					.clipboard.elements.map((el) => el.id)
+					.sort(),
+			).toEqual(['map-1', 'of-1']);
 		});
 
 		it('pastes the copied group relative to its center with new ids, remapped lines and translated points', () => {

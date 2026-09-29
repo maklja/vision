@@ -97,7 +97,11 @@ describe('OfElementPropertiesForm', () => {
 		);
 
 		fireEvent.change(code(), { target: { value: '() => [2]' } });
-		expect(onPropertyValueChange).toHaveBeenCalledWith('of-1', 'argsFactoryExpression', '() => [2]');
+		expect(onPropertyValueChange).toHaveBeenCalledWith(
+			'of-1',
+			'argsFactoryExpression',
+			'() => [2]',
+		);
 	});
 });
 
@@ -151,8 +155,18 @@ describe('GenerateElementPropertiesForm', () => {
 		fireEvent.change(editors[3], { target: { value: 'x => x + 1' } });
 
 		expect(onPropertyValueChange).toHaveBeenNthCalledWith(1, 'generate-1', 'initialState', '1');
-		expect(onPropertyValueChange).toHaveBeenNthCalledWith(2, 'generate-1', 'condition', 'x => x < 5');
-		expect(onPropertyValueChange).toHaveBeenNthCalledWith(3, 'generate-1', 'iterate', 'x => x * 2');
+		expect(onPropertyValueChange).toHaveBeenNthCalledWith(
+			2,
+			'generate-1',
+			'condition',
+			'x => x < 5',
+		);
+		expect(onPropertyValueChange).toHaveBeenNthCalledWith(
+			3,
+			'generate-1',
+			'iterate',
+			'x => x * 2',
+		);
 		expect(onPropertyValueChange).toHaveBeenNthCalledWith(
 			4,
 			'generate-1',
@@ -200,7 +214,12 @@ describe('IifElementPropertiesForm', () => {
 		fireEvent.change(editors[1], { target: { value: 'of(3)' } });
 		fireEvent.change(editors[2], { target: { value: 'of(4)' } });
 
-		expect(onPropertyValueChange).toHaveBeenNthCalledWith(1, 'iif-1', 'conditionExpression', 'false');
+		expect(onPropertyValueChange).toHaveBeenNthCalledWith(
+			1,
+			'iif-1',
+			'conditionExpression',
+			'false',
+		);
 		expect(onPropertyValueChange).toHaveBeenNthCalledWith(
 			2,
 			'iif-1',
@@ -235,7 +254,11 @@ describe('FromElementPropertiesForm', () => {
 		expect(screen.getByText(/A subscription object, a Promise/)).toBeDefined();
 
 		fireEvent.change(code(), { target: { value: '[3]' } });
-		expect(onPropertyValueChange).toHaveBeenCalledWith('from-1', 'inputCallbackExpression', '[3]');
+		expect(onPropertyValueChange).toHaveBeenCalledWith(
+			'from-1',
+			'inputCallbackExpression',
+			'[3]',
+		);
 	});
 
 	it('reports the observable factory while the observable event mode is on', () => {
@@ -256,7 +279,11 @@ describe('FromElementPropertiesForm', () => {
 		expect(screen.getByText('Creation of the observable.')).toBeDefined();
 
 		fireEvent.change(code(), { target: { value: '() => of(2)' } });
-		expect(onPropertyValueChange).toHaveBeenCalledWith('from-1', 'observableFactory', '() => of(2)');
+		expect(onPropertyValueChange).toHaveBeenCalledWith(
+			'from-1',
+			'observableFactory',
+			'() => of(2)',
+		);
 	});
 
 	it('shows the observable factory in the editor when the observable event mode turns on (#81)', () => {
@@ -304,7 +331,11 @@ describe('FromElementPropertiesForm', () => {
 
 		fireEvent.click(screen.getByLabelText('Observable event'));
 
-		expect(onPropertyValueChange).toHaveBeenCalledWith('from-1', 'enableObservableEvent', false);
+		expect(onPropertyValueChange).toHaveBeenCalledWith(
+			'from-1',
+			'enableObservableEvent',
+			false,
+		);
 	});
 });
 
@@ -357,7 +388,12 @@ describe('TimerElementPropertiesForm', () => {
 		expect(firstCall[1]).toBe('startDue');
 		expect(typeof firstCall[2]).toBe('number');
 		expect(firstCall[2]).toBeGreaterThan(Date.now());
-		expect(onPropertyValueChange).toHaveBeenNthCalledWith(2, 'timer-1', 'dueDateType', DueDateType.Date);
+		expect(onPropertyValueChange).toHaveBeenNthCalledWith(
+			2,
+			'timer-1',
+			'dueDateType',
+			DueDateType.Date,
+		);
 	});
 
 	it('switches back to milliseconds and reports the default interval', () => {

@@ -14,4 +14,3 @@ export const ofElementPropsTemplate: OfElementProperties = {
 		return [1, 2, 3, 4];
 	}`,
 };
-

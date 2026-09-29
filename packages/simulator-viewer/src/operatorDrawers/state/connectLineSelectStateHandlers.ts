@@ -54,4 +54,3 @@ export const connectLineSelectStateHandlers = (state: RootState): LineDrawerEven
 		state.changeState(StageState.Dragging);
 	},
 });
-

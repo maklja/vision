@@ -9,4 +9,3 @@ export function mapFilteringOperatorPropsTemplates(elType: ElementType): Element
 			return {};
 	}
 }
-

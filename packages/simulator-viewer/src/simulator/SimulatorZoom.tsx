@@ -45,4 +45,3 @@ export function SimulatorZoom({ stage }: SimulatorZoomProps) {
 		</Box>
 	);
 }
-

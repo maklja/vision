@@ -5,4 +5,3 @@ import { CreationOperatorDrawer } from './CreationOperatorDrawer';
 export function DeferOperatorDrawer(props: ElementDrawerProps) {
 	return <CreationOperatorDrawer {...props} elementType={ElementType.Defer} title="Defer" />;
 }
-

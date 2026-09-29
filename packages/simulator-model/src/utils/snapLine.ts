@@ -271,4 +271,3 @@ export function snapLinesDistance(snapLine1: SnapLine, snapLine2: SnapLine) {
 		? Math.abs(snapLine1.points[0].y - snapLine2.points[0].y)
 		: Math.abs(snapLine1.points[0].x - snapLine2.points[0].x);
 }
-

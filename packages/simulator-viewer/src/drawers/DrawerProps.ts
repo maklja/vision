@@ -127,4 +127,3 @@ export const createConnectPointDrawerId = (
 	drawerId: string,
 	connectPointPosition: ConnectPointPosition,
 ) => `${drawerId}_${connectPointPosition}`;
-

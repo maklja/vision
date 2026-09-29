@@ -18,9 +18,8 @@ vi.mock('idb-keyval', () => ({
 }));
 
 vi.mock('./simulator', async () => {
-	const { StoreContext, useRootStore } = await vi.importActual<
-		typeof import('./store/rootStore')
-	>('./store/rootStore');
+	const { StoreContext, useRootStore } =
+		await vi.importActual<typeof import('./store/rootStore')>('./store/rootStore');
 	const { useContext } = await vi.importActual<typeof import('react')>('react');
 	const { ElementType } = await vi.importActual<typeof import('@maklja/vision-simulator-model')>(
 		'@maklja/vision-simulator-model',

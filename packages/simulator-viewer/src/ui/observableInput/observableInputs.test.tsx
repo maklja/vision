@@ -22,7 +22,9 @@ describe('ObservableInputsTypeSelect', () => {
 
 	it('reports the selected observable input type', () => {
 		const onChange = vi.fn();
-		render(<ObservableInputsTypeSelect value={ObservableInputsType.Array} onChange={onChange} />);
+		render(
+			<ObservableInputsTypeSelect value={ObservableInputsType.Array} onChange={onChange} />,
+		);
 
 		fireEvent.mouseDown(screen.getByRole('combobox'));
 		fireEvent.click(screen.getByRole('option', { name: 'Object' }));

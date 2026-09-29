@@ -57,8 +57,9 @@ describe('SimulatorZoom', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'zoom in' }));
 
 		expect(stage.scale).toHaveBeenCalledWith({ x: 2.01, y: 2.01 });
-		const position = (stage.position as unknown as { mock: { calls: { x: number; y: number }[][] } })
-			.mock.calls[0][0];
+		const position = (
+			stage.position as unknown as { mock: { calls: { x: number; y: number }[][] } }
+		).mock.calls[0][0];
 		expect(position.x).toBeCloseTo(-404);
 		expect(position.y).toBeCloseTo(-303);
 		expect(store.getState().canvasState.scaleX).toBeCloseTo(2.01);
@@ -79,7 +80,9 @@ describe('SimulatorZoom', () => {
 	it('ignores zoom requests without a stage', () => {
 		const store = renderZoom(null);
 
-		expect(() => fireEvent.click(screen.getByRole('button', { name: 'zoom in' }))).not.toThrow();
+		expect(() =>
+			fireEvent.click(screen.getByRole('button', { name: 'zoom in' })),
+		).not.toThrow();
 		expect(store.getState().canvasState.scaleX).toBe(1);
 	});
 });

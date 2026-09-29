@@ -118,24 +118,23 @@ const createMergeOperator =
 			...overrideProperties,
 		};
 
-		const observables = props.refObservableGenerators.map(
-				(refObservableGenerator) =>
-					defer(() => {
-						const subscribeId = v1();
-						refObservableGenerator.onSubscribe?.(
-							FlowValue.createSubscribeEvent({
-								elementId: mergeEl.id,
-								id: subscribeId,
-								subscribeId: parentSubscribeId,
-							}),
-						);
-						const wrappedObservableGenerator = wrapGeneratorCallback(
-							refObservableGenerator.observableGenerator,
-							subscribeId,
-						);
-						return wrappedObservableGenerator();
+		const observables = props.refObservableGenerators.map((refObservableGenerator) =>
+			defer(() => {
+				const subscribeId = v1();
+				refObservableGenerator.onSubscribe?.(
+					FlowValue.createSubscribeEvent({
+						elementId: mergeEl.id,
+						id: subscribeId,
+						subscribeId: parentSubscribeId,
 					}),
-			);
+				);
+				const wrappedObservableGenerator = wrapGeneratorCallback(
+					refObservableGenerator.observableGenerator,
+					subscribeId,
+				);
+				return wrappedObservableGenerator();
+			}),
+		);
 
 		return mergeElProperties.limitConcurrent > 0
 			? merge<FlowValue[]>(...observables, mergeElProperties.limitConcurrent)

@@ -24,11 +24,7 @@ interface ViewerAssetObservation {
  */
 function isViewerAsset(request: Request): boolean {
 	const resourceType = request.resourceType();
-	if (
-		resourceType === 'document' ||
-		resourceType === 'script' ||
-		resourceType === 'stylesheet'
-	) {
+	if (resourceType === 'document' || resourceType === 'script' || resourceType === 'stylesheet') {
 		return true;
 	}
 

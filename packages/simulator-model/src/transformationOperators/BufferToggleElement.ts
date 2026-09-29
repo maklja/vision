@@ -15,4 +15,3 @@ export const bufferToggleElementPropsTemplate: BufferToggleElementProperties = {
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
-

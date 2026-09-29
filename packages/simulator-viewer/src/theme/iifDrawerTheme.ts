@@ -29,4 +29,3 @@ export function iifConnectPointsTheme(themeColors: ColorTheme): ConnectPointsThe
 		bottom: falseConnectPointTheme,
 	};
 }
-

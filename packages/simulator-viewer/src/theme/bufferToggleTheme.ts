@@ -31,4 +31,3 @@ export function bufferToggleConnectPointsTheme(
 		bottom: closingConnectPointTheme,
 	};
 }
-

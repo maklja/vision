@@ -99,4 +99,3 @@ export function useRootStore<T = RootState>(
 
 	return useStoreWithEqualityFn(store, selector, qualityFn);
 }
-

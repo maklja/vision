@@ -52,4 +52,3 @@ export function lineToPolygon(p0: Point, p1: Point, thickness = 15): [Point, Poi
 		},
 	];
 }
-

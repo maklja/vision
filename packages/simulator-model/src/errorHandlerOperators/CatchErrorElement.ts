@@ -15,4 +15,3 @@ export const catchErrorElementPropsTemplate: CatchErrorElementProperties = {
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
-

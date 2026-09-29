@@ -45,4 +45,3 @@ export type PipeOperatorFunctionFactory = (
 export interface PipeOperatorFactory extends OperatorFactory {
 	create(el: Element, props: OperatorProps): PipeObservableFactory;
 }
-

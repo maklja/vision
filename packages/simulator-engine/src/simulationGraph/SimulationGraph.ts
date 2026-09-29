@@ -120,4 +120,3 @@ export class SimulationGraph {
 		return isEntryOperatorType(elType);
 	}
 }
-

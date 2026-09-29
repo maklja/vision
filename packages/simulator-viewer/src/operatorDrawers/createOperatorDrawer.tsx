@@ -107,4 +107,3 @@ export function createOperatorDrawer(elType: ElementType, props: ElementDrawerPr
 			return null;
 	}
 }
-

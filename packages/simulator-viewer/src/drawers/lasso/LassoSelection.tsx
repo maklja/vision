@@ -23,4 +23,3 @@ export function LassoSelection({ x, y, width, height, theme }: LassoSelectionPro
 		/>
 	);
 }
-

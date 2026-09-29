@@ -220,7 +220,9 @@ test('snaps a dragged entry element to the grid and locates it in the viewport',
 test.describe('operator palette layout', () => {
 	test.use({ viewport: { width: 1280, height: 720 } });
 
-	test('keeps the palette and zoom controls operable at the default viewport', async ({ page }) => {
+	test('keeps the palette and zoom controls operable at the default viewport', async ({
+		page,
+	}) => {
 		await bootstrapEditor(page);
 		await addOperator(page, 'creation operators', ElementType.Range, { x: 480, y: 250 });
 		await addOperator(page, 'subscriber', ElementType.Subscriber, { x: 700, y: 250 });

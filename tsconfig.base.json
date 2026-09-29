@@ -11,6 +11,6 @@
 		"sourceMap": true,
 		"jsx": "react-jsx",
 		"module": "esnext",
-		"moduleResolution": "node"
+		"moduleResolution": "bundler"
 	}
 }

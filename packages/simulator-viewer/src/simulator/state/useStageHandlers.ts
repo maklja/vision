@@ -16,4 +16,3 @@ export const useStageHandlers = (): StageEvents =>
 
 		return {};
 	});
-

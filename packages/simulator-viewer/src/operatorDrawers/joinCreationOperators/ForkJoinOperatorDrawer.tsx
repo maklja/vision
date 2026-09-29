@@ -11,4 +11,3 @@ export function ForkJoinOperatorDrawer(props: ElementDrawerProps) {
 		/>
 	);
 }
-

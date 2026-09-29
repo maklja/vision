@@ -37,5 +37,4 @@ export function mapToCreationOperatorPropsTemplates(elType: ElementType): Elemen
 		default:
 			return {};
 	}
-};
-
+}

@@ -15,4 +15,3 @@ export const bufferWhenElementPropsTemplate: BufferWhenElementProperties = {
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
-

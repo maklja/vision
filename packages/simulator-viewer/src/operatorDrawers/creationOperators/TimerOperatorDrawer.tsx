@@ -5,4 +5,3 @@ import { CreationOperatorDrawer } from './CreationOperatorDrawer';
 export function TimerOperatorDrawer(props: ElementDrawerProps) {
 	return <CreationOperatorDrawer {...props} elementType={ElementType.Timer} title="Timer" />;
 }
-

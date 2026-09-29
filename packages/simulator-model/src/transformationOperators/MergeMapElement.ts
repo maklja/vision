@@ -16,4 +16,3 @@ export const mergeMapElementPropsTemplate: MergeMapElementProperties = {
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
-

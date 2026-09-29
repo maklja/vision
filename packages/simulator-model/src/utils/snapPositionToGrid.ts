@@ -12,4 +12,3 @@ export function snapPositionToGrind(position: Point, gridSize: number) {
 		y: Math.abs(newY1 - position.y) < Math.abs(newY2 - position.y) ? newY1 : newY2,
 	};
 }
-

@@ -11,7 +11,6 @@ import {
 	ElementType,
 	createPointSnapLines,
 } from '@maklja/vision-simulator-model';
-('../../model');
 import { RootState } from '../rootStore';
 import { calculateShapeSizeBoundingBox, ElementSizesContext, findElementSize } from '../../theme';
 

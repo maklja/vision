@@ -7,7 +7,12 @@ import {
 	ConnectPointType,
 	ElementType,
 } from '@maklja/vision-simulator-model';
-import { createConnectLine, createElement, createStoreWrapper, createTestStore } from '../../test-utils';
+import {
+	createConnectLine,
+	createElement,
+	createStoreWrapper,
+	createTestStore,
+} from '../../test-utils';
 import { OperatorPropertiesPanel } from './OperatorPropertiesPanel';
 import { RelatedElements } from './ElementPropertiesForm';
 

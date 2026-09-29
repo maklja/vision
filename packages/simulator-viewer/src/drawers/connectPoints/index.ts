@@ -5,4 +5,3 @@ export * from './InputCircleIconDrawer';
 export * from './OutputCircleIconDrawer';
 export * from './CheckCircleIconDrawer';
 export * from './CloseCircleIconDrawer';
-

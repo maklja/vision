@@ -31,10 +31,12 @@ import {
 type Store = ReturnType<typeof createTestStore>;
 
 function loadTwoElements(store: Store) {
-	store.getState().loadElements([
-		createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
-		createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
-	]);
+	store
+		.getState()
+		.loadElements([
+			createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
+			createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
+		]);
 }
 
 describe('stage slice', () => {
@@ -303,7 +305,9 @@ describe('stage slice', () => {
 
 		it('returns null when neither the tooltip nor the element provides text', () => {
 			store.getState().removeElements(['of-1']);
-			store.getState().loadElements([createElement(ElementType.Of, { id: 'of-1', name: '' })]);
+			store
+				.getState()
+				.loadElements([createElement(ElementType.Of, { id: 'of-1', name: '' })]);
 			store.getState().showTooltip({ elementId: 'of-1' });
 
 			const { result } = renderHook(() => useRootStore(selectElementTooltip()), {
@@ -318,10 +322,12 @@ describe('stage slice', () => {
 		it('loads elements, connect points and connect lines', () => {
 			const store = createTestStore();
 
-			store.getState().load(
-				[createElement(ElementType.Of, { id: 'of-1' })],
-				[createConnectLine({ id: 'cl-1' })],
-			);
+			store
+				.getState()
+				.load(
+					[createElement(ElementType.Of, { id: 'of-1' })],
+					[createConnectLine({ id: 'cl-1' })],
+				);
 
 			expect(Object.keys(store.getState().elements)).toEqual(['of-1']);
 			expect(store.getState().connectPoints['of-1']).toHaveLength(4);
@@ -576,10 +582,12 @@ describe('stage slice', () => {
 
 		beforeEach(() => {
 			store = createTestStore();
-			store.getState().loadElements([
-				createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
-				createElement(ElementType.Of, { id: 'of-2', x: 0, y: 0 }),
-			]);
+			store
+				.getState()
+				.loadElements([
+					createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
+					createElement(ElementType.Of, { id: 'of-2', x: 0, y: 0 }),
+				]);
 		});
 
 		it('creates element snap lines and stores them', () => {
@@ -688,7 +696,9 @@ describe('stage slice', () => {
 			});
 
 			expect(store.getState().draftConnectLine!.locked).toBe(true);
-			expect(store.getState().animations['map-1-left'][0].key).toBe('snapConnectPointAnimation');
+			expect(store.getState().animations['map-1-left'][0].key).toBe(
+				'snapConnectPointAnimation',
+			);
 		});
 
 		it('ignores pinning without a draft connect line', () => {
