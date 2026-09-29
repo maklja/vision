@@ -8,7 +8,8 @@ export default defineConfig({
 	// Characterization journeys must fail loudly: no retries, one worker, no fixed delays.
 	retries: 0,
 	workers: 1,
-	// Keep a hung browser process from consuming the workflow's full job allowance.
+	// Safety net: previously, a preview-server teardown could consume the entire CI job allowance.
+	// TODO: remove this once the preview lifecycle is owned by a dedicated e2e launcher.
 	globalTimeout: 2 * 60_000,
 	reporter: [['list', { printSteps: true }], ['html', { open: 'never' }]],
 	expect: {
@@ -38,7 +39,9 @@ export default defineConfig({
 			VITE_CHECKER_ENABLE: 'false',
 		},
 		url: E2E_EDITOR_URL,
-		// Signal the whole Vite/pnpm process group, then force-stop any stragglers.
+		// Playwright's default force-kill left this pnpm/Vite process group alive after the tests.
+		// pnpm logs the expected SIGTERM as ELIFECYCLE/ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL.
+		// TODO: use a dedicated e2e launcher that forwards shutdown cleanly, then remove this.
 		gracefulShutdown: {
 			signal: 'SIGTERM',
 			timeout: 1_000,
