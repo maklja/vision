@@ -30,15 +30,19 @@ export default defineConfig({
 	webServer: {
 		// Build the production viewer with the GitHub Pages base path and serve that exact
 		// artifact with Vite preview. The ordinary `pnpm build` stays on the root base.
-		// Execute Vite directly so Playwright can terminate the process it started.
 		command:
 			'pnpm --filter @maklja/vision-simulator-viewer build && ' +
-			'exec packages/simulator-viewer/node_modules/.bin/vite preview --root packages/simulator-viewer --host 127.0.0.1 --port 4173 --strictPort',
+			'pnpm --filter @maklja/vision-simulator-viewer serve --host 127.0.0.1 --port 4173 --strictPort',
 		env: {
 			VISION_BASE_PATH: E2E_BASE_PATH,
 			VITE_CHECKER_ENABLE: 'false',
 		},
 		url: E2E_EDITOR_URL,
+		// Signal the whole Vite/pnpm process group, then force-stop any stragglers.
+		gracefulShutdown: {
+			signal: 'SIGTERM',
+			timeout: 1_000,
+		},
 		// The suite owns its build and preview lifecycle; never reuse a stray server on the port.
 		reuseExistingServer: false,
 		timeout: 180_000,
