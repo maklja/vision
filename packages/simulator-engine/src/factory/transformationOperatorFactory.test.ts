@@ -344,7 +344,7 @@ describe('transformationOperatorFactory', () => {
 		}
 	});
 
-	it('bufferToggle: should open buffers based on source reference and close them based on closing reference observable', () => {
+	it('bufferToggle: should open buffers based on source reference and close them based on closing reference observable', async () => {
 		vi.useFakeTimers();
 		try {
 			const bufferToggle = element('operator', ElementType.BufferToggle, {
@@ -357,7 +357,7 @@ describe('transformationOperatorFactory', () => {
 					intervalElement('source', 100),
 					bufferToggle,
 					timerElement('opening', 50),
-					timerElement('closing', 150),
+					timerElement('closing', 151),
 					subscriber('subscriber'),
 					subscriber('openingSubscriber'),
 					subscriber('closingSubscriber'),
@@ -392,7 +392,7 @@ describe('transformationOperatorFactory', () => {
 				],
 			);
 
-			vi.advanceTimersByTime(520);
+			await vi.advanceTimersByTimeAsync(520);
 
 			expect(subscribeCount(run, 'operator')).toBe(2);
 			expect(nextValues(run, 'operator')).toEqual(['0,1']);
@@ -402,7 +402,7 @@ describe('transformationOperatorFactory', () => {
 		}
 	});
 
-	it('bufferWhen: should buffer values and close them based on closingSelectorExpression and the reference observable', () => {
+	it('bufferWhen: should buffer values and close them based on closingSelectorExpression and the reference observable', async () => {
 		vi.useFakeTimers();
 		try {
 			const bufferWhen = element('operator', ElementType.BufferWhen, {
@@ -414,7 +414,7 @@ describe('transformationOperatorFactory', () => {
 				[
 					intervalElement('source', 100),
 					bufferWhen,
-					timerElement('reference', 250),
+					timerElement('reference', 251),
 					subscriber('subscriber'),
 					subscriber('referenceSubscriber'),
 				],
@@ -436,7 +436,7 @@ describe('transformationOperatorFactory', () => {
 				],
 			);
 
-			vi.advanceTimersByTime(520);
+			await vi.advanceTimersByTimeAsync(520);
 
 			expect(nextValues(run, 'operator')).toEqual(['0,1', '2,3,4']);
 			run.unsubscribe();

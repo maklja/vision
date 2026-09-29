@@ -7,14 +7,27 @@ export default defineConfig({
 		},
 	},
 	test: {
-		include: ['packages/**/*.test.{ts,tsx}'],
-		setupFiles: ['packages/simulator-viewer/src/test-utils/setup.ts'],
-		environmentMatchGlobs: [['packages/simulator-viewer/**', 'jsdom']],
+		include: [],
+		projects: [
+			{
+				test: {
+					name: 'engine-and-model',
+					include: ['packages/simulator-{engine,model}/src/**/*.test.ts'],
+				},
+			},
+			{
+				test: {
+					name: 'viewer',
+					include: ['packages/simulator-viewer/src/**/*.test.{ts,tsx}'],
+					setupFiles: ['packages/simulator-viewer/src/test-utils/setup.ts'],
+					environment: 'jsdom',
+				},
+			},
+		],
 		coverage: {
 			provider: 'v8',
 			reporter: ['text', 'json-summary', 'html'],
 			reportsDirectory: 'coverage',
-			all: true,
 			include: ['packages/*/src/**/*.{ts,tsx}'],
 			exclude: [
 				'**/*.d.ts',

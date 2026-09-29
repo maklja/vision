@@ -60,6 +60,8 @@ Run commands from the repository root.
 pnpm install --frozen-lockfile
 pnpm --filter @maklja/vision-simulator-viewer start
 pnpm typecheck
+pnpm format:check
+pnpm lint
 pnpm test
 pnpm test:coverage
 pnpm exec playwright install chromium
@@ -71,9 +73,11 @@ pnpm build
 The development server uses port 3000. The viewer build is written to
 `packages/simulator-viewer/build`.
 
-The automated characterization suite is being built incrementally. For every change, run the tests
-and type checks, run the linters for the affected packages, and build the viewer. Manually exercise
-relevant editor behavior for interaction or animation changes until its browser journey is covered.
+The automated characterization suite is being built incrementally. For every change, run the tests,
+type checks, formatting check, and linting, then build the viewer. Linting uses the ESLint 9 flat
+configuration in the repository root and applies to TypeScript and TSX sources in every package.
+Manually exercise relevant editor behavior for interaction or animation changes until its browser
+journey is covered.
 
 ## Coding conventions
 

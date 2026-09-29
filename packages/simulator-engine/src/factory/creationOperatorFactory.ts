@@ -245,7 +245,7 @@ const createAjaxCreationOperator =
 		let bodyJson: object | undefined;
 		try {
 			bodyJson = body ? JSON.parse(body) : undefined;
-		} catch (e) {
+		} catch {
 			throw new InvalidElementPropertyValueError(ajaxEl.id, 'body');
 		}
 

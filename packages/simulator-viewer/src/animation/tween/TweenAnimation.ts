@@ -79,7 +79,11 @@ export class TweenAnimation extends AbstractAnimation {
 		const oPromise = animationOrchestrator(this, [
 			this.options.autoReverse ? [AnimationEventType.Reset] : [AnimationEventType.Finish],
 		]);
-		this.options.autoReverse ? this.animationTween.reset() : this.animationTween.finish();
+		if (this.options.autoReverse) {
+			this.animationTween.reset();
+		} else {
+			this.animationTween.finish();
+		}
 		await oPromise;
 	}
 
