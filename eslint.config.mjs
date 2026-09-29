@@ -1,3 +1,4 @@
+import js from '@eslint/js';
 import tseslintPlugin from '@typescript-eslint/eslint-plugin';
 import tseslintParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
@@ -29,6 +30,10 @@ export default [
 			},
 		},
 		rules: {
+			...js.configs.recommended.rules,
+			// Keep ESLint's core correctness rules, but disable the core rules that
+			// TypeScript-ESLint replaces with type-aware equivalents.
+			...tseslintPlugin.configs['flat/eslint-recommended'].rules,
 			...tseslintPlugin.configs.recommended.rules,
 			...reactPlugin.configs.recommended.rules,
 			...prettierConfig.rules,
