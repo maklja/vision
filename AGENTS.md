@@ -21,7 +21,7 @@ This repository is a TypeScript pnpm workspace with three packages:
   resolves graph branches, factories build operators, and `DefaultFlowManager` reports trace events.
   `startObservableSimulation` runs the engine in `observableSimulationWorker.ts` when Web Workers are
   available and falls back to the main thread otherwise.
-- `packages/simulator-viewer`: React 18 application. React Konva renders the canvas, Material UI
+- `packages/simulator-viewer`: React 19 application. React Konva renders the canvas, Material UI
   provides controls, React DnD handles palette drops, and Zustand/Immer slices hold editor and
   simulation state. `App.tsx` persists the current diagram, viewport, and theme to IndexedDB with
   `idb-keyval`.
