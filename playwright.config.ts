@@ -8,7 +8,9 @@ export default defineConfig({
 	// Characterization journeys must fail loudly: no retries, one worker, no fixed delays.
 	retries: 0,
 	workers: 1,
-	reporter: [['list'], ['html', { open: 'never' }]],
+	// Keep a hung browser process from consuming the workflow's full job allowance.
+	globalTimeout: 5 * 60_000,
+	reporter: [['list', { printSteps: true }], ['html', { open: 'never' }]],
 	expect: {
 		timeout: 15_000,
 	},
