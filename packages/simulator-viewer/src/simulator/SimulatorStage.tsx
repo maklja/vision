@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { DraftLayer, DragNDropItem, DragNDropLayer } from '../layers/creation';
 import { DrawersLayer } from '../layers/drawers';
 import { useStageHandlers } from './state';
-import { DragNDropType } from '../dragNDrop';
+import { DragNDropType, toRefCallback } from '../dragNDrop';
 import { GridLayer } from '../layers/grid';
 import { StageState, selectStageState } from '../store/stage';
 import { useRootStore } from '../store/rootStore';
@@ -136,7 +136,7 @@ export const SimulatorStage = forwardRef<Konva.Stage | null, unknown>(
 		}
 
 		return (
-			<div ref={drop} data-testid="simulator-stage">
+			<div ref={toRefCallback<HTMLDivElement>(drop)} data-testid="simulator-stage">
 				<Stage
 					{...stageHandlers}
 					style={{ backgroundColor: theme.colors.backgroundPrimaryColor }}

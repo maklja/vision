@@ -91,6 +91,19 @@ The viewer is built with Vite 8, which bundles with Rolldown and transforms Java
 are installed. Performance metrics use `web-vitals` 6, which removed the `getFID` metric and only
 exports the `on*` readers.
 
+The viewer runs React and React DOM 19.3.0 with `react-konva` 19.3.0. `react-konva` 18 cannot be
+used here: it depends on `react-reconciler` 0.29, which reads React 18's shared internals
+(`React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED`) that React 19 removed, so the module
+throws while the canvas mounts. React 19 also narrowed callback refs to return nothing or a cleanup
+function, while `react-dnd` 16 still types its connectors as React 18 legacy refs that return the
+attached element. `toRefCallback` in `packages/simulator-viewer/src/dragNDrop/reactDndRef.ts` adapts
+those connectors; the runtime behavior is unchanged because React ignores the returned element. The
+React Compiler is intentionally disabled.
+
+Component tests use `@testing-library/react` 16, which supports React 18 and 19. The testing-only
+packages live in the root `devDependencies` because no runtime source imports them; root
+`devDependencies` are pinned exactly, so the upgrade stays reproducible.
+
 Vite 8 handles CommonJS default imports with Node's semantics. The `@mui/icons-material/<Icon>`
 imports therefore resolve to the package's `esm/` build through a `resolve.alias` entry in
 `packages/simulator-viewer/vite.config.js`; without it the CommonJS subpath modules resolve to a

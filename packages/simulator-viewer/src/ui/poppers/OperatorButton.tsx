@@ -4,7 +4,7 @@ import { useDrag } from 'react-dnd';
 import { Layer, Stage } from 'react-konva';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { ElementType } from '@maklja/vision-simulator-model';
-import { DragNDropType } from '../../dragNDrop';
+import { DragNDropType, toRefCallback } from '../../dragNDrop';
 import { calculateShapeSizeBoundingBox, scaleShapeSize } from '../../theme';
 import { createOperatorDrawer } from '../../operatorDrawers';
 import { DragNDropItem } from '../../layers/creation';
@@ -64,7 +64,7 @@ export const OperatorButton = ({ elementType, padding = 4, scale = 0.65 }: Opera
 	}, [dragPreview]);
 
 	return (
-		<Box ref={dragRef} data-testid={`operator-${elementType}`}>
+		<Box ref={toRefCallback<HTMLDivElement>(dragRef)} data-testid={`operator-${elementType}`}>
 			<Stage
 				width={buttonBoundingBox.width + 2 * padding}
 				height={buttonBoundingBox.height + 2 * padding}
