@@ -10,7 +10,7 @@
 	"scripts": {
 		"start": "pnpm --filter @maklja/vision-simulator-viewer start",
 		"build": "pnpm --filter @maklja/vision-simulator-viewer build",
-		"format:check": "prettier --check .github/workflows/ci.yml .prettierrc AGENTS.md README.md eslint.config.mjs package.json packages/*/package.json tsconfig*.json packages/simulator-viewer/tsconfig.json vitest.config.mts",
+		"format:check": "prettier --check .",
 		"lint": "eslint packages",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",

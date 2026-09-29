@@ -12,21 +12,21 @@ import { selectRelatedElementElements, selectStageDraftConnectLine } from './con
 type Store = ReturnType<typeof createTestStore>;
 
 function loadTwoElements(store: Store) {
-	store.getState().loadElements([
-		createElement(ElementType.Of, { id: 'of-1' }),
-		createElement(ElementType.Map, { id: 'map-1' }),
-	]);
+	store
+		.getState()
+		.loadElements([
+			createElement(ElementType.Of, { id: 'of-1' }),
+			createElement(ElementType.Map, { id: 'map-1' }),
+		]);
 }
 
 function startOutputDraft(store: Store, points = [{ x: 0, y: 0 }]) {
-	store
-		.getState()
-		.startConnectLineDraw({
-			sourceId: 'of-1',
-			type: ConnectPointType.Output,
-			position: ConnectPointPosition.Right,
-			points,
-		});
+	store.getState().startConnectLineDraw({
+		sourceId: 'of-1',
+		type: ConnectPointType.Output,
+		position: ConnectPointPosition.Right,
+		points,
+	});
 }
 
 function commitDraft(store: Store) {
@@ -75,9 +75,7 @@ describe('connect line slice', () => {
 
 		it('moves the draft point freely and normalizes it to the previous point axis', () => {
 			store.getState().changeState(StageState.DrawConnectLine);
-			store
-				.getState()
-				.addNextPointToConnectLineDraw({ x: 100, y: 0 });
+			store.getState().addNextPointToConnectLineDraw({ x: 100, y: 0 });
 
 			store.getState().moveConnectLineDraw({
 				position: { x: 42, y: 7 },

@@ -35,4 +35,3 @@ export function WindowPlaceholder({ icon, tooltip, onClick }: WindowPlaceholderP
 		</Paper>
 	);
 }
-

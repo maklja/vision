@@ -40,7 +40,9 @@ describe('SimulatorOperators', () => {
 	it('enables the palette and shows the popper while stopped in select state', () => {
 		renderOperators();
 
-		const button = screen.getByRole('button', { name: 'creation operators' }) as HTMLButtonElement;
+		const button = screen.getByRole('button', {
+			name: 'creation operators',
+		}) as HTMLButtonElement;
 		expect(button.disabled).toBe(false);
 
 		fireEvent.click(button);
@@ -58,9 +60,9 @@ describe('SimulatorOperators', () => {
 		});
 
 		for (const label of ['creation operators', 'subscriber']) {
-			expect((screen.getByRole('button', { name: label }) as HTMLButtonElement).disabled).toBe(
-				true,
-			);
+			expect(
+				(screen.getByRole('button', { name: label }) as HTMLButtonElement).disabled,
+			).toBe(true);
 		}
 	});
 
@@ -80,7 +82,9 @@ describe('SimulatorOperators', () => {
 		});
 		expect(store.getState().simulation.state).toBe(SimulationState.Running);
 
-		const button = screen.getByRole('button', { name: 'creation operators' }) as HTMLButtonElement;
+		const button = screen.getByRole('button', {
+			name: 'creation operators',
+		}) as HTMLButtonElement;
 		fireEvent.click(button);
 
 		expect(button.disabled).toBe(true);

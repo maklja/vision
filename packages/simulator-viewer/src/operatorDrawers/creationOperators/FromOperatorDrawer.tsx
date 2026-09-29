@@ -5,4 +5,3 @@ import { CreationOperatorDrawer } from './CreationOperatorDrawer';
 export function FromOperatorDrawer(props: ElementDrawerProps) {
 	return <CreationOperatorDrawer {...props} elementType={ElementType.From} title="From" />;
 }
-

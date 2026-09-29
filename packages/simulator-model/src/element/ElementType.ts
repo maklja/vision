@@ -80,7 +80,7 @@ export const errorHandlerOperators: ReadonlySet<ElementType> = new Set([ElementT
 export const pipeOperators: ReadonlySet<ElementType> = new Set([
 	...transformationOperators,
 	...filteringOperators,
-	...errorHandlerOperators
+	...errorHandlerOperators,
 ]);
 
 export const eventPipeOperators: ReadonlySet<ElementType> = new Set([
@@ -121,4 +121,3 @@ export const isConnectPointType = (type: ElementType) => connectPointOperators.h
 
 export const isEntryOperatorType = (type: ElementType) =>
 	isCreationOperatorType(type) || isJoinCreationOperatorType(type);
-

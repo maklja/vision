@@ -6,4 +6,3 @@ export interface AnimationEffectEvent {
 	animationGroupId: string;
 	drawerId: string;
 }
-

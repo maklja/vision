@@ -15,4 +15,3 @@ export const exhaustMapElementPropsTemplate: ExhaustMapElementProperties = {
 		return ${OBSERVABLE_GENERATOR_NAME}();
 	}`,
 };
-

@@ -4,4 +4,3 @@ export enum ConnectPointPosition {
 	Bottom = 'bottom',
 	Left = 'left',
 }
-

@@ -11,4 +11,3 @@ export function ThrowErrorOperatorDrawer(props: ElementDrawerProps) {
 		/>
 	);
 }
-

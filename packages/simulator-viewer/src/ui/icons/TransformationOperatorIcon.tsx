@@ -12,4 +12,3 @@ export const TransformationOperatorIcon = (props: SvgIconProps) => {
 		</SvgIcon>
 	);
 };
-

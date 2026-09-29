@@ -79,4 +79,3 @@ export const errorHandlingOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
-

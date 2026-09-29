@@ -108,4 +108,3 @@ export function WindowShell(windowShellProps: PropsWithChildren<WindowShellProps
 		</Box>
 	);
 }
-

@@ -27,4 +27,3 @@ export const handleOptionalNumberInputChanged =
 		const newValue = Number(e.target.value);
 		onPropertyValueChange?.(id, propName, isNaN(newValue) ? defaultValue : newValue);
 	};
-

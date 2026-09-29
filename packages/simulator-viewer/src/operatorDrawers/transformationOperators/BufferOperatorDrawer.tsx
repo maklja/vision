@@ -7,4 +7,3 @@ export const BufferOperatorDrawer = (props: ElementDrawerProps) => {
 		<TransformationOperatorDrawer {...props} title="Buffer" elementType={ElementType.Buffer} />
 	);
 };
-

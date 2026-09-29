@@ -402,4 +402,3 @@ export const transformationOperatorFactory: PipeOperatorFactory = {
 		return supportedOperators.has(el.type);
 	},
 };
-

@@ -13,4 +13,3 @@ export const bufferCountElementPropsTemplate: BufferCountElementProperties = {
 	bufferSize: 3,
 	startBufferEvery: 2,
 };
-

@@ -22,4 +22,3 @@ export function SnapLineDrawer({ points, theme, visible = true }: SnapLineDrawer
 		</Group>
 	);
 }
-

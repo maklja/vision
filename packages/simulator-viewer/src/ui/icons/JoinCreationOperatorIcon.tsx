@@ -10,4 +10,3 @@ export const JoinCreationOperatorIcon = (props: SvgIconProps) => {
 		</SvgIcon>
 	);
 };
-

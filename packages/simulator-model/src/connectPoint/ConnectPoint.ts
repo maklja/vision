@@ -14,4 +14,3 @@ export interface ConnectPoint {
 export type ConnectPoints = {
 	[key in ConnectPointPosition]?: ConnectPoint;
 };
-

@@ -140,4 +140,3 @@ export const stageSelectStateHandlers = (state: RootState): StageEvents => ({
 		state.clearAllSelectedElements();
 	},
 });
-

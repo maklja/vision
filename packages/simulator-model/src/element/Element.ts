@@ -31,4 +31,3 @@ export const EMPTY_ELEMENT: Element = {
 	y: 0,
 	properties: {},
 };
-

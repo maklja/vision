@@ -653,4 +653,3 @@ export const selectElementTooltip = () =>
 
 export const selectIsDraggable = (state: RootState) =>
 	state.simulation.state !== SimulationState.Running && isElementDragAllowed(state.state);
-

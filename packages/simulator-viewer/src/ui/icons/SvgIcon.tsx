@@ -8,4 +8,3 @@ export const SvgIcon = styled(MuiSvgIcon)<SvgIconProps>(() => ({
 	strokeLinejoin: 'round',
 	strokeWidth: '2.25px',
 }));
-

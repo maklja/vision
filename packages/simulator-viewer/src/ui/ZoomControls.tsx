@@ -48,4 +48,3 @@ export function ZoomControls({ onZoomIn, onZoomOut }: ZoomControlsProps) {
 		</Paper>
 	);
 }
-

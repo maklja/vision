@@ -353,7 +353,7 @@ describe('joinCreationOperatorFactory', () => {
 			const result = joinGraph(
 				element('join', ElementType.Race, {}),
 				element('left', ElementType.Interval, { period: 1_000 }),
-				 element('right', ElementType.Interval, { period: 2_000 }),
+				element('right', ElementType.Interval, { period: 2_000 }),
 			);
 
 			expect(

@@ -7,4 +7,3 @@ export function changeCursorStyle(cursorStyle: string, stage?: Konva.Stage | nul
 
 	stage.container().style.cursor = cursorStyle;
 }
-

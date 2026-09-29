@@ -82,7 +82,12 @@ describe('BufferTimeElementPropertiesForm', () => {
 		);
 
 		fireEvent.change(screen.getByLabelText('Max buffer size'), { target: { value: '9' } });
-		expect(onPropertyValueChange).toHaveBeenNthCalledWith(2, 'buffer-time-1', 'maxBufferSize', 9);
+		expect(onPropertyValueChange).toHaveBeenNthCalledWith(
+			2,
+			'buffer-time-1',
+			'maxBufferSize',
+			9,
+		);
 	});
 
 	it('leaves the optional inputs empty for an absent value', () => {
@@ -93,7 +98,9 @@ describe('BufferTimeElementPropertiesForm', () => {
 			/>,
 		);
 
-		expect((screen.getByLabelText('Buffer creation interval') as HTMLInputElement).value).toBe('');
+		expect((screen.getByLabelText('Buffer creation interval') as HTMLInputElement).value).toBe(
+			'',
+		);
 		expect((screen.getByLabelText('Max buffer size') as HTMLInputElement).value).toBe('');
 	});
 });
@@ -197,10 +204,16 @@ describe('MapElementPropertiesForm', () => {
 			/>,
 		);
 
-		expect(screen.getByText(/The index parameter is the number i for the i-th emission/)).toBeDefined();
+		expect(
+			screen.getByText(/The index parameter is the number i for the i-th emission/),
+		).toBeDefined();
 		fireEvent.change(editor(), { target: { value: 'x => x * 2' } });
 
-		expect(onPropertyValueChange).toHaveBeenCalledWith('map-1', 'projectExpression', 'x => x * 2');
+		expect(onPropertyValueChange).toHaveBeenCalledWith(
+			'map-1',
+			'projectExpression',
+			'x => x * 2',
+		);
 	});
 });
 

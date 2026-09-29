@@ -8,4 +8,3 @@ export * from './ThrowErrorElementPropertiesForm';
 export * from './GenerateElementPropertiesForm';
 export * from './TimerElementPropertiesForm';
 export * from './IifElementPropertiesForm';
-

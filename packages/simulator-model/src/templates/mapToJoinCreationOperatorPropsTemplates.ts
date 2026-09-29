@@ -17,4 +17,3 @@ export function mapToJoinCreationOperatorPropsTemplates(elType: ElementType): El
 			return {};
 	}
 }
-

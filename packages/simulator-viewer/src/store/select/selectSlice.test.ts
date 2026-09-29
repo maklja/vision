@@ -5,17 +5,24 @@ import {
 	ConnectPointType,
 	ElementType,
 } from '@maklja/vision-simulator-model';
-import { createConnectLine, createElement, createStoreWrapper, createTestStore } from '../../test-utils';
+import {
+	createConnectLine,
+	createElement,
+	createStoreWrapper,
+	createTestStore,
+} from '../../test-utils';
 import { useRootStore } from '../rootStore';
 import { selectElementsInSelection } from './selectSlice';
 
 type Store = ReturnType<typeof createTestStore>;
 
 function loadSelectionGraph(store: Store) {
-	store.getState().loadElements([
-		createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
-		createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
-	]);
+	store
+		.getState()
+		.loadElements([
+			createElement(ElementType.Of, { id: 'of-1', x: 0, y: 0 }),
+			createElement(ElementType.Map, { id: 'map-1', x: 300, y: 0 }),
+		]);
 	store.getState().loadConnectPoints(Object.values(store.getState().elements));
 	store.getState().loadConnectLines([
 		createConnectLine({

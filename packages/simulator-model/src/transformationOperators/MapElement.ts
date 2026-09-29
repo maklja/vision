@@ -14,4 +14,3 @@ export const mapElementPropsTemplate: MapElementProperties = {
 		return value;
 	}`,
 };
-

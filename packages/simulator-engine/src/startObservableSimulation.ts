@@ -135,4 +135,3 @@ export function startObservableSimulation({
 		throw e;
 	}
 }
-

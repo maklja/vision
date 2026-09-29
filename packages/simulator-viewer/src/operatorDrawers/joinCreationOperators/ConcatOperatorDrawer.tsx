@@ -7,4 +7,3 @@ export function ConcatOperatorDrawer(props: ElementDrawerProps) {
 		<JoinCreationOperatorDrawer {...props} elementType={ElementType.Concat} title={'Concat'} />
 	);
 }
-

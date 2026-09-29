@@ -40,4 +40,3 @@ export function mapFlowValuesArray(elementId: string) {
 		}),
 	);
 }
-

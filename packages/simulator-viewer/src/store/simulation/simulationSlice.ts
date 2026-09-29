@@ -160,7 +160,11 @@ function addObservableEvent(state: RootState, event: ObservableEvent) {
 
 function recordSimulationResult(state: RootState, event: ObservableEvent) {
 	const targetElement = state.elements[event.targetElementId];
-	if (event.type !== FlowValueType.Next || !targetElement || !isSubscriberType(targetElement.type)) {
+	if (
+		event.type !== FlowValueType.Next ||
+		!targetElement ||
+		!isSubscriberType(targetElement.type)
+	) {
 		return;
 	}
 

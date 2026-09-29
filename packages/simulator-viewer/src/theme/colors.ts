@@ -88,4 +88,3 @@ export function retrieveThemeColor(id?: string): ColorTheme {
 
 	return themeColors.find((color) => color.id === id) ?? defaultColorTheme;
 }
-

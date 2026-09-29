@@ -84,4 +84,3 @@ export const mapElementTypeToGroup = (elType: ElementType): ElementGroup => {
 
 	throw new Error(`Unknown element group for element type ${elType}`);
 };
-

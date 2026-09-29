@@ -11,4 +11,3 @@ export const simulationTheme = (themeColors: ColorTheme): SimulationTheme => {
 		stroke: themeColors.primaryColor,
 	};
 };
-

@@ -10,11 +10,7 @@ import {
 	waitForCanvasAnimationsToSettle,
 	waitForRunningCanvasAnimations,
 } from './support/canvasAnimations';
-import {
-	installWorkerProbe,
-	WorkerProbeSnapshot,
-	waitForWorkerProbe,
-} from './support/workerProbe';
+import { installWorkerProbe, WorkerProbeSnapshot, waitForWorkerProbe } from './support/workerProbe';
 
 interface FlowValueEventPayload {
 	value: string;
@@ -55,7 +51,9 @@ async function stopAfterSubscriberValues(
 							}
 						).__visionWorkerProbe;
 						if (!probe) {
-							throw new Error('Worker probe is not installed; call installWorkerProbe first');
+							throw new Error(
+								'Worker probe is not installed; call installWorkerProbe first',
+							);
 						}
 
 						const snapshot = probe.snapshot();
@@ -162,9 +160,7 @@ test('stops an infinite interval source and restarts it in a fresh worker', asyn
 	expect(consoleErrors).toEqual([]);
 });
 
-test('restarts the infinite interval source with fresh canvas animations', async ({
-	page,
-}) => {
+test('restarts the infinite interval source with fresh canvas animations', async ({ page }) => {
 	await installWorkerProbe(page);
 	await bootstrapEditorWithDiagram(page, infiniteSourceFixture);
 

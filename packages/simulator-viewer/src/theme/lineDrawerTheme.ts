@@ -85,4 +85,3 @@ export const lineDrawerTheme = (themeColors: ColorTheme): LineTheme => {
 		},
 	};
 };
-

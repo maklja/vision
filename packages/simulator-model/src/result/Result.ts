@@ -7,4 +7,3 @@ export interface ResultProperties extends ElementProps {
 export interface ResultElement extends Element<ResultProperties> {
 	type: ElementType.Result;
 }
-

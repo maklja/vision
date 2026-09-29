@@ -3,4 +3,3 @@ export enum ConnectPointType {
 	Output = 'output',
 	Event = 'event',
 }
-

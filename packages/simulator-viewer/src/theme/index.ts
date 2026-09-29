@@ -7,4 +7,3 @@ export * from './colors';
 export * from './themesContext';
 export * from './sizes';
 export * from './lassoTheme';
-

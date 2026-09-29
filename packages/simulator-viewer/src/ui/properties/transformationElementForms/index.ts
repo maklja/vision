@@ -7,4 +7,3 @@ export * from './ExpandElementPropertiesForm';
 export * from './ExhaustMapElementPropertiesForm';
 export * from './MapElementPropertiesForm';
 export * from './MergeMapElementPropertiesForm';
-

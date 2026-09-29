@@ -218,7 +218,7 @@ describe('simulation slice', () => {
 		});
 	});
 
-		describe('events and result elements', () => {
+	describe('events and result elements', () => {
 		it('creates deterministic source, segment and target animations', () => {
 			const store = createDiagramStore();
 			store.getState().startSimulation();
@@ -391,7 +391,9 @@ describe('simulation slice', () => {
 			expect(queuedGroupIds).toContain(`event-${MAX_PENDING_ANIMATION_GROUPS + 3}`);
 			expect(queuedGroupIds).not.toContain('event-1');
 			expect(resultElementIds).toHaveLength(MAX_PENDING_ANIMATION_GROUPS);
-			expect(scheduledGroupIds.every((groupId) => queuedGroupIds.includes(groupId))).toBe(true);
+			expect(scheduledGroupIds.every((groupId) => queuedGroupIds.includes(groupId))).toBe(
+				true,
+			);
 		});
 
 		it('retains only the latest subscriber results independently of animation shedding', () => {
@@ -426,7 +428,11 @@ describe('simulation slice', () => {
 					.simulateObservableEvent(observableEvent({ id: `event-${index}`, index }));
 			}
 			store.getState().simulateObservableEvent(
-				observableEvent({ id: 'error-event', type: FlowValueType.Error, value: 'boom' }),
+				observableEvent({
+					id: 'error-event',
+					type: FlowValueType.Error,
+					value: 'boom',
+				}),
 			);
 
 			expect(Object.keys(store.getState().simulation.animations.queue)).toHaveLength(

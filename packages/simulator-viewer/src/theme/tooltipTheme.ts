@@ -33,4 +33,3 @@ export const tooltipTheme = (themeColors: ColorTheme): TooltipTheme => ({
 		textFill: themeColors.textTertiaryColor,
 	},
 });
-

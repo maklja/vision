@@ -195,8 +195,6 @@ describe('ObservableSimulation', () => {
 
 		expect(firstRun.map((event) => event.value)).toEqual(['1', '2']);
 		expect(secondRun.map((event) => event.value)).toEqual(['1', '2']);
-		expect(firstRun.map((event) => event.id)).not.toEqual(
-			secondRun.map((event) => event.id),
-		);
+		expect(firstRun.map((event) => event.id)).not.toEqual(secondRun.map((event) => event.id));
 	});
 });

@@ -11,4 +11,3 @@ export interface CombineLatestElement extends Element<CombineLatestElementProper
 export const combineLatestElementPropsTemplate: CombineLatestElementProperties = {
 	observableInputsType: ObservableInputsType.Array,
 };
-

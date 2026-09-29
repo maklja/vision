@@ -11,7 +11,10 @@ export default defineConfig({
 	// Safety net: previously, a preview-server teardown could consume the entire CI job allowance.
 	// TODO: remove this once the preview lifecycle is owned by a dedicated e2e launcher.
 	globalTimeout: 2 * 60_000,
-	reporter: [['list', { printSteps: true }], ['html', { open: 'never' }]],
+	reporter: [
+		['list', { printSteps: true }],
+		['html', { open: 'never' }],
+	],
 	expect: {
 		timeout: 15_000,
 	},

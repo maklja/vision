@@ -4,4 +4,3 @@ export enum FlowValueType {
 	Error = 'error',
 	Complete = 'complete',
 }
-

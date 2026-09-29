@@ -41,4 +41,3 @@ export function LineArrow({ points, size, fill }: LineArrowProps) {
 
 	return <Path listening={false} data={path} fill={fill} />;
 }
-

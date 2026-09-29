@@ -159,7 +159,11 @@ describe('ElementPropertiesForm dispatcher', () => {
 		expect(editor.defaultValue).toBe('x => x');
 		fireEvent.change(editor, { target: { value: 'x => x * 2' } });
 
-		expect(onPropertyValueChange).toHaveBeenCalledWith('map-1', 'projectExpression', 'x => x * 2');
+		expect(onPropertyValueChange).toHaveBeenCalledWith(
+			'map-1',
+			'projectExpression',
+			'x => x * 2',
+		);
 	});
 
 	it('forwards connect line index changes for join creation forms that order inputs', () => {

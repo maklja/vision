@@ -55,7 +55,9 @@ describe('SimulationControls', () => {
 	it('keeps start disabled until an entry operator is selected', () => {
 		const props = renderControls();
 
-		const startButton = screen.getByRole('button', { name: 'start simulation' }) as HTMLButtonElement;
+		const startButton = screen.getByRole('button', {
+			name: 'start simulation',
+		}) as HTMLButtonElement;
 		expect(startButton.disabled).toBe(true);
 
 		fireEvent.click(startButton);
@@ -76,18 +78,20 @@ describe('SimulationControls', () => {
 	});
 
 	it('shows start only while stopped and reset only while running', () => {
-		const { unmount } = render(<SimulationControls
-			simulatorId="simulator-1"
-			simulationState={SimulationState.Stopped}
-			entryElements={[ofElement]}
-			onSimulationStart={vi.fn()}
-		/>);
+		const { unmount } = render(
+			<SimulationControls
+				simulatorId="simulator-1"
+				simulationState={SimulationState.Stopped}
+				entryElements={[ofElement]}
+				onSimulationStart={vi.fn()}
+			/>,
+		);
 
 		expect(screen.queryByRole('button', { name: 'start simulation' })).not.toBeNull();
 		expect(screen.queryByRole('button', { name: 'reset simulation' })).toBeNull();
-		expect((screen.getByRole('button', { name: 'stop simulation' }) as HTMLButtonElement).disabled).toBe(
-			true,
-		);
+		expect(
+			(screen.getByRole('button', { name: 'stop simulation' }) as HTMLButtonElement).disabled,
+		).toBe(true);
 		unmount();
 
 		render(
@@ -101,9 +105,9 @@ describe('SimulationControls', () => {
 
 		expect(screen.queryByRole('button', { name: 'start simulation' })).toBeNull();
 		expect(screen.queryByRole('button', { name: 'reset simulation' })).not.toBeNull();
-		expect((screen.getByRole('button', { name: 'stop simulation' }) as HTMLButtonElement).disabled).toBe(
-			false,
-		);
+		expect(
+			(screen.getByRole('button', { name: 'stop simulation' }) as HTMLButtonElement).disabled,
+		).toBe(false);
 	});
 
 	it('forwards the selected entry operator when stopping and resetting a running simulation', () => {
@@ -128,7 +132,9 @@ describe('SimulationControls', () => {
 	it('forwards the located element without changing the autocomplete selection', () => {
 		const props = renderControls();
 
-		const betaOption = openEntryOptions().find((option) => option.textContent?.includes('of - Beta'));
+		const betaOption = openEntryOptions().find((option) =>
+			option.textContent?.includes('of - Beta'),
+		);
 		const locateButton = within(betaOption as HTMLElement).getByRole('button');
 		fireEvent.click(locateButton);
 
@@ -136,14 +142,17 @@ describe('SimulationControls', () => {
 		expect(props.onElementLocate).toHaveBeenCalledWith(ofElement);
 		expect(screen.getByRole('combobox').getAttribute('value')).toBeFalsy();
 		expect(
-			(screen.getByRole('button', { name: 'start simulation' }) as HTMLButtonElement).disabled,
+			(screen.getByRole('button', { name: 'start simulation' }) as HTMLButtonElement)
+				.disabled,
 		).toBe(true);
 	});
 
 	it('does not locate elements when no callback is provided', () => {
 		renderControls({ onElementLocate: undefined });
 
-		const betaOption = openEntryOptions().find((option) => option.textContent?.includes('of - Beta'));
+		const betaOption = openEntryOptions().find((option) =>
+			option.textContent?.includes('of - Beta'),
+		);
 		expect(() =>
 			fireEvent.click(within(betaOption as HTMLElement).getByRole('button')),
 		).not.toThrow();

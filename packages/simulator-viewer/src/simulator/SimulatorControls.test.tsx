@@ -53,7 +53,12 @@ function createGraph() {
 		elements: [
 			createElement(ElementType.Of, { id: 'of-1', name: 'zeta', x: 0, y: 0 }),
 			createElement(ElementType.Map, { id: 'map-1', name: 'middle', x: 200, y: 0 }),
-			createElement(ElementType.Subscriber, { id: 'subscriber-1', name: 'sink', x: 400, y: 0 }),
+			createElement(ElementType.Subscriber, {
+				id: 'subscriber-1',
+				name: 'sink',
+				x: 400,
+				y: 0,
+			}),
 			createElement(ElementType.Interval, { id: 'interval-1', name: 'alpha', x: 0, y: 200 }),
 			createElement(ElementType.Merge, { id: 'merge-1', name: 'beta', x: 0, y: 400 }),
 		],
@@ -129,7 +134,11 @@ function startCallbacks(callIndex = 0) {
 		onNext: (event: FlowValueEvent) => void;
 		onError: (event: FlowValueEvent) => void;
 		onComplete: () => void;
-		onCreationError: (event: { elementId: string; errorId: string; errorMessage: string }) => void;
+		onCreationError: (event: {
+			elementId: string;
+			errorId: string;
+			errorMessage: string;
+		}) => void;
 	};
 }
 
@@ -237,9 +246,9 @@ describe('SimulatorControls', () => {
 			startCallbacks().onError(errorEvent as unknown as FlowValueEvent);
 		});
 
-		expect(
-			store.getState().simulation.animations.queue['error-event'][0].data,
-		).toMatchObject({ type: FlowValueType.Error });
+		expect(store.getState().simulation.animations.queue['error-event'][0].data).toMatchObject({
+			type: FlowValueType.Error,
+		});
 		expect(subscription.unsubscribe).toHaveBeenCalledTimes(1);
 	});
 
