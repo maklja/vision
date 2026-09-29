@@ -86,6 +86,17 @@ Linting uses ESLint 9's flat configuration in `eslint.config.mjs`. It covers Typ
 sources in every workspace package; package-level legacy `.eslintrc` and `eslintConfig` settings
 are intentionally not used. Formatting is checked separately with Prettier.
 
+The viewer is built with Vite 8, which bundles with Rolldown and transforms JavaScript with Oxc.
+`@vitejs/plugin-react` 6 keeps the default React path; no optional Oxc or React Compiler packages
+are installed. Performance metrics use `web-vitals` 6, which removed the `getFID` metric and only
+exports the `on*` readers.
+
+Vite 8 handles CommonJS default imports with Node's semantics. The `@mui/icons-material/<Icon>`
+imports therefore resolve to the package's `esm/` build through a `resolve.alias` entry in
+`packages/simulator-viewer/vite.config.js`; without it the CommonJS subpath modules resolve to a
+module namespace object instead of the icon component. Remove the alias when the Material UI
+upgrade ships `exports` maps with ESM conditions.
+
 The production viewer build is written to `packages/simulator-viewer/build`. The versioned `docs/`
 directory contains the static build served by GitHub Pages.
 
