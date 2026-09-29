@@ -9,7 +9,7 @@ export default defineConfig({
 	retries: 0,
 	workers: 1,
 	// Keep a hung browser process from consuming the workflow's full job allowance.
-	globalTimeout: 5 * 60_000,
+	globalTimeout: 2 * 60_000,
 	reporter: [['list', { printSteps: true }], ['html', { open: 'never' }]],
 	expect: {
 		timeout: 15_000,
@@ -32,7 +32,7 @@ export default defineConfig({
 		// artifact with Vite preview. The ordinary `pnpm build` stays on the root base.
 		command:
 			'pnpm --filter @maklja/vision-simulator-viewer build && ' +
-			'pnpm --filter @maklja/vision-simulator-viewer serve --host 127.0.0.1 --port 4173 --strictPort',
+			'exec pnpm --filter @maklja/vision-simulator-viewer serve --host 127.0.0.1 --port 4173 --strictPort',
 		env: {
 			VISION_BASE_PATH: E2E_BASE_PATH,
 			VITE_CHECKER_ENABLE: 'false',
