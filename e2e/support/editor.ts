@@ -25,6 +25,19 @@ import {
 const STAGE_TEST_ID = 'simulator-stage';
 /** Element drags snap to nearby elements within this distance (see store snapLines). */
 const SNAP_TOLERANCE = 6;
+/**
+ * Konva paints newly visible connect points into its hit canvas on the frame after they mount, and
+ * pointer events only reach them from that frame on. Rendering can stall well past the length of a
+ * synthetic drag on a loaded CI runner, so the connect gesture waits on the render pipeline instead
+ * of a fixed delay. The cap keeps the helper from hanging when a browser throttles frames.
+ */
+const CONNECT_FRAME_WAIT_TIMEOUT = 1_000;
+/** Number of animation frames to wait for before the viewer can hit test a newly drawn shape. */
+const CONNECT_FRAME_WAIT_COUNT = 2;
+/** Connect gestures before the helper reports a failure. */
+const CONNECT_ATTEMPTS = 3;
+/** Poll window for a retried gesture, kept short so a broken attempt fails fast. */
+const CONNECT_ATTEMPT_TIMEOUT = 2_500;
 
 export interface ConnectOperatorsOptions {
 	sourcePosition?: ConnectPointPosition;
@@ -261,6 +274,42 @@ export async function selectConnectLine(
 	await page.mouse.click(browserPoint.x, browserPoint.y);
 }
 
+/**
+ * Waits for the viewer to paint the requested number of animation frames. New connect points only
+ * become hit testable once Konva has redrawn its hit canvas, which happens on the next frame.
+ */
+async function waitForAnimationFrames(
+	page: Page,
+	frames = CONNECT_FRAME_WAIT_COUNT,
+): Promise<void> {
+	await page
+		.evaluate(
+			async ({ frameCount, timeout }) => {
+				for (let frame = 0; frame < frameCount; frame += 1) {
+					await new Promise<void>((resolve) => {
+						const timer = setTimeout(resolve, timeout);
+						requestAnimationFrame(() => {
+							clearTimeout(timer);
+							resolve();
+						});
+					});
+				}
+			},
+			{ frameCount: frames, timeout: CONNECT_FRAME_WAIT_TIMEOUT },
+		)
+		.catch(() => undefined);
+}
+
+/** Right-clicks the canvas so a half finished connect-line drag does not leak into the next try. */
+async function cancelConnectLineDraw(page: Page): Promise<void> {
+	const box = await page.getByTestId(STAGE_TEST_ID).boundingBox();
+	if (!box) {
+		throw new Error('Simulator stage is not visible');
+	}
+
+	await page.mouse.click(box.x + box.width / 2, box.y + box.height - 20, { button: 'right' });
+}
+
 /** Draws a connection from a source connect point to a target connect point. */
 export async function connectOperators(
 	page: Page,
@@ -273,44 +322,75 @@ export async function connectOperators(
 
 	const before = await readPersistedDiagram(page);
 	const existingCount = before?.connectLines.length ?? 0;
+	const isLinkedDiagram = (current: PersistedDiagram | undefined) => {
+		const connectLines = current?.connectLines ?? [];
+		if (connectLines.length <= existingCount) {
+			return false;
+		}
 
-	await selectElement(page, source);
+		const created = connectLines[connectLines.length - 1];
+		return created.source.id === source.id && created.target.id === target.id;
+	};
 
-	const [stageOrigin, canvasState] = await Promise.all([
-		getStageOrigin(page),
-		readCanvasState(page),
-	]);
-	const sourceOutput = worldToBrowser(
-		getConnectPointCenter(source, sourcePosition),
-		canvasState,
-		stageOrigin,
-	);
-	const targetInput = worldToBrowser(
-		getConnectPointCenter(target, targetPosition),
-		canvasState,
-		stageOrigin,
-	);
+	for (let attempt = 1; ; attempt += 1) {
+		if (attempt > 1) {
+			await cancelConnectLineDraw(page);
+		}
 
-	await page.mouse.move(sourceOutput.x, sourceOutput.y);
-	await page.mouse.down();
+		await selectElement(page, source);
+		// The connect points of the source are drawn when it becomes selected, so let the viewer
+		// paint them before pressing one.
+		await waitForAnimationFrames(page);
 
-	// Each waypoint click pins a polyline segment before the line is linked to its target.
-	for (const waypoint of options.waypoints ?? []) {
-		const waypointPoint = worldToBrowser(waypoint, canvasState, stageOrigin);
-		await page.mouse.move(waypointPoint.x, waypointPoint.y, { steps: 10 });
+		const [stageOrigin, canvasState] = await Promise.all([
+			getStageOrigin(page),
+			readCanvasState(page),
+		]);
+		const sourceOutput = worldToBrowser(
+			getConnectPointCenter(source, sourcePosition),
+			canvasState,
+			stageOrigin,
+		);
+		const targetInput = worldToBrowser(
+			getConnectPointCenter(target, targetPosition),
+			canvasState,
+			stageOrigin,
+		);
+
+		await page.mouse.move(sourceOutput.x, sourceOutput.y);
 		await page.mouse.down();
+		// Starting the drag reveals the connect points that accept the line, so wait for the frame
+		// that paints them before looking for a target.
+		await waitForAnimationFrames(page);
+
+		// Each waypoint click pins a polyline segment before the line is linked to its target.
+		for (const waypoint of options.waypoints ?? []) {
+			const waypointPoint = worldToBrowser(waypoint, canvasState, stageOrigin);
+			await page.mouse.move(waypointPoint.x, waypointPoint.y, { steps: 10 });
+			await page.mouse.down();
+			await page.mouse.up();
+		}
+
+		await page.mouse.move(targetInput.x, targetInput.y, { steps: 10 });
+		// Release the mouse only after the viewer has painted the hovered target connect point.
+		await waitForAnimationFrames(page);
 		await page.mouse.up();
+
+		const isLastAttempt = attempt === CONNECT_ATTEMPTS;
+		try {
+			const diagram = await waitForDiagram(
+				page,
+				isLinkedDiagram,
+				isLastAttempt ? {} : { timeout: CONNECT_ATTEMPT_TIMEOUT },
+			);
+
+			return diagram.connectLines[diagram.connectLines.length - 1];
+		} catch (error) {
+			if (isLastAttempt) {
+				throw error;
+			}
+		}
 	}
-
-	await page.mouse.move(targetInput.x, targetInput.y, { steps: 10 });
-	await page.mouse.up();
-
-	const diagram = await waitForDiagram(
-		page,
-		(current) => (current?.connectLines.length ?? 0) > existingCount,
-	);
-
-	return diagram.connectLines[diagram.connectLines.length - 1];
 }
 
 export async function selectEntryOperator(page: Page, element: Element): Promise<void> {

@@ -101,8 +101,9 @@ export async function clearPersistedDiagram(page: Page): Promise<void> {
 export async function waitForDiagram(
 	page: Page,
 	predicate: (diagram: PersistedDiagram | undefined) => boolean,
+	options: { timeout?: number } = {},
 ): Promise<PersistedDiagram> {
-	await expect.poll(async () => predicate(await readPersistedDiagram(page))).toBe(true);
+	await expect.poll(async () => predicate(await readPersistedDiagram(page)), options).toBe(true);
 
 	const diagram = await readPersistedDiagram(page);
 	if (!diagram) {
