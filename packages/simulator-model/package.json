@@ -9,6 +9,6 @@
 		"eslint": "eslint src"
 	},
 	"dependencies": {
-		"dedent": "^1.5.1"
+		"dedent": "1.7.2"
 	}
 }

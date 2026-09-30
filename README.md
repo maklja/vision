@@ -134,6 +134,32 @@ npm package is type-only in this build and no editor core is bundled. Persistenc
 `idb-keyval` 6.3.0 with the same `test` key and the same persisted shapes, so no IndexedDB migration
 is required.
 
+The editor state keeps Zustand with Immer. `zustand` moves from 4.5.2 to 5.0.15 and `immer` from
+10.0.4 to 11.1.18. The store already used the APIs that Zustand 5 keeps — named `createStore` and
+`useStore` from `zustand`, `useStoreWithEqualityFn` from `zustand/traditional`, `useShallow` from
+`zustand/react/shallow`, `shallow` from `zustand/shallow`, and the `devtools`,
+`subscribeWithSelector`, and `immer` middleware — so no slice or root-store source changed. The
+Immer-style slice mutations and the `set(recipe, true)` replace calls keep the same state
+transitions; selection, clipboard ID remapping, deletion cleanup, simulation state, animation
+queues, errors, stage state, and persistence still pass their characterization suites.
+
+`uuid` moves from 9.0.1 to 14.0.2 and keeps the version-1 identifier layout: `v1()` still returns
+the 36-character `8-4-4-4-12` form with the version nibble `1`, so saved diagrams and serialized
+identifiers stay compatible. uuid 14 is ESM-only and resolves through an `exports` map with browser
+and Node conditions, so Vite inlines it into both the main chunk and the Worker chunk while Vitest
+loads the Node build. uuid 14 ships its own declarations, so `@types/uuid` is removed from the
+engine and viewer manifests and the deprecated stub is gone from the lockfile.
+
+`dedent` moves from 1.5.3 to 1.7.2 and keeps its default export, so the model templates keep
+`import dedent from 'dedent'`. Its optional `babel-plugin-macros` peer was already resolved in the
+previous lockfile, stays optional, and is not used by the build. `deepmerge` stays at 4.3.1 and
+`object-hash` at 3.0.0, both the latest stable releases, while the type-only
+`@types/object-hash` moves from 2.2.1 to 3.0.6.
+
+The main viewer chunk grows from 1,172.19 kB to 1,174.96 kB raw and from 354.95 kB to 356.25 kB
+gzip. The Worker chunk grows from 98.51 kB to 99.47 kB because uuid 14's ESM build is inlined; it
+still has no external imports.
+
 The production viewer build is written to `packages/simulator-viewer/build`. The versioned `docs/`
 directory contains the static build served by GitHub Pages.
 

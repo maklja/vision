@@ -15,11 +15,10 @@
 		"@mui/x-date-pickers": "9.14.0",
 		"@types/react": "19.3.0",
 		"@types/react-dom": "19.3.0",
-		"@types/uuid": "^8.3.4",
 		"dayjs": "1.11.23",
 		"deepmerge": "^4.3.1",
 		"idb-keyval": "6.3.0",
-		"immer": "^10.0.4",
+		"immer": "11.1.18",
 		"konva": "10.7.0",
 		"monaco-editor": "0.57.0",
 		"react": "19.3.0",
@@ -28,9 +27,9 @@
 		"react-dom": "19.3.0",
 		"react-konva": "19.3.0",
 		"rxjs": "^7.8.1",
-		"uuid": "^9.0.0",
+		"uuid": "14.0.2",
 		"web-vitals": "6.2.2",
-		"zustand": "^4.5.2"
+		"zustand": "5.0.15"
 	},
 	"scripts": {
 		"start": "vite",
