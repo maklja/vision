@@ -156,6 +156,25 @@ previous lockfile, stays optional, and is not used by the build. `deepmerge` sta
 `object-hash` at 3.0.0, both the latest stable releases, while the type-only
 `@types/object-hash` moves from 2.2.1 to 3.0.6.
 
+The simulation engine and the viewer animations run on RxJS 7.8.2, the same exact version in both
+packages. The 7.8.1 → 7.8.2 patch carries three upstream fixes: the `animationFrameScheduler`
+flush-id handling (#7444), `mergeWith` with an array argument (#7281), and a stricter
+`Subscriber.next` type signature (#7172). None of them are reachable here: the app never uses the
+animation-frame scheduler, `AnimationGroup` calls `merge` with rest arguments rather than an array,
+and the subscriber change is type-only, so no model or engine source changed and `tsc --noEmit`
+passes unchanged. The time-based operator tests keep driving RxJS with Vitest fake timers, so their
+scheduling stays deterministic, and the Ajax element keeps its `rxjs/ajax` module mock, so the
+tests never touch the network. The production build is byte-identical to the 7.8.1 build in every
+emitted asset, including the main chunk and the Worker chunk, because the only changed runtime
+modules are not reachable from the bundled imports.
+
+An inventory note for the later operator contract work: the engine stays on the 7.x creation
+signatures. `merge` and `concat` are called with rest arguments, while `combineLatest`, `forkJoin`,
+`race`, and `zip` already pass a single array or a keyed record. RxJS 7.8.2 emits no deprecation
+warnings for any of them at runtime, and the rest-argument creation signatures are the ones the
+RxJS 8 migration path replaces with the array and `*With` forms. No operator was added, removed, or
+reshaped for this patch, so moving those call sites belongs to the later operator work.
+
 The main viewer chunk grows from 1,172.19 kB to 1,174.96 kB raw and from 354.95 kB to 356.25 kB
 gzip. The Worker chunk grows from 98.51 kB to 99.47 kB because uuid 14's ESM build is inlined; it
 still has no external imports.
