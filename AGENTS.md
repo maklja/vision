@@ -64,7 +64,7 @@ pnpm format:check
 pnpm lint
 pnpm test
 pnpm test:coverage
-pnpm exec playwright install chromium
+pnpm exec playwright install chromium firefox webkit
 pnpm test:e2e
 pnpm -r eslint
 pnpm build
