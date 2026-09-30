@@ -20,7 +20,7 @@
 		"deepmerge": "^4.3.1",
 		"idb-keyval": "^6.2.1",
 		"immer": "^10.0.4",
-		"konva": "^9.3.5",
+		"konva": "10.7.0",
 		"monaco-editor": "0.48.0",
 		"react": "19.3.0",
 		"react-dnd": "^16.0.1",

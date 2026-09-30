@@ -9,8 +9,9 @@ export default defineConfig({
 	retries: 0,
 	workers: 1,
 	// Safety net: previously, a preview-server teardown could consume the entire CI job allowance.
+	// The budget covers the full journey suite in Chromium, Firefox, and WebKit.
 	// TODO: remove this once the preview lifecycle is owned by a dedicated e2e launcher.
-	globalTimeout: 2 * 60_000,
+	globalTimeout: 6 * 60_000,
 	reporter: [
 		['list', { printSteps: true }],
 		['html', { open: 'never' }],
@@ -29,6 +30,14 @@ export default defineConfig({
 		{
 			name: 'chromium',
 			use: { ...devices['Desktop Chrome'] },
+		},
+		{
+			name: 'firefox',
+			use: { ...devices['Desktop Firefox'] },
+		},
+		{
+			name: 'webkit',
+			use: { ...devices['Desktop Safari'] },
 		},
 	],
 	webServer: {

@@ -16,7 +16,8 @@ permissions:
 jobs:
     test-and-build:
         runs-on: ubuntu-22.04
-        timeout-minutes: 15
+        # Chromium, Firefox, and WebKit are downloaded and exercised on every pull request.
+        timeout-minutes: 25
 
         steps:
             - name: Check out repository
@@ -52,7 +53,7 @@ jobs:
               run: pnpm build
 
             - name: Install Playwright browser
-              run: pnpm exec playwright install --with-deps chromium
+              run: pnpm exec playwright install --with-deps chromium firefox webkit
 
             - name: Run browser tests
               run: pnpm test:e2e

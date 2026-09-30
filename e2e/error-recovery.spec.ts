@@ -47,6 +47,7 @@ function captureErrorLogging(page: Page) {
 
 test('recovers from a creation error and runs the sibling pipeline without reloading', async ({
 	page,
+	browserName,
 }) => {
 	const { consoleErrors, pageErrors } = captureErrorLogging(page);
 	await installWorkerProbe(page);
@@ -103,7 +104,16 @@ test('recovers from a creation error and runs the sibling pipeline without reloa
 	// Across both runs the only reported failure is the creation error, once, through the worker's
 	// uncaught-error path. Any unrelated page error or extra console error fails the journey.
 	expect(pageErrors).toEqual([]);
-	expect(consoleErrors).toEqual([expect.stringContaining('Error is throw by ObservableWorker')]);
+	// Chromium forwards an uncaught error thrown inside a dedicated worker to the page, where the
+	// engine's `error` listener logs it. Firefox and WebKit keep the worker silent, so that listener
+	// never runs there. Recovery itself is engine independent and is asserted above through the
+	// creation-error message, the terminated worker, and the restarted sibling pipeline, so only the
+	// diagnostic log is engine specific.
+	const expectedConsoleErrors =
+		browserName === 'chromium'
+			? [expect.stringContaining('Error is throw by ObservableWorker')]
+			: [];
+	expect(consoleErrors).toEqual(expectedConsoleErrors);
 });
 
 test('recovers from a runtime error and runs the sibling pipeline without reloading', async ({

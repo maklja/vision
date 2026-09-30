@@ -74,7 +74,7 @@ pnpm format:check
 pnpm lint
 pnpm test
 pnpm test:coverage
-pnpm exec playwright install chromium
+pnpm exec playwright install chromium firefox webkit
 pnpm test:e2e
 pnpm build
 ```
@@ -104,6 +104,13 @@ Component tests use `@testing-library/react` 16, which supports React 18 and 19.
 packages live in the root `devDependencies` because no runtime source imports them; root
 `devDependencies` are pinned exactly, so the upgrade stays reproducible.
 
+The canvas renders with Konva 10.7.0. Konva 10 changed the running-animation registry from an array
+to a `Set`, so the browser journeys read `Konva.Animation.animations` as a set in
+`e2e/support/canvasAnimations.ts`. No application source needed a Konva 10 migration: the pointer
+handling, transforms, hit testing, tweens, and connection geometry the viewer uses are unchanged.
+No Node canvas implementation (`canvas` or `skia-canvas`) is installed; those exist for non-browser
+use only.
+
 Vite 8 handles CommonJS default imports with Node's semantics. The `@mui/icons-material/<Icon>`
 imports therefore resolve to the package's `esm/` build through a `resolve.alias` entry in
 `packages/simulator-viewer/vite.config.js`; without it the CommonJS subpath modules resolve to a
@@ -117,7 +124,15 @@ directory contains the static build served by GitHub Pages.
 
 RxJS Vision supports the current and previous stable release of Chromium, Firefox, and
 WebKit/Safari. Browser automation uses the Playwright-managed browser revisions pinned by the exact
-`@playwright/test` version in `pnpm-lock.yaml`.
+`@playwright/test` version in `pnpm-lock.yaml`, and `pnpm test:e2e` runs every journey in Chromium,
+Firefox, and WebKit.
+
+One engine difference is recorded rather than normalized. Chromium forwards an uncaught error thrown
+inside the simulation Worker to the page, where `startObservableSimulation` logs it and terminates
+the worker. Firefox and WebKit leave the worker silent, so that safety-net listener does not run
+there. Recovery from a creation error does not depend on it, because the viewer unsubscribes and
+that terminates the worker in every engine, so `e2e/error-recovery.spec.ts` asserts the diagnostic
+log on Chromium and asserts the recovery outcome everywhere.
 
 ## Repository structure
 
