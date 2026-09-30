@@ -16,18 +16,20 @@ export function BufferCountElementPropertiesForm({
 	onPropertyValueChange,
 }: BufferCountElementPropertiesFormProps) {
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<TextField
 				id="buffer-count-el-buffer-size-prop"
 				label="Buffer size"
 				value={properties.bufferSize}
 				type="number"
 				size="small"
-				InputLabelProps={{
-					shrink: true,
-				}}
-				InputProps={{
-					inputProps: { min: 0 },
+				slotProps={{
+					inputLabel: { shrink: true },
+					htmlInput: { min: 0 },
 				}}
 				onChange={handleNumberInputChanged(
 					id,
@@ -44,11 +46,9 @@ export function BufferCountElementPropertiesForm({
 				value={properties.startBufferEvery}
 				type="number"
 				size="small"
-				InputLabelProps={{
-					shrink: true,
-				}}
-				InputProps={{
-					inputProps: { min: 0 },
+				slotProps={{
+					inputLabel: { shrink: true },
+					htmlInput: { min: 0 },
 				}}
 				onChange={handleNumberInputChanged(
 					id,

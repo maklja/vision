@@ -16,18 +16,20 @@ export function BufferTimeElementPropertiesForm({
 	onPropertyValueChange,
 }: BufferTimeElementPropertiesFormProps) {
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<TextField
 				id="buffer-time-el-buffer-time-span-prop"
 				label="Buffer time span"
 				value={properties.bufferTimeSpan}
 				type="number"
 				size="small"
-				InputLabelProps={{
-					shrink: true,
-				}}
-				InputProps={{
-					inputProps: { min: 0 },
+				slotProps={{
+					inputLabel: { shrink: true },
+					htmlInput: { min: 0 },
 				}}
 				onChange={handleNumberInputChanged(
 					id,
@@ -45,11 +47,9 @@ export function BufferTimeElementPropertiesForm({
 				type="number"
 				size="small"
 				defaultValue={null}
-				InputLabelProps={{
-					shrink: true,
-				}}
-				InputProps={{
-					inputProps: { min: 0 },
+				slotProps={{
+					inputLabel: { shrink: true },
+					htmlInput: { min: 0 },
 				}}
 				onChange={handleOptionalNumberInputChanged(
 					id,
@@ -67,11 +67,9 @@ export function BufferTimeElementPropertiesForm({
 				type="number"
 				size="small"
 				defaultValue={null}
-				InputLabelProps={{
-					shrink: true,
-				}}
-				InputProps={{
-					inputProps: { min: 0 },
+				slotProps={{
+					inputLabel: { shrink: true },
+					htmlInput: { min: 0 },
 				}}
 				onChange={handleOptionalNumberInputChanged(
 					id,

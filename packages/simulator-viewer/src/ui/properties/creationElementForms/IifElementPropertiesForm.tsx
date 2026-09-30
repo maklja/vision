@@ -24,7 +24,11 @@ export function IifElementPropertiesForm({
 		onPropertyValueChange?.(id, 'falseCallbackExpression', input);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<SimpleCodeEditor
 				code={properties.conditionExpression}
 				label="Condition"

@@ -18,7 +18,11 @@ export function BufferWhenElementPropertiesForm({
 		onPropertyValueChange?.(id, 'closingSelectorExpression', closingSelectorExpression);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<SimpleCodeEditor
 				code={properties.closingSelectorExpression}
 				label="Closing selector"

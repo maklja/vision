@@ -36,7 +36,11 @@ export function FromElementPropertiesForm({
 		? properties.observableFactory
 		: properties.inputCallbackExpression;
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<FormControlLabel
 				control={<Checkbox checked={properties.enableObservableEvent} />}
 				label="Observable event"

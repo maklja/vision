@@ -27,7 +27,11 @@ export function ForkJoinElementPropertiesForm({
 		onPropertyValueChange?.(id, CommonProps.ObservableInputsType, observableInputsType);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<ObservableInputs
 				relatedElements={relatedElements}
 				observableInputsType={properties.observableInputsType}

@@ -14,10 +14,18 @@ export const ObservableInputsOrder = ({
 	onConnectLineIndexChange,
 }: ObservableInputsOrderProps) => {
 	return (
-		<Stack gap={0.5}>
+		<Stack
+			sx={{
+				gap: 0.5,
+			}}
+		>
 			<InputLabel shrink>Observable inputs order</InputLabel>
 
-			<Stack gap={1.2}>
+			<Stack
+				sx={{
+					gap: 1.2,
+				}}
+			>
 				<ObservableIndexedInputs
 					onConnectLineIndexChange={onConnectLineIndexChange}
 					observableInputs={relatedElements

@@ -33,7 +33,13 @@ function WindowShellContent({
 	return (
 		<>
 			{showControlButtons && (
-				<Box display="flex" flexDirection="row" justifyContent="end">
+				<Box
+					sx={{
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'end',
+					}}
+				>
 					<ButtonGroup
 						variant="contained"
 						aria-label="Window controls"
@@ -63,13 +69,13 @@ function WindowShellContent({
 				}}
 			>
 				<Box
-					display="flex"
-					flexDirection="row"
-					alignItems="center"
 					sx={{
 						padding: '5px 10px',
+						display: 'flex',
+						flexDirection: 'row',
+						alignItems: 'center',
+						gap: 1,
 					}}
-					gap={1}
 				>
 					{icon}
 					<Typography

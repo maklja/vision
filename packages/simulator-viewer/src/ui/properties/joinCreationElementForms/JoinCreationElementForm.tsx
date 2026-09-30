@@ -14,7 +14,11 @@ export function JoinCreationElementForm({
 	onConnectLineChange,
 }: JoinCreationElementFormProps) {
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<ObservableInputsOrder
 				relatedElements={relatedElements}
 				onConnectLineIndexChange={(id, index) => onConnectLineChange?.(id, { index })}

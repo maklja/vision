@@ -93,6 +93,10 @@ journey is covered.
   by the store.
 - Keep browser-only APIs in the viewer or the worker boundary. The model package should remain
   framework-independent.
+- Use the Material UI 9 APIs: pass layout through `sx` because `Box` and `Stack` no longer accept
+  system props, use `slotProps.input`/`slotProps.inputLabel`/`slotProps.htmlInput` instead of the
+  removed `TextField` `InputProps`/`InputLabelProps`/`inputProps`, and use `Grid`'s `size` prop
+  instead of the legacy `item`/`xs` pair.
 - Preserve worker-safe data transfer: objects passed to the simulation worker must be cloneable by
   the browser's structured clone algorithm.
 - Do not edit bundled files under `docs/assets` by hand. Update source packages first and regenerate

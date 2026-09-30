@@ -24,7 +24,14 @@ function ElementAutocompleteOption({ element, onElementLocate }: ElementAutocomp
 	}
 
 	return (
-		<Stack direction="row" width="100%" justifyContent="space-between" alignItems="center">
+		<Stack
+			direction="row"
+			sx={{
+				width: '100%',
+				justifyContent: 'space-between',
+				alignItems: 'center',
+			}}
+		>
 			<div>{`${element.type} - ${element.name}`}</div>
 			<IconButton size="small" onClick={(e) => handleElementLocate(e)}>
 				<LocationSearchingIcon />

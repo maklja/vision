@@ -18,7 +18,11 @@ export function OfElementPropertiesForm({
 		onPropertyValueChange?.(id, 'argsFactoryExpression', argsFactoryExpression);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<SimpleCodeEditor
 				code={properties.argsFactoryExpression}
 				label="Arguments factory"

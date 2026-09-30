@@ -20,18 +20,20 @@ export function ExpandElementPropertiesForm({
 		onPropertyValueChange?.(id, 'projectExpression', projectExpression);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<TextField
 				id="expand-el-concurrent-prop"
 				label="Concurrent"
 				value={properties.concurrent}
 				type="number"
 				size="small"
-				InputLabelProps={{
-					shrink: true,
-				}}
-				InputProps={{
-					inputProps: { min: 0 },
+				slotProps={{
+					inputLabel: { shrink: true },
+					htmlInput: { min: 0 },
 				}}
 				onChange={handleNumberInputChanged(
 					id,

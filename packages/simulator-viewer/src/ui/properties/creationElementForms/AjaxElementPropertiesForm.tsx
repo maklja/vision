@@ -68,15 +68,19 @@ export function AjaxElementPropertiesForm({
 		onPropertyValueChange?.(id, 'queryParams', queryParams);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<TextField
 				id="ajax-el-url-prop"
 				label="Url"
 				value={properties.url}
 				type="text"
 				size="small"
-				InputLabelProps={{
-					shrink: true,
+				slotProps={{
+					inputLabel: { shrink: true },
 				}}
 				onChange={handleUrlChanged}
 				helperText="The address of the resource to request via HTTP."
@@ -117,11 +121,9 @@ export function AjaxElementPropertiesForm({
 				type="number"
 				size="small"
 				defaultValue={0}
-				InputLabelProps={{
-					shrink: true,
-				}}
-				InputProps={{
-					inputProps: { min: 0 },
+				slotProps={{
+					inputLabel: { shrink: true },
+					htmlInput: { min: 0 },
 				}}
 				onChange={handleNumberInputChanged(
 					id,

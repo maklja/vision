@@ -16,15 +16,19 @@ export function RangeElementPropertiesForm({
 	onPropertyValueChange,
 }: RangeElementPropertiesFormProps) {
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<TextField
 				id="range-el-start-prop"
 				label="Start"
 				value={properties.start}
 				type="number"
 				size="small"
-				InputLabelProps={{
-					shrink: true,
+				slotProps={{
+					inputLabel: { shrink: true },
 				}}
 				onChange={handleNumberInputChanged(
 					id,
@@ -41,11 +45,9 @@ export function RangeElementPropertiesForm({
 				value={properties.count}
 				type="number"
 				size="small"
-				InputLabelProps={{
-					shrink: true,
-				}}
-				InputProps={{
-					inputProps: { min: 0 },
+				slotProps={{
+					inputLabel: { shrink: true },
+					htmlInput: { min: 0 },
 				}}
 				onChange={handleOptionalNumberInputChanged(
 					id,

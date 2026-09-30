@@ -21,19 +21,29 @@ export const ObservableIndexedInputs = ({
 	};
 
 	return (
-		<Stack gap={1.2}>
+		<Stack
+			sx={{
+				gap: 1.2,
+			}}
+		>
 			{observableInputs.length > 0 ? (
 				observableInputs.map(({ id, index, name }) => (
-					<Stack key={id} direction="row" gap={0.5}>
+					<Stack
+						key={id}
+						direction="row"
+						sx={{
+							gap: 0.5,
+						}}
+					>
 						<TextField
 							sx={{ flex: '1 1 0' }}
 							label="Index"
 							type="number"
 							size="small"
-							InputLabelProps={{
-								shrink: true,
+							slotProps={{
+								inputLabel: { shrink: true },
+								htmlInput: { style: { textAlign: 'center' } },
 							}}
-							inputProps={{ style: { textAlign: 'center' } }}
 							value={index}
 							onChange={(e) => handleConnectLineIndexChanged(id, index, e)}
 						/>
@@ -43,18 +53,22 @@ export const ObservableIndexedInputs = ({
 							label="Name"
 							type="text"
 							size="small"
-							InputLabelProps={{
-								shrink: true,
-							}}
-							InputProps={{
-								readOnly: true,
+							slotProps={{
+								inputLabel: { shrink: true },
+								input: { readOnly: true },
 							}}
 							value={name}
 						/>
 					</Stack>
 				))
 			) : (
-				<Stack alignItems="center">No observable inputs</Stack>
+				<Stack
+					sx={{
+						alignItems: 'center',
+					}}
+				>
+					No observable inputs
+				</Stack>
 			)}
 		</Stack>
 	);

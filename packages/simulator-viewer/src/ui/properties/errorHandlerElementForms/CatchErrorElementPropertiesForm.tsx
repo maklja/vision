@@ -18,7 +18,11 @@ export function CatchErrorElementPropertiesForm({
 		onPropertyValueChange?.(id, 'selectorExpression', selectorExpression);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<SimpleCodeEditor
 				code={properties.selectorExpression}
 				label="Project"

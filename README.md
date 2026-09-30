@@ -111,11 +111,28 @@ handling, transforms, hit testing, tweens, and connection geometry the viewer us
 No Node canvas implementation (`canvas` or `skia-canvas`) is installed; those exist for non-browser
 use only.
 
-Vite 8 handles CommonJS default imports with Node's semantics. The `@mui/icons-material/<Icon>`
-imports therefore resolve to the package's `esm/` build through a `resolve.alias` entry in
-`packages/simulator-viewer/vite.config.js`; without it the CommonJS subpath modules resolve to a
-module namespace object instead of the icon component. Remove the alias when the Material UI
-upgrade ships `exports` maps with ESM conditions.
+The controls render with Material UI 9.4.0, with `@mui/material` and `@mui/icons-material` on the
+same release, Emotion 11.14, and `@mui/x-date-pickers` 9.14 on the Day.js adapter. Material UI 9
+removed the system props from `Box` and `Stack`, so the viewer passes `display`, `gap`,
+`alignItems`, `justifyContent`, and `width` through `sx`. It also removed `InputProps`,
+`InputLabelProps`, and the lowercase `inputProps` from `TextField`, so the forms use
+`slotProps.input` for the input component, `slotProps.inputLabel` for the floating label, and
+`slotProps.htmlInput` for the DOM input, including its `min`. The palette moves its single `Grid`
+from the legacy `item`/`xs` API to `size={{ xs: 4 }}`. React DnD stays at 16.0.1, its latest stable
+release, and keeps working against React 19.3.0.
+
+`@mui/icons-material` 9 ships an `exports` map with ESM conditions, so the Vite alias that pointed
+`@mui/icons-material/<Icon>` at the package's `esm/` build is gone; with the previous CommonJS
+subpath resolution a default import returned a module namespace object instead of the icon
+component. The Material UI, Emotion, and date-picker group is 413.93 kB raw and 129.39 kB gzip of
+the main chunk, and the main viewer chunk grows from 1,100.98 kB to 1,172.19 kB raw and from
+334.14 kB to 354.95 kB gzip.
+
+The code editor keeps `@monaco-editor/react` 4.7.0 with `monaco-editor` 0.57.0. The viewer never
+calls `loader.config({ monaco })`, so the mounted editor is still the CDN build the loader pins. The
+npm package is type-only in this build and no editor core is bundled. Persistence keeps
+`idb-keyval` 6.3.0 with the same `test` key and the same persisted shapes, so no IndexedDB migration
+is required.
 
 The production viewer build is written to `packages/simulator-viewer/build`. The versioned `docs/`
 directory contains the static build served by GitHub Pages.

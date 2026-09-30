@@ -26,7 +26,11 @@ export function GenerateElementPropertiesForm({
 		onPropertyValueChange?.(id, 'resultSelector', input);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<SimpleCodeEditor
 				code={properties.initialState}
 				label="Initial state"

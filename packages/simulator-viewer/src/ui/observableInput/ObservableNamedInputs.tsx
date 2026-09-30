@@ -17,16 +17,26 @@ export const ObservableNamedInputs = ({
 	) => onConnectLineNameChange?.(id, e.currentTarget.value);
 
 	return (
-		<Stack gap={1.2}>
+		<Stack
+			sx={{
+				gap: 1.2,
+			}}
+		>
 			{observableInputs.length > 0 ? (
 				observableInputs.map(({ id, connectLineName, targetElementName }) => (
-					<Stack key={id} direction="row" gap={0.5}>
+					<Stack
+						key={id}
+						direction="row"
+						sx={{
+							gap: 0.5,
+						}}
+					>
 						<TextField
 							label="Key"
 							type="string"
 							size="small"
-							InputLabelProps={{
-								shrink: true,
+							slotProps={{
+								inputLabel: { shrink: true },
 							}}
 							value={connectLineName}
 							onChange={(e) => handleConnectLineKeyChange(id, e)}
@@ -36,18 +46,22 @@ export const ObservableNamedInputs = ({
 							label="Name"
 							type="text"
 							size="small"
-							InputLabelProps={{
-								shrink: true,
-							}}
-							InputProps={{
-								readOnly: true,
+							slotProps={{
+								inputLabel: { shrink: true },
+								input: { readOnly: true },
 							}}
 							value={targetElementName}
 						/>
 					</Stack>
 				))
 			) : (
-				<Stack alignItems="center">No observable inputs</Stack>
+				<Stack
+					sx={{
+						alignItems: 'center',
+					}}
+				>
+					No observable inputs
+				</Stack>
 			)}
 		</Stack>
 	);
