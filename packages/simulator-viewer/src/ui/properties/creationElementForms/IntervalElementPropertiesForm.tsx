@@ -16,18 +16,20 @@ export function IntervalElementPropertiesForm({
 	onPropertyValueChange,
 }: IntervalElementPropertiesFormProps) {
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<TextField
 				id="interval-el-period-prop"
 				label="Period"
 				value={properties.period}
 				type="number"
 				size="small"
-				InputLabelProps={{
-					shrink: true,
-				}}
-				InputProps={{
-					inputProps: { min: 0 },
+				slotProps={{
+					inputLabel: { shrink: true },
+					htmlInput: { min: 0 },
 				}}
 				onChange={handleNumberInputChanged(
 					id,

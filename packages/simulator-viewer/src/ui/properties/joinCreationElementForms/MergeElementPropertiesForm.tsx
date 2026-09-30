@@ -22,15 +22,19 @@ export function MergeElementPropertiesForm({
 	onConnectLineChange,
 }: MergeElementPropertiesFormProps) {
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<TextField
 				id="merge-el-limit-concurrent-prop"
 				label="Limit concurrent"
 				value={properties.limitConcurrent}
 				type="number"
 				size="small"
-				InputLabelProps={{
-					shrink: true,
+				slotProps={{
+					inputLabel: { shrink: true },
 				}}
 				onChange={handleNumberInputChanged(
 					id,

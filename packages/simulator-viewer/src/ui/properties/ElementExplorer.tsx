@@ -79,7 +79,11 @@ export function ElementExplorer({
 					<Typography>Element explorer</Typography>
 				</AccordionSummary>
 				<AccordionDetails>
-					<Stack gap={formStyle.componentGap}>
+					<Stack
+						sx={{
+							gap: formStyle.componentGap,
+						}}
+					>
 						<FormLabel>
 							<Typography>Details</Typography>
 						</FormLabel>
@@ -89,11 +93,9 @@ export function ElementExplorer({
 								label="Id"
 								value={id}
 								size="small"
-								InputProps={{
-									readOnly: true,
-								}}
-								InputLabelProps={{
-									shrink: true,
+								slotProps={{
+									input: { readOnly: true },
+									inputLabel: { shrink: true },
 								}}
 							/>
 
@@ -102,8 +104,8 @@ export function ElementExplorer({
 								label="Name"
 								value={name}
 								size="small"
-								InputLabelProps={{
-									shrink: true,
+								slotProps={{
+									inputLabel: { shrink: true },
 								}}
 								onChange={handleNameChange}
 								onBlur={handleNameBlur}
@@ -116,11 +118,9 @@ export function ElementExplorer({
 								label="Type"
 								value={type}
 								size="small"
-								InputProps={{
-									readOnly: true,
-								}}
-								InputLabelProps={{
-									shrink: true,
+								slotProps={{
+									input: { readOnly: true },
+									inputLabel: { shrink: true },
 								}}
 							/>
 
@@ -129,11 +129,9 @@ export function ElementExplorer({
 								label="Group"
 								value={operatorGroup}
 								size="small"
-								InputProps={{
-									readOnly: true,
-								}}
-								InputLabelProps={{
-									shrink: true,
+								slotProps={{
+									input: { readOnly: true },
+									inputLabel: { shrink: true },
 								}}
 							/>
 						</FormGroup>
@@ -148,8 +146,8 @@ export function ElementExplorer({
 								type="number"
 								value={x}
 								size="small"
-								InputLabelProps={{
-									shrink: true,
+								slotProps={{
+									inputLabel: { shrink: true },
 								}}
 								onChange={handleXChange}
 							/>
@@ -159,8 +157,8 @@ export function ElementExplorer({
 								type="number"
 								value={y}
 								size="small"
-								InputLabelProps={{
-									shrink: true,
+								slotProps={{
+									inputLabel: { shrink: true },
 								}}
 								onChange={handleYChange}
 							/>
@@ -175,11 +173,9 @@ export function ElementExplorer({
 									value={shapeSize.radius}
 									type="number"
 									size="small"
-									InputProps={{
-										readOnly: true,
-									}}
-									InputLabelProps={{
-										shrink: true,
+									slotProps={{
+										input: { readOnly: true },
+										inputLabel: { shrink: true },
 									}}
 								/>
 							) : null}
@@ -192,11 +188,9 @@ export function ElementExplorer({
 										value={shapeSize.width}
 										type="number"
 										size="small"
-										InputProps={{
-											readOnly: true,
-										}}
-										InputLabelProps={{
-											shrink: true,
+										slotProps={{
+											input: { readOnly: true },
+											inputLabel: { shrink: true },
 										}}
 									/>
 									<TextField
@@ -205,11 +199,9 @@ export function ElementExplorer({
 										value={shapeSize.height}
 										type="number"
 										size="small"
-										InputProps={{
-											readOnly: true,
-										}}
-										InputLabelProps={{
-											shrink: true,
+										slotProps={{
+											input: { readOnly: true },
+											inputLabel: { shrink: true },
 										}}
 									/>
 								</Fragment>

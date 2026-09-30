@@ -22,10 +22,18 @@ export const ObservableInputs = ({
 	onConnectLineNameChange,
 }: ObservableInputsProps) => {
 	return (
-		<Stack gap={0.5}>
+		<Stack
+			sx={{
+				gap: 0.5,
+			}}
+		>
 			<InputLabel shrink>Observable inputs</InputLabel>
 
-			<Stack gap={1.2}>
+			<Stack
+				sx={{
+					gap: 1.2,
+				}}
+			>
 				<ObservableInputsTypeSelect
 					value={observableInputsType}
 					onChange={onObservableInputsTypeChange}

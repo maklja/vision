@@ -18,7 +18,11 @@ export function ExhaustMapElementPropertiesForm({
 		onPropertyValueChange?.(id, 'projectExpression', projectExpression);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<SimpleCodeEditor
 				code={properties.projectExpression}
 				label="Project"

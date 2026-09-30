@@ -44,7 +44,11 @@ export function TimerElementPropertiesForm({
 	};
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<FormGroup sx={{ gap: formStyle.componentGap, flexWrap: 'nowrap' }}>
 				<FormControl size="small">
 					<InputLabel id="timer-el-due-date-type-prop-label">Due date type</InputLabel>
@@ -77,11 +81,9 @@ export function TimerElementPropertiesForm({
 						value={properties.startDue}
 						type="number"
 						size="small"
-						InputLabelProps={{
-							shrink: true,
-						}}
-						InputProps={{
-							inputProps: { min: 0 },
+						slotProps={{
+							inputLabel: { shrink: true },
+							htmlInput: { min: 0 },
 						}}
 						helperText="The amount of time in milliseconds to wait before emitting."
 						onChange={handleNumberInputChanged(
@@ -100,11 +102,9 @@ export function TimerElementPropertiesForm({
 				type="number"
 				size="small"
 				value={properties.intervalDuration}
-				InputLabelProps={{
-					shrink: true,
-				}}
-				InputProps={{
-					inputProps: { min: -1 },
+				slotProps={{
+					inputLabel: { shrink: true },
+					htmlInput: { min: -1 },
 				}}
 				helperText="The delay between each value emitted in the interval. Passing a negative number here will result in immediate completion after the first value is emitted, as though no interval duration was passed at all."
 				onChange={handleNumberInputChanged(

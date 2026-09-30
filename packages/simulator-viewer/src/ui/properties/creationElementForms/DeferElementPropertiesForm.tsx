@@ -18,7 +18,11 @@ export function DeferElementPropertiesForm({
 		onPropertyValueChange?.(id, 'observableFactory', observableFactory);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<SimpleCodeEditor
 				code={properties.observableFactory}
 				label="Observable factory"

@@ -9,18 +9,6 @@ export default defineConfig(() => {
 
 	return {
 		base,
-		// Vite 8 resolves CommonJS default imports with Node's semantics, so the icons package's
-		// CommonJS subpath modules hand back the namespace object instead of the icon component.
-		// Point the subpath imports at the ESM build the package already ships. Remove this alias
-		// once the Material UI upgrade ships `exports` maps with ESM conditions.
-		resolve: {
-			alias: [
-				{
-					find: /^@mui\/icons-material\/(.+)$/,
-					replacement: '@mui/icons-material/esm/$1',
-				},
-			],
-		},
 		build: {
 			outDir: 'build',
 		},

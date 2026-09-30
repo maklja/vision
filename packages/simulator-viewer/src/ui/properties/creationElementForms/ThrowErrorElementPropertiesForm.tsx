@@ -18,7 +18,11 @@ export function ThrowErrorElementPropertiesForm({
 		onPropertyValueChange?.(id, 'errorOrErrorFactory', input);
 
 	return (
-		<Stack gap={formStyle.componentGap}>
+		<Stack
+			sx={{
+				gap: formStyle.componentGap,
+			}}
+		>
 			<SimpleCodeEditor
 				code={properties.errorOrErrorFactory}
 				label="Error factory"

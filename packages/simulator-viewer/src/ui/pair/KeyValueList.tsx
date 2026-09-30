@@ -28,18 +28,32 @@ export const KeyValueList = ({ label, data, onChange }: KeyValueListProps) => {
 	) => onChange?.(data.map((pair, i) => (i !== index ? pair : [pair[0], e.currentTarget.value])));
 
 	return (
-		<Stack gap={0.5}>
+		<Stack
+			sx={{
+				gap: 0.5,
+			}}
+		>
 			<InputLabel shrink>{label}</InputLabel>
 
-			<Stack gap={1.2}>
+			<Stack
+				sx={{
+					gap: 1.2,
+				}}
+			>
 				{data.map(([key, value], i) => (
-					<Stack key={i} direction="row" gap={0.5}>
+					<Stack
+						key={i}
+						direction="row"
+						sx={{
+							gap: 0.5,
+						}}
+					>
 						<TextField
 							label="Key"
 							type="text"
 							size="small"
-							InputLabelProps={{
-								shrink: true,
+							slotProps={{
+								inputLabel: { shrink: true },
 							}}
 							value={key}
 							onChange={(e) => handleKeyChanged(e, i)}
@@ -49,8 +63,8 @@ export const KeyValueList = ({ label, data, onChange }: KeyValueListProps) => {
 							label="Value"
 							type="text"
 							size="small"
-							InputLabelProps={{
-								shrink: true,
+							slotProps={{
+								inputLabel: { shrink: true },
 							}}
 							value={value}
 							onChange={(e) => handleValueChanged(e, i)}
@@ -61,13 +75,18 @@ export const KeyValueList = ({ label, data, onChange }: KeyValueListProps) => {
 						</IconButton>
 					</Stack>
 				))}
-				<Stack direction="row" gap={0.5}>
+				<Stack
+					direction="row"
+					sx={{
+						gap: 0.5,
+					}}
+				>
 					<TextField
 						label="Key"
 						type="text"
 						size="small"
-						InputLabelProps={{
-							shrink: true,
+						slotProps={{
+							inputLabel: { shrink: true },
 						}}
 						disabled
 					/>
@@ -76,8 +95,8 @@ export const KeyValueList = ({ label, data, onChange }: KeyValueListProps) => {
 						label="Value"
 						type="text"
 						size="small"
-						InputLabelProps={{
-							shrink: true,
+						slotProps={{
+							inputLabel: { shrink: true },
 						}}
 						disabled
 					/>
