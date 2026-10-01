@@ -65,3 +65,33 @@ jobs:
                   name: coverage-summary
                   path: coverage/coverage-summary.json
                   if-no-files-found: ignore
+
+    dependency-audit:
+        runs-on: ubuntu-22.04
+        # The vulnerability and license gates only need the dependency graph, not the browsers or
+        # the production build.
+        timeout-minutes: 10
+
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 12.6.0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24.19.0
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Audit dependencies for high and critical vulnerabilities
+              run: pnpm audit:vulnerabilities
+
+            - name: Check production dependency licenses
+              run: pnpm audit:licenses
