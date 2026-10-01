@@ -1,6 +1,6 @@
 # RxJS Vision completion plan
 
-Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 (dependency updates) is complete as of issue #114, which adds the Dependabot and audit policy.
+Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 was verified complete on 2026-10-01 against `main` commit `41a6b66` after PR #124 merged. Phase 3 is ready; its four reviewable triage steps are planned below and have not yet been completed.
 
 ## Goal
 
@@ -29,9 +29,16 @@ No new operator or product feature should be implemented before phases 1 through
 | Phase 1.4: viewer state and component characterization  | Complete | Merged in [PR #71](https://github.com/maklja/vision/pull/71), [PR #74](https://github.com/maklja/vision/pull/74), [PR #75](https://github.com/maklja/vision/pull/75), [PR #79](https://github.com/maklja/vision/pull/79), and [PR #82](https://github.com/maklja/vision/pull/82): store slices, editor workflows, simulation state, IndexedDB persistence, palette, entry/simulation controls, error/property panel, and property forms; scoped Vitest coverage thresholds protect viewer store and non-canvas UI. Follow-up defects found during characterization were fixed in [PR #76](https://github.com/maklja/vision/pull/76), [PR #77](https://github.com/maklja/vision/pull/77), [PR #80](https://github.com/maklja/vision/pull/80), and [PR #83](https://github.com/maklja/vision/pull/83).                   |
 | Phase 1.5: critical browser journeys                    | Complete | Merged through issue #85 ([PR #91](https://github.com/maklja/vision/pull/91)), issue #86 ([PR #92](https://github.com/maklja/vision/pull/92)), issue #87 ([PR #94](https://github.com/maklja/vision/pull/94)), issue #88 ([PR #96](https://github.com/maklja/vision/pull/96)), issue #89 ([PR #98](https://github.com/maklja/vision/pull/98)), and issue #90 ([PR #103](https://github.com/maklja/vision/pull/103)): the shared Playwright foundation and Worker probe, the linear, branch/join, persistence/viewport, clipboard/grouped-editing, error-recovery, cancellation, and GitHub Pages base-path journeys. Defects found while characterizing were fixed in issue #93 ([PR #95](https://github.com/maklja/vision/pull/95)), issue #97 ([PR #101](https://github.com/maklja/vision/pull/101)), and issue #99. |
 | Phase 2.1: reproducible toolchain                       | Complete | Implemented in issue #106 ([PR #115](https://github.com/maklja/vision/pull/115)): Node.js 24.19.0 LTS and pnpm 12.6.0 pinned in `.nvmrc`/`.node-version`, the root `packageManager` and `engines`, the lockfile `packageManagerDependencies`, and CI; esbuild's build script approved for pnpm 12; the browser support policy documented.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Phase 2.4: dependency maintenance                       | Complete | Implemented in issue #114: Dependabot (`npm` ecosystem at the workspace root) groups patch and minor updates with a bound of five open pull requests and leaves every major update as its own pull request; the CI `dependency-audit` job runs `pnpm audit --audit-level high` and the production license gate `scripts/check-licenses.mjs`; the update, vulnerability, license, exception, and unused-dependency policy is documented in `DEPENDENCY_MAINTENANCE.md`; `@testing-library/user-event` and `eslint-plugin-prettier` were removed after a usage review.                                                                                                                                                                                                                                                   |
-| Phase 2: dependency updates                             | Complete | Phases 2.1–2.4 are complete: the reproducible toolchain, the ESLint/TypeScript/Prettier/Vitest/Playwright alignment, the six compatibility upgrade groups, and dependency maintenance with audit gates. Gate commands and status are documented in `DEPENDENCY_MAINTENANCE.md`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Phase 3: old PR triage                                  | Ready    | Starts now that dependency modernization is complete: triage the three diverged feature pull requests into focused issues.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Phase 2.2: lint and test tooling                        | Complete | Issue #107 / PR #116: ESLint 9 flat configuration, strict TypeScript 6, formatter and test-tool alignment, and repaired local/CI validation commands.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Phase 2.3A: build tooling                               | Complete | Issue #108 / PR #117: Vite 8.3.1, React plugin 6.1.1, and web-vitals 6.2.2; root and GitHub Pages base-path builds preserved.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Phase 2.3B: React                                       | Complete | Issue #109 / PR #118: React/React DOM 19.3.0 and aligned React Testing Library/type packages.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Phase 2.3C: viewer integrations                         | Complete | Issue #110 / PR #121: Material UI 9.4.0, date pickers 9.14.0, Emotion, Monaco, Day.js, and IndexedDB integration; React DnD retained after compatibility checks.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Phase 2.3D: canvas                                      | Complete | Issue #111 / PR #119: Konva 10.7.0, React Konva 19.3.0, and browser journeys in Chromium, Firefox, and WebKit.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Phase 2.3E: state and utilities                         | Complete | Issue #112 / PR #122: Zustand 5.0.15, Immer 11.1.18, UUID 14.0.2, and utility/type updates without a persisted-model migration.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Phase 2.3F: RxJS                                        | Complete | Issue #113 / PR #123: RxJS 7.8.2 and full engine/Worker behavior characterization.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Phase 2.4: dependency maintenance                       | Complete | Merged in issue #114 ([PR #124](https://github.com/maklja/vision/pull/124)): Dependabot (`npm` ecosystem at the workspace root) groups patch and minor updates with a bound of five open pull requests and leaves every major update as its own pull request; the CI `dependency-audit` job runs `pnpm audit --audit-level high` and the production license gate `scripts/check-licenses.mjs`; the update, vulnerability, license, exception, and unused-dependency policy is documented in `DEPENDENCY_MAINTENANCE.md`; `@testing-library/user-event` and `eslint-plugin-prettier` were removed after a usage review.                                                                                                                                                                                                 |
+| Phase 2: dependency updates                             | Complete | Verified 2026-10-01: issues #106–#114 closed as completed, all nine implementation PRs merged, and final CI run #125 passed the behavior/coverage/build/browser and dependency-audit jobs. See the Phase 2 verification record below.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Phase 3: old PR triage                                  | Ready    | Planned as 3.1 inventory, 3.2 subscription requirements, 3.3 execution context/parameter/code-generation decisions, and 3.4 traceability and closure. PRs #40, #42, and #50 are still open; no replacement feature is implemented by this planning update.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 ## Definition of complete
 
@@ -59,19 +66,19 @@ The project can be called complete when all of the following are true:
 
 ## Current baseline
 
-| Area               | Current state                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Structure          | pnpm TypeScript monorepo with model, engine, and React viewer packages.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Model              | Elements, connect points and lines, connection descriptors, defaults, and geometry helpers.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Engine             | Builds actual RxJS observables and reports flow events; normally runs in a Web Worker.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Viewer             | React, React Konva, Material UI, React DnD, Zustand, and Immer.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Persistence        | One diagram is stored in IndexedDB under the temporary key `test`; no schema version exists.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Existing operators | 11 creation, 6 join-creation, 10 transformation, `filter`, and `catchError`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Tests              | Vitest and V8 coverage with characterization suites for the model, engine, viewer state and non-canvas UI, and IndexedDB persistence. The complete Playwright browser suite runs on a shared support foundation (`e2e/support`) with a test-only Worker probe: linear execution, `concat` branch/join ordering, persistence and viewport behavior, grouped clipboard editing, creation- and runtime-error recovery, infinite-source cancellation, and a production-build GitHub Pages base-path smoke journey that also proves the dynamically imported engine chunk and the simulation Worker load from `/vision/`. `pnpm test:e2e` builds the viewer with the Vite base `/vision/`, serves that artifact with Vite preview, and runs Chromium with one worker and no retries. Coverage thresholds enforce 70% for viewer store and non-canvas UI. |
-| CI                 | Pull requests run type checking, tests with coverage, the production build, and the Chromium browser suite against the generated GitHub Pages base-path build; lint and formatting remain pending.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Lint               | `pnpm -r eslint` currently crashes before linting anything: every package runs `eslint src/**/*.{js,ts,tsx}` and ESLint 8 aborts with `No files matching the pattern "src/**/*.js" were found.` because no `.js` sources exist, so the brace pattern matches nothing. Bypassing the glob with `eslint src` then exposes the pre-existing `@typescript-eslint/no-empty-function` API mismatch in `simulator-model` and `simulator-engine`; the viewer configuration does not enable that rule and lints cleanly (0 errors). Both defects are pre-existing tooling issues scheduled for Phase 2.2 and are intentionally left out of the characterization changes.                                                                                                                                                                                     |
-| Build              | The viewer production build succeeds.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Backlog            | Three older feature pull requests are still open.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Area               | Current state                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Structure          | pnpm TypeScript monorepo with model, engine, and React viewer packages.                                                                                                                                                                                                                                                                                                           |
+| Model              | Elements, connect points and lines, connection descriptors, defaults, and geometry helpers.                                                                                                                                                                                                                                                                                       |
+| Engine             | Builds actual RxJS observables and reports flow events; normally runs in a Web Worker.                                                                                                                                                                                                                                                                                            |
+| Viewer             | React, React Konva, Material UI, React DnD, Zustand, and Immer.                                                                                                                                                                                                                                                                                                                   |
+| Persistence        | One diagram is stored in IndexedDB under the temporary key `test`; no schema version exists.                                                                                                                                                                                                                                                                                      |
+| Existing operators | 11 creation, 6 join-creation, 10 transformation, `filter`, and `catchError`.                                                                                                                                                                                                                                                                                                      |
+| Tests              | Vitest/V8 characterization covers model, engine, viewer, IndexedDB persistence, and the license audit. The latest local suite passed 650 tests in 55 files. Playwright exercises critical journeys against the `/vision/` production build in Chromium, Firefox, and WebKit with one worker and zero retries; coverage thresholds enforce 70% for viewer store and non-canvas UI. |
+| CI                 | Frozen-lockfile install, formatting, lint, strict typecheck, tests with coverage, production build, and all three browser engines; a separate job runs vulnerability and production-license gates on pull requests and pushes to `main`.                                                                                                                                          |
+| Lint               | ESLint 9 flat configuration checks TypeScript/TSX in all packages through `pnpm lint`; package-level `pnpm -r eslint` uses `eslint src`. The empty `.js` glob and ESLint API mismatch were resolved in PR #116.                                                                                                                                                                   |
+| Build              | The viewer production build succeeds.                                                                                                                                                                                                                                                                                                                                             |
+| Backlog            | Three older feature pull requests are still open.                                                                                                                                                                                                                                                                                                                                 |
 
 ## Delivery rules
 
@@ -181,11 +188,9 @@ Phase 1.4 notes:
 
 - Viewer component tests replace `react-konva` and `@monaco-editor/react` with light doubles so
   accessible controls, callbacks, and store state can be asserted without canvas pixels.
-- `pnpm -r eslint` is currently unusable: the `src/**/*.{js,ts,tsx}` glob matches no `.js` file and
-  aborts before linting, and linting `simulator-model`/`simulator-engine` sources directly crashes on
-  the pre-existing `@typescript-eslint/no-empty-function` API mismatch. The viewer's own sources
-  lint cleanly with `eslint src` (0 errors), so repairing the script and the plugin versions belongs
-  to Phase 2.2.
+- At the Phase 1.4 checkpoint, `pnpm -r eslint` failed on an empty `.js` glob and the old
+  `@typescript-eslint/no-empty-function` API mismatch. Both were resolved in Phase 2.2 / PR #116;
+  the current validation commands pass.
 
 ### 1.5 Critical browser journeys
 
@@ -226,7 +231,8 @@ Phase 1.5 notes:
   and serves the generated `build/` output through `vite preview`; the ordinary `pnpm build` still
   emits the root-`/` base and `docs/` is not regenerated.
 - Editor navigation is centralized in `e2e/support/base.ts`, so journeys never assume `/`.
-- The suite stays on Chromium, one worker, and zero retries.
+- Phase 1 initially ran Chromium only. Phase 2.3D / PR #119 expanded the same journeys to
+  Chromium, Firefox, and WebKit while retaining one worker and zero retries.
 - `e2e/persistence-viewport.spec.ts` no longer needs its former short-viewport skip: the operator
   palette overlap defect #93 was fixed in PR #95.
 
@@ -297,30 +303,154 @@ For each group:
 - No critical or high unreviewed dependency vulnerabilities remain.
 - The Phase 1 behavior suite proves that observable and editor behavior is preserved.
 
+### Phase 2 verification record — 2026-10-01
+
+**Result: complete.** The reviewed source is now on `main` at `41a6b66fbbe292f9983ab4dd451c566db7e0f416`.
+Issues #106–#114 are closed with reason `completed`, and PRs #115, #116, #117, #118, #121,
+#119, #122, #123, and #124 are merged. Their manifests, toolchain pins, lockfile, migration notes
+in the README, CI configuration, and maintenance policy were checked against the issue targets.
+The later removal of unused `@testing-library/user-event` and `eslint-plugin-prettier` is recorded
+in the maintenance policy rather than an unfinished upgrade.
+
+| Gate                  | Evidence                                                                                                                                                                                                                                        | Result |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| Reproducible install  | Node 24.19.0 and pnpm 12.6.0 agree across version files, root manifest, and CI; only `pnpm-lock.yaml` is tracked; `allowBuilds.esbuild` is explicit; final CI frozen install passed.                                                            | Pass   |
+| Tooling and behavior  | [CI run #125](https://github.com/maklja/vision/actions/runs/36831223592) on final PR #124 head `136eb29` passed format, lint, typecheck, coverage, production build, and browser tests. Its source tree is identical to the merged `main` tree. | Pass   |
+| Browser compatibility | The same CI job installed and ran Chromium, Firefox, and WebKit; `playwright.config.ts` retains one worker, zero retries, and the `/vision/` production-build/Worker check.                                                                     | Pass   |
+| Dependency security   | The CI `dependency-audit` job passed both gates; the latest local `pnpm audit:dependencies` reported no known vulnerabilities and allowed all 108 production packages.                                                                          | Pass   |
+| Maintenance           | Weekly Dependabot patch/minor grouping, separate majors, five-open-PR limit, no automatic merging, and documented license/security exception policy are present. Audit tests cover malformed SPDX expressions and complete UTC review days.     | Pass   |
+
+This establishes completion of the upgrade scope, not completion of future performance or feature
+work. The existing large-chunk build advisory belongs to Phase 7. The documented preview-server
+shutdown/launcher TODO is a tooling follow-up; the browser job is green and it is not an open
+Phase 2 blocker. No new version target is introduced by the Phase 3 planning work.
+
 ## Phase 3: triage the existing feature pull requests
 
-The three old feature branches have diverged from `main`. None should be merged as-is.
+**Status: ready, not complete.** Phase 2 has passed its gate. Phase 3 produces reviewed decisions,
+requirements, examples, and implementation issues; feature code belongs to Phases 4 and 6.
+Start from the upgraded `main`, not from an old feature branch.
 
-| PR                                                                     | Useful ideas                                                                                                                               | Current problems                                                                                                                                                                                        | Recommended disposition                                                                                                                                                                                                    |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [#40 Context code execution](https://github.com/maklja/vision/pull/40) | Shared execution context, pre-execution hooks, expression-backed properties, and early code generation.                                    | 24 commits ahead and 21 behind; predates the monorepo; changes many engine/model/UI contracts at once; duplicates commits; has no safety suite; arbitrary code execution needs an explicit trust model. | Keep as a prototype. Write an ADR and focused issues for execution context and code generation, then reimplement from `main` after tests and upgrades. Close the PR after traceability links are added.                    |
-| [#42 Override parameters](https://github.com/maklja/vision/pull/42)    | Runtime parameter expressions, broader property forms, and a code-generation direction.                                                    | 13 commits ahead and 13 behind; uses the old single-package layout and npm lockfile; replaces most factories in one change; overlaps #40; no migration or behavior tests.                               | Extract the parameter model and UX requirements. Prototype them against the versioned diagram schema, then implement in small PRs. Do not rebase or merge the branch wholesale.                                            |
-| [#50 Subscription event](https://github.com/maklja/vision/pull/50)     | Subscription events, branch IDs, subscription-line styling, disabled graph state during simulation, and deterministic scheduling concepts. | 9 commits ahead and 4 behind; conflicts with animation work already merged in #51 and later changes; touches most drawers; contains unfinished notes and experimental/commented paths.                  | Highest-value feature to revive first. Specify the flow-event contract and scheduler tests, then port the engine semantics and minimal UI styling in new PRs. Close the old PR once the replacement issues/PRs are linked. |
+### Current candidates
 
-Triage procedure:
+Snapshot verified on 2026-10-01 against `main` commit `41a6b66`. Ahead/behind counts were calculated
+with `git rev-list --left-right --count main...<branch>`; refresh them at the start of triage.
+These are recommendations for review, not final keep/drop decisions.
 
-1. Run or inspect each old branch only to clarify behavior; do not spend time making it releasable.
-2. Create one issue per independent requirement, with screenshots or fixtures when useful.
-3. Link each issue back to its source PR and note which code is reference-only.
-4. Identify any small, still-correct commits that can be cherry-picked safely; default to a clean
-   implementation when model paths or contracts have changed.
-5. Close the old PR after all retained requirements are represented in the backlog.
+| Source PR                                                              | Head / divergence              | Candidate value                                                                                              | Proposed disposition                                                                                                                                                     |
+| ---------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [#50 Subscription event](https://github.com/maklja/vision/pull/50)     | `f74b2fa`; 9 ahead, 44 behind  | Subscription lifecycle, branch correlation, subscription-line styling, editing during a run, and scheduling. | Triage first. Extract requirements and event fixtures for Phase 4.4; compare with current animation reset, cancellation, and queue bounds before retaining old behavior. |
+| [#40 Context code execution](https://github.com/maklja/vision/pull/40) | `1c24e51`; 24 ahead, 61 behind | Shared execution context, pre-execution hooks, expression-backed properties, and early code generation.      | Reference prototype. Extract execution/trust decisions for Phase 4.3 and code-generation requirements for Phase 6.3.                                                     |
+| [#42 Override parameters](https://github.com/maklja/vision/pull/42)    | `254a902`; 13 ahead, 53 behind | Runtime parameter expressions, broader property forms, and code generation overlapping #40.                  | Consolidate overlapping requirements with #40. Defer parameter persistence to Phase 4.1/4.3 and code generation to Phase 6.3.                                            |
+
+#40 and #42 use the old single-package source layout; #42 also adds an npm lockfile. #50 uses the
+monorepo but changes engine, model, and many drawers and predates subsequent animation fixes.
+None should be merged or rebased wholesale. Isolated commits may be reused only after a written
+compatibility review and relevant tests on current `main`; clean reimplementation is the default.
+
+### 3.1 Inventory and traceability foundation
+
+Deliver a documentation-only PR adding `planning/legacy-pr-triage.md` and updating this plan.
+
+- Inspect each source PR's complete diff and discussion at its recorded head. Compare against
+  current source and characterization tests; running an old branch is optional when static
+  inspection cannot clarify a behavior, and should use an isolated checkout.
+- Make one row per independent requirement: source PR/head/path, user-visible behavior, current-main
+  equivalent, overlap, proposed keep/drop/defer decision, reason, target phase, and test/fixture needs.
+- Record unfinished/experimental code separately from behavior worth preserving. Identify behavior
+  already covered by current animation, cancellation, error, or persistence handling.
+- List unanswered product decisions explicitly. Do not treat a prototype's implementation choice as
+  an accepted contract or mark a requirement retained without a stated user benefit.
+
+Acceptance: every meaningful change in all three PRs is mapped to a requirement or a reason for
+excluding it; duplicate ideas have one canonical record. This step unblocks 3.2 and 3.3.
+
+### 3.2 Subscription and flow-event requirements from #50
+
+Deliver a focused design PR updating the inventory and adding
+`planning/decisions/subscription-flow-events.md`; create the corresponding implementation issues.
+
+- Define subscribe/next/error/complete/unsubscribe semantics, sequence ordering, subscription and
+  branch identity, dependency/path correlation, and observable errors versus Worker failures.
+- Include expected event traces for a linear source, branch/join graph, inner cancellation, errors,
+  and an infinite source stopped and restarted. Distinguish normal completion from unsubscription.
+- Decide which line styling and editing restrictions are needed, including an accessible non-color
+  representation; specify deterministic timing and bounded event/animation retention.
+- Reconcile proposed behavior with the current `FlowManager`, Worker protocol, and animation tests.
+  Record compatibility requirements for existing callbacks and persisted diagrams.
+- Split retained scope into a Phase 4.4 protocol/engine issue and a dependent visualization/state
+  issue; create separate scheduling/retention work only if the inventory shows an independent gap.
+
+Acceptance: every retained #50 requirement has an issue and an expected trace or UX example;
+conflicting or redundant prototype behavior has a written drop decision. No protocol or UI feature
+is implemented in this triage PR.
+
+### 3.3 Consolidated context, parameter, and code-generation decisions from #40/#42
+
+Deliver a second design PR updating the inventory and adding
+`planning/decisions/execution-context-and-parameters.md`; create focused implementation issues.
+
+- Decide context lifetime and isolation (per diagram/run/subscription), initialization ordering,
+  cancellation, restart behavior, supported variables/functions, and expression diagnostics.
+- Specify literal versus expression parameter values, defaults, missing/invalid values, field UX,
+  and a serializable representation. Record migration requirements for Phase 4.1 without changing
+  today's persisted model during triage.
+- Document the trust boundary for local versus imported/shared diagrams, Worker execution and the
+  main-thread fallback, network access, time limits, and unsupported/untrusted content. Specify
+  restrictions required before future sharing; do not equate a Worker with a security sandbox.
+- Consolidate duplicate generators into one Phase 6.3 requirement: supported graph constructs,
+  readable RxJS output, deterministic naming, copy/export behavior, and explicit diagnostics for
+  constructs that cannot be represented faithfully.
+- Create separate execution-context/validation, parameter-model/UX, and code-generation issues.
+  Context and parameters depend on Phase 4.1/4.3; generation follows stabilized operator/event
+  contracts and remains Phase 6.3 work. Record compatibility and focused test cases on every issue.
+
+Acceptance: every retained #40/#42 requirement has one canonical issue and an example; duplicate,
+unsafe, or unnecessary approaches have a documented drop/defer reason. No new operator or public
+sharing/execution feature is introduced.
+
+### 3.4 Backlog handoff and superseded-PR closure
+
+Deliver a final documentation PR after 3.2 and 3.3 are accepted.
+
+- Check that every requirement row has a final decision, rationale, target phase, and traceability
+  link to an accepted ADR, fixture/test, or implementation issue. Eliminate unresolved duplicates.
+- Each implementation issue must name its source PR and exact reference paths/head, dependencies,
+  scope exclusions, user-visible acceptance criteria, relevant test scenarios, compatibility/data
+  impact, and documentation/security/accessibility/performance considerations.
+- Link the reviewed triage records and replacement issues from each old PR, then close #40, #42,
+  and #50 as superseded. Preserve the reference branches/history; branch deletion is unnecessary.
+- Mark Phase 3 complete only after the decisions are accepted and all three old PRs are closed.
+  Order the Phase 4 backlog: versioned persistence, execution/parameter contracts, flow-event
+  protocol, and operator-definition integration, with dependencies recorded explicitly.
+
+Acceptance: the old PRs no longer appear merge-ready, every valuable idea remains discoverable,
+and Phase 4 can be implemented from current `main` without interpreting the old branches again.
+
+### Delivery sequence and validation
+
+| Step | Depends on           | Reviewable output                                                 | Status  |
+| ---- | -------------------- | ----------------------------------------------------------------- | ------- |
+| 3.1  | Phase 2 gate         | Complete requirement inventory and overlap map                    | Planned |
+| 3.2  | 3.1                  | Subscription/event decision, example traces, and Phase 4.4 issues | Planned |
+| 3.3  | 3.1                  | Context/parameter decision and Phase 4/6 issues                   | Planned |
+| 3.4  | Accepted 3.2 and 3.3 | Linked handoff, old-PR closure, and Phase 3 gate update           | Planned |
+
+Use one PR per step. Keep the current Node/pnpm/RxJS baseline. Documentation-only work requires
+formatting and traceability/link checks; normal CI still runs. Any executable prototype or added
+characterization test must run the relevant tests plus the existing format/lint/typecheck/build
+checks. Do not weaken existing coverage thresholds or browser checks to accommodate old code.
 
 ### Phase 3 gate
 
-- Every old PR has a written keep/drop decision.
-- Valuable behavior is represented by accepted tests, ADRs, or issues.
-- Obsolete branches are closed so they no longer appear merge-ready.
+- Every independent old-PR requirement has a reviewed keep/drop/defer decision and rationale.
+- Every retained behavior is represented by accepted tests/fixtures, ADRs, or actionable issues with
+  target phases and dependencies. Deferred work has an explicit destination, not an unlinked TODO.
+- Execution trust, parameter persistence, and event compatibility decisions are explicit; blockers
+  are resolved or recorded as dependencies that prevent the corresponding implementation.
+- #40, #42, and #50 are closed with replacement links and their reference history preserved.
+- This plan records the gate evidence; Phase 4 may start and operator expansion remains gated on
+  its contracts. Planning this phase does not satisfy the gate by itself.
 
 ## Phase 4: stabilize contracts for future features
 
