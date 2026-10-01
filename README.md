@@ -189,14 +189,14 @@ weekly pull request, every major update arrives as its own pull request, and not
 auto-merged. The full policy, including the license allow list and the accepted-finding process,
 lives in `DEPENDENCY_MAINTENANCE.md`.
 
-Run the dependency gates with the same command CI uses:
+Run both dependency gates (CI runs each gate in a separate step):
 
 ```bash
-pnpm audit
+pnpm audit:dependencies
 ```
 
-`pnpm audit` runs `pnpm audit --audit-level high` for high and critical vulnerabilities and then
-`pnpm audit:licenses`, which checks the production dependency inventory from
+`pnpm audit:dependencies` runs `pnpm audit --audit-level high` for high and critical vulnerabilities
+and then `pnpm audit:licenses`, which checks the production dependency inventory from
 `pnpm licenses list --prod --json` with `scripts/check-licenses.mjs`.
 
 Transitive advisories that have a fix in the same major line are pinned through `overrides` in

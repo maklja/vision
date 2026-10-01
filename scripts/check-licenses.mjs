@@ -6,6 +6,7 @@
  * DEPENDENCY_MAINTENANCE.md. Run this through `pnpm audit:licenses`, which CI uses as well.
  */
 import { execFileSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 
 // Permissive licenses that may ship without a review.
 const allowedLicenses = new Set([
@@ -126,10 +127,18 @@ const isLicenseAllowed = (expression) => {
 const daysUntil = (date) => (Date.parse(date) - Date.now()) / (24 * 60 * 60 * 1000);
 
 const describeFindingProblem = (finding) => {
-	if (!finding.owner || !finding.rationale || !finding.reviewBy) {
-		return 'accepted findings must record an owner, a rationale, and a reviewBy date';
+	if (
+		!['package', 'license', 'owner', 'rationale', 'reviewBy'].every(
+			(field) => typeof finding?.[field] === 'string' && finding[field].trim().length > 0,
+		)
+	) {
+		return 'accepted findings must record a package, license, owner, rationale, and reviewBy date';
 	}
-	if (Number.isNaN(Date.parse(finding.reviewBy))) {
+	if (
+		!/^\d{4}-\d{2}-\d{2}$/.test(finding.reviewBy) ||
+		Number.isNaN(Date.parse(finding.reviewBy)) ||
+		new Date(finding.reviewBy).toISOString().slice(0, 10) !== finding.reviewBy
+	) {
 		return `accepted finding has an invalid reviewBy date: ${finding.reviewBy}`;
 	}
 	if (daysUntil(finding.reviewBy) > reviewWindowDays) {
@@ -158,76 +167,96 @@ const readInventory = () => {
 	}
 };
 
-const inventory = readInventory();
-const violations = [];
-const appliedFindings = [];
-const histogram = new Map();
-let packagesChecked = 0;
+export const evaluateLicenseInventory = (inventory, findings = acceptedFindings) => {
+	const violations = [];
+	const appliedFindings = [];
+	const histogram = new Map();
+	let packagesChecked = 0;
 
-for (const [expression, packages] of Object.entries(inventory)) {
-	for (const dependency of packages) {
-		packagesChecked += 1;
-		histogram.set(expression, (histogram.get(expression) ?? 0) + 1);
-
-		if (isLicenseAllowed(expression)) {
-			continue;
-		}
-
-		const finding = acceptedFindings.find(
-			(entry) => entry.license === expression && entry.package === dependency.name,
-		);
-
-		if (!finding) {
-			violations.push({
-				name: dependency.name,
-				versions: dependency.versions,
-				license: expression,
-				reason: 'license is not on the allow list',
-			});
-			continue;
-		}
-
+	// Validate all exceptions, including entries that no longer match a disallowed dependency.
+	const validFindings = [];
+	for (const finding of findings) {
 		const problem = describeFindingProblem(finding);
 		if (problem) {
 			violations.push({
-				name: dependency.name,
-				versions: dependency.versions,
-				license: expression,
+				name: finding?.package ?? '(missing package)',
+				versions: [],
+				license: finding?.license ?? '(missing license)',
 				reason: problem,
 			});
-			continue;
+		} else {
+			validFindings.push(finding);
 		}
-
-		appliedFindings.push({ name: dependency.name, license: expression, owner: finding.owner });
 	}
-}
 
-console.log(`Production dependency license inventory (${packagesChecked} packages):`);
-const sortedHistogram = [...histogram.entries()].sort((left, right) => right[1] - left[1]);
-for (const [expression, count] of sortedHistogram) {
-	console.log(`  ${expression}: ${count}`);
-}
+	for (const [expression, packages] of Object.entries(inventory)) {
+		for (const dependency of packages) {
+			packagesChecked += 1;
+			histogram.set(expression, (histogram.get(expression) ?? 0) + 1);
 
-for (const finding of appliedFindings) {
-	console.log(`  accepted: ${finding.name} (${finding.license}) — owner ${finding.owner}`);
-}
+			if (isLicenseAllowed(expression)) {
+				continue;
+			}
 
-if (packagesChecked === 0) {
-	console.error(
-		'The license inventory was empty; the audit did not collect any production dependency.',
-	);
-	process.exitCode = 1;
-} else if (violations.length > 0) {
-	console.error(`\n${violations.length} production dependency license violation(s):`);
-	for (const violation of violations) {
+			const finding = validFindings.find(
+				(entry) => entry.license === expression && entry.package === dependency.name,
+			);
+
+			if (!finding) {
+				violations.push({
+					name: dependency.name,
+					versions: dependency.versions,
+					license: expression,
+					reason: 'license is not on the allow list',
+				});
+				continue;
+			}
+
+			appliedFindings.push({
+				name: dependency.name,
+				license: expression,
+				owner: finding.owner,
+			});
+		}
+	}
+
+	return { violations, appliedFindings, histogram, packagesChecked };
+};
+
+const runAudit = () => {
+	const { violations, appliedFindings, histogram, packagesChecked } =
+		evaluateLicenseInventory(readInventory());
+	console.log(`Production dependency license inventory (${packagesChecked} packages):`);
+	const sortedHistogram = [...histogram.entries()].sort((left, right) => right[1] - left[1]);
+	for (const [expression, count] of sortedHistogram) {
+		console.log(`  ${expression}: ${count}`);
+	}
+
+	for (const finding of appliedFindings) {
+		console.log(`  accepted: ${finding.name} (${finding.license}) — owner ${finding.owner}`);
+	}
+
+	if (packagesChecked === 0) {
 		console.error(
-			`  ${violation.name}@${violation.versions.join(', ')} (${violation.license}): ${violation.reason}`,
+			'The license inventory was empty; the audit did not collect any production dependency.',
 		);
+		process.exitCode = 1;
+	} else if (violations.length > 0) {
+		console.error(`\n${violations.length} production dependency license violation(s):`);
+		for (const violation of violations) {
+			console.error(
+				`  ${violation.name}${violation.versions.length ? `@${violation.versions.join(', ')}` : ''} (${violation.license}): ${violation.reason}`,
+			);
+		}
+		console.error(
+			'\nFix: replace or upgrade the dependency, add a reviewed license to the allow list, or record an accepted finding with an owner, rationale, and review date. See DEPENDENCY_MAINTENANCE.md.',
+		);
+		process.exitCode = 1;
+	} else {
+		console.log('\nAll production dependency licenses are allowed.');
 	}
-	console.error(
-		'\nFix: replace or upgrade the dependency, add a reviewed license to the allow list, or record an accepted finding with an owner, rationale, and review date. See DEPENDENCY_MAINTENANCE.md.',
-	);
-	process.exitCode = 1;
-} else {
-	console.log('\nAll production dependency licenses are allowed.');
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+	runAudit();
 }

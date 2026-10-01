@@ -112,7 +112,8 @@ issue with a legal-review note before an accepted finding is recorded.
 There are currently no accepted license findings. `acceptedFindings` in `scripts/check-licenses.mjs`
 is the time-boxed override: each entry names the package and license expression and records an
 owner, a rationale, and a `reviewBy` date no more than 90 days out. An expired entry fails CI with
-the package and license in the message.
+the package and license in the message, even if the dependency was removed, changed license, or
+became allow-listed. Every exception is validated before inventory matches are applied.
 
 ### Current production inventory
 
@@ -153,8 +154,7 @@ pnpm typecheck
 pnpm test:coverage
 pnpm test:e2e
 pnpm build
-pnpm audit:vulnerabilities
-pnpm audit:licenses
+pnpm audit:dependencies
 ```
 
 CI mirrors the commands: the `test-and-build` job runs the behavior suite and the production build,

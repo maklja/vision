@@ -10,7 +10,7 @@
 	"scripts": {
 		"start": "pnpm --filter @maklja/vision-simulator-viewer start",
 		"build": "pnpm --filter @maklja/vision-simulator-viewer build",
-		"audit": "pnpm run audit:vulnerabilities && pnpm run audit:licenses",
+		"audit:dependencies": "pnpm run audit:vulnerabilities && pnpm run audit:licenses",
 		"audit:vulnerabilities": "pnpm audit --audit-level high",
 		"audit:licenses": "node scripts/check-licenses.mjs",
 		"format:check": "prettier --check .",
