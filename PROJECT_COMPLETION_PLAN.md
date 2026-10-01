@@ -1,6 +1,6 @@
 # RxJS Vision completion plan
 
-Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 was verified complete on 2026-10-01 against `main` commit `41a6b66` after PR #124 merged. Phase 3.1 inventory was prepared on 2026-10-01 for review in [PR #128](https://github.com/maklja/vision/pull/128). Phases 3.2–3.4 remain planned; Phase 3 is not complete.
+Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 was verified complete on 2026-10-01 against `main` commit `41a6b66` after PR #124 merged. Phase 3.1 inventory merged on 2026-10-01 in [PR #128](https://github.com/maklja/vision/pull/128). Phase 3.2 subscription design is prepared for review with issues #129–#131; old PRs #40/#42/#50 are closed as superseded. Phase 3.3 handoff is #132; 3.3/3.4 remain planned and Phase 3 is not complete.
 
 ## Goal
 
@@ -38,7 +38,7 @@ No new operator or product feature should be implemented before phases 1 through
 | Phase 2.3F: RxJS                                        | Complete    | Issue #113 / PR #123: RxJS 7.8.2 and full engine/Worker behavior characterization.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Phase 2.4: dependency maintenance                       | Complete    | Merged in issue #114 ([PR #124](https://github.com/maklja/vision/pull/124)): Dependabot (`npm` ecosystem at the workspace root) groups patch and minor updates with a bound of five open pull requests and leaves every major update as its own pull request; the CI `dependency-audit` job runs `pnpm audit --audit-level high` and the production license gate `scripts/check-licenses.mjs`; the update, vulnerability, license, exception, and unused-dependency policy is documented in `DEPENDENCY_MAINTENANCE.md`; `@testing-library/user-event` and `eslint-plugin-prettier` were removed after a usage review.                                                                                                                                                                                                 |
 | Phase 2: dependency updates                             | Complete    | Verified 2026-10-01: issues #106–#114 closed as completed, all nine implementation PRs merged, and final CI run #125 passed the behavior/coverage/build/browser and dependency-audit jobs. See the Phase 2 verification record below.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Phase 3: old PR triage                                  | In progress | Phase 3.1 inventory prepared for review: [requirements and source ledger](planning/legacy-pr-triage.md). Steps 3.2–3.4 remain planned; PRs #40, #42, and #50 remain open pending accepted decisions and replacement links.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Phase 3: old PR triage                                  | In progress | Phase 3.1 merged in #128. [Subscription design](planning/decisions/subscription-flow-events.md) prepared for 3.2 review; issues #129–#131. Old PRs #40/#42/#50 closed as superseded; context/parameter/export handoff #132. Steps 3.3/3.4 and design acceptance remain pending.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 
 ## Definition of complete
 
@@ -327,7 +327,7 @@ Phase 2 blocker. No new version target is introduced by the Phase 3 planning wor
 
 ## Phase 3: triage the existing feature pull requests
 
-**Status: 3.1 inventory prepared for review; not complete.** Phase 2 has passed its gate. Phase 3 produces reviewed decisions,
+**Status: 3.1 merged; 3.2 design prepared for review; Phase 3 not complete.** Phase 2 has passed its gate. Phase 3 produces reviewed decisions,
 requirements, examples, and implementation issues; feature code belongs to Phases 4 and 6.
 Start from the upgraded `main`, not from an old feature branch.
 
@@ -335,7 +335,9 @@ Start from the upgraded `main`, not from an old feature branch.
 
 Snapshot refreshed for Phase 3.1 on 2026-10-01 against `main` commit `5e479dc`. Ahead/behind counts were calculated
 with `git rev-list --left-right --count main...<branch>`; refresh them at the start of triage.
-These are recommendations for review, not final keep/drop decisions.
+This table preserves the Phase 3.1 evidence snapshot. All three PRs are now closed as superseded
+under the user's strict cleanup instruction; no implementation is selected for reuse. Valuable
+requirements remain in #129–#131 (subscription) and #132 (Phase 3.3 context/parameter/export design).
 
 | Source PR                                                              | Head / divergence              | Candidate value                                                                                              | Proposed disposition                                                                                                                                                     |
 | ---------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -352,7 +354,7 @@ compatibility review and relevant tests on current `main`; clean reimplementatio
 
 Deliver a documentation-only PR adding `planning/legacy-pr-triage.md` and updating this plan.
 
-**Prepared for review on 2026-10-01 in [PR #128](https://github.com/maklja/vision/pull/128):** [requirement inventory and complete source ledger](planning/legacy-pr-triage.md). Inspected all 220 changed paths at the recorded heads, the empty PR discussions, current source and characterization tests. The inventory contains 21 canonical behavior requirements and four implementation/exclusion records, an overlap map, prototype hazards, compatibility requirements, and explicit questions for 3.2/3.3. Keep/drop/defer proposals still require design review. No runtime code, implementation issue, ADR, source-PR closure, or Phase 3 gate completion is claimed. Validation: formatting, changed-path coverage, immutable source paths and current evidence links checked. This documentation step unblocks 3.2/3.3 after review.
+**Merged on 2026-10-01 in [PR #128](https://github.com/maklja/vision/pull/128):** [requirement inventory and complete source ledger](planning/legacy-pr-triage.md). Inspected all 220 changed paths at the recorded heads, the empty PR discussions, current source and characterization tests. The inventory contains 21 canonical behavior requirements and four implementation/exclusion records, an overlap map, prototype hazards, compatibility requirements, and explicit questions for 3.2/3.3. Keep/drop/defer proposals still require design review. No runtime code, implementation issue, ADR, source-PR closure, or Phase 3 gate completion is claimed. Validation: formatting, changed-path coverage, immutable source paths and current evidence links checked. The merged inventory unblocks 3.2/3.3.
 
 - Inspect each source PR's complete diff and discussion at its recorded head. Compare against
   current source and characterization tests; running an old branch is optional when static
@@ -371,6 +373,13 @@ excluding it; duplicate ideas have one canonical record. This step unblocks 3.2 
 
 Deliver a focused design PR updating the inventory and adding
 `planning/decisions/subscription-flow-events.md`; create the corresponding implementation issues.
+
+**Prepared for review on 2026-10-01:** [subscription decision and T1–T8/U1–U4 examples](planning/decisions/subscription-flow-events.md). Retained requirements map to [protocol/engine #129](https://github.com/maklja/vision/issues/129), dependent [visualization/state #130](https://github.com/maklja/vision/issues/130) and independently justified [scheduler/retention #131](https://github.com/maklja/vision/issues/131). Reject #50's unfinished implementation and preserve current callback/persistence compatibility. No runtime feature is implemented; design acceptance remains pending review.
+
+**Cleanup adjustment authorized by the user:** close the three obsolete implementations now,
+with replacement links and preserved history. #40/#42's useful ideas remain in the merged inventory
+and [3.3 handoff #132](https://github.com/maklja/vision/issues/132). This brings administrative
+closure forward from 3.4 without claiming context/parameter/export decisions are accepted.
 
 - Define subscribe/next/error/complete/unsubscribe semantics, sequence ordering, subscription and
   branch identity, dependency/path correlation, and observable errors versus Worker failures.
@@ -420,8 +429,9 @@ Deliver a final documentation PR after 3.2 and 3.3 are accepted.
 - Each implementation issue must name its source PR and exact reference paths/head, dependencies,
   scope exclusions, user-visible acceptance criteria, relevant test scenarios, compatibility/data
   impact, and documentation/security/accessibility/performance considerations.
-- Link the reviewed triage records and replacement issues from each old PR, then close #40, #42,
-  and #50 as superseded. Preserve the reference branches/history; branch deletion is unnecessary.
+- Verify the earlier closure of #40/#42/#50, their linked records and preserved reference history.
+  Replace the provisional #132 design handoff with final reviewed 3.3 implementation links.
+  Administrative cleanup is already done; final design/backlog acceptance remains required.
 - Mark Phase 3 complete only after the decisions are accepted and all three old PRs are closed.
   Order the Phase 4 backlog: versioned persistence, execution/parameter contracts, flow-event
   protocol, and operator-definition integration, with dependencies recorded explicitly.
@@ -431,12 +441,12 @@ and Phase 4 can be implemented from current `main` without interpreting the old 
 
 ### Delivery sequence and validation
 
-| Step | Depends on           | Reviewable output                                                     | Status              |
-| ---- | -------------------- | --------------------------------------------------------------------- | ------------------- |
-| 3.1  | Phase 2 gate         | [Requirement inventory and overlap map](planning/legacy-pr-triage.md) | Prepared for review |
-| 3.2  | 3.1                  | Subscription/event decision, example traces, and Phase 4.4 issues     | Planned             |
-| 3.3  | 3.1                  | Context/parameter decision and Phase 4/6 issues                       | Planned             |
-| 3.4  | Accepted 3.2 and 3.3 | Linked handoff, old-PR closure, and Phase 3 gate update               | Planned             |
+| Step | Depends on           | Reviewable output                                                                             | Status              |
+| ---- | -------------------- | --------------------------------------------------------------------------------------------- | ------------------- |
+| 3.1  | Phase 2 gate         | [Requirement inventory and overlap map](planning/legacy-pr-triage.md)                         | Merged (#128)       |
+| 3.2  | 3.1                  | [Subscription decision](planning/decisions/subscription-flow-events.md), traces and #129–#131 | Prepared for review |
+| 3.3  | 3.1                  | Context/parameter decision and Phase 4/6 issues; handoff #132                                 | Planned             |
+| 3.4  | Accepted 3.2 and 3.3 | Linked handoff, old-PR closure, and Phase 3 gate update                                       | Planned             |
 
 Use one PR per step. Keep the current Node/pnpm/RxJS baseline. Documentation-only work requires
 formatting and traceability/link checks; normal CI still runs. Any executable prototype or added

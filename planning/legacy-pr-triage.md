@@ -1,7 +1,13 @@
 # Legacy feature PR inventory — Phase 3.1
 
-Status: inventory complete for review; all dispositions below are **proposals**, not accepted
-execution, persistence, or event contracts. Phase 3 remains open until steps 3.2–3.4 are accepted.
+Status: Phase 3.1 inventory merged in PR #128. Phase 3.2 subscription decisions are proposed in
+[subscription-flow-events.md](decisions/subscription-flow-events.md), with implementation issues
+[#129](https://github.com/maklja/vision/issues/129),
+[#130](https://github.com/maklja/vision/issues/130) and
+[#131](https://github.com/maklja/vision/issues/131). C/P/G decisions remain Phase 3.3 work tracked by
+[#132](https://github.com/maklja/vision/issues/132). The original inventory tables below remain the
+Phase 3.1 proposals; the Phase 3.2 decision/disposition table governs S01–S08 after review.
+Phase 3 remains open until steps 3.2–3.4 are accepted.
 This documentation changes no runtime behavior and authorizes no wholesale merge/rebase of the
 reference branches.
 
@@ -34,8 +40,10 @@ git diff main...origin/pr40
 ```
 
 Repeat for #42/#50 using their recorded heads rather than accepting a later branch update silently.
-Counts above are behind/ahead reversed into the table's ahead/behind order. Preserve reference
-history; final closure and replacement links belong to Phase 3.4.
+Counts above are behind/ahead reversed into the table's ahead/behind order. This is the immutable
+Phase 3.1 snapshot, not live divergence. Reference history is preserved. Under the user's strict
+cleanup instruction, #40/#42/#50 are closed as superseded during Phase 3.2, with linked handoffs;
+closure does not approve the remaining designs or complete Phase 3.4.
 
 ## Reading the inventory
 
@@ -156,7 +164,8 @@ These links are characterization evidence, not claims that all future requiremen
 | Subscription markers, branch/value identity and gates | S01/S02; scheduling S03                   | 3.2 reconciles `branchId` with existing `subscribeId`/dependencies; no duplicate ID protocol. |
 | Prototype queues vs main's bounded scheduler          | S03/S08; reset S07                        | 3.2 uses existing scheduler and limits as baseline, documenting independent gaps only.        |
 
-Questions for 3.2 (not answered by the prototypes):
+Questions for 3.2 (answered in the proposed [decision](decisions/subscription-flow-events.md);
+retained here as the original review checklist):
 
 1. Which events are emitted per subscription, and how are complete, explicit unsubscribe and
    cancellation of a losing/inner branch distinguished? What is the relation between value ID,
