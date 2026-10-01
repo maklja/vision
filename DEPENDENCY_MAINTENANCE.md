@@ -86,9 +86,12 @@ vulnerability findings.
   build and test tooling is never shipped to users.
 - The gate fails closed: a license expression that is neither allow-listed nor covered by an
   accepted finding fails CI with the package name and license in the message.
-- SPDX expressions are evaluated structurally. `OR` passes when any alternative is allowed, and
+- SPDX expressions are fully validated with `spdx-expression-parse` before their parsed structure
+  is evaluated. Malformed parentheses, operators, or operands fail the gate unless covered by an
+  explicit reviewed finding. `OR` passes when any alternative is allowed, and
   `AND` passes only when every requirement is allowed. For example, `(MPL-2.0 OR Apache-2.0)` ships
-  under Apache-2.0.
+  under Apache-2.0. `WITH` exceptions and `+` modifiers need a reviewed finding because they change
+  the license terms.
 
 ### Allowed licenses
 

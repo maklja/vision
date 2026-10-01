@@ -10,6 +10,48 @@ const acceptedFinding = {
 	reviewBy: '2026-11-01',
 };
 
+describe('SPDX license expressions', () => {
+	it.each([
+		'MIT OR (GPL-3.0-only',
+		'MIT OR OR GPL-3.0-only',
+		'MIT OR SEE LICENSE IN LICENSE',
+		'MIT OR GPL-3.0-only)',
+		'MIT OR',
+		'OR MIT',
+		'MIT AND',
+		'MIT OR ()',
+		'MIT OR (Apache-2.0 AND)',
+		'MIT OR NotAnSpdxLicense',
+		'MIT Apache-2.0',
+		'',
+	])('rejects the complete malformed expression %s', (license) => {
+		const result = evaluateLicenseInventory({ [license]: [dependency] });
+		expect(result.violations).toHaveLength(1);
+		expect(result.appliedFindings).toEqual([]);
+	});
+
+	it.each([
+		'MIT',
+		'(MPL-2.0 OR Apache-2.0)',
+		'MIT OR (GPL-3.0-only AND Apache-2.0)',
+		'MIT AND (Apache-2.0 OR GPL-3.0-only)',
+		'(MIT AND ISC) OR GPL-3.0-only',
+		'((MIT))',
+	])('allows the valid expression %s', (license) => {
+		expect(evaluateLicenseInventory({ [license]: [dependency] }).violations).toEqual([]);
+	});
+
+	it.each([
+		'MIT AND GPL-3.0-only',
+		'MIT AND (GPL-3.0-only OR AGPL-3.0-only)',
+		'MIT WITH Classpath-exception-2.0',
+		'MIT+',
+		'LicenseRef-Custom',
+	])('requires a reviewed finding for %s', (license) => {
+		expect(evaluateLicenseInventory({ [license]: [dependency] }).violations).toHaveLength(1);
+	});
+});
+
 describe('production license exceptions', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();

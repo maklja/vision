@@ -7,6 +7,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
+import parseSpdxExpression from 'spdx-expression-parse';
 
 // Permissive licenses that may ship without a review.
 const allowedLicenses = new Set([
@@ -48,80 +49,30 @@ const acceptedFindings = [];
 
 const reviewWindowDays = 90;
 
-const splitTopLevel = (expression, separator) => {
-	const parts = [];
-	let current = '';
-	let depth = 0;
-
-	for (let index = 0; index < expression.length; index += 1) {
-		const character = expression[index];
-		if (character === '(') {
-			depth += 1;
-		} else if (character === ')') {
-			depth -= 1;
-		}
-
-		if (depth === 0 && expression.startsWith(separator, index)) {
-			parts.push(current);
-			current = '';
-			index += separator.length - 1;
-			continue;
-		}
-
-		current += character;
+// Evaluate only a fully parsed expression so an allowed OR branch cannot hide invalid metadata.
+const isParsedLicenseAllowed = (node) => {
+	if (node.conjunction === 'or') {
+		return isParsedLicenseAllowed(node.left) || isParsedLicenseAllowed(node.right);
+	}
+	if (node.conjunction === 'and') {
+		return isParsedLicenseAllowed(node.left) && isParsedLicenseAllowed(node.right);
 	}
 
-	parts.push(current);
-	return parts.map((part) => part.trim()).filter((part) => part.length > 0);
+	// WITH exceptions and + modifiers change the terms and need their own reviewed finding.
+	return (
+		!node.exception &&
+		!node.plus &&
+		!deniedLicenses.has(node.license) &&
+		allowedLicenses.has(node.license)
+	);
 };
 
-const stripWrap = (expression) => {
-	let value = expression.trim();
-
-	while (value.startsWith('(') && value.endsWith(')')) {
-		let depth = 0;
-		let wraps = true;
-
-		for (let index = 0; index < value.length; index += 1) {
-			if (value[index] === '(') {
-				depth += 1;
-			} else if (value[index] === ')') {
-				depth -= 1;
-			}
-			if (depth === 0 && index < value.length - 1) {
-				wraps = false;
-				break;
-			}
-		}
-
-		if (!wraps) {
-			break;
-		}
-		value = value.slice(1, -1).trim();
-	}
-
-	return value;
-};
-
-// A license expression passes when one OR alternative is allowed and every AND requirement is
-// allowed, so a dual-licensed package like `(MPL-2.0 OR Apache-2.0)` passes through Apache-2.0.
 const isLicenseAllowed = (expression) => {
-	const value = stripWrap(expression);
-	const alternatives = splitTopLevel(value, ' OR ');
-	if (alternatives.length > 1) {
-		return alternatives.some(isLicenseAllowed);
-	}
-
-	const requirements = splitTopLevel(value, ' AND ');
-	if (requirements.length > 1) {
-		return requirements.every(isLicenseAllowed);
-	}
-
-	if (deniedLicenses.has(value)) {
+	try {
+		return isParsedLicenseAllowed(parseSpdxExpression(expression));
+	} catch {
 		return false;
 	}
-
-	return allowedLicenses.has(value);
 };
 
 const millisecondsPerDay = 24 * 60 * 60 * 1000;
