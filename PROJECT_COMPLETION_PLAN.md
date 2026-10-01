@@ -1,6 +1,6 @@
 # RxJS Vision completion plan
 
-Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 was verified complete on 2026-10-01 against `main` commit `41a6b66` after PR #124 merged. Phase 3.1 inventory was prepared on 2026-10-01 for review in the documentation PR linked below. Phases 3.2–3.4 remain planned; Phase 3 is not complete.
+Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 was verified complete on 2026-10-01 against `main` commit `41a6b66` after PR #124 merged. Phase 3.1 inventory was prepared on 2026-10-01 for review in [PR #128](https://github.com/maklja/vision/pull/128). Phases 3.2–3.4 remain planned; Phase 3 is not complete.
 
 ## Goal
 
@@ -352,7 +352,7 @@ compatibility review and relevant tests on current `main`; clean reimplementatio
 
 Deliver a documentation-only PR adding `planning/legacy-pr-triage.md` and updating this plan.
 
-**Prepared for review on 2026-10-01:** [requirement inventory and complete source ledger](planning/legacy-pr-triage.md). Inspected all 220 changed paths at the recorded heads, the empty PR discussions, current source and characterization tests. The inventory contains 21 canonical behavior requirements and four implementation/exclusion records, an overlap map, prototype hazards, compatibility requirements, and explicit questions for 3.2/3.3. Keep/drop/defer proposals still require design review. No runtime code, implementation issue, ADR, source-PR closure, or Phase 3 gate completion is claimed. Validation: formatting, changed-path coverage, immutable source paths and current evidence links checked. This documentation step unblocks 3.2/3.3 after review.
+**Prepared for review on 2026-10-01 in [PR #128](https://github.com/maklja/vision/pull/128):** [requirement inventory and complete source ledger](planning/legacy-pr-triage.md). Inspected all 220 changed paths at the recorded heads, the empty PR discussions, current source and characterization tests. The inventory contains 21 canonical behavior requirements and four implementation/exclusion records, an overlap map, prototype hazards, compatibility requirements, and explicit questions for 3.2/3.3. Keep/drop/defer proposals still require design review. No runtime code, implementation issue, ADR, source-PR closure, or Phase 3 gate completion is claimed. Validation: formatting, changed-path coverage, immutable source paths and current evidence links checked. This documentation step unblocks 3.2/3.3 after review.
 
 - Inspect each source PR's complete diff and discussion at its recorded head. Compare against
   current source and characterization tests; running an old branch is optional when static
