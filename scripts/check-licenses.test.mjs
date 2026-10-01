@@ -19,6 +19,44 @@ describe('production license exceptions', () => {
 	afterEach(() => vi.useRealTimers());
 
 	it.each([
+		'2026-11-01T00:00:00Z',
+		'2026-11-01T00:00:01Z',
+		'2026-11-01T12:00:00Z',
+		'2026-11-01T23:59:59.999Z',
+	])('keeps an exception valid on its review date at %s', (now) => {
+		vi.setSystemTime(new Date(now));
+		const result = evaluateLicenseInventory({ 'GPL-3.0-only': [dependency] }, [
+			acceptedFinding,
+		]);
+		expect(result.violations).toEqual([]);
+		expect(result.appliedFindings).toHaveLength(1);
+	});
+
+	it('expires an exception at UTC midnight after its review date', () => {
+		vi.setSystemTime(new Date('2026-11-02T00:00:00Z'));
+		const result = evaluateLicenseInventory({ MIT: [dependency] }, [acceptedFinding]);
+		expect(result.violations).toHaveLength(1);
+		expect(result.violations[0].reason).toContain('has passed');
+	});
+
+	it.each(['2026-10-01T00:00:00Z', '2026-10-01T23:59:59.999Z'])(
+		'enforces the 90-calendar-day window at %s',
+		(now) => {
+			vi.setSystemTime(new Date(now));
+			const inventory = { 'GPL-3.0-only': [dependency] };
+			const atLimit = evaluateLicenseInventory(inventory, [
+				{ ...acceptedFinding, reviewBy: '2026-12-30' },
+			]);
+			expect(atLimit.violations).toEqual([]);
+			const beyondLimit = evaluateLicenseInventory(inventory, [
+				{ ...acceptedFinding, reviewBy: '2026-12-31' },
+			]);
+			expect(beyondLimit.violations[0].reason).toContain('within 90 days');
+			expect(beyondLimit.appliedFindings).toEqual([]);
+		},
+	);
+
+	it.each([
 		['removed dependency', { MIT: [{ name: 'other', versions: ['1.0.0'] }] }],
 		['changed license', { MIT: [dependency] }],
 		['allow-listed license', { MIT: [dependency] }, 'MIT'],

@@ -124,7 +124,11 @@ const isLicenseAllowed = (expression) => {
 	return allowedLicenses.has(value);
 };
 
-const daysUntil = (date) => (Date.parse(date) - Date.now()) / (24 * 60 * 60 * 1000);
+const millisecondsPerDay = 24 * 60 * 60 * 1000;
+
+// reviewBy is a UTC calendar date: it remains valid through that entire day.
+const daysUntil = (date) =>
+	Date.parse(date) / millisecondsPerDay - Math.floor(Date.now() / millisecondsPerDay);
 
 const describeFindingProblem = (finding) => {
 	if (
