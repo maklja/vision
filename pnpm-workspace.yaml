@@ -2,3 +2,12 @@ packages:
     - './packages/**'
 allowBuilds:
     esbuild: true
+# Security patches for transitive dependencies, scoped to the vulnerable major line. See
+# DEPENDENCY_MAINTENANCE.md.
+overrides:
+    '@babel/runtime@7': 7.29.7
+    'brace-expansion@1': 1.1.21
+    'dompurify@3': 3.4.16
+    'flatted@3': 3.4.4
+    'minimatch@3': 3.1.5
+    'yaml@1': 1.10.3

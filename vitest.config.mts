@@ -11,6 +11,12 @@ export default defineConfig({
 		projects: [
 			{
 				test: {
+					name: 'scripts',
+					include: ['scripts/**/*.test.mjs'],
+				},
+			},
+			{
+				test: {
 					name: 'engine-and-model',
 					include: ['packages/simulator-{engine,model}/src/**/*.test.ts'],
 				},

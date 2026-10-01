@@ -182,6 +182,31 @@ still has no external imports.
 The production viewer build is written to `packages/simulator-viewer/build`. The versioned `docs/`
 directory contains the static build served by GitHub Pages.
 
+### Dependency maintenance
+
+Dependabot keeps the pnpm workspace current: patch and minor updates arrive as a single grouped
+weekly pull request, every major update arrives as its own pull request, and nothing is
+auto-merged. The full policy, including the license allow list and the accepted-finding process,
+lives in `DEPENDENCY_MAINTENANCE.md`.
+
+Run both dependency gates (CI runs each gate in a separate step):
+
+```bash
+pnpm audit:dependencies
+```
+
+`pnpm audit:dependencies` runs `pnpm audit --audit-level high` for high and critical vulnerabilities
+and then `pnpm audit:licenses`, which checks the production dependency inventory from
+`pnpm licenses list --prod --json` with `scripts/check-licenses.mjs`.
+
+Transitive advisories that have a fix in the same major line are pinned through `overrides` in
+`pnpm-workspace.yaml`, scoped to the affected major so unrelated consumers keep the versions they
+need.
+
+Patching those transitive dependencies leaves the build effectively unchanged: the main viewer
+chunk is 1,174.72 kB raw and 356.13 kB gzip against 1,174.96 kB and 356.25 kB before the
+overrides, and the Worker chunk stays at 99.47 kB.
+
 ### Supported browsers
 
 RxJS Vision supports the current and previous stable release of Chromium, Firefox, and
