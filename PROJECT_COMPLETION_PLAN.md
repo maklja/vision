@@ -1,6 +1,6 @@
 # RxJS Vision completion plan
 
-Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 was verified complete on 2026-10-01 against `main` commit `41a6b66` after PR #124 merged. Phase 3.1 inventory merged on 2026-10-01 in [PR #128](https://github.com/maklja/vision/pull/128). Phase 3.2 subscription design is prepared for review with issues #129–#131; old PRs #40/#42/#50 are closed as superseded. Phase 3.3 handoff is #132; 3.3/3.4 remain planned and Phase 3 is not complete.
+Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 was verified complete on 2026-10-01 against `main` commit `41a6b66` after PR #124 merged. Phase 3.1 inventory merged on 2026-10-01 in [PR #128](https://github.com/maklja/vision/pull/128). Phase 3.2 design was accepted in merged PR #133 on 2026-10-02; issues #129–#131 track implementation. Old PRs #40/#42/#50 are closed as superseded. Phase 3.3 design handoff is prepared for review with issues #134–#137 and closes #132 on merge. Phase 3.4 remains planned and Phase 3 is not complete.
 
 ## Goal
 
@@ -38,7 +38,7 @@ No new operator or product feature should be implemented before phases 1 through
 | Phase 2.3F: RxJS                                        | Complete    | Issue #113 / PR #123: RxJS 7.8.2 and full engine/Worker behavior characterization.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Phase 2.4: dependency maintenance                       | Complete    | Merged in issue #114 ([PR #124](https://github.com/maklja/vision/pull/124)): Dependabot (`npm` ecosystem at the workspace root) groups patch and minor updates with a bound of five open pull requests and leaves every major update as its own pull request; the CI `dependency-audit` job runs `pnpm audit --audit-level high` and the production license gate `scripts/check-licenses.mjs`; the update, vulnerability, license, exception, and unused-dependency policy is documented in `DEPENDENCY_MAINTENANCE.md`; `@testing-library/user-event` and `eslint-plugin-prettier` were removed after a usage review.                                                                                                                                                                                                 |
 | Phase 2: dependency updates                             | Complete    | Verified 2026-10-01: issues #106–#114 closed as completed, all nine implementation PRs merged, and final CI run #125 passed the behavior/coverage/build/browser and dependency-audit jobs. See the Phase 2 verification record below.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Phase 3: old PR triage                                  | In progress | Phase 3.1 merged in #128. [Subscription design](planning/decisions/subscription-flow-events.md) prepared for 3.2 review; issues #129–#131. Old PRs #40/#42/#50 closed as superseded; context/parameter/export handoff #132. Steps 3.3/3.4 and design acceptance remain pending.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Phase 3: old PR triage                                  | In progress | Phase 3.1/3.2 merged in #128/#133. [Subscription design](planning/decisions/subscription-flow-events.md) accepted; issues #129–#131 remain open. [Phase 3.3 decision](planning/decisions/execution-context-and-parameters.md) prepared for review with #134–#137; closes #132 on merge. Old PRs #40/#42/#50 closed as superseded. Step 3.4 and 3.3 design acceptance remain pending.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 ## Definition of complete
 
@@ -327,7 +327,7 @@ Phase 2 blocker. No new version target is introduced by the Phase 3 planning wor
 
 ## Phase 3: triage the existing feature pull requests
 
-**Status: 3.1 merged; 3.2 design prepared for review; Phase 3 not complete.** Phase 2 has passed its gate. Phase 3 produces reviewed decisions,
+**Status: 3.1/3.2 merged; 3.3 design handoff prepared for review; Phase 3 not complete.** Phase 2 has passed its gate. Phase 3 produces reviewed decisions,
 requirements, examples, and implementation issues; feature code belongs to Phases 4 and 6.
 Start from the upgraded `main`, not from an old feature branch.
 
@@ -337,7 +337,7 @@ Snapshot refreshed for Phase 3.1 on 2026-10-01 against `main` commit `5e479dc`. 
 with `git rev-list --left-right --count main...<branch>`; refresh them at the start of triage.
 This table preserves the Phase 3.1 evidence snapshot. All three PRs are now closed as superseded
 under the user's strict cleanup instruction; no implementation is selected for reuse. Valuable
-requirements remain in #129–#131 (subscription) and #132 (Phase 3.3 context/parameter/export design).
+requirements remain in #129–#131 (subscription) and #134–#137 (context, parameters, export and optional scaffolds). Design handoff #132 closes when the Phase 3.3 PR merges.
 
 | Source PR                                                              | Head / divergence              | Candidate value                                                                                              | Proposed disposition                                                                                                                                                     |
 | ---------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -374,7 +374,7 @@ excluding it; duplicate ideas have one canonical record. This step unblocks 3.2 
 Deliver a focused design PR updating the inventory and adding
 `planning/decisions/subscription-flow-events.md`; create the corresponding implementation issues.
 
-**Prepared for review on 2026-10-01:** [subscription decision and T1–T8/U1–U4 examples](planning/decisions/subscription-flow-events.md). Retained requirements map to [protocol/engine #129](https://github.com/maklja/vision/issues/129), dependent [visualization/state #130](https://github.com/maklja/vision/issues/130) and independently justified [scheduler/retention #131](https://github.com/maklja/vision/issues/131). Reject #50's unfinished implementation and preserve current callback/persistence compatibility. No runtime feature is implemented; design acceptance remains pending review.
+**Accepted on 2026-10-02 in [PR #133](https://github.com/maklja/vision/pull/133):** [subscription decision and T1–T8/U1–U4 examples](planning/decisions/subscription-flow-events.md). Retained requirements map to [protocol/engine #129](https://github.com/maklja/vision/issues/129), dependent [visualization/state #130](https://github.com/maklja/vision/issues/130) and independently justified [scheduler/retention #131](https://github.com/maklja/vision/issues/131). Reject #50's unfinished implementation and preserve current callback/persistence compatibility. No runtime feature is implemented; merge accepted the design and implementation remains in these issues.
 
 **Cleanup adjustment authorized by the user:** close the three obsolete implementations now,
 with replacement links and preserved history. #40/#42's useful ideas remain in the merged inventory
@@ -400,6 +400,8 @@ is implemented in this triage PR.
 
 Deliver a second design PR updating the inventory and adding
 `planning/decisions/execution-context-and-parameters.md`; create focused implementation issues.
+
+**Prepared for review on 2026-10-02:** [execution/context/parameter/export decision and E1–E9 examples](planning/decisions/execution-context-and-parameters.md). All C01–C05/P01–P06/G01–G02 records have explicit dispositions: run context/trust/override validation [#134](https://github.com/maklja/vision/issues/134), versioned typed parameters and editors [#135](https://github.com/maklja/vision/issues/135), full RxJS export [#136](https://github.com/maklja/vision/issues/136), and optional explicit scaffold UX [#137](https://github.com/maklja/vision/issues/137). Reject both old implementations and duplicate hooks/forms; preserve current callbacks and interaction evidence. Trust, persistence, defaults, cancellation and dependency decisions are documented. No runtime code changes. Merge accepts this design and closes #132; 3.4 remains pending. Validation: changed Markdown formatting and source/record/link traceability, with normal CI enabled.
 
 - Decide context lifetime and isolation (per diagram/run/subscription), initialization ordering,
   cancellation, restart behavior, supported variables/functions, and expression diagnostics.
@@ -441,12 +443,12 @@ and Phase 4 can be implemented from current `main` without interpreting the old 
 
 ### Delivery sequence and validation
 
-| Step | Depends on           | Reviewable output                                                                             | Status              |
-| ---- | -------------------- | --------------------------------------------------------------------------------------------- | ------------------- |
-| 3.1  | Phase 2 gate         | [Requirement inventory and overlap map](planning/legacy-pr-triage.md)                         | Merged (#128)       |
-| 3.2  | 3.1                  | [Subscription decision](planning/decisions/subscription-flow-events.md), traces and #129–#131 | Prepared for review |
-| 3.3  | 3.1                  | Context/parameter decision and Phase 4/6 issues; handoff #132                                 | Planned             |
-| 3.4  | Accepted 3.2 and 3.3 | Linked handoff, old-PR closure, and Phase 3 gate update                                       | Planned             |
+| Step | Depends on           | Reviewable output                                                                                                               | Status              |
+| ---- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| 3.1  | Phase 2 gate         | [Requirement inventory and overlap map](planning/legacy-pr-triage.md)                                                           | Merged (#128)       |
+| 3.2  | 3.1                  | [Subscription decision](planning/decisions/subscription-flow-events.md), traces and #129–#131                                   | Merged (#133)       |
+| 3.3  | 3.1                  | [Context/parameter decision](planning/decisions/execution-context-and-parameters.md), E1–E9 and #134–#137; closes #132 on merge | Prepared for review |
+| 3.4  | Accepted 3.2 and 3.3 | Linked handoff, old-PR closure, and Phase 3 gate update                                                                         | Planned             |
 
 Use one PR per step. Keep the current Node/pnpm/RxJS baseline. Documentation-only work requires
 formatting and traceability/link checks; normal CI still runs. Any executable prototype or added
@@ -509,7 +511,7 @@ driven operators:
 Define a versioned event contract for:
 
 - Subscribe, next, error, complete, and unsubscribe.
-- Event ID, subscription ID, branch ID, dependencies, sequence number, and timestamp/virtual time.
+- Event ID, run/subscription identity, dependencies, sequence and monotonic run-relative time (accepted Phase 3.2 decision; no parallel branch ID).
 - The traversed connection path and source/target elements.
 - Worker creation errors versus observable runtime errors.
 

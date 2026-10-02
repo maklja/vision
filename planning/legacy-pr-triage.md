@@ -1,13 +1,17 @@
 # Legacy feature PR inventory — Phase 3.1
 
-Status: Phase 3.1 inventory merged in PR #128. Phase 3.2 subscription decisions are proposed in
-[subscription-flow-events.md](decisions/subscription-flow-events.md), with implementation issues
+Status: Phase 3.1 inventory merged in PR #128; Phase 3.2 subscription decision accepted by merged
+[PR #133](https://github.com/maklja/vision/pull/133). Subscription implementation remains in
 [#129](https://github.com/maklja/vision/issues/129),
 [#130](https://github.com/maklja/vision/issues/130) and
-[#131](https://github.com/maklja/vision/issues/131). C/P/G decisions remain Phase 3.3 work tracked by
-[#132](https://github.com/maklja/vision/issues/132). The original inventory tables below remain the
-Phase 3.1 proposals; the Phase 3.2 decision/disposition table governs S01–S08 after review.
-Phase 3 remains open until steps 3.2–3.4 are accepted.
+[#131](https://github.com/maklja/vision/issues/131).
+Phase 3.3 [context/parameter/export decision](decisions/execution-context-and-parameters.md) is
+prepared for review with implementation issues [#134](https://github.com/maklja/vision/issues/134),
+[#135](https://github.com/maklja/vision/issues/135), [#136](https://github.com/maklja/vision/issues/136)
+and optional scaffold [#137](https://github.com/maklja/vision/issues/137). Design handoff
+[#132](https://github.com/maklja/vision/issues/132) closes on design merge. Original inventory tables
+remain the Phase 3.1 proposals; accepted decisions govern S01–S08, and the Phase 3.3 disposition
+table governs C01–C05/P01–P06/G01–G02 after review. Phase 3.4 and the overall Phase 3 gate remain open.
 This documentation changes no runtime behavior and authorizes no wholesale merge/rebase of the
 reference branches.
 
@@ -157,10 +161,10 @@ These links are characterization evidence, not claims that all future requiremen
 
 | Shared idea                                           | Canonical record                          | Consolidation / next owner                                                                    |
 | ----------------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Shared context vs passing invocation parameters       | C01 + P01 (different requirements)        | 3.3 must compare concurrent examples; do not silently replace one with the other.             |
-| Pre-input, selected-branch and outer-value hooks      | C02–C04; existing callback capability P02 | 3.3 decides whether a separate hook API adds value over existing factories.                   |
-| Literal/context variable/expression parameters        | P03; compatibility P04                    | One serializable parameter design in 3.3, implemented after 4.1/4.3.                          |
-| Callback generation and full RxJS export              | G02 vs G01                                | Keep separate UX requirements but one canonical full-export backlog item in 6.3.              |
+| Shared context vs passing invocation parameters       | C01 + P01 (different requirements)        | E1/E3 in the 3.3 decision: shared run state vs isolated explicit invocation data (#134).      |
+| Pre-input, selected-branch and outer-value hooks      | C02–C04; existing callback capability P02 | 3.3 drops separate hooks; existing lazy callbacks preserve selected-input effects (#134).     |
+| Literal/context variable/expression parameters        | P03; compatibility P04                    | 3.3 parameter-v1 design, implemented after 4.1/4.3 (#135).                                    |
+| Callback generation and full RxJS export              | G02 vs G01                                | 3.3 separates deferred explicit scaffolds (#137) from canonical full export (#136).           |
 | Subscription markers, branch/value identity and gates | S01/S02; scheduling S03                   | 3.2 reconciles `branchId` with existing `subscribeId`/dependencies; no duplicate ID protocol. |
 | Prototype queues vs main's bounded scheduler          | S03/S08; reset S07                        | 3.2 uses existing scheduler and limits as baseline, documenting independent gaps only.        |
 
@@ -179,7 +183,8 @@ retained here as the original review checklist):
 5. Do current 16-group/100-result bounds suffice for protocol/history work? What truncation signal
    is needed, and what per-event/path-size or engine bookkeeping limits remain unmeasured?
 
-Questions for 3.3:
+Questions for 3.3 (answered in the proposed [decision](decisions/execution-context-and-parameters.md);
+retained as the original review checklist):
 
 1. Is context per run, diagram, subscription or branch? Who initializes it, when, and how do
    concurrent callbacks, cancellation, restart, exceptions and fallback affect it?
