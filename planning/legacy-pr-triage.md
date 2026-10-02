@@ -1,17 +1,13 @@
 # Legacy feature PR inventory — Phase 3.1
 
-Status: Phase 3.1 inventory merged in PR #128; Phase 3.2 subscription decision accepted by merged
-[PR #133](https://github.com/maklja/vision/pull/133). Subscription implementation remains in
-[#129](https://github.com/maklja/vision/issues/129),
-[#130](https://github.com/maklja/vision/issues/130) and
-[#131](https://github.com/maklja/vision/issues/131).
-Phase 3.3 [context/parameter/export decision](decisions/execution-context-and-parameters.md) is
-prepared for review with implementation issues [#134](https://github.com/maklja/vision/issues/134),
-[#135](https://github.com/maklja/vision/issues/135), [#136](https://github.com/maklja/vision/issues/136)
-and optional scaffold [#137](https://github.com/maklja/vision/issues/137). Design handoff
-[#132](https://github.com/maklja/vision/issues/132) closes on design merge. Original inventory tables
-remain the Phase 3.1 proposals; accepted decisions govern S01–S08, and the Phase 3.3 disposition
-table governs C01–C05/P01–P06/G01–G02 after review. Phase 3.4 and the overall Phase 3 gate remain open.
+Status: Phase 3 gate verified complete on 2026-10-02; [final Phase 3.4 handoff](phase-3-handoff.md)
+records all 25 dispositions, accepted contracts, source closure/ref evidence and Phase 4 order.
+Inventory accepted in merged #128; subscription design accepted in merged #133; context/parameter/
+export design accepted in merged #138. Design handoff #132 is closed. Runtime work remains in
+#129–#131/#134–#137, with versioned persistence #139 and operator definition foundation #140.
+Original inventory tables are the historical Phase 3.1 proposals; the accepted decisions and final
+handoff govern all C/P/G/S/X rows. Phase 4 may proceed from current main; operator expansion waits
+for its contract/test gate. The final handoff documentation is prepared for review.
 This documentation changes no runtime behavior and authorizes no wholesale merge/rebase of the
 reference branches.
 
@@ -47,7 +43,7 @@ Repeat for #42/#50 using their recorded heads rather than accepting a later bran
 Counts above are behind/ahead reversed into the table's ahead/behind order. This is the immutable
 Phase 3.1 snapshot, not live divergence. Reference history is preserved. Under the user's strict
 cleanup instruction, #40/#42/#50 are closed as superseded during Phase 3.2, with linked handoffs;
-closure does not approve the remaining designs or complete Phase 3.4.
+closure itself did not approve designs; #133/#138 subsequently accepted them. Phase 3.4 verifies this evidence in the final handoff.
 
 ## Reading the inventory
 
@@ -168,7 +164,7 @@ These links are characterization evidence, not claims that all future requiremen
 | Subscription markers, branch/value identity and gates | S01/S02; scheduling S03                   | 3.2 reconciles `branchId` with existing `subscribeId`/dependencies; no duplicate ID protocol. |
 | Prototype queues vs main's bounded scheduler          | S03/S08; reset S07                        | 3.2 uses existing scheduler and limits as baseline, documenting independent gaps only.        |
 
-Questions for 3.2 (answered in the proposed [decision](decisions/subscription-flow-events.md);
+Questions for 3.2 (answered in the accepted [decision](decisions/subscription-flow-events.md);
 retained here as the original review checklist):
 
 1. Which events are emitted per subscription, and how are complete, explicit unsubscribe and
@@ -183,7 +179,7 @@ retained here as the original review checklist):
 5. Do current 16-group/100-result bounds suffice for protocol/history work? What truncation signal
    is needed, and what per-event/path-size or engine bookkeeping limits remain unmeasured?
 
-Questions for 3.3 (answered in the proposed [decision](decisions/execution-context-and-parameters.md);
+Questions for 3.3 (answered in the accepted [decision](decisions/execution-context-and-parameters.md);
 retained as the original review checklist):
 
 1. Is context per run, diagram, subscription or branch? Who initializes it, when, and how do
@@ -199,17 +195,20 @@ retained as the original review checklist):
    and how are unsupported constructs diagnosed? Should callback scaffolding be opt-in and preserve
    authored code across reconnection, undo and reload?
 
-## Handoff and acceptance boundary
+## Final handoff and acceptance boundary
 
-Phase 3.2 owns S01–S08 and their protocol/visualization issue split. Phase 3.3 owns C01–C05,
-P01–P06 and G01–G02, consolidating execution/validation, parameter schema/UX and code export issues.
-Already-covered rows need no redundant feature issue, but their evidence must remain linked from
-accepted decisions. X01–X04 require no new feature backlog. New issues are deliberately left to
-those design steps, as specified by the plan; there are no placeholder issue numbers or accepted ADRs.
+[Phase 3.4 handoff](phase-3-handoff.md) consolidates the accepted dispositions, ownership,
+examples, preserved legacy refs and numbered dependency order for all 25 records. Subscription
+implementation is #129/#130/#131; execution/validation is #134; parameter model/UX is #135;
+readable RxJS export is #136; optional explicit scaffolds are #137. Foundation #139 owns versioned
+storage/import/recovery; #140 owns minimum field/signature metadata and current operator registration.
+Already-covered behavior and X01–X04 have linked regression/exclusion evidence and require no
+redundant feature issue. No retained requirement needs interpretation of the closed prototypes.
 
-Phase 3.4 must verify final decisions, add the accepted ADR/test/issue links for every retained or
-deferred requirement, order dependencies, link replacements from #40/#42/#50 and close them.
-Until then the source PRs remain open references and Phase 4/operator expansion remain gated.
+#40/#42/#50 are closed and unmerged; their branch refs match the recorded heads. #132 closed when
+#138 merged. Phase 3 gate evidence is complete; future implementation issues remain open. No
+runtime feature is accepted by closing its source prototype. Operator expansion remains gated on
+Phase 4 contracts, implementations and tests.
 
 ## Source ledger — complete changed-path coverage
 

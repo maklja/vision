@@ -1,9 +1,10 @@
 # Execution context, parameters and RxJS export — Phase 3.3 decision
 
-Status: proposed design, implementation handoff complete and ready for review. Merge is design
-acceptance; no runtime feature is implemented. Phase 3.4 and the overall Phase 3 gate remain open.
-Written 2026-10-02 against main `01e55a23e9ff9cc84a7689bed13323751e43ad41` (merged #133).
-Resolves design handoff [#132](https://github.com/maklja/vision/issues/132) on merge.
+Status: accepted by merged [PR #138](https://github.com/maklja/vision/pull/138) on 2026-10-02;
+no runtime feature is implemented. Design handoff [#132](https://github.com/maklja/vision/issues/132)
+is closed. Phase 3.4 [final handoff](../phase-3-handoff.md) verifies the completed Phase 3 gate and
+orders implementation dependencies. Written 2026-10-02 against main
+`01e55a23e9ff9cc84a7689bed13323751e43ad41` (merged #133).
 
 ## Disposition and canonical owners
 
@@ -16,7 +17,7 @@ Sources: [#40](https://github.com/maklja/vision/pull/40) at
 `254a902f5b780f6e0507093b3215b4f8dc1e9948`. Exact paths and immutable links remain in
 [the complete inventory](../legacy-pr-triage.md). Both PRs are already closed as superseded.
 
-The table governs C/P/G records after review; the original inventory remains historical evidence.
+The accepted table governs C/P/G records; the original inventory remains historical evidence.
 Examples below are specification fixtures, not executable tests or current behavior claims.
 
 | Record | Decision and reason                                                                                        | Example / compatibility evidence                                         | Canonical implementation                                           |
@@ -266,6 +267,7 @@ journeys. Documentation-only validation here is formatting plus source/record/li
 
 No circular prerequisite: #134 establishes evaluator/trust semantics; #135 consumes them when
 integrating expressions. Schema/metadata design can proceed independently, release integration
-requires all named gates. Phase 3.4 must review this handoff with the accepted subscription decision,
-verify all source closures/history and order the Phase 4 backlog. Merge accepts this design;
-implementation issues remain open until their runtime/model/UX features and tests are delivered.
+requires all named gates. The [final Phase 3.4 handoff](../phase-3-handoff.md) records verified closure/history and numbered
+foundation/core/integration dependencies: #139 persistence, #140 minimum metadata, #134 core before
+#129 correlation, then final integration. Optional #137 also requires Phase 6.1 undo transactions.
+Implementation issues remain open until their runtime/model/UX features and tests are delivered.
