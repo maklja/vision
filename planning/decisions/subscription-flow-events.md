@@ -1,8 +1,9 @@
 # Subscription and flow events — Phase 3.2 decision
 
-Status: proposed design, ready for review; no runtime change. Review/merge of this design is the
-acceptance point. Phase 3.3/3.4 and the overall Phase 3 gate remain open. Written on 2026-10-01
-against `main` `2af7ec09d2bec5b491eb8a110dcbbde653642cb3` (merged inventory PR #128).
+Status: accepted by merged [PR #133](https://github.com/maklja/vision/pull/133) on 2026-10-02;
+no runtime change. Phase 3.4 [final handoff](../phase-3-handoff.md) verifies the completed Phase 3
+gate and orders implementation issues. Written on 2026-10-01 against main
+`2af7ec09d2bec5b491eb8a110dcbbde653642cb3` (merged inventory PR #128).
 
 ## Decision and source disposition
 
@@ -16,7 +17,7 @@ Source: [#50](https://github.com/maklja/vision/pull/50), head
 [the inventory](../legacy-pr-triage.md). Source PR closure is administrative cleanup under the
 user's instruction, independent of approval of the new design. Preserve the reference history.
 #40/#42 are also superseded implementations; their remaining C/P/G decisions belong to
-[Phase 3.3 handoff #132](https://github.com/maklja/vision/issues/132), not this decision.
+[accepted Phase 3.3 decision](execution-context-and-parameters.md) and implementation #134–#137, not this decision.
 
 | Record | Decision                                                               | User benefit / expected example                                          | Implementation destination                                                                               |
 | ------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
@@ -191,7 +192,7 @@ and readiness are internal sequencing; attach the event observer before subscrib
 avoid losing synchronous notifications. Run completion and presentation completion must be separate
 flags; any non-next record must not imply whole-run completion. Locks and traces are transient and
 must not enter IndexedDB, exports or undo history. No persisted diagram migration is needed for
-this derived styling design; future parameter/schema changes remain Phase 4.1/3.3 work.
+this derived styling design; future parameter/schema changes follow the accepted Phase 3.3 contract and Phase 4.1 implementation.
 
 ## Retention and independent scheduler gap
 
@@ -239,15 +240,16 @@ its own generation guard and detach listeners on termination. Worker/fallback no
 agree for controllable fixtures; neither Worker nor fallback is a security sandbox. This design
 adds no network capability or trust policy; authored/imported-code policy stays in Phase 3.3.
 
-1. Review this decision and #129–#131; coordinate graph instrumentation with Phase 4.2 and invocation
-   contracts with Phase 4.3. #132 is the separate context/parameter/export design handoff.
+1. Follow the accepted decision and #129–#131; coordinate minimum graph metadata #140 and
+   invocation core #134 using the [final handoff](../phase-3-handoff.md). #138 accepted the separate
+   context/parameter/export contract and closed #132.
 2. Implement #129 protocol/engine with clock fixtures and legacy adapter from current main.
 3. Implement #131 scheduler/retention and #130 viewer/state in dependency order; both depend on #129
    and must land before lifecycle visualization is considered complete.
 4. Run relevant engine/store/Worker tests, typecheck/lint/build and browser branch/join, error,
    infinite restart, persistence and reduced-motion journeys. Document measured budgets and limits.
-5. Phase 3.4 reconciles accepted records and closure evidence; closing prototypes alone does not
-   complete the Phase 3 gate. Phase 6.3 timeline/code export and Phase 7 profiling remain separate.
+5. Phase 3.4 verified the accepted records and closure evidence; its final handoff records the
+   completed Phase 3 gate. Phase 6.3 timeline/code export and Phase 7 profiling remain separate.
 
 Design validation: normalized T1–T8 cover all retained S rows; U1–U4 cover accessible styling,
 mutation policy and timing; issue links specify compatibility, test and dependency criteria. This
