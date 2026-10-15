@@ -15,6 +15,10 @@ const { getMock, setMock, capturedStore } = vi.hoisted(() => ({
 vi.mock('idb-keyval', () => ({
 	get: getMock,
 	set: setMock,
+	setMany: (entries: [string, unknown][]) => {
+		const record = entries.find(([key]) => key.startsWith('vision:diagram:'));
+		return setMock(record?.[0], record?.[1]);
+	},
 }));
 
 vi.mock('./simulator', async () => {
@@ -107,6 +111,10 @@ function createTestScheduler() {
 	};
 }
 
+import { currentReleaseDiagram } from '../../simulator-model/test/fixtures/currentReleaseDiagram';
+import { migrateLegacyDiagram } from '@maklja/vision-simulator-model';
+import { RECOVERY_BACKUP_KEY } from './persistence';
+
 describe('App persistence failures', () => {
 	let console_: ReturnType<typeof spyOnConsole>;
 
@@ -169,6 +177,34 @@ describe('App persistence failures', () => {
 		expect(screen.getByLabelText('loaded elements')).not.toBeNull();
 	});
 
+	it('imports a valid diagram from the blocked recovery editor when the active pointer is malformed', async () => {
+		getMock.mockResolvedValue(42);
+		render(<App />);
+		await screen.findByLabelText('loaded elements');
+		expect(setMock).not.toHaveBeenCalled();
+		fireEvent.click(screen.getByText('Diagram files'));
+		const source = JSON.stringify(
+			migrateLegacyDiagram(currentReleaseDiagram, 'import-id', '2026-10-15T19:00:00Z'),
+		);
+		const file = new File([source], 'diagram.json', { type: 'application/json' });
+		Object.defineProperty(file, 'text', { value: async () => source });
+		fireEvent.change(screen.getByLabelText('Import diagram JSON'), {
+			target: { files: [file] },
+		});
+		await waitFor(() =>
+			expect(screen.getByLabelText('loaded elements').textContent).toBe(
+				'of_0, map_0, subscriber_0',
+			),
+		);
+		expect(setMock).toHaveBeenCalledWith(RECOVERY_BACKUP_KEY, {
+			activePointer: 42,
+			record: undefined,
+		});
+		expect(
+			screen.getByRole('button', { name: 'Allow execution for this revision' }),
+		).not.toBeNull();
+	});
+
 	it('propagates the existing rejected write promise through the persistence seam', async () => {
 		setMock.mockRejectedValue(new Error('write failed'));
 
@@ -199,6 +235,74 @@ describe('diagram persistence recovery', () => {
 		setMock.mockResolvedValue(undefined);
 	});
 
+	it.each(['resolve', 'reject'] as const)(
+		'does not report or retry a stale write after serialization fails (%s)',
+		async (outcome) => {
+			let resolveWrite!: () => void;
+			let rejectWrite!: (error: Error) => void;
+			const save = vi
+				.fn()
+				.mockImplementationOnce(
+					() =>
+						new Promise<void>((resolve, reject) => {
+							resolveWrite = resolve;
+							rejectWrite = reject;
+						}),
+				)
+				.mockResolvedValue(undefined);
+			const { scheduler, scheduled } = createTestScheduler();
+			const store = createRootStore();
+			const onError = vi.fn();
+			const onSaved = vi.fn();
+			const unsubscribe = subscribeDiagramPersistence(store, onError, {
+				save,
+				onSaved,
+				scheduler,
+			});
+
+			store.getState().updateCanvasState({ x: 1 });
+			// This edit cannot be serialized while the preceding snapshot is still being saved.
+			store.getState().updateCanvasState({ x: NaN });
+			expect(onError).toHaveBeenCalledTimes(1);
+			if (outcome === 'resolve') resolveWrite();
+			else rejectWrite(new Error('write failed'));
+			await flushPromises();
+			expect(onSaved).not.toHaveBeenCalled();
+			expect(save).toHaveBeenCalledTimes(1);
+			expect(scheduled).toHaveLength(0);
+
+			// A subsequent valid edit can recover the save status normally.
+			store.getState().updateCanvasState({ x: 3 });
+			await flushPromises();
+			expect(save).toHaveBeenCalledTimes(2);
+			expect(onSaved).toHaveBeenCalledTimes(1);
+			expect(save.mock.calls[1][0].canvasState.x).toBe(3);
+			unsubscribe();
+		},
+	);
+
+	it('cancels an older scheduled retry when a newer edit cannot be serialized', async () => {
+		const { scheduler, scheduled, runScheduledRetry } = createTestScheduler();
+		const store = createRootStore();
+		const save = vi.fn().mockRejectedValue(new Error('write failed'));
+		const onSaved = vi.fn();
+		const unsubscribe = subscribeDiagramPersistence(store, () => undefined, {
+			save,
+			onSaved,
+			scheduler,
+		});
+		store.getState().updateCanvasState({ x: 1 });
+		await flushPromises();
+		expect(scheduled).toHaveLength(1);
+		store.getState().updateCanvasState({ x: NaN });
+		expect(scheduled[0].cancelled).toBe(true);
+		runScheduledRetry();
+		await flushPromises();
+		expect(save).toHaveBeenCalledTimes(1);
+		expect(onSaved).not.toHaveBeenCalled();
+		unsubscribe();
+	});
+
 	it('retries a rejected write and persists the latest diagram without another editor change', async () => {
 		const { scheduler, runScheduledRetry, scheduled } = createTestScheduler();
 		const store = createRootStore();
@@ -222,8 +326,12 @@ describe('diagram persistence recovery', () => {
 
 		expect(setMock).toHaveBeenCalledTimes(2);
 		expect(setMock).toHaveBeenLastCalledWith(
-			'test',
-			expect.objectContaining({ canvasState: { x: 10, y: 0, scaleX: 1, scaleY: 1 } }),
+			expect.stringContaining('vision:diagram:'),
+			expect.objectContaining({
+				diagram: expect.objectContaining({
+					canvasState: { x: 10, y: 0, scaleX: 1, scaleY: 1 },
+				}),
+			}),
 		);
 
 		unsubscribe();
@@ -243,8 +351,12 @@ describe('diagram persistence recovery', () => {
 			expect(setMock).toHaveBeenCalledTimes(2);
 		});
 		expect(setMock).toHaveBeenLastCalledWith(
-			'test',
-			expect.objectContaining({ canvasState: { x: 42, y: 0, scaleX: 1, scaleY: 1 } }),
+			expect.stringContaining('vision:diagram:'),
+			expect.objectContaining({
+				diagram: expect.objectContaining({
+					canvasState: { x: 42, y: 0, scaleX: 1, scaleY: 1 },
+				}),
+			}),
 		);
 	});
 
@@ -294,8 +406,12 @@ describe('diagram persistence recovery', () => {
 		expect(setMock).toHaveBeenCalledTimes(2);
 		expect(scheduled[0].cancelled).toBe(true);
 		expect(setMock).toHaveBeenLastCalledWith(
-			'test',
-			expect.objectContaining({ canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 } }),
+			expect.stringContaining('vision:diagram:'),
+			expect.objectContaining({
+				diagram: expect.objectContaining({
+					canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 },
+				}),
+			}),
 		);
 	});
 
@@ -327,8 +443,12 @@ describe('diagram persistence recovery', () => {
 
 		expect(setMock).toHaveBeenCalledTimes(2);
 		expect(setMock).toHaveBeenLastCalledWith(
-			'test',
-			expect.objectContaining({ canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 } }),
+			expect.stringContaining('vision:diagram:'),
+			expect.objectContaining({
+				diagram: expect.objectContaining({
+					canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 },
+				}),
+			}),
 		);
 	});
 
@@ -366,8 +486,12 @@ describe('diagram persistence recovery', () => {
 		expect(scheduled).toHaveLength(0);
 		expect(setMock).toHaveBeenCalledTimes(2);
 		expect(setMock).toHaveBeenLastCalledWith(
-			'test',
-			expect.objectContaining({ canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 } }),
+			expect.stringContaining('vision:diagram:'),
+			expect.objectContaining({
+				diagram: expect.objectContaining({
+					canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 },
+				}),
+			}),
 		);
 	});
 

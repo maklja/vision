@@ -41,6 +41,7 @@ function ElementAutocompleteOption({ element, onElementLocate }: ElementAutocomp
 }
 
 export interface SimulationControlsProps {
+	executionAllowed?: boolean;
 	simulatorId: string;
 	simulationState: SimulationState;
 	entryElements: Element[];
@@ -52,6 +53,7 @@ export interface SimulationControlsProps {
 }
 
 export function SimulationControls({
+	executionAllowed = true,
 	simulatorId,
 	simulationState,
 	entryElements,
@@ -135,7 +137,7 @@ export function SimulationControls({
 						color="primary"
 						title="Start simulation"
 						onClick={handleSimulationStart}
-						disabled={!entryElementId}
+						disabled={!entryElementId || !executionAllowed}
 					>
 						<PlayArrowIcon fontSize="large" />
 					</IconButton>
@@ -143,6 +145,7 @@ export function SimulationControls({
 
 				{simulationRunning && (
 					<IconButton
+						disabled={!executionAllowed}
 						aria-label="reset simulation"
 						color="primary"
 						title="Reset simulation"

@@ -1,5 +1,6 @@
 import Konva from 'konva';
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { useDiagramExecutionPermission } from '../persistence/DiagramExecutionGate';
 import { Unsubscribable } from 'rxjs';
 import Box from '@mui/material/Box';
 import { useShallow } from 'zustand/react/shallow';
@@ -37,16 +38,34 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	const simulateObservableEvent = useRootStore((state) => state.simulateObservableEvent);
 	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
 	const setSelectElements = useRootStore((state) => state.setSelectElements);
-	const [simulationSubscription, setSimulationSubscription] = useState<Unsubscribable | null>(
-		null,
-	);
+	const permission = useDiagramExecutionPermission();
+	const executionAllowed = permission.allowed;
+	const latestPermission = useRef(permission);
+	latestPermission.current = permission;
+	const simulationSubscription = useRef<Unsubscribable | null>(null);
+	const mounted = useRef(true);
+	useEffect(() => {
+		mounted.current = true;
+		return () => {
+			mounted.current = false;
+			simulationSubscription.current?.unsubscribe();
+		};
+	}, []);
 
 	async function handleSimulationStart(entryElementId: string) {
-		if (!entryElementId) {
+		if (!entryElementId || !executionAllowed) {
 			return;
 		}
 
+		const requestedRevision = permission.revision;
 		const { startObservableSimulation } = await import('@maklja/vision-simulator-engine');
+		// The chunk may arrive after source edits revoke approval (or approve another revision).
+		if (
+			!mounted.current ||
+			!latestPermission.current.allowed ||
+			latestPermission.current.revision !== requestedRevision
+		)
+			return;
 
 		const dispatchObservableEvent = (event: FlowValueEvent) =>
 			simulateObservableEvent({
@@ -84,18 +103,18 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 				createElementError(creationErrorEvent);
 			},
 		});
-		setSimulationSubscription(subscription);
+		simulationSubscription.current = subscription;
 	}
 
 	function handleSimulationStop() {
-		simulationSubscription?.unsubscribe();
-		setSimulationSubscription(null);
+		simulationSubscription.current?.unsubscribe();
+		simulationSubscription.current = null;
 		resetSimulation();
 	}
 
 	function handleSimulationReset(entryElementId: string) {
-		simulationSubscription?.unsubscribe();
-		setSimulationSubscription(null);
+		simulationSubscription.current?.unsubscribe();
+		simulationSubscription.current = null;
 
 		resetSimulation();
 		handleSimulationStart(entryElementId);
@@ -141,6 +160,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 			}}
 		>
 			<SimulationControls
+				executionAllowed={executionAllowed}
 				simulatorId={simulation.id}
 				simulationState={simulation.state}
 				entryElements={entryElements}

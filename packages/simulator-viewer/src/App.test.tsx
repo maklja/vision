@@ -70,7 +70,17 @@ vi.mock('./simulator', async () => {
 					</button>
 					<button
 						type="button"
-						onClick={() => addConnectLine(createConnectLine({ id: 'line-1' }))}
+						onClick={() => {
+							addElement(
+								createElement(MockedElementType.Of, { id: 'source-element' }),
+							);
+							addElement(
+								createElement(MockedElementType.Subscriber, {
+									id: 'target-element',
+								}),
+							);
+							addConnectLine(createConnectLine({ id: 'line-1' }));
+						}}
 					>
 						Add connect line
 					</button>
@@ -83,6 +93,8 @@ vi.mock('./simulator', async () => {
 import App from './App';
 
 const diagramId = 'test';
+import { ACTIVE_DIAGRAM_KEY, diagramKey } from './persistence';
+import type { DiagramDocument } from '@maklja/vision-simulator-model';
 
 async function flushPersistence() {
 	await act(async () => {
@@ -97,7 +109,8 @@ async function renderApp() {
 }
 
 async function readPersistedDiagram() {
-	return get<StateProps>(diagramId);
+	const id = await get<string>(ACTIVE_DIAGRAM_KEY);
+	return id ? (await get<DiagramDocument>(diagramKey(id)))?.diagram : undefined;
 }
 
 describe('App IndexedDB persistence', () => {
@@ -140,7 +153,7 @@ describe('App IndexedDB persistence', () => {
 					x: 200,
 					y: 30,
 					visible: true,
-					properties: {},
+					properties: { projectExpression: 'function project(value) { return value; }' },
 				},
 			],
 			connectLines: [
@@ -243,7 +256,11 @@ describe('App IndexedDB persistence', () => {
 				canvasState: { x: 250, y: 125, scaleX: 1, scaleY: 1 },
 				themeId: 'winter',
 			});
-			expect(persistedDiagram?.elements.map((element) => element.id)).toEqual(['added']);
+			expect(persistedDiagram?.elements.map((element) => element.id)).toEqual([
+				'added',
+				'source-element',
+				'target-element',
+			]);
 			expect(persistedDiagram?.connectLines.map((line) => line.id)).toEqual(['line-1']);
 		});
 	});
@@ -281,13 +298,17 @@ describe('App IndexedDB persistence', () => {
 		await set(diagramId, storedDiagram);
 
 		await renderApp();
-		expect(screen.getByLabelText('loaded elements').textContent).toBe('of_0, transient-result');
+		expect(screen.getByLabelText('loaded elements').textContent).toBe('of_0');
 
 		fireEvent.click(screen.getByRole('button', { name: 'Add connect line' }));
 
 		await waitFor(async () => {
 			const persistedDiagram = await readPersistedDiagram();
-			expect(persistedDiagram?.elements.map((element) => element.id)).toEqual(['source']);
+			expect(persistedDiagram?.elements.map((element) => element.id)).toEqual([
+				'source',
+				'source-element',
+				'target-element',
+			]);
 			expect(persistedDiagram?.connectLines.map((line) => line.id)).toEqual(['line-1']);
 		});
 	});
