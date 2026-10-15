@@ -35,7 +35,9 @@ Runtime flow:
 5. The viewer queues animations for those events and draws transient result elements.
 
 There is no backend, API, authentication, or server-side persistence. Browser IndexedDB currently
-stores one diagram under the temporary key `test`.
+stores one active versioned diagram under `vision:diagram:<id>` with an active pointer, prior-record
+backup and retained legacy `test` data. See `DIAGRAM_PERSISTENCE.md`. Keep file import inert;
+execution permission is session-only and must never be persisted or imported.
 
 ## Important paths
 

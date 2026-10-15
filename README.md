@@ -131,7 +131,7 @@ the main chunk, and the main viewer chunk grows from 1,100.98 kB to 1,172.19 kB 
 The code editor keeps `@monaco-editor/react` 4.7.0 with `monaco-editor` 0.57.0. The viewer never
 calls `loader.config({ monaco })`, so the mounted editor is still the CDN build the loader pins. The
 npm package is type-only in this build and no editor core is bundled. Persistence keeps
-`idb-keyval` 6.3.0 with the same `test` key and the same persisted shapes, so no IndexedDB migration
+`idb-keyval` 6.3.0 with the same `test` key and persisted shapes at that upgrade step, so no IndexedDB migration
 is required.
 
 The editor state keeps Zustand with Immer. `zustand` moves from 4.5.2 to 5.0.15 and `immer` from
@@ -230,3 +230,13 @@ packages/
   simulator-viewer/  React visual editor and simulator UI
 docs/                 Generated GitHub Pages application
 ```
+
+## Versioned diagrams and JSON files
+
+Open **Diagram files** to import/export a source-only JSON document, download original/backup data,
+restore the previous saved record or retry a failed load. Legacy diagrams migrate after a durable
+backup; failed/unknown data is preserved. Imported code never runs automatically and needs explicit
+session approval after review. Source edits and reload revoke that approval.
+
+See [Diagram persistence and recovery](DIAGRAM_PERSISTENCE.md) for schema v1, storage keys,
+compatibility, limits, failure recovery and the future parameter/context migration boundary.

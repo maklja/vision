@@ -33,10 +33,19 @@ export async function readPersistedDiagram(page: Page): Promise<PersistedDiagram
 					}
 
 					const transaction = database.transaction(store, 'readonly');
-					const getRequest = transaction.objectStore(store).get(key);
-					getRequest.onerror = () => reject(getRequest.error);
-					getRequest.onsuccess = () =>
-						resolve((getRequest.result as PersistedDiagram | undefined) ?? undefined);
+					const objectStore = transaction.objectStore(store);
+					const pointer = objectStore.get('vision:active-diagram');
+					pointer.onerror = () => reject(pointer.error);
+					pointer.onsuccess = () => {
+						const versioned = typeof pointer.result === 'string';
+						const request = objectStore.get(
+							versioned ? `vision:diagram:${pointer.result}` : key,
+						);
+						request.onerror = () => reject(request.error);
+						request.onsuccess = () =>
+							resolve(versioned ? request.result?.diagram : request.result);
+					};
+					transaction.oncomplete = () => database.close();
 				};
 			}),
 		coordinates,
@@ -63,6 +72,7 @@ export async function seedPersistedDiagram(page: Page, diagram: PersistedDiagram
 						resolve();
 					};
 					transaction.onerror = () => reject(transaction.error);
+					transaction.objectStore(store).clear();
 					transaction.objectStore(store).put(value, key);
 				};
 			}),
@@ -90,7 +100,7 @@ export async function clearPersistedDiagram(page: Page): Promise<void> {
 						resolve();
 					};
 					transaction.onerror = () => reject(transaction.error);
-					transaction.objectStore(store).delete(key);
+					transaction.objectStore(store).clear();
 				};
 			}),
 		coordinates,

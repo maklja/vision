@@ -470,11 +470,18 @@ checks. Do not weaken existing coverage thresholds or browser checks to accommod
 
 ## Phase 4: stabilize contracts for future features
 
-**Status: ready to implement after Phase 3; no Phase 4 feature is completed.** Follow the [numbered handoff order](planning/phase-3-handoff.md): #139 persistence, #140 minimum metadata, #134 invocation/trust core plus #135 schema/editor integration, #129 protocol, #131 retention and #130 visualization, then finish #140 registrations and the integrated gate. #134 core does not wait for completed #129; final diagnostic correlation does. #136/#137 are later optional/export work and cannot block this phase.
+**Status: Phase 4.1 implementation prepared for review in issue #139; remaining Phase 4 contracts are pending.** Follow the [numbered handoff order](planning/phase-3-handoff.md): #139 persistence, #140 minimum metadata, #134 invocation/trust core plus #135 schema/editor integration, #129 protocol, #131 retention and #130 visualization, then finish #140 registrations and the integrated gate. #134 core does not wait for completed #129; final diagnostic correlation does. #136/#137 are later optional/export work and cannot block this phase.
 
 Complete these design changes before adding dozens of operators.
 
 ### 4.1 Versioned diagrams
+
+**Implementation prepared for review on 2026-10-15 (#139):** schema v1 source-only documents,
+stable local IDs/metadata, v0 migration with durable backup, validated inert JSON import/export,
+prior-record recovery and explicit imported-revision approval. Existing retries/disposal and the
+current-release fixture remain covered. See [storage/schema/recovery contract](DIAGRAM_PERSISTENCE.md).
+Numeric/date fields and callbacks remain unchanged; contextSeed/parameter envelopes require a later
+version step in #134/#135. Named tabs, undo/cloud and full RxJS export remain later work.
 
 Implementation owner: [#139](https://github.com/maklja/vision/issues/139); #135 extends this foundation with parameter-v1 after #134 evaluation rules.
 

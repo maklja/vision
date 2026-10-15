@@ -15,6 +15,10 @@ const { getMock, setMock, capturedStore } = vi.hoisted(() => ({
 vi.mock('idb-keyval', () => ({
 	get: getMock,
 	set: setMock,
+	setMany: (entries: [string, unknown][]) => {
+		const record = entries.find(([key]) => key.startsWith('vision:diagram:'));
+		return setMock(record?.[0], record?.[1]);
+	},
 }));
 
 vi.mock('./simulator', async () => {
@@ -222,8 +226,12 @@ describe('diagram persistence recovery', () => {
 
 		expect(setMock).toHaveBeenCalledTimes(2);
 		expect(setMock).toHaveBeenLastCalledWith(
-			'test',
-			expect.objectContaining({ canvasState: { x: 10, y: 0, scaleX: 1, scaleY: 1 } }),
+			expect.stringContaining('vision:diagram:'),
+			expect.objectContaining({
+				diagram: expect.objectContaining({
+					canvasState: { x: 10, y: 0, scaleX: 1, scaleY: 1 },
+				}),
+			}),
 		);
 
 		unsubscribe();
@@ -243,8 +251,12 @@ describe('diagram persistence recovery', () => {
 			expect(setMock).toHaveBeenCalledTimes(2);
 		});
 		expect(setMock).toHaveBeenLastCalledWith(
-			'test',
-			expect.objectContaining({ canvasState: { x: 42, y: 0, scaleX: 1, scaleY: 1 } }),
+			expect.stringContaining('vision:diagram:'),
+			expect.objectContaining({
+				diagram: expect.objectContaining({
+					canvasState: { x: 42, y: 0, scaleX: 1, scaleY: 1 },
+				}),
+			}),
 		);
 	});
 
@@ -294,8 +306,12 @@ describe('diagram persistence recovery', () => {
 		expect(setMock).toHaveBeenCalledTimes(2);
 		expect(scheduled[0].cancelled).toBe(true);
 		expect(setMock).toHaveBeenLastCalledWith(
-			'test',
-			expect.objectContaining({ canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 } }),
+			expect.stringContaining('vision:diagram:'),
+			expect.objectContaining({
+				diagram: expect.objectContaining({
+					canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 },
+				}),
+			}),
 		);
 	});
 
@@ -327,8 +343,12 @@ describe('diagram persistence recovery', () => {
 
 		expect(setMock).toHaveBeenCalledTimes(2);
 		expect(setMock).toHaveBeenLastCalledWith(
-			'test',
-			expect.objectContaining({ canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 } }),
+			expect.stringContaining('vision:diagram:'),
+			expect.objectContaining({
+				diagram: expect.objectContaining({
+					canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 },
+				}),
+			}),
 		);
 	});
 
@@ -366,8 +386,12 @@ describe('diagram persistence recovery', () => {
 		expect(scheduled).toHaveLength(0);
 		expect(setMock).toHaveBeenCalledTimes(2);
 		expect(setMock).toHaveBeenLastCalledWith(
-			'test',
-			expect.objectContaining({ canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 } }),
+			expect.stringContaining('vision:diagram:'),
+			expect.objectContaining({
+				diagram: expect.objectContaining({
+					canvasState: { x: 2, y: 0, scaleX: 1, scaleY: 1 },
+				}),
+			}),
 		);
 	});
 
