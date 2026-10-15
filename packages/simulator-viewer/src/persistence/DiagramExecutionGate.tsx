@@ -3,8 +3,9 @@ import { useStore } from 'zustand';
 import { RootStore } from '../store/rootStore';
 import { createPersistedDiagram } from './diagramPersistence';
 
-const ExecutionPermission = createContext(true);
-export const useDiagramExecutionAllowed = () => useContext(ExecutionPermission);
+const ExecutionPermission = createContext({ allowed: true, revision: '' });
+export const useDiagramExecutionPermission = () => useContext(ExecutionPermission);
+export const useDiagramExecutionAllowed = () => useDiagramExecutionPermission().allowed;
 
 export function DiagramExecutionGate({
 	store,
@@ -30,7 +31,7 @@ export function DiagramExecutionGate({
 	}
 	const allowed = !blocked && (!imported || (revision !== '' && revision === approvedRevision));
 	return (
-		<ExecutionPermission.Provider value={allowed}>
+		<ExecutionPermission.Provider value={{ allowed, revision }}>
 			{!allowed && !blocked && (
 				<div
 					role="alert"

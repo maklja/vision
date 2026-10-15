@@ -111,6 +111,10 @@ function createTestScheduler() {
 	};
 }
 
+import { currentReleaseDiagram } from '../../simulator-model/test/fixtures/currentReleaseDiagram';
+import { migrateLegacyDiagram } from '@maklja/vision-simulator-model';
+import { RECOVERY_BACKUP_KEY } from './persistence';
+
 describe('App persistence failures', () => {
 	let console_: ReturnType<typeof spyOnConsole>;
 
@@ -171,6 +175,34 @@ describe('App persistence failures', () => {
 		});
 		expect(screen.getByRole('button', { name: 'Move canvas' })).not.toBeNull();
 		expect(screen.getByLabelText('loaded elements')).not.toBeNull();
+	});
+
+	it('imports a valid diagram from the blocked recovery editor when the active pointer is malformed', async () => {
+		getMock.mockResolvedValue(42);
+		render(<App />);
+		await screen.findByLabelText('loaded elements');
+		expect(setMock).not.toHaveBeenCalled();
+		fireEvent.click(screen.getByText('Diagram files'));
+		const source = JSON.stringify(
+			migrateLegacyDiagram(currentReleaseDiagram, 'import-id', '2026-10-15T19:00:00Z'),
+		);
+		const file = new File([source], 'diagram.json', { type: 'application/json' });
+		Object.defineProperty(file, 'text', { value: async () => source });
+		fireEvent.change(screen.getByLabelText('Import diagram JSON'), {
+			target: { files: [file] },
+		});
+		await waitFor(() =>
+			expect(screen.getByLabelText('loaded elements').textContent).toBe(
+				'of_0, map_0, subscriber_0',
+			),
+		);
+		expect(setMock).toHaveBeenCalledWith(RECOVERY_BACKUP_KEY, {
+			activePointer: 42,
+			record: undefined,
+		});
+		expect(
+			screen.getByRole('button', { name: 'Allow execution for this revision' }),
+		).not.toBeNull();
 	});
 
 	it('propagates the existing rejected write promise through the persistence seam', async () => {

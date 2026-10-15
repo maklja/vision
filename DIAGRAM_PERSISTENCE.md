@@ -9,7 +9,9 @@ be corrected before they can be exported as a supported diagram.
 After a file import or backup restore, review its code and network requests, then explicitly choose
 **Allow execution for this revision** to enable Run. This permission exists only in memory and is
 revoked after source edits or reload. Viewport/theme changes and transient result animations do not
-change the source revision. `origin: file` is persisted provenance, not a permission: imported files
+change the source revision. A pending Start also verifies the current permission and captured
+revision after the engine chunk loads; approving a different revision cannot revive an old request.
+`origin: file` is persisted provenance, not a permission: imported files
 cannot mark themselves trusted, and import forces this provenance regardless of the file's value.
 Existing local authored diagrams retain their normal Run behavior. The broader expression compiler,
 watchdog and trusted-local execution policy remain issue #134. JavaScript still has the page's
@@ -36,7 +38,8 @@ migration, export or import. An incomplete/disconnected graph is a valid editabl
 required runtime inputs still receive engine diagnostics on Run.
 
 Defaults added by the migration are document metadata only (`My diagram`, fresh ID/timestamps,
-local provenance). It does not repair corrupt present fields or substitute callback source. Existing
+local provenance). It does not repair corrupt present fields or substitute callback source. Connections must point from Output/Event to Input; reversed lines are rejected
+before import. Existing
 templates define current required property types; known optional properties are validated separately.
 This narrow validator is not the operator registration framework planned in #140.
 
@@ -49,13 +52,14 @@ Versioned migration fixtures and the current-release fixture protect this bounda
 
 Database `keyval-store`, object store `keyval` remain unchanged.
 
-| Key                     | Value / retention                                                                          |
-| ----------------------- | ------------------------------------------------------------------------------------------ |
-| `vision:active-diagram` | Active local diagram ID                                                                    |
-| `vision:diagram:<id>`   | Current validated v1 document                                                              |
-| `vision:backup:<id>`    | One prior saved record, written before replacement/autosave; bounded rolling recovery slot |
-| `vision:backup:legacy`  | Untouched unversioned source before migration or explicit replacement                      |
-| `test`                  | Original unversioned data retained without modification; never the autosave destination    |
+| Key                      | Value / retention                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------ |
+| `vision:active-diagram`  | Active local diagram ID                                                                    |
+| `vision:diagram:<id>`    | Current validated v1 document                                                              |
+| `vision:backup:<id>`     | One prior saved record, written before replacement/autosave; bounded rolling recovery slot |
+| `vision:backup:legacy`   | Untouched unversioned source before migration or explicit replacement                      |
+| `vision:backup:recovery` | One corrupt active-pointer/record snapshot saved before explicit recovery                  |
+| `test`                   | Original unversioned data retained without modification; never the autosave destination    |
 
 Migration validates v0, awaits the original-data backup write, then atomically commits the new record
 and active pointer using one `idb-keyval.setMany` transaction. Reopening v1 does not repeat migration.
@@ -70,6 +74,12 @@ and execution grants are excluded. Autosave retains its existing newest-snapshot
 attempts, exponential backoff and unsubscribe cleanup; successful saves clear the visible failure
 message. Storage quota/read/validation failures are reported in accessible text rather than replacing
 unreadable data with an empty autosave. The recovery editor stays unsaved and execution-disabled.
+
+If the active pointer is malformed or its record is missing, strict load/autosave still refuse to
+write. Explicit import instead awaits a recovery snapshot of the pointer and any readable record,
+then atomically establishes a fresh active ID. Backup or commit failure preserves the invalid
+pointer and permits retry. The recovery snapshot is raw evidence, not an executable diagram;
+Download backup exposes it when there is no newer prior-record backup. Legacy data remains intact.
 
 A fresh file import receives a local ID; replacing an existing active record keeps its local ID and
 known creation timestamp. The imported name and content become the active document. Imported origin

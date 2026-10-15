@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { currentReleaseDiagram } from '../../test/fixtures/currentReleaseDiagram';
-import { ElementType, mapToOperatorPropsTemplate } from '../index';
+import {
+	ElementType,
+	ConnectPointType,
+	ConnectPointPosition,
+	mapToOperatorPropsTemplate,
+} from '../index';
 import {
 	DiagramData,
 	MAX_DIAGRAM_BYTES,
@@ -184,4 +189,37 @@ it('round-trips a fixed 2000-node migration fixture without evaluating callbacks
 	const migrated = migrateLegacyDiagram(data, 'large-fixture', now);
 	expect(migrated.diagram.elements).toHaveLength(2000);
 	expect(parseDiagramFile(JSON.stringify(migrated))).toEqual(migrated);
+});
+
+it('rejects reversed value and event connections instead of admitting a reversed pipeline', () => {
+	const linear = fixture();
+	[linear.connectLines[0].source, linear.connectLines[0].target] = [
+		linear.connectLines[0].target,
+		linear.connectLines[0].source,
+	];
+	expect(() => validateDiagramData(linear)).toThrow(
+		'expected Output/Event source and Input target',
+	);
+
+	const event = fixture();
+	event.connectLines = [event.connectLines[0]];
+	event.elements[0] = { ...event.elements[0], type: ElementType.Concat, properties: {} };
+	event.elements[1] = {
+		...event.elements[1],
+		type: ElementType.Of,
+		properties: mapToOperatorPropsTemplate(ElementType.Of),
+	};
+	event.connectLines[0].source = {
+		id: 'source',
+		connectPointType: ConnectPointType.Event,
+		connectPosition: ConnectPointPosition.Top,
+	};
+	expect(validateDiagramData(event)).toEqual(event);
+	[event.connectLines[0].source, event.connectLines[0].target] = [
+		event.connectLines[0].target,
+		event.connectLines[0].source,
+	];
+	expect(() => validateDiagramData(event)).toThrow(
+		'expected Output/Event source and Input target',
+	);
 });

@@ -84,3 +84,61 @@ describe('durable backup ordering and failure recovery', () => {
 		expect(await keyval.get(ACTIVE_DIAGRAM_KEY)).toBeUndefined();
 	});
 });
+
+import { RECOVERY_BACKUP_KEY } from './diagramPersistence';
+
+describe('explicit replacement of invalid active storage', () => {
+	beforeEach(async () => {
+		await keyval.clear();
+	});
+	afterEach(async () => {
+		const actual = await vi.importActual<typeof import('idb-keyval')>('idb-keyval');
+		vi.mocked(keyval.set).mockReset().mockImplementation(actual.set);
+		vi.mocked(keyval.setMany).mockReset().mockImplementation(actual.setMany);
+	});
+
+	it.each([42, { broken: true }, '', 'missing-record', '__proto__'])(
+		'backs up corrupt pointer %j and imports under a fresh ID',
+		async (pointer) => {
+			await keyval.set(ACTIVE_DIAGRAM_KEY, pointer);
+			await keyval.set(LEGACY_DIAGRAM_KEY, currentReleaseDiagram);
+			const repository = new DiagramRepository();
+			await expect(repository.load()).rejects.toThrow();
+			await expect(repository.save(currentReleaseDiagram)).rejects.toThrow();
+			const recovered = await repository.replace(imported());
+			expect(recovered.id).not.toBe(pointer);
+			expect(recovered.origin).toBe('file');
+			expect(await keyval.get(RECOVERY_BACKUP_KEY)).toEqual({
+				activePointer: pointer,
+				record: undefined,
+			});
+			expect(await repository.readBackup()).toEqual({
+				activePointer: pointer,
+				record: undefined,
+			});
+			expect(await new DiagramRepository().load()).toEqual(recovered);
+			expect(await keyval.get(LEGACY_DIAGRAM_KEY)).toEqual(currentReleaseDiagram);
+		},
+	);
+
+	it('does not change an invalid pointer when its recovery backup fails', async () => {
+		await keyval.set(ACTIVE_DIAGRAM_KEY, { broken: true });
+		vi.mocked(keyval.set).mockRejectedValueOnce(new Error('backup failed'));
+		await expect(new DiagramRepository().replace(imported())).rejects.toThrow('backup failed');
+		expect(await keyval.get(ACTIVE_DIAGRAM_KEY)).toEqual({ broken: true });
+	});
+
+	it('preserves the corrupt pointer snapshot if replacement commit fails and succeeds on retry', async () => {
+		await keyval.set(ACTIVE_DIAGRAM_KEY, 'missing-record');
+		vi.mocked(keyval.setMany).mockRejectedValueOnce(new Error('commit failed'));
+		const repository = new DiagramRepository();
+		await expect(repository.replace(imported())).rejects.toThrow('commit failed');
+		expect(await keyval.get(ACTIVE_DIAGRAM_KEY)).toBe('missing-record');
+		expect(await repository.readBackup()).toEqual({
+			activePointer: 'missing-record',
+			record: undefined,
+		});
+		await repository.replace(imported());
+		expect((await repository.load())?.diagram).toEqual(currentReleaseDiagram);
+	});
+});

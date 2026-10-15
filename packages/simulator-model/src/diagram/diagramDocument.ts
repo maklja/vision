@@ -257,12 +257,12 @@ export function validateDiagramData(value: unknown): DiagramData {
 			portCounts.set(key, count);
 			check(count <= descriptor.cardinality, path, 'port cardinality exceeded');
 		}
-		const kinds = endpoints.map((p) => p.connectPointType);
+		const [sourceKind, targetKind] = endpoints.map((p) => p.connectPointType);
 		check(
-			kinds.includes(ConnectPointType.Input) &&
-				(kinds.includes(ConnectPointType.Output) || kinds.includes(ConnectPointType.Event)),
+			targetKind === ConnectPointType.Input &&
+				(sourceKind === ConnectPointType.Output || sourceKind === ConnectPointType.Event),
 			path,
-			'incompatible port pair',
+			'expected Output/Event source and Input target',
 		);
 	}
 	const canvas = record(data.canvasState, 'canvasState');

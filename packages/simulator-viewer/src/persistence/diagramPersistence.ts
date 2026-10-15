@@ -17,8 +17,18 @@ import type { CanvasState } from '../store/stage';
 export const LEGACY_DIAGRAM_KEY = 'test';
 export const ACTIVE_DIAGRAM_KEY = 'vision:active-diagram';
 export const LEGACY_BACKUP_KEY = 'vision:backup:legacy';
+export const RECOVERY_BACKUP_KEY = 'vision:backup:recovery';
 export const diagramKey = (id: string) => `vision:diagram:${id}`;
 export const backupKey = (id: string) => `vision:backup:${id}`;
+
+function isActiveId(value: unknown): value is string {
+	return (
+		typeof value === 'string' &&
+		value.length > 0 &&
+		value.length <= 65_536 &&
+		!['__proto__', 'constructor', 'prototype'].includes(value)
+	);
+}
 
 /** One writer per editor session; import/recovery queues behind any autosave already in flight. */
 export class DiagramRepository {
@@ -53,7 +63,7 @@ export class DiagramRepository {
 	private async active() {
 		const id = await get<unknown>(ACTIVE_DIAGRAM_KEY);
 		if (id === undefined) return undefined;
-		if (typeof id !== 'string' || !id || id.length > 65_536)
+		if (!isActiveId(id))
 			throw new Error('Invalid active diagram ID. Original storage was not changed.');
 		const raw = await get<unknown>(diagramKey(id));
 		if (raw === undefined)
@@ -110,10 +120,20 @@ export class DiagramRepository {
 	replace(imported: DiagramDocument): Promise<DiagramDocument> {
 		const checked = validateDiagramDocument(imported);
 		return this.enqueue(async () => {
-			const active = await this.active();
-			const legacy = active ? undefined : await get<unknown>(LEGACY_DIAGRAM_KEY);
+			// Read without the strict load/autosave guard: explicit replacement must be able
+			// to repair a malformed pointer or a missing record, without erasing the evidence.
+			const pointer = await get<unknown>(ACTIVE_DIAGRAM_KEY);
+			const raw =
+				typeof pointer === 'string' && pointer.length <= 65_536
+					? await get<unknown>(diagramKey(pointer))
+					: undefined;
+			const active =
+				isActiveId(pointer) && raw !== undefined ? { id: pointer, raw } : undefined;
+			const corruptPointer = pointer !== undefined && !active;
+			const legacy =
+				pointer === undefined ? await get<unknown>(LEGACY_DIAGRAM_KEY) : undefined;
 			const now = new Date().toISOString();
-			const doc: DiagramDocument = {
+			const doc = validateDiagramDocument({
 				...checked,
 				id: active?.id ?? v1(),
 				origin: 'file',
@@ -122,8 +142,10 @@ export class DiagramRepository {
 						? this.metadata.createdAt
 						: now,
 				updatedAt: now,
-			};
-			if (active) await set(backupKey(active.id), active.raw);
+			});
+			if (corruptPointer)
+				await set(RECOVERY_BACKUP_KEY, { activePointer: pointer, record: raw });
+			else if (active) await set(backupKey(active.id), active.raw);
 			else if (legacy !== undefined) await set(LEGACY_BACKUP_KEY, legacy);
 			await setMany([
 				[diagramKey(doc.id), doc],
@@ -144,9 +166,10 @@ export class DiagramRepository {
 
 	readBackup(): Promise<unknown> {
 		return this.enqueue(async () => {
-			const active = await this.active();
+			const pointer = await get<unknown>(ACTIVE_DIAGRAM_KEY);
 			return (
-				(active ? await get(backupKey(active.id)) : undefined) ??
+				(isActiveId(pointer) ? await get(backupKey(pointer)) : undefined) ??
+				(await get(RECOVERY_BACKUP_KEY)) ??
 				(await get(LEGACY_BACKUP_KEY))
 			);
 		});

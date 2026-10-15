@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { useEffect, useRef } from 'react';
-import { useDiagramExecutionAllowed } from '../persistence/DiagramExecutionGate';
+import { useDiagramExecutionPermission } from '../persistence/DiagramExecutionGate';
 import { Unsubscribable } from 'rxjs';
 import Box from '@mui/material/Box';
 import { useShallow } from 'zustand/react/shallow';
@@ -38,7 +38,10 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	const simulateObservableEvent = useRootStore((state) => state.simulateObservableEvent);
 	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
 	const setSelectElements = useRootStore((state) => state.setSelectElements);
-	const executionAllowed = useDiagramExecutionAllowed();
+	const permission = useDiagramExecutionPermission();
+	const executionAllowed = permission.allowed;
+	const latestPermission = useRef(permission);
+	latestPermission.current = permission;
 	const simulationSubscription = useRef<Unsubscribable | null>(null);
 	const mounted = useRef(true);
 	useEffect(() => {
@@ -54,8 +57,15 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 			return;
 		}
 
+		const requestedRevision = permission.revision;
 		const { startObservableSimulation } = await import('@maklja/vision-simulator-engine');
-		if (!mounted.current) return;
+		// The chunk may arrive after source edits revoke approval (or approve another revision).
+		if (
+			!mounted.current ||
+			!latestPermission.current.allowed ||
+			latestPermission.current.revision !== requestedRevision
+		)
+			return;
 
 		const dispatchObservableEvent = (event: FlowValueEvent) =>
 			simulateObservableEvent({
