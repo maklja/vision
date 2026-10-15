@@ -65,7 +65,7 @@ An advisory that has a patched release inside the affected major line is fixed w
 An override must correspond to a fixed advisory, must not cross a major boundary, and is re-validated
 by `pnpm audit:vulnerabilities` in the same pull request.
 
-Current overrides and the advisories they close (2026-10-01):
+Current overrides and the advisories they close (updated 2026-10-15):
 
 | Override            | Resolved | Closes                                                                                                                                                                 |
 | ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -75,6 +75,8 @@ Current overrides and the advisories they close (2026-10-01):
 | `flatted@3`         | 3.4.4    | GHSA-25h7-pfq9-p65f, GHSA-rf6f-7fwh-wjgh                                                                                                                               |
 | `minimatch@3`       | 3.1.5    | GHSA-3ppc-4f35-3m26, GHSA-7r86-cg39-jmmj, GHSA-23c5-xmqv-rm74                                                                                                          |
 | `yaml@1`            | 1.10.3   | GHSA-48c2-rrv3-qjmp                                                                                                                                                    |
+
+| `source-map-js@1` | 1.2.2 | GHSA-68fv-2mgg-jv7q |
 
 The gate reports zero known vulnerabilities after these overrides, so there are no accepted
 vulnerability findings.

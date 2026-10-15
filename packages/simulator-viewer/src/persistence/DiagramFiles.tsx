@@ -18,9 +18,14 @@ export function downloadJson(value: unknown, filename: string) {
 	const link = document.createElement('a');
 	link.href = url;
 	link.download = filename;
-	link.click();
-	// Keep the URL alive through the browser download task, then release it.
-	setTimeout(() => URL.revokeObjectURL(url), 0);
+	try {
+		document.body.append(link);
+		link.click();
+	} finally {
+		link.remove();
+		// Keep the URL alive through the browser download task, then release it.
+		setTimeout(() => URL.revokeObjectURL(url), 0);
+	}
 }
 
 export function DiagramFiles({
