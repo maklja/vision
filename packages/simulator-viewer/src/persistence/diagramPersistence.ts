@@ -287,6 +287,7 @@ export function subscribeDiagramPersistence(
 	let pendingSnapshot: StateProps | null = null;
 	let cancelScheduledRetry: (() => void) | null = null;
 	let attempts = 0;
+	let revision = 0;
 	let writing = false;
 	let disposed = false;
 
@@ -305,6 +306,7 @@ export function subscribeDiagramPersistence(
 		}
 
 		const snapshot = pendingSnapshot;
+		const snapshotRevision = revision;
 		pendingSnapshot = null;
 		writing = true;
 
@@ -312,7 +314,8 @@ export function subscribeDiagramPersistence(
 			.then(() => {
 				writing = false;
 				if (disposed) return;
-				onSaved?.();
+				// An older write does not save a newer edit, including one that failed serialization.
+				if (snapshotRevision === revision) onSaved?.();
 				attempts = 0;
 				flush();
 			})
@@ -334,6 +337,8 @@ export function subscribeDiagramPersistence(
 					flush();
 					return;
 				}
+
+				if (snapshotRevision !== revision) return;
 
 				attempts += 1;
 				if (attempts >= maxAttempts) {
@@ -361,6 +366,8 @@ export function subscribeDiagramPersistence(
 				return;
 			}
 
+			revision += 1;
+			cancelRetry();
 			attempts = 0;
 			try {
 				pendingSnapshot = createPersistedDiagram(state);
@@ -369,7 +376,6 @@ export function subscribeDiagramPersistence(
 				onError(error);
 				return;
 			}
-			cancelRetry();
 			flush();
 		},
 		{

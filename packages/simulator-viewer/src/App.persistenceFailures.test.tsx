@@ -235,6 +235,74 @@ describe('diagram persistence recovery', () => {
 		setMock.mockResolvedValue(undefined);
 	});
 
+	it.each(['resolve', 'reject'] as const)(
+		'does not report or retry a stale write after serialization fails (%s)',
+		async (outcome) => {
+			let resolveWrite!: () => void;
+			let rejectWrite!: (error: Error) => void;
+			const save = vi
+				.fn()
+				.mockImplementationOnce(
+					() =>
+						new Promise<void>((resolve, reject) => {
+							resolveWrite = resolve;
+							rejectWrite = reject;
+						}),
+				)
+				.mockResolvedValue(undefined);
+			const { scheduler, scheduled } = createTestScheduler();
+			const store = createRootStore();
+			const onError = vi.fn();
+			const onSaved = vi.fn();
+			const unsubscribe = subscribeDiagramPersistence(store, onError, {
+				save,
+				onSaved,
+				scheduler,
+			});
+
+			store.getState().updateCanvasState({ x: 1 });
+			// This edit cannot be serialized while the preceding snapshot is still being saved.
+			store.getState().updateCanvasState({ x: NaN });
+			expect(onError).toHaveBeenCalledTimes(1);
+			if (outcome === 'resolve') resolveWrite();
+			else rejectWrite(new Error('write failed'));
+			await flushPromises();
+			expect(onSaved).not.toHaveBeenCalled();
+			expect(save).toHaveBeenCalledTimes(1);
+			expect(scheduled).toHaveLength(0);
+
+			// A subsequent valid edit can recover the save status normally.
+			store.getState().updateCanvasState({ x: 3 });
+			await flushPromises();
+			expect(save).toHaveBeenCalledTimes(2);
+			expect(onSaved).toHaveBeenCalledTimes(1);
+			expect(save.mock.calls[1][0].canvasState.x).toBe(3);
+			unsubscribe();
+		},
+	);
+
+	it('cancels an older scheduled retry when a newer edit cannot be serialized', async () => {
+		const { scheduler, scheduled, runScheduledRetry } = createTestScheduler();
+		const store = createRootStore();
+		const save = vi.fn().mockRejectedValue(new Error('write failed'));
+		const onSaved = vi.fn();
+		const unsubscribe = subscribeDiagramPersistence(store, () => undefined, {
+			save,
+			onSaved,
+			scheduler,
+		});
+		store.getState().updateCanvasState({ x: 1 });
+		await flushPromises();
+		expect(scheduled).toHaveLength(1);
+		store.getState().updateCanvasState({ x: NaN });
+		expect(scheduled[0].cancelled).toBe(true);
+		runScheduledRetry();
+		await flushPromises();
+		expect(save).toHaveBeenCalledTimes(1);
+		expect(onSaved).not.toHaveBeenCalled();
+		unsubscribe();
+	});
+
 	it('retries a rejected write and persists the latest diagram without another editor change', async () => {
 		const { scheduler, runScheduledRetry, scheduled } = createTestScheduler();
 		const store = createRootStore();
