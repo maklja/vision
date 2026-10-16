@@ -4,8 +4,6 @@ import {
 	DiagramDocument,
 	MAX_DIAGRAM_BYTES,
 	parseDiagramFile,
-	validateDiagramDocument,
-	migrateLegacyDiagram,
 } from '@maklja/vision-simulator-model';
 import { RootStore } from '../store/rootStore';
 import { SimulationState } from '../store/simulation';
@@ -115,49 +113,6 @@ export function DiagramFiles({
 				}
 			>
 				Export diagram JSON
-			</button>
-			<button
-				disabled={busy}
-				onClick={() =>
-					action(async () => {
-						downloadJson(await repository.readOriginal(), 'diagram-original.json');
-					})
-				}
-			>
-				Download original data
-			</button>
-			<button
-				disabled={busy}
-				onClick={() =>
-					action(async () => {
-						downloadJson(await repository.readBackup(), 'diagram-backup.json');
-					})
-				}
-			>
-				Download backup
-			</button>
-			<button
-				disabled={busy || running}
-				onClick={() =>
-					action(async () => {
-						const backup = await repository.readBackup();
-						if (backup === undefined) throw new Error('No backup is available.');
-						const doc =
-							typeof backup === 'object' &&
-							backup !== null &&
-							'schemaVersion' in backup
-								? validateDiagramDocument(backup)
-								: migrateLegacyDiagram(
-										backup,
-										'recovery',
-										new Date().toISOString(),
-									);
-						await onReplace(doc);
-						setFeedback('Backup restored without running code.');
-					})
-				}
-			>
-				Restore previous backup
 			</button>
 			{blocked && (
 				<button disabled={busy} onClick={onRetry}>

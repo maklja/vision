@@ -154,26 +154,6 @@ export class DiagramRepository {
 			return this.remember(doc);
 		});
 	}
-
-	readOriginal(): Promise<unknown> {
-		return this.enqueue(async () => {
-			const id = await get<unknown>(ACTIVE_DIAGRAM_KEY);
-			if (id === undefined) return get(LEGACY_DIAGRAM_KEY);
-			if (typeof id !== 'string') return { invalidActivePointer: id };
-			return (await get(diagramKey(id))) ?? { missingRecord: id };
-		});
-	}
-
-	readBackup(): Promise<unknown> {
-		return this.enqueue(async () => {
-			const pointer = await get<unknown>(ACTIVE_DIAGRAM_KEY);
-			return (
-				(isActiveId(pointer) ? await get(backupKey(pointer)) : undefined) ??
-				(await get(RECOVERY_BACKUP_KEY)) ??
-				(await get(LEGACY_BACKUP_KEY))
-			);
-		});
-	}
 }
 
 const defaultRepository = new DiagramRepository();
