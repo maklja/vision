@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { MapElementProperties } from '@maklja/vision-simulator-model';
+import { MapElementProperties, mapOperatorDefinition } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -25,7 +25,7 @@ export function MapElementPropertiesForm({
 		>
 			<SimpleCodeEditor
 				code={properties.projectExpression}
-				label="Project"
+				label={mapOperatorDefinition.properties.projectExpression.label}
 				helperText="The function to apply to each value emitted by the source Observable. The index parameter is the number i for the i-th emission that has happened since the subscription, starting from the number 0."
 				onCodeChange={handleProjectExpressionChanged}
 			/>

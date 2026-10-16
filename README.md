@@ -244,6 +244,11 @@ packages/
 docs/                 Generated GitHub Pages application
 ```
 
+## Operator registration
+
+See [Operator definitions and registration](OPERATOR_DEFINITIONS.md) for the incremental metadata
+contract, current operator/field inventory, callback compatibility and registration checklist.
+
 ## Versioned diagrams and JSON files
 
 Open **Diagram files** to import/export a source-only JSON document, download original/backup data,

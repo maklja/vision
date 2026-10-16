@@ -1,0 +1,138 @@
+# Operator definitions and registration
+
+Issue #140 is incremental. This first slice registers `of`, `map` and `merge` in
+`packages/simulator-model/src/operators`. Their group template helpers and engine registration
+keys consume these definitions; their viewer forms consume the field labels. Existing model
+interfaces/default constants, descriptors, engine functions, forms, drawers and themes stay in
+place. No saved field, connection, callback argument, or RxJS behavior changes.
+
+The metadata contract provides identity/category/docs, support status, declared property kinds,
+defaults, callback argument/return/helper signatures, existing port compatibility/cardinality,
+reference-port classification, a source example and an explicit deferred export reason. Property
+kinds currently cover the three migrated operators; richer field kinds and their validation belong
+to subsequent #140 slices and #134/#135. These definitions describe current behavior, not the
+future parameter schema or a generic plugin API.
+
+`findOperatorDefinition` returns `undefined` for an operator whose metadata has not migrated.
+That does **not** mean its existing execution is unsupported. Consumers that require metadata use
+`requireOperatorDefinition`, which fails with an explicit registration diagnostic. They must not
+substitute `{}` or execute code to discover its shape. Do not route all current operators through
+this required lookup until their metadata has migrated.
+
+## Current inventory
+
+This table includes every current `ElementType`. **D** means the first definition slice is migrated;
+**L** means existing registrations remain and definition migration is pending under #140.
+All executable rows remain supported; **I** identifies an internal/transient type. Full readable
+RxJS export is deferred to #136 for every executable row: no serializer is implemented by metadata.
+Properties listed with `?` are optional in the existing interface. A propertyless operator may still
+have connection-order controls; lack of a property form does not mean unsupported execution.
+
+| Type            | State | Stored properties                                                                                                                                                                       | Property form / notes                                                 |
+| --------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `of`            | D     | `argsFactoryExpression: string`                                                                                                                                                         | Arguments factory                                                     |
+| `from`          | L     | `enableObservableEvent: boolean`, `inputCallbackExpression: string`, `observableFactory: string`                                                                                        | Literal input callback or connected factory mode                      |
+| `iif`           | L     | `conditionExpression`, `trueCallbackExpression`, `falseCallbackExpression`: string                                                                                                      | Condition and true/false connected factories                          |
+| `interval`      | L     | `period: number`                                                                                                                                                                        | Period                                                                |
+| `ajax`          | L     | `url: string`, `method: HttpMethod`, `body?: string`, `headers?: [string,string][]`, `timeout?: number`, `responseType?: XMLHttpRequestResponseType`, `queryParams?: [string,string][]` | Body is JSON text; pair lists remain pair lists                       |
+| `empty`         | L     | None                                                                                                                                                                                    | No property form                                                      |
+| `defer`         | L     | `observableFactory: string`                                                                                                                                                             | Connected factory                                                     |
+| `generate`      | L     | `initialState: string`, `condition?: string`, `iterate: string`, `resultSelector: string`                                                                                               | Initial state is an expression, others callbacks                      |
+| `range`         | L     | `start: number`, `count?: number`                                                                                                                                                       | Start/count                                                           |
+| `throwError`    | L     | `errorOrErrorFactory: string`                                                                                                                                                           | Existing RxJS error/factory field                                     |
+| `timer`         | L     | `dueDateType: DueDateType`, `startDue: number`, `intervalDuration: number`                                                                                                              | Millisecond/date modes and one-shot sentinel below                    |
+| `combineLatest` | L     | `observableInputsType: ObservableInputsType`                                                                                                                                            | Array/object selection; order/names on connections                    |
+| `merge`         | D     | `limitConcurrent: number`                                                                                                                                                               | Concurrency plus input order                                          |
+| `concat`        | L     | None                                                                                                                                                                                    | Input order on connections                                            |
+| `forkJoin`      | L     | `observableInputsType: ObservableInputsType`                                                                                                                                            | Array/object selection; order/names on connections                    |
+| `race`          | L     | None                                                                                                                                                                                    | Input order on connections                                            |
+| `zip`           | L     | None                                                                                                                                                                                    | Input order on connections                                            |
+| `buffer`        | L     | None                                                                                                                                                                                    | No property form; connected notifier                                  |
+| `bufferCount`   | L     | `bufferSize: number`, `startBufferEvery: number`                                                                                                                                        | Size/start interval                                                   |
+| `bufferTime`    | L     | `bufferTimeSpan: number`, `bufferCreationInterval?: number`, `maxBufferSize?: number`                                                                                                   | Time/creation/max size                                                |
+| `bufferToggle`  | L     | `closingSelectorExpression: string`                                                                                                                                                     | Opening and closing references                                        |
+| `bufferWhen`    | L     | `closingSelectorExpression: string`                                                                                                                                                     | Closing reference                                                     |
+| `concatMap`     | L     | `projectExpression: string`                                                                                                                                                             | Connected project                                                     |
+| `exhaustMap`    | L     | `projectExpression: string`                                                                                                                                                             | Connected project                                                     |
+| `expand`        | L     | `concurrent?: number`, `projectExpression: string`                                                                                                                                      | Connected project/concurrency                                         |
+| `mergeMap`      | L     | `concurrent?: number`, `projectExpression: string`                                                                                                                                      | Connected project/concurrency                                         |
+| `map`           | D     | `projectExpression: string`                                                                                                                                                             | Raw-value project; adapter index caveat below                         |
+| `filter`        | L     | `predicateExpression: string`                                                                                                                                                           | Current dispatcher has no property form; do not claim one in metadata |
+| `subscriber`    | L     | None                                                                                                                                                                                    | Sink, no property form; not an RxJS creation/pipe factory             |
+| `catchError`    | L     | `selectorExpression: string`                                                                                                                                                            | Connected recovery selector                                           |
+| `result`        | I     | `hash: string`                                                                                                                                                                          | Transient result; excluded from saved documents                       |
+| `connectPoint`  | I     | No operator property interface                                                                                                                                                          | Geometry/visibility belongs to ConnectPoint; not executable           |
+
+Common source-element fields remain `id`, `type`, `name`, `x`, `y`, `visible`, `properties`.
+Connection order/name live on `ConnectLine`, not inside the operator properties. Existing
+`ElementType` IDs and defaults remain authoritative until each row is migrated and parity tested.
+
+## Invocation inventory and compatibility boundaries
+
+No callback is evaluated while reading a definition. Metadata contains authored source text only;
+reading it grants no execution approval. Helpers below are lexical connected helpers, not a claim
+that browser globals are restricted. The Worker is not a security sandbox. No `$context` or
+`$params` binding is introduced here.
+
+| Field / operators                                                    | Current arguments → return                              | Connected helper scope                                                               |
+| -------------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `of.argsFactoryExpression`                                           | `()` → array of emissions or one scalar                 | None                                                                                 |
+| `from.inputCallbackExpression`                                       | `()` → ObservableInput                                  | None; used only with event mode disabled                                             |
+| `from.observableFactory`, `defer.observableFactory`                  | `()` → connected observable                             | `createObservable(overrideProps?)`                                                   |
+| `iif.conditionExpression`                                            | `()` → boolean                                          | None                                                                                 |
+| `iif.trueCallbackExpression`, `falseCallbackExpression`              | `()` → connected observable                             | Each receives its own branch's `createObservable`                                    |
+| `generate.initialState`                                              | Expression → initial state                              | None                                                                                 |
+| `generate.condition`, `iterate`, `resultSelector`                    | `(state)` → boolean / next state / result               | None; condition optional                                                             |
+| `throwError.errorOrErrorFactory`                                     | Expression → error/factory accepted by installed RxJS   | None                                                                                 |
+| `map.projectExpression`, `filter.predicateExpression`                | `(rawValue, index)` → result / truthy predicate         | None; **index always 0** in current per-value adapter                                |
+| `bufferToggle.closingSelectorExpression`                             | `(openingRawValue)` → closing observable                | Closing reference's `createObservable`                                               |
+| `bufferWhen.closingSelectorExpression`                               | `()` → closing observable                               | Closing reference's `createObservable`                                               |
+| `concatMap`, `mergeMap`, `exhaustMap`, `expand`: `projectExpression` | `(rawValue, index)` → inner observable                  | Connected reference's `createObservable`; index follows that installed RxJS operator |
+| `catchError.selectorExpression`                                      | `(rawError, caughtRawObservable)` → recovery observable | Recovery reference's `createObservable`                                              |
+
+`mapOutputToFlowValue` currently feeds one raw value to a fresh single-value observable for each
+input. Thus map/filter index resets to zero, while `FlowValue.copy` preserves identity. Metadata
+must describe this adapter rather than promise a stream-wide index. Regression tests preserve it;
+#134 owns any deliberate invocation-contract change.
+
+`from.enableObservableEvent` defaults to true. In that mode only the connected factory is active
+and the event descriptor allows one reference; false uses the input callback with no event port.
+Do not evaluate the inactive field to inventory or validate it.
+
+Timer uses `dueDateType = 0` for milliseconds or `1` for a timestamp interpreted as a `Date`.
+`startDue` stays numeric in either mode; `intervalDuration = -1` is the existing one-shot default.
+Do not replace it with a new null/string/parameter envelope. Merge passes a concurrency limit only
+when `limitConcurrent > 0`; zero and negative values leave concurrency unbounded.
+
+## Registering the next operator
+
+1. Inventory its current interface, defaults, descriptor, factory invocation, form, drawer and theme.
+   Read the engine implementation: callback names alone do not prove argument semantics.
+2. Add a concrete definition with the existing type/field names and defaults. Extend property kinds
+   only for the actual migrated field; do not implement speculative compiler/parameter APIs.
+3. Route its template helper through the definition. Keep default text and object shape unchanged.
+   Keep engine registration/functions inside simulator-engine and React/forms/drawers/themes inside
+   simulator-viewer; the model imports neither package nor browser/RxJS/React runtime APIs.
+4. Connect the definition to its existing engine registration and form labels. Keep special dynamic
+   descriptors (From), read-only rules, theme overrides and selection/clipboard behavior unchanged.
+   Model metadata must not contain React components or execution functions.
+5. Add field/default/port parity and execution behavior tests. Verify all executable types still have
+   exactly one factory registration. Existing form-dispatch and persistence fixtures must pass.
+   Include a source example and explicit export limitation rather than claiming #136 is implemented.
+6. Remove the old registration source only after parity. Update the inventory status and plan.
+   Unknown/new types must fail the completeness tests; required metadata lookups must fail clearly.
+
+## Remaining #140 work
+
+The representative group is the first reviewed slice, not issue completion. Migrate remaining
+field/signature/reference metadata (especially From/Timer and connected callbacks) before broad
+#134 compiler rollout. Finish all current registrations and richer form/drawer/theme integration
+after #134/#135 invocation/parameter rules and #129 lifecycle boundaries stabilize. Keep #140 open
+through that integrated gate. No new operators, serializer, schema migration, or execution policy
+is delivered here.
+
+Validation uses model metadata/template/descriptor tests, all-current engine registration coverage,
+Of scalar/array behavior and Map raw-value/index/identity regressions, plus the existing factory,
+form, persistence and browser journeys. Metadata adds only static records; no evaluation, discovery
+scan, event retention, extra scheduler or heavyweight UI registration is introduced. Labels and
+input callbacks remain unchanged, preserving accessible controls and keyboard behavior.

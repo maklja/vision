@@ -470,13 +470,13 @@ checks. Do not weaken existing coverage thresholds or browser checks to accommod
 
 ## Phase 4: stabilize contracts for future features
 
-**Status: Phase 4.1 implementation prepared for review in issue #139; remaining Phase 4 contracts are pending.** Follow the [numbered handoff order](planning/phase-3-handoff.md): #139 persistence, #140 minimum metadata, #134 invocation/trust core plus #135 schema/editor integration, #129 protocol, #131 retention and #130 visualization, then finish #140 registrations and the integrated gate. #134 core does not wait for completed #129; final diagnostic correlation does. #136/#137 are later optional/export work and cannot block this phase.
+**Status: Phase 4.1 merged (#139 / #145). Phase 4.2 initial metadata slice prepared for review; remaining contracts and registration migrations are pending.** Follow the [numbered handoff order](planning/phase-3-handoff.md): #139 persistence, #140 minimum metadata, #134 invocation/trust core plus #135 schema/editor integration, #129 protocol, #131 retention and #130 visualization, then finish #140 registrations and the integrated gate. #134 core does not wait for completed #129; final diagnostic correlation does. #136/#137 are later optional/export work and cannot block this phase.
 
 Complete these design changes before adding dozens of operators.
 
 ### 4.1 Versioned diagrams
 
-**Implementation prepared for review on 2026-10-15 (#139):** schema v1 source-only documents,
+**Merged on 2026-10-15 (#139 / #145):** schema v1 source-only documents,
 stable local IDs/metadata, v0 migration with durable backup, validated inert JSON import/export,
 prior-record recovery and explicit imported-revision approval. Existing retries/disposal and the
 current-release fixture remain covered. See [storage/schema/recovery contract](DIAGRAM_PERSISTENCE.md).
@@ -494,6 +494,13 @@ Implementation owner: [#139](https://github.com/maklja/vision/issues/139); #135 
 ### 4.2 Operator definition contract
 
 Implementation owner: [#140](https://github.com/maklja/vision/issues/140), minimum metadata first and full current-operator migration after runtime contracts stabilize.
+
+**Initial slice prepared for review on 2026-10-16:** static typed definitions for `of`, `map` and
+`merge`; template defaults, engine registration keys and form labels consume their metadata.
+[Operator definitions and current inventory](OPERATOR_DEFINITIONS.md) records every current type,
+property and callback boundary, including From/Timer modes and the current Map index behavior.
+Remaining metadata and all-current form/drawer/theme migrations stay open under #140; this slice
+does not complete Phase 4.2 or unblock broad #134 rollout by itself.
 
 Create one explicit operator definition contract that can supply:
 

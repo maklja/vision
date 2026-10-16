@@ -32,6 +32,7 @@ import {
 	ExhaustMapElement,
 	ExpandElement,
 	MapElement,
+	mapOperatorDefinition,
 	MergeMapElement,
 	OBSERVABLE_GENERATOR_NAME,
 } from '@maklja/vision-simulator-model';
@@ -383,7 +384,7 @@ const supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory> 
 	[ElementType.BufferToggle, createBufferToggleOperator],
 	[ElementType.BufferWhen, createBufferWhenOperator],
 	[ElementType.ConcatMap, createConcatMapOperator],
-	[ElementType.Map, createMapOperator],
+	[mapOperatorDefinition.type, createMapOperator],
 	[ElementType.MergeMap, createMergeMapOperator],
 	[ElementType.ExhaustMap, createExhaustOperator],
 	[ElementType.Expand, createExpandOperator],

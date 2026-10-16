@@ -1,3 +1,4 @@
+import { ofOperatorDefinition } from '../operators/operatorDefinitions';
 import {
 	ajaxElementPropsTemplate,
 	deferElementPropsTemplate,
@@ -5,7 +6,6 @@ import {
 	generateElementPropsTemplate,
 	iifElementPropsTemplate,
 	intervalElementPropsTemplate,
-	ofElementPropsTemplate,
 	rangeElementPropsTemplate,
 	throwErrorElementPropsTemplate,
 	timerElementPropsTemplate,
@@ -25,7 +25,7 @@ export function mapToCreationOperatorPropsTemplates(elType: ElementType): Elemen
 		case ElementType.Interval:
 			return intervalElementPropsTemplate;
 		case ElementType.Of:
-			return ofElementPropsTemplate;
+			return ofOperatorDefinition.defaults;
 		case ElementType.Generate:
 			return generateElementPropsTemplate;
 		case ElementType.Range:
