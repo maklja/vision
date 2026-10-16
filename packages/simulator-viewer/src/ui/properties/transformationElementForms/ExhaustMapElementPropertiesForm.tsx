@@ -1,5 +1,8 @@
 import Stack from '@mui/material/Stack';
-import { ExhaustMapElementProperties } from '@maklja/vision-simulator-model';
+import {
+	ExhaustMapElementProperties,
+	exhaustMapOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -25,7 +28,7 @@ export function ExhaustMapElementPropertiesForm({
 		>
 			<SimpleCodeEditor
 				code={properties.projectExpression}
-				label="Project"
+				label={exhaustMapOperatorDefinition.properties.projectExpression.label}
 				helperText="A function that, when applied to an item emitted by the source Observable, returns an Observable."
 				onCodeChange={handleProjectExpressionChanged}
 			/>

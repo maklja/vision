@@ -1,5 +1,8 @@
 import Stack from '@mui/material/Stack';
-import { ConcatMapElementProperties } from '@maklja/vision-simulator-model';
+import {
+	ConcatMapElementProperties,
+	concatMapOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -25,7 +28,7 @@ export const ConcatMapElementPropertiesForm = ({
 		>
 			<SimpleCodeEditor
 				code={properties.projectExpression}
-				label="Project"
+				label={concatMapOperatorDefinition.properties.projectExpression.label}
 				helperText="A function that, when applied to an item emitted by the source Observable, returns an Observable."
 				onCodeChange={handleProjectExpressionChanged}
 			/>

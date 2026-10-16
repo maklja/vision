@@ -1,6 +1,9 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { MergeMapElementProperties } from '@maklja/vision-simulator-model';
+import {
+	MergeMapElementProperties,
+	mergeMapOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { handleNumberInputChanged } from '../utils';
 import { SimpleCodeEditor } from '../../code';
@@ -27,7 +30,7 @@ export function MergeMapElementPropertiesForm({
 		>
 			<TextField
 				id="merge-map-el-concurrent-prop"
-				label="Concurrent"
+				label={mergeMapOperatorDefinition.properties.concurrent.label}
 				value={properties.concurrent}
 				type="number"
 				size="small"
@@ -46,7 +49,7 @@ export function MergeMapElementPropertiesForm({
 
 			<SimpleCodeEditor
 				code={properties.projectExpression}
-				label="Project"
+				label={mergeMapOperatorDefinition.properties.projectExpression.label}
 				helperText="A function that, when applied to an item emitted by the source Observable, returns an Observable."
 				onCodeChange={handleProjectExpressionChanged}
 			/>

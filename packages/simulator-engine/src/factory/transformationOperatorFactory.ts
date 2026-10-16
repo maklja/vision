@@ -32,6 +32,10 @@ import {
 	ExhaustMapElement,
 	ExpandElement,
 	MapElement,
+	concatMapOperatorDefinition,
+	exhaustMapOperatorDefinition,
+	expandOperatorDefinition,
+	mergeMapOperatorDefinition,
 	mapOperatorDefinition,
 	MergeMapElement,
 	OBSERVABLE_GENERATOR_NAME,
@@ -383,11 +387,11 @@ const supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory> 
 	[ElementType.BufferTime, createBufferTimeOperator],
 	[ElementType.BufferToggle, createBufferToggleOperator],
 	[ElementType.BufferWhen, createBufferWhenOperator],
-	[ElementType.ConcatMap, createConcatMapOperator],
+	[concatMapOperatorDefinition.type, createConcatMapOperator],
 	[mapOperatorDefinition.type, createMapOperator],
-	[ElementType.MergeMap, createMergeMapOperator],
-	[ElementType.ExhaustMap, createExhaustOperator],
-	[ElementType.Expand, createExpandOperator],
+	[mergeMapOperatorDefinition.type, createMergeMapOperator],
+	[exhaustMapOperatorDefinition.type, createExhaustOperator],
+	[expandOperatorDefinition.type, createExpandOperator],
 ]);
 
 export const transformationOperatorFactory: PipeOperatorFactory = {

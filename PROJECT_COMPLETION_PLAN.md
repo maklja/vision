@@ -1,6 +1,6 @@
 # RxJS Vision completion plan
 
-Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 was verified complete on 2026-10-01 against `main` commit `41a6b66` after PR #124 merged. Phase 3.1 inventory merged on 2026-10-01 in [PR #128](https://github.com/maklja/vision/pull/128). Phase 3.2 design was accepted in merged PR #133 on 2026-10-02; issues #129–#131 track implementation. Old PRs #40/#42/#50 are closed as superseded. Phase 3.3 design was accepted in merged #138 and #132 closed. Phase 3.4 final handoff verifies the Phase 3 gate on 2026-10-02, with all legacy refs preserved and backlog #129–#131/#134–#140 ordered. Phase 3 gate is complete; this final documentation handoff is prepared for review. Phase 4.1 merged in #145; Phase 4.2 metadata migration is in progress (#147/#151).
+Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 was verified complete on 2026-10-01 against `main` commit `41a6b66` after PR #124 merged. Phase 3.1 inventory merged on 2026-10-01 in [PR #128](https://github.com/maklja/vision/pull/128). Phase 3.2 design was accepted in merged PR #133 on 2026-10-02; issues #129–#131 track implementation. Old PRs #40/#42/#50 are closed as superseded. Phase 3.3 design was accepted in merged #138 and #132 closed. Phase 3.4 final handoff verifies the Phase 3 gate on 2026-10-02, with all legacy refs preserved and backlog #129–#131/#134–#140 ordered. Phase 3 gate is complete; this final documentation handoff is prepared for review. Phase 4.1 merged in #145; Phase 4.2 metadata migration is in progress (#147/#151/#152).
 
 ## Goal
 
@@ -470,7 +470,7 @@ checks. Do not weaken existing coverage thresholds or browser checks to accommod
 
 ## Phase 4: stabilize contracts for future features
 
-**Status: Phase 4.1 merged (#139 / #145). Phase 4.2 metadata migration is in progress (#147/#151), with the conditional/deferred slice prepared for review; remaining contracts and registration migrations are pending.** Follow the [numbered handoff order](planning/phase-3-handoff.md): #139 persistence, #140 minimum metadata, #134 invocation/trust core plus #135 schema/editor integration, #129 protocol, #131 retention and #130 visualization, then finish #140 registrations and the integrated gate. #134 core does not wait for completed #129; final diagnostic correlation does. #136/#137 are later optional/export work and cannot block this phase.
+**Status: Phase 4.1 merged (#139 / #145). Phase 4.2 metadata migration is in progress (#147/#151/#152), with the higher-order slice prepared for review; remaining contracts and registration migrations are pending.** Follow the [numbered handoff order](planning/phase-3-handoff.md): #139 persistence, #140 minimum metadata, #134 invocation/trust core plus #135 schema/editor integration, #129 protocol, #131 retention and #130 visualization, then finish #140 registrations and the integrated gate. #134 core does not wait for completed #129; final diagnostic correlation does. #136/#137 are later optional/export work and cannot block this phase.
 
 Complete these design changes before adding dozens of operators.
 
@@ -506,10 +506,16 @@ Behavior tests preserve inactive callbacks, helper scope, subscription timing, z
 period overrides, relative/absolute/past due times and the one-shot sentinel. This is metadata
 migration only; context/parameter execution remains #134/#135.
 
-**Conditional/deferred follow-up prepared for review:** IIf and Defer definitions, template and
+**Conditional/deferred follow-up merged in [PR #152](https://github.com/maklja/vision/pull/152):** IIf and Defer definitions, template and
 factory registration keys, and form labels. Metadata and tests describe required references,
 branch-specific helpers, subscription-time invocation, eager callback-expression construction,
 FlowValue identity, and existing override inconsistencies. Engine semantics remain unchanged.
+
+**Higher-order follow-up prepared for review:** ConcatMap, ExhaustMap, Expand and MergeMap
+field/signature/reference definitions; templates, registration keys and form labels consume metadata.
+Tests preserve raw values, running indices, per-projection expression scope, child overrides and
+subscription dependencies, required references, recursive Expand emissions and concurrency behavior.
+Optional concurrency remains absent from saved defaults. No engine semantics change.
 
 Remaining metadata and all-current form/drawer/theme migrations stay open under #140; this slice
 does not complete Phase 4.2 or unblock broad #134 rollout by itself.
