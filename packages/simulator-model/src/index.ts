@@ -14,3 +14,4 @@ export * from './utils';
 export * from './templates';
 export * from './engine';
 export * from './diagram/diagramDocument';
+export * from './operators';

@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { OfElementProperties } from '@maklja/vision-simulator-model';
+import { OfElementProperties, ofOperatorDefinition } from '@maklja/vision-simulator-model';
 import { SimpleCodeEditor } from '../../code';
 import { formStyle } from '../commonStyles';
 
@@ -25,7 +25,7 @@ export function OfElementPropertiesForm({
 		>
 			<SimpleCodeEditor
 				code={properties.argsFactoryExpression}
-				label="Arguments factory"
+				label={ofOperatorDefinition.properties.argsFactoryExpression.label}
 				helperText="Factory that returns array of arguments you want to be emitted."
 				onCodeChange={handleArgsFactoryExpressionChanged}
 			/>

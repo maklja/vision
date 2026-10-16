@@ -18,6 +18,7 @@ import {
 	ElementType,
 	ForkJoinElement,
 	MergeElement,
+	mergeOperatorDefinition,
 	MergeElementProperties,
 	ObservableInputsType,
 } from '@maklja/vision-simulator-model';
@@ -268,7 +269,7 @@ const createZipOperator =
 	};
 
 const supportedOperators: ReadonlyMap<ElementType, JoinCreationOperatorFunctionFactory> = new Map([
-	[ElementType.Merge, createMergeOperator],
+	[mergeOperatorDefinition.type, createMergeOperator],
 	[ElementType.CombineLatest, createCombineLatestOperator],
 	[ElementType.Concat, createConcatOperator],
 	[ElementType.ForkJoin, createForkJoinOperator],

@@ -1,3 +1,4 @@
+import { mapOperatorDefinition } from '../operators/operatorDefinitions';
 import { ElementProps, ElementType } from '../element';
 import {
 	bufferCountElementPropsTemplate,
@@ -7,7 +8,6 @@ import {
 	concatMapElementPropsTemplate,
 	exhaustMapElementPropsTemplate,
 	expandElementPropsTemplate,
-	mapElementPropsTemplate,
 	mergeMapElementPropsTemplate,
 } from '../transformationOperators';
 
@@ -26,7 +26,7 @@ export function mapTransformationOperatorTemplates(elType: ElementType): Element
 		case ElementType.ExhaustMap:
 			return exhaustMapElementPropsTemplate;
 		case ElementType.Map:
-			return mapElementPropsTemplate;
+			return mapOperatorDefinition.defaults;
 		case ElementType.ConcatMap:
 			return concatMapElementPropsTemplate;
 		case ElementType.MergeMap:

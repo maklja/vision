@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { MergeElementProperties } from '@maklja/vision-simulator-model';
+import { MergeElementProperties, mergeOperatorDefinition } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { ObservableInputsOrder } from '../../observableInput';
 import { RelatedElements } from '../ElementPropertiesForm';
@@ -29,7 +29,7 @@ export function MergeElementPropertiesForm({
 		>
 			<TextField
 				id="merge-el-limit-concurrent-prop"
-				label="Limit concurrent"
+				label={mergeOperatorDefinition.properties.limitConcurrent.label}
 				value={properties.limitConcurrent}
 				type="number"
 				size="small"
