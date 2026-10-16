@@ -1,6 +1,9 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { IntervalElementProperties } from '@maklja/vision-simulator-model';
+import {
+	IntervalElementProperties,
+	intervalOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { handleNumberInputChanged } from '../utils';
 
@@ -23,7 +26,7 @@ export function IntervalElementPropertiesForm({
 		>
 			<TextField
 				id="interval-el-period-prop"
-				label="Period"
+				label={intervalOperatorDefinition.properties.period.label}
 				value={properties.period}
 				type="number"
 				size="small"

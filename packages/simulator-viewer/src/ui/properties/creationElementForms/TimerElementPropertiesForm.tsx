@@ -10,7 +10,11 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { DueDateType, TimerElementProperties } from '@maklja/vision-simulator-model';
+import {
+	DueDateType,
+	TimerElementProperties,
+	timerOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { handleNumberInputChanged } from '../utils';
 
@@ -51,15 +55,22 @@ export function TimerElementPropertiesForm({
 		>
 			<FormGroup sx={{ gap: formStyle.componentGap, flexWrap: 'nowrap' }}>
 				<FormControl size="small">
-					<InputLabel id="timer-el-due-date-type-prop-label">Due date type</InputLabel>
+					<InputLabel id="timer-el-due-date-type-prop-label">
+						{timerOperatorDefinition.properties.dueDateType.label}
+					</InputLabel>
 					<Select
 						labelId="timer-el-due-date-type-prop-label"
 						value={properties.dueDateType}
-						label="Due date type"
+						label={timerOperatorDefinition.properties.dueDateType.label}
 						onChange={handleDueDateTypeChanged}
 					>
-						<MenuItem value={DueDateType.Milliseconds}>Milliseconds</MenuItem>
-						<MenuItem value={DueDateType.Date}>Date</MenuItem>
+						{timerOperatorDefinition.properties.dueDateType.options.map(
+							({ value, label }) => (
+								<MenuItem key={value} value={value}>
+									{label}
+								</MenuItem>
+							),
+						)}
 					</Select>
 				</FormControl>
 				{properties.dueDateType === DueDateType.Date ? (
@@ -77,7 +88,7 @@ export function TimerElementPropertiesForm({
 				) : (
 					<TextField
 						id="timer-el-due-ms-prop"
-						label="Due milliseconds"
+						label={timerOperatorDefinition.properties.startDue.label}
 						value={properties.startDue}
 						type="number"
 						size="small"
@@ -98,7 +109,7 @@ export function TimerElementPropertiesForm({
 
 			<TextField
 				id="timer-el-interval-duration-prop"
-				label="Interval duration"
+				label={timerOperatorDefinition.properties.intervalDuration.label}
 				type="number"
 				size="small"
 				value={properties.intervalDuration}

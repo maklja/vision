@@ -495,10 +495,17 @@ Implementation owner: [#139](https://github.com/maklja/vision/issues/139); #135 
 
 Implementation owner: [#140](https://github.com/maklja/vision/issues/140), minimum metadata first and full current-operator migration after runtime contracts stabilize.
 
-**Initial slice prepared for review on 2026-10-16:** static typed definitions for `of`, `map` and
+**Initial slice merged in [PR #147](https://github.com/maklja/vision/pull/147) on 2026-10-16:** static typed definitions for `of`, `map` and
 `merge`; template defaults, engine registration keys and form labels consume their metadata.
 [Operator definitions and current inventory](OPERATOR_DEFINITIONS.md) records every current type,
 property and callback boundary, including From/Timer modes and the current Map index behavior.
+**Source-mode follow-up prepared for review:** definitions for From, Interval, Range and Timer;
+boolean activation conditions, numeric Timer choices, optional Range count, and the shared From
+port resolver. Templates, engine registration keys and form labels consume these definitions.
+Behavior tests preserve inactive callbacks, helper scope, subscription timing, zero/missing counts,
+period overrides, relative/absolute/past due times and the one-shot sentinel. This is metadata
+migration only; context/parameter execution remains #134/#135.
+
 Remaining metadata and all-current form/drawer/theme migrations stay open under #140; this slice
 does not complete Phase 4.2 or unblock broad #134 rollout by itself.
 

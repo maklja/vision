@@ -12,7 +12,14 @@ export interface CallbackSignature {
 
 export type PropertyDefinition =
 	| { readonly kind: 'callback'; readonly label: string; readonly signature: CallbackSignature }
-	| { readonly kind: 'number'; readonly label: string; readonly semantics: string };
+	| {
+			readonly kind: 'number';
+			readonly label: string;
+			readonly semantics: string;
+			/** Existing numeric mode choices, such as Timer's DueDateType. */
+			readonly options?: readonly { readonly value: number; readonly label: string }[];
+	  }
+	| { readonly kind: 'boolean'; readonly label: string; readonly semantics: string };
 
 /** Remove ElementProps' string index signature so missing/extra property keys fail type checking. */
 type DeclaredProperties<P> = {
@@ -20,14 +27,23 @@ type DeclaredProperties<P> = {
 };
 
 type PropertyDefinitions<P> = {
-	readonly [K in keyof DeclaredProperties<P>]-?: P[K] extends number
-		? Extract<PropertyDefinition, { kind: 'number' }>
-		: Extract<PropertyDefinition, { kind: 'callback' }>;
+	readonly [K in keyof DeclaredProperties<P>]-?: (NonNullable<P[K]> extends boolean
+		? Extract<PropertyDefinition, { kind: 'boolean' }>
+		: NonNullable<P[K]> extends number
+			? Extract<PropertyDefinition, { kind: 'number' }>
+			: Extract<PropertyDefinition, { kind: 'callback' }>) &
+		(undefined extends P[K] ? { readonly optional: true } : { readonly optional?: false }) & {
+			/** Mode selection is descriptive metadata, not authored-code evaluation. */
+			readonly activeWhen?: {
+				readonly property: keyof DeclaredProperties<P>;
+				readonly equals: boolean;
+			};
+		};
 };
 
 /**
  * Static metadata only. Runtime factories and React registrations remain in their owning packages.
- * This first slice describes Of/Map/Merge; it is not a validator, compiler or plugin API.
+ * Definitions describe current adapters; they are not a validator, compiler or plugin API.
  */
 export interface OperatorDefinition<P> {
 	readonly type: ElementType;
@@ -38,6 +54,9 @@ export interface OperatorDefinition<P> {
 	readonly defaults: P;
 	readonly properties: PropertyDefinitions<P>;
 	readonly ports: ElementDescriptor;
+	/** Only operators with property-dependent ports need a resolver. Defaults still use ports. */
+	readonly resolvePorts?: (properties: P) => ElementDescriptor;
+	/** Candidate reference ports; intersect with the resolved ports for the current mode. */
 	readonly referencePorts: readonly ('input' | 'event')[];
 	readonly example: string;
 	readonly codeExport: { readonly status: 'deferred'; readonly reason: string };

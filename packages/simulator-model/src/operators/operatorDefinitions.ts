@@ -1,9 +1,26 @@
+import { FromElementProperties, fromElementPropsTemplate } from '../creationOperators/FromElement';
+import {
+	IntervalElementProperties,
+	intervalElementPropsTemplate,
+} from '../creationOperators/IntervalElement';
+import {
+	RangeElementProperties,
+	rangeElementPropsTemplate,
+} from '../creationOperators/RangeElement';
+import {
+	DueDateType,
+	TimerElementProperties,
+	timerElementPropsTemplate,
+} from '../creationOperators/TimerElement';
 import { OfElementProperties, ofElementPropsTemplate } from '../creationOperators/OfElement';
 import {
 	creationElementDescriptor,
+	fromElementDescriptor,
+	findFromElementDescriptor,
 	joinCreationElementDescriptor,
 	pipeElementDescriptor,
 } from '../descriptors/elementDescriptors';
+import { CommonProps } from '../element/Element';
 import { ElementGroup } from '../element/ElementGroup';
 import { ElementType } from '../element/ElementType';
 import {
@@ -96,9 +113,143 @@ export const mergeOperatorDefinition = {
 	codeExport,
 } as const satisfies OperatorDefinition<MergeElementProperties>;
 
+export const fromOperatorDefinition = {
+	type: ElementType.From,
+	name: 'from',
+	category: ElementGroup.Creation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/from',
+	status: 'supported',
+	defaults: fromElementPropsTemplate,
+	properties: {
+		enableObservableEvent: {
+			kind: 'boolean',
+			label: 'Observable event',
+			semantics:
+				'True selects the connected factory and one event reference; false selects the input callback without an event port.',
+		},
+		inputCallbackExpression: {
+			kind: 'callback',
+			label: 'Input',
+			activeWhen: { property: CommonProps.EnableObservableEvent, equals: false },
+			signature: {
+				arguments: [],
+				returns: 'ObservableInput<unknown>',
+				helpers: [],
+				notes: 'Called without arguments when the source factory is invoked in input mode; each emitted raw item is wrapped in a new FlowValue. The inactive observableFactory is not evaluated.',
+			},
+		},
+		observableFactory: {
+			kind: 'callback',
+			label: 'Input',
+			activeWhen: { property: CommonProps.EnableObservableEvent, equals: true },
+			signature: {
+				arguments: [],
+				returns: 'ObservableInput<FlowValue>',
+				helpers: ['createObservable'],
+				notes: 'The callback-producing expression is evaluated at source factory invocation; its returned function is called without arguments on each subscription in connected mode. createObservable(overrides?) invokes the single event reference with a child subscription ID and preserves its FlowValues. The inactive input callback is not evaluated.',
+			},
+		},
+	},
+	ports: fromElementDescriptor,
+	resolvePorts: findFromElementDescriptor,
+	referencePorts: ['input', 'event'],
+	example:
+		'enableObservableEvent: false; inputCallbackExpression: function input() { return [1, 2, 3]; }',
+	codeExport,
+} as const satisfies OperatorDefinition<FromElementProperties>;
+
+export const intervalOperatorDefinition = {
+	type: ElementType.Interval,
+	name: 'interval',
+	category: ElementGroup.Creation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/interval',
+	status: 'supported',
+	defaults: intervalElementPropsTemplate,
+	properties: {
+		period: {
+			kind: 'number',
+			label: 'Period',
+			semantics:
+				'Delay in milliseconds before the first and each following sequential value (starting at zero). Passed unchanged to RxJS interval, including zero.',
+		},
+	},
+	ports: creationElementDescriptor,
+	referencePorts: ['input'],
+	example: 'period: 1000 emits 0, 1, 2, ... at one-second intervals until unsubscribed.',
+	codeExport,
+} as const satisfies OperatorDefinition<IntervalElementProperties>;
+
+export const rangeOperatorDefinition = {
+	type: ElementType.Range,
+	name: 'range',
+	category: ElementGroup.Creation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/range',
+	status: 'supported',
+	defaults: rangeElementPropsTemplate,
+	properties: {
+		start: {
+			kind: 'number',
+			label: 'Start',
+			semantics: 'Passed unchanged as the first RxJS range argument.',
+		},
+		count: {
+			kind: 'number',
+			optional: true,
+			label: 'Count',
+			semantics:
+				'Optional second argument: omission preserves RxJS range(start) behavior (start is the count and emission starts at zero); zero emits no values. The saved template still defaults to 10.',
+		},
+	},
+	ports: creationElementDescriptor,
+	referencePorts: ['input'],
+	example: 'start: 5, count: 3 emits 5, 6, 7 synchronously.',
+	codeExport,
+} as const satisfies OperatorDefinition<RangeElementProperties>;
+
+export const timerOperatorDefinition = {
+	type: ElementType.Timer,
+	name: 'timer',
+	category: ElementGroup.Creation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/timer',
+	status: 'supported',
+	defaults: timerElementPropsTemplate,
+	properties: {
+		dueDateType: {
+			kind: 'number',
+			label: 'Due date type',
+			options: [
+				{ value: DueDateType.Milliseconds, label: 'Milliseconds' },
+				{ value: DueDateType.Date, label: 'Date' },
+			],
+			semantics:
+				'Existing numeric mode: 0 is a relative delay; 1 interprets startDue as epoch milliseconds.',
+		},
+		startDue: {
+			kind: 'number',
+			label: 'Due milliseconds',
+			semantics:
+				'Stored as a number in both modes. Relative mode passes it unchanged; Date mode constructs a Date at the engine boundary (the form labels it Due date). Past dates keep RxJS scheduling behavior.',
+		},
+		intervalDuration: {
+			kind: 'number',
+			label: 'Interval duration',
+			semantics:
+				'Milliseconds between later values; -1 is the current one-shot default. Negative values complete after the first emission; zero repeats asynchronously per RxJS timer.',
+		},
+	},
+	ports: creationElementDescriptor,
+	referencePorts: ['input'],
+	example: 'dueDateType: 0, startDue: 1000, intervalDuration: -1 emits 0 once after one second.',
+	codeExport,
+} as const satisfies OperatorDefinition<TimerElementProperties>;
+
 /** Only migrated operators belong here. Absence must not be interpreted as unsupported execution. */
 export const operatorDefinitions = {
 	[ElementType.Of]: ofOperatorDefinition,
+	[ElementType.From]: fromOperatorDefinition,
+	[ElementType.Interval]: intervalOperatorDefinition,
+	[ElementType.Range]: rangeOperatorDefinition,
+	[ElementType.Timer]: timerOperatorDefinition,
 	[ElementType.Map]: mapOperatorDefinition,
 	[ElementType.Merge]: mergeOperatorDefinition,
 } as const;
