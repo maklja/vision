@@ -132,10 +132,7 @@ jobs:
                   path: pages-viewer
 
             - name: Refresh generated docs
-              run: |
-                  test -s pages-viewer/index.html
-                  rsync -a --delete pages-viewer/ docs/
-                  touch docs/.nojekyll
+              run: bash scripts/refresh-pages-docs.sh
 
             - name: Commit generated docs
               run: |
