@@ -1,5 +1,8 @@
 import Stack from '@mui/material/Stack';
-import { BufferToggleElementProperties } from '@maklja/vision-simulator-model';
+import {
+	BufferToggleElementProperties,
+	bufferToggleOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -25,7 +28,7 @@ export function BufferToggleElementPropertiesForm({
 		>
 			<SimpleCodeEditor
 				code={properties.closingSelectorExpression}
-				label="Closing selector"
+				label={bufferToggleOperatorDefinition.properties.closingSelectorExpression.label}
 				helperText="A function that takes the value emitted by the openings observable and returns a Subscribable or Promise, which, when it emits, signals that the associated buffer should be emitted and cleared."
 				onCodeChange={handleClosingSelectorExpressionChanged}
 			/>

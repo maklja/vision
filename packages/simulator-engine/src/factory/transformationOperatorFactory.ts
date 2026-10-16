@@ -36,6 +36,11 @@ import {
 	exhaustMapOperatorDefinition,
 	expandOperatorDefinition,
 	mergeMapOperatorDefinition,
+	bufferOperatorDefinition,
+	bufferCountOperatorDefinition,
+	bufferTimeOperatorDefinition,
+	bufferToggleOperatorDefinition,
+	bufferWhenOperatorDefinition,
 	mapOperatorDefinition,
 	MergeMapElement,
 	OBSERVABLE_GENERATOR_NAME,
@@ -382,11 +387,11 @@ const createExpandOperator = (el: Element, props: OperatorProps) => (o: Observab
 };
 
 const supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory> = new Map([
-	[ElementType.Buffer, createBufferOperator],
-	[ElementType.BufferCount, createBufferCountOperator],
-	[ElementType.BufferTime, createBufferTimeOperator],
-	[ElementType.BufferToggle, createBufferToggleOperator],
-	[ElementType.BufferWhen, createBufferWhenOperator],
+	[bufferOperatorDefinition.type, createBufferOperator],
+	[bufferCountOperatorDefinition.type, createBufferCountOperator],
+	[bufferTimeOperatorDefinition.type, createBufferTimeOperator],
+	[bufferToggleOperatorDefinition.type, createBufferToggleOperator],
+	[bufferWhenOperatorDefinition.type, createBufferWhenOperator],
 	[concatMapOperatorDefinition.type, createConcatMapOperator],
 	[mapOperatorDefinition.type, createMapOperator],
 	[mergeMapOperatorDefinition.type, createMergeMapOperator],

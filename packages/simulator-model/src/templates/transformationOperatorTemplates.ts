@@ -1,4 +1,9 @@
 import {
+	bufferOperatorDefinition,
+	bufferCountOperatorDefinition,
+	bufferTimeOperatorDefinition,
+	bufferToggleOperatorDefinition,
+	bufferWhenOperatorDefinition,
 	concatMapOperatorDefinition,
 	exhaustMapOperatorDefinition,
 	expandOperatorDefinition,
@@ -6,23 +11,19 @@ import {
 	mapOperatorDefinition,
 } from '../operators/operatorDefinitions';
 import { ElementProps, ElementType } from '../element';
-import {
-	bufferCountElementPropsTemplate,
-	bufferTimeElementPropsTemplate,
-	bufferToggleElementPropsTemplate,
-	bufferWhenElementPropsTemplate,
-} from '../transformationOperators';
 
 export function mapTransformationOperatorTemplates(elType: ElementType): ElementProps {
 	switch (elType) {
+		case ElementType.Buffer:
+			return bufferOperatorDefinition.defaults;
 		case ElementType.BufferCount:
-			return bufferCountElementPropsTemplate;
+			return bufferCountOperatorDefinition.defaults;
 		case ElementType.BufferTime:
-			return bufferTimeElementPropsTemplate;
+			return bufferTimeOperatorDefinition.defaults;
 		case ElementType.BufferToggle:
-			return bufferToggleElementPropsTemplate;
+			return bufferToggleOperatorDefinition.defaults;
 		case ElementType.BufferWhen:
-			return bufferWhenElementPropsTemplate;
+			return bufferWhenOperatorDefinition.defaults;
 		case ElementType.Expand:
 			return expandOperatorDefinition.defaults;
 		case ElementType.ExhaustMap:

@@ -1,5 +1,8 @@
 import Stack from '@mui/material/Stack';
-import { BufferWhenElementProperties } from '@maklja/vision-simulator-model';
+import {
+	BufferWhenElementProperties,
+	bufferWhenOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -25,7 +28,7 @@ export function BufferWhenElementPropertiesForm({
 		>
 			<SimpleCodeEditor
 				code={properties.closingSelectorExpression}
-				label="Closing selector"
+				label={bufferWhenOperatorDefinition.properties.closingSelectorExpression.label}
 				helperText="A function that takes no arguments and returns an Observable that signals buffer closure."
 				onCodeChange={handleClosingSelectorExpressionChanged}
 			/>

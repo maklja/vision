@@ -48,11 +48,11 @@ have connection-order controls; lack of a property form does not mean unsupporte
 | `forkJoin`      | L     | `observableInputsType: ObservableInputsType`                                                                                                                                            | Array/object selection; order/names on connections                    |
 | `race`          | L     | None                                                                                                                                                                                    | Input order on connections                                            |
 | `zip`           | L     | None                                                                                                                                                                                    | Input order on connections                                            |
-| `buffer`        | L     | None                                                                                                                                                                                    | No property form; connected notifier                                  |
-| `bufferCount`   | L     | `bufferSize: number`, `startBufferEvery: number`                                                                                                                                        | Size/start interval                                                   |
-| `bufferTime`    | L     | `bufferTimeSpan: number`, `bufferCreationInterval?: number`, `maxBufferSize?: number`                                                                                                   | Time/creation/max size                                                |
-| `bufferToggle`  | L     | `closingSelectorExpression: string`                                                                                                                                                     | Opening and closing references                                        |
-| `bufferWhen`    | L     | `closingSelectorExpression: string`                                                                                                                                                     | Closing reference                                                     |
+| `buffer`        | D     | None                                                                                                                                                                                    | No property form; connected notifier                                  |
+| `bufferCount`   | D     | `bufferSize: number`, `startBufferEvery: number`                                                                                                                                        | Size/start interval                                                   |
+| `bufferTime`    | D     | `bufferTimeSpan: number`, `bufferCreationInterval?: number`, `maxBufferSize?: number`                                                                                                   | Time/creation/max size                                                |
+| `bufferToggle`  | D     | `closingSelectorExpression: string`                                                                                                                                                     | Opening and closing references                                        |
+| `bufferWhen`    | D     | `closingSelectorExpression: string`                                                                                                                                                     | Closing reference                                                     |
 | `concatMap`     | D     | `projectExpression: string`                                                                                                                                                             | Connected project                                                     |
 | `exhaustMap`    | D     | `projectExpression: string`                                                                                                                                                             | Connected project                                                     |
 | `expand`        | D     | `concurrent?: number`, `projectExpression: string`                                                                                                                                      | Connected project/concurrency                                         |
@@ -173,6 +173,31 @@ until cancellation; Expand normalizes values below one to unbounded. No new norm
 invocation policy is introduced. Behavior coverage lives in
 `higherOrderOperatorMetadata.test.ts` and `transformationOperatorFactory.test.ts`; the browser
 journey covers forms, saved callbacks, reference execution and Worker completion.
+
+## Buffer compatibility
+
+Buffer, BufferCount, BufferTime, BufferToggle and BufferWhen consume definition metadata for
+saved defaults, engine registration keys and existing form labels. Buffer has no properties or
+property form. BufferTime keeps its optional creation interval and maximum size absent from defaults;
+the engine supplies the maximum only when truthy, so zero retains the uncapped behavior.
+
+Buffer constructs its notifier and subscription event when the pipe factory is applied, before
+subscription; the returned observable reuses that notifier and ID. BufferToggle constructs the
+closing callback once at pipe application. Top means openings and bottom means closing reference,
+regardless of reference-array order. Its callback receives only the raw opening value; the helper
+can forward child overrides to the bottom reference. The opening and closing helpers share an
+application-time ID, while closing trace events use separate IDs with opening-value dependencies.
+This existing correlation mismatch stays explicit until #129/#134 changes the runtime.
+
+BufferWhen rebuilds its callback expression on every buffer opening, receives no arguments, and
+uses a fresh helper/subscription-event ID for each invocation. Avoid synchronous emitting closing
+notifiers because they immediately reopen buffers. Buffer results contain raw arrays; dependency
+IDs include buffered values, plus a notifier ID for Buffer closures. The other buffer adapters
+currently record only buffered-value dependencies.
+
+`bufferOperatorMetadata.test.ts` covers these boundaries, numeric defaults, max-size truthiness,
+separate buffer creation intervals and reference requirements. Browser journeys cover each buffer,
+its existing controls, saved properties and connected execution through the Worker.
 
 ## Remaining #140 work
 

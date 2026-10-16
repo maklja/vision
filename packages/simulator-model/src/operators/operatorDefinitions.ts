@@ -1,4 +1,20 @@
 import {
+	BufferWhenElementProperties,
+	bufferWhenElementPropsTemplate,
+} from '../transformationOperators/BufferWhenElement';
+import {
+	BufferToggleElementProperties,
+	bufferToggleElementPropsTemplate,
+} from '../transformationOperators/BufferToggleElement';
+import {
+	BufferTimeElementProperties,
+	bufferTimeElementPropsTemplate,
+} from '../transformationOperators/BufferTimeElement';
+import {
+	BufferCountElementProperties,
+	bufferCountElementPropsTemplate,
+} from '../transformationOperators/BufferCountElement';
+import {
 	MergeMapElementProperties,
 	mergeMapElementPropsTemplate,
 } from '../transformationOperators/MergeMapElement';
@@ -44,8 +60,9 @@ import {
 	joinCreationElementDescriptor,
 	pipeElementDescriptor,
 	eventPipeElementDescriptor,
+	bufferToggleElementDescriptor,
 } from '../descriptors/elementDescriptors';
-import { CommonProps } from '../element/Element';
+import { CommonProps, ElementProps } from '../element/Element';
 import { ElementGroup } from '../element/ElementGroup';
 import { ElementType } from '../element/ElementType';
 import {
@@ -470,6 +487,135 @@ export const mergeMapOperatorDefinition = {
 	codeExport,
 } as const satisfies OperatorDefinition<MergeMapElementProperties>;
 
+export const bufferOperatorDefinition = {
+	type: ElementType.Buffer,
+	name: 'buffer',
+	category: ElementGroup.Transformation,
+	documentationUrl: 'https://rxjs.dev/api/operators/buffer',
+	status: 'supported',
+	defaults: {},
+	properties: {},
+	ports: eventPipeElementDescriptor,
+	referencePorts: ['event'],
+	example:
+		'Connect a Timer event reference to close a buffer; source completion flushes remaining raw values. No property form. The notifier factory and subscription event are created when the pipe is applied, using one ID shared by repeated subscriptions to that returned observable. Buffer dependencies include source IDs and the notifier ID when present.',
+	codeExport,
+} as const satisfies OperatorDefinition<ElementProps>;
+
+export const bufferCountOperatorDefinition = {
+	type: ElementType.BufferCount,
+	name: 'bufferCount',
+	category: ElementGroup.Transformation,
+	documentationUrl: 'https://rxjs.dev/api/operators/bufferCount',
+	status: 'supported',
+	defaults: bufferCountElementPropsTemplate,
+	properties: {
+		bufferSize: {
+			kind: 'number',
+			label: 'Buffer size',
+			semantics: 'Passed unchanged as the RxJS bufferCount size.',
+		},
+		startBufferEvery: {
+			kind: 'number',
+			label: 'Start buffer every',
+			semantics:
+				'Passed unchanged as the RxJS bufferCount start interval; zero opens no buffers in the installed RxJS implementation. The saved default 2 overlaps buffers of size 3.',
+		},
+	},
+	ports: pipeElementDescriptor,
+	referencePorts: [],
+	example:
+		'bufferSize: 3, startBufferEvery: 2; input 1,2,3,4 emits [1,2,3] then [3,4] on completion.',
+	codeExport,
+} as const satisfies OperatorDefinition<BufferCountElementProperties>;
+
+export const bufferTimeOperatorDefinition = {
+	type: ElementType.BufferTime,
+	name: 'bufferTime',
+	category: ElementGroup.Transformation,
+	documentationUrl: 'https://rxjs.dev/api/operators/bufferTime',
+	status: 'supported',
+	defaults: bufferTimeElementPropsTemplate,
+	properties: {
+		bufferTimeSpan: {
+			kind: 'number',
+			label: 'Buffer time span',
+			semantics: 'Buffer lifetime in milliseconds, passed unchanged to RxJS bufferTime.',
+		},
+		bufferCreationInterval: {
+			kind: 'number',
+			optional: true,
+			label: 'Buffer creation interval',
+			semantics:
+				'Optional interval in milliseconds for new buffers. Omission or a negative value uses sequential buffers; zero is forwarded unchanged.',
+		},
+		maxBufferSize: {
+			kind: 'number',
+			optional: true,
+			label: 'Max buffer size',
+			semantics:
+				'The current adapter supplies this RxJS argument only when truthy. Omission and zero omit the cap; other values, including negatives, are forwarded unchanged.',
+		},
+	},
+	ports: pipeElementDescriptor,
+	referencePorts: [],
+	example:
+		'bufferTimeSpan: 100; maxBufferSize omitted; source completion flushes the current buffer.',
+	codeExport,
+} as const satisfies OperatorDefinition<BufferTimeElementProperties>;
+
+export const bufferToggleOperatorDefinition = {
+	type: ElementType.BufferToggle,
+	name: 'bufferToggle',
+	category: ElementGroup.Transformation,
+	documentationUrl: 'https://rxjs.dev/api/operators/bufferToggle',
+	status: 'supported',
+	defaults: bufferToggleElementPropsTemplate,
+	properties: {
+		closingSelectorExpression: {
+			kind: 'callback',
+			label: 'Closing selector',
+			signature: {
+				arguments: [{ name: 'value', type: 'unknown (raw opening value)' }],
+				returns: 'ObservableInput<FlowValue>',
+				helpers: [OBSERVABLE_GENERATOR_NAME],
+				notes: 'The expression is evaluated once when the pipe factory is applied, before subscription; its returned function receives each raw opening value, without an index. The top event reference supplies openings; createObservable(overrides?) binds only the bottom closing reference. Both helpers forward the same application-time subscription ID. Closing subscription events currently use separate fresh IDs with the opening FlowValue as a dependency; these differ from the ID passed to the closing helper. Preserve this correlation mismatch until #129/#134 changes the runtime deliberately.',
+			},
+		},
+	},
+	ports: bufferToggleElementDescriptor,
+	referencePorts: ['event'],
+	example:
+		'Connect top openings and bottom closing references; closingSelectorExpression: function closing(value) { return createObservable({ startDue: value }); }',
+	codeExport,
+} as const satisfies OperatorDefinition<BufferToggleElementProperties>;
+
+export const bufferWhenOperatorDefinition = {
+	type: ElementType.BufferWhen,
+	name: 'bufferWhen',
+	category: ElementGroup.Transformation,
+	documentationUrl: 'https://rxjs.dev/api/operators/bufferWhen',
+	status: 'supported',
+	defaults: bufferWhenElementPropsTemplate,
+	properties: {
+		closingSelectorExpression: {
+			kind: 'callback',
+			label: 'Closing selector',
+			signature: {
+				arguments: [],
+				returns: 'ObservableInput<FlowValue>',
+				helpers: [OBSERVABLE_GENERATOR_NAME],
+				notes: 'The expression is evaluated whenever RxJS opens a buffer, including the initial buffer on each subscription; its returned function receives no arguments. createObservable(overrides?) binds the single event reference and forwards overrides with a fresh subscription ID per selector invocation. The subscription event uses that same ID and has no value dependencies. A notifier emission closes and reopens the buffer; synchronous emitting notifiers can recurse immediately.',
+			},
+		},
+	},
+	ports: eventPipeElementDescriptor,
+	referencePorts: ['event'],
+	example:
+		'Connect a Timer event reference; closingSelectorExpression: function closing() { return createObservable({ startDue: 100 }); }',
+	codeExport,
+} as const satisfies OperatorDefinition<BufferWhenElementProperties>;
+
 /** Only migrated operators belong here. Absence must not be interpreted as unsupported execution. */
 export const operatorDefinitions = {
 	[ElementType.Of]: ofOperatorDefinition,
@@ -483,6 +629,11 @@ export const operatorDefinitions = {
 	[ElementType.ExhaustMap]: exhaustMapOperatorDefinition,
 	[ElementType.Expand]: expandOperatorDefinition,
 	[ElementType.MergeMap]: mergeMapOperatorDefinition,
+	[ElementType.Buffer]: bufferOperatorDefinition,
+	[ElementType.BufferCount]: bufferCountOperatorDefinition,
+	[ElementType.BufferTime]: bufferTimeOperatorDefinition,
+	[ElementType.BufferToggle]: bufferToggleOperatorDefinition,
+	[ElementType.BufferWhen]: bufferWhenOperatorDefinition,
 	[ElementType.Map]: mapOperatorDefinition,
 	[ElementType.Merge]: mergeOperatorDefinition,
 } as const;
