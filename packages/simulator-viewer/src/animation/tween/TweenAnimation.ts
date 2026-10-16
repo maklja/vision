@@ -28,8 +28,8 @@ export class TweenAnimation extends AbstractAnimation {
 
 	private get animationTween(): Konva.Tween {
 		if (!this.tween) {
-			// The hook creates this wrapper during render. Wait until playback, after React
-			// commits the canvas position, before Konva captures the tween's starting values.
+			// Capture starting values at playback, after React commits the canvas position.
+			// Constructing a wrapper alone must not allocate or mutate a canvas tween.
 			this.tween = new Konva.Tween(this.config);
 			this.tween.onReset = this.onReset.bind(this);
 			this.tween.onFinish = this.onFinish.bind(this);
