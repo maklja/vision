@@ -116,6 +116,10 @@ export const subscriberElementDescriptor: ElementDescriptor = {
 	},
 };
 
+export function findFromElementDescriptor(properties: FromElementProperties): ElementDescriptor {
+	return properties.enableObservableEvent ? fromElementDescriptor : creationElementDescriptor;
+}
+
 function findCreationElementDescriptor(
 	elementType: ElementType,
 	elementProps: ElementProps,
@@ -129,10 +133,7 @@ function findCreationElementDescriptor(
 	}
 
 	if (elementType === ElementType.From) {
-		const fromProperties = elementProps as FromElementProperties;
-		return fromProperties.enableObservableEvent
-			? fromElementDescriptor
-			: creationElementDescriptor;
+		return findFromElementDescriptor(elementProps as FromElementProperties);
 	}
 
 	return creationElementDescriptor;

@@ -1,6 +1,9 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import type { OperatorDefinition } from './OperatorDefinition';
 import type { MergeElementProperties } from '../joinCreationOperators/MergeElement';
+import type { RangeElementProperties } from '../creationOperators/RangeElement';
+import type { FromElementProperties } from '../creationOperators/FromElement';
+import { DueDateType } from '../creationOperators/TimerElement';
 import type { OfElementProperties } from '../creationOperators/OfElement';
 import { ElementType } from '../element/ElementType';
 import { findElementDescriptor } from '../descriptors/elementDescriptors';
@@ -10,6 +13,10 @@ import { mapTransformationOperatorTemplates } from '../templates/transformationO
 import { mapToJoinCreationOperatorPropsTemplates } from '../templates/mapToJoinCreationOperatorPropsTemplates';
 import {
 	findOperatorDefinition,
+	fromOperatorDefinition,
+	timerOperatorDefinition,
+	rangeOperatorDefinition,
+	intervalOperatorDefinition,
 	mapOperatorDefinition,
 	mergeOperatorDefinition,
 	ofOperatorDefinition,
@@ -17,7 +24,7 @@ import {
 	requireOperatorDefinition,
 } from './operatorDefinitions';
 
-describe('initial operator definitions', () => {
+describe('operator definitions', () => {
 	it('requires declared property keys despite the legacy ElementProps index signature', () => {
 		expectTypeOf<
 			keyof OperatorDefinition<MergeElementProperties>['properties']
@@ -81,11 +88,82 @@ describe('initial operator definitions', () => {
 		}
 	});
 
+	it('keeps boolean controls and optional numbers distinct from callbacks at compile time', () => {
+		expectTypeOf<
+			OperatorDefinition<FromElementProperties>['properties']['enableObservableEvent']['kind']
+		>().toEqualTypeOf<'boolean'>();
+		expectTypeOf<
+			OperatorDefinition<RangeElementProperties>['properties']['count']['kind']
+		>().toEqualTypeOf<'number'>();
+		expectTypeOf<
+			OperatorDefinition<RangeElementProperties>['properties']['count']['optional']
+		>().toEqualTypeOf<true>();
+	});
+
+	it.each([false, true])(
+		'resolves From ports and callback activation for connected mode %s',
+		(enabled) => {
+			const properties = {
+				...fromOperatorDefinition.defaults,
+				enableObservableEvent: enabled,
+			};
+			const ports = fromOperatorDefinition.resolvePorts(properties);
+			expect(ports).toEqual(findElementDescriptor(ElementType.From, properties));
+			expect(ports.event?.cardinality).toBe(enabled ? 1 : undefined);
+			expect(fromOperatorDefinition.properties.observableFactory.activeWhen).toEqual({
+				property: 'enableObservableEvent',
+				equals: true,
+			});
+			expect(fromOperatorDefinition.properties.inputCallbackExpression.activeWhen).toEqual({
+				property: 'enableObservableEvent',
+				equals: false,
+			});
+			expect(fromOperatorDefinition.properties.observableFactory.signature.helpers).toEqual([
+				'createObservable',
+			]);
+			expect(
+				fromOperatorDefinition.properties.inputCallbackExpression.signature.helpers,
+			).toEqual([]);
+			expect(fromOperatorDefinition.properties.observableFactory.signature.arguments).toEqual(
+				[],
+			);
+			expect(
+				fromOperatorDefinition.properties.inputCallbackExpression.signature.arguments,
+			).toEqual([]);
+		},
+	);
+
+	it('preserves source defaults, numeric Timer modes and the one-shot sentinel', () => {
+		expect(intervalOperatorDefinition.defaults).toEqual({ period: 1000 });
+		expect(rangeOperatorDefinition.defaults).toEqual({ start: 1, count: 10 });
+		expect(rangeOperatorDefinition.properties.count.optional).toBe(true);
+		expect(timerOperatorDefinition.defaults).toEqual({
+			dueDateType: DueDateType.Milliseconds,
+			startDue: 1000,
+			intervalDuration: -1,
+		});
+		expect(timerOperatorDefinition.properties.dueDateType.options).toEqual([
+			{ value: DueDateType.Milliseconds, label: 'Milliseconds' },
+			{ value: DueDateType.Date, label: 'Date' },
+		]);
+		for (const definition of [
+			fromOperatorDefinition,
+			intervalOperatorDefinition,
+			rangeOperatorDefinition,
+			timerOperatorDefinition,
+		]) {
+			expect(mapToCreationOperatorPropsTemplates(definition.type)).toBe(definition.defaults);
+			expect(definition.codeExport.status).toBe('deferred');
+		}
+	});
+
 	it('reports missing metadata explicitly without disabling legacy operators', () => {
-		expect(findOperatorDefinition(ElementType.From)).toBeUndefined();
-		expect(mapToOperatorPropsTemplate(ElementType.From).enableObservableEvent).toBe(true);
-		expect(() => requireOperatorDefinition(ElementType.From)).toThrow(
-			'Operator metadata is not registered for from',
+		expect(findOperatorDefinition(ElementType.Defer)).toBeUndefined();
+		expect(mapToOperatorPropsTemplate(ElementType.Defer).observableFactory).toContain(
+			'createObservable()',
+		);
+		expect(() => requireOperatorDefinition(ElementType.Defer)).toThrow(
+			'Operator metadata is not registered for defer',
 		);
 		expect(findOperatorDefinition('toString' as ElementType)).toBeUndefined();
 		expect(() => requireOperatorDefinition('unknown' as ElementType)).toThrow(

@@ -1,14 +1,16 @@
-import { ofOperatorDefinition } from '../operators/operatorDefinitions';
+import {
+	ofOperatorDefinition,
+	fromOperatorDefinition,
+	intervalOperatorDefinition,
+	rangeOperatorDefinition,
+	timerOperatorDefinition,
+} from '../operators/operatorDefinitions';
 import {
 	ajaxElementPropsTemplate,
 	deferElementPropsTemplate,
-	fromElementPropsTemplate,
 	generateElementPropsTemplate,
 	iifElementPropsTemplate,
-	intervalElementPropsTemplate,
-	rangeElementPropsTemplate,
 	throwErrorElementPropsTemplate,
-	timerElementPropsTemplate,
 } from '../creationOperators';
 import { ElementProps, ElementType } from '../element';
 
@@ -19,21 +21,21 @@ export function mapToCreationOperatorPropsTemplates(elType: ElementType): Elemen
 		case ElementType.Defer:
 			return deferElementPropsTemplate;
 		case ElementType.From:
-			return fromElementPropsTemplate;
+			return fromOperatorDefinition.defaults;
 		case ElementType.IIf:
 			return iifElementPropsTemplate;
 		case ElementType.Interval:
-			return intervalElementPropsTemplate;
+			return intervalOperatorDefinition.defaults;
 		case ElementType.Of:
 			return ofOperatorDefinition.defaults;
 		case ElementType.Generate:
 			return generateElementPropsTemplate;
 		case ElementType.Range:
-			return rangeElementPropsTemplate;
+			return rangeOperatorDefinition.defaults;
 		case ElementType.ThrowError:
 			return throwErrorElementPropsTemplate;
 		case ElementType.Timer:
-			return timerElementPropsTemplate;
+			return timerOperatorDefinition.defaults;
 		default:
 			return {};
 	}

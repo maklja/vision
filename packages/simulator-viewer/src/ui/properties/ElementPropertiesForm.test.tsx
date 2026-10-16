@@ -7,8 +7,11 @@ import {
 	ConnectPointPosition,
 	ConnectPointType,
 	ElementType,
+	DueDateType,
+	fromOperatorDefinition,
 	ObservableInputsType,
 } from '@maklja/vision-simulator-model';
+import { FromElementPropertiesForm } from './creationElementForms/FromElementPropertiesForm';
 import { createConnectLine, createElement } from '../../test-utils';
 import { ElementPropertiesForm, RelatedElements } from './ElementPropertiesForm';
 
@@ -214,5 +217,83 @@ describe('ElementPropertiesForm dispatcher', () => {
 			CommonProps.ObservableInputsType,
 			ObservableInputsType.Object,
 		);
+	});
+
+	it('keeps From callback fields and authored drafts separate across mode changes', () => {
+		const onPropertyValueChange = vi.fn();
+		const properties = {
+			...fromOperatorDefinition.defaults,
+			inputCallbackExpression: 'function input() { return [42]; }',
+			observableFactory: 'function input() { return createObservable({ count: 2 }); }',
+		};
+		const view = render(
+			<FromElementPropertiesForm
+				id="from-modes"
+				properties={properties}
+				onPropertyValueChange={onPropertyValueChange}
+			/>,
+		);
+		expect((screen.getByTestId('monaco-editor') as HTMLTextAreaElement).value).toBe(
+			properties.observableFactory,
+		);
+		fireEvent.change(screen.getByTestId('monaco-editor'), {
+			target: { value: 'function input() { return createObservable(); }' },
+		});
+		expect(onPropertyValueChange).toHaveBeenLastCalledWith(
+			'from-modes',
+			'observableFactory',
+			'function input() { return createObservable(); }',
+		);
+		fireEvent.click(screen.getByRole('checkbox', { name: 'Observable event' }));
+		expect(onPropertyValueChange).toHaveBeenLastCalledWith(
+			'from-modes',
+			'enableObservableEvent',
+			false,
+		);
+		view.rerender(
+			<FromElementPropertiesForm
+				id="from-modes"
+				properties={{ ...properties, enableObservableEvent: false }}
+				onPropertyValueChange={onPropertyValueChange}
+			/>,
+		);
+		expect((screen.getByTestId('monaco-editor') as HTMLTextAreaElement).value).toBe(
+			properties.inputCallbackExpression,
+		);
+		fireEvent.change(screen.getByTestId('monaco-editor'), {
+			target: { value: 'function input() { return [0]; }' },
+		});
+		expect(onPropertyValueChange).toHaveBeenLastCalledWith(
+			'from-modes',
+			'inputCallbackExpression',
+			'function input() { return [0]; }',
+		);
+		expect(properties.observableFactory).toBe(
+			'function input() { return createObservable({ count: 2 }); }',
+		);
+	});
+
+	it('keeps Timer mode choices numeric and preserves date-mode initialization', () => {
+		vi.useFakeTimers();
+		const now = Date.UTC(2026, 9, 16, 12);
+		vi.setSystemTime(now);
+		try {
+			const onPropertyValueChange = vi.fn();
+			renderForm(ElementType.Timer, { id: 'timer-mode', onPropertyValueChange });
+			expect((screen.getByLabelText('Due milliseconds') as HTMLInputElement).value).toBe(
+				'1000',
+			);
+			expect((screen.getByLabelText('Interval duration') as HTMLInputElement).value).toBe(
+				'-1',
+			);
+			fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Due date type' }));
+			fireEvent.click(screen.getByRole('option', { name: 'Date' }));
+			expect(onPropertyValueChange.mock.calls).toEqual([
+				['timer-mode', 'startDue', now + 60000],
+				['timer-mode', 'dueDateType', DueDateType.Date],
+			]);
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 });

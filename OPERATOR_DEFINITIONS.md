@@ -1,6 +1,7 @@
 # Operator definitions and registration
 
-Issue #140 is incremental. This first slice registers `of`, `map` and `merge` in
+Issue #140 is incremental. Definitions now cover `of`, `map`, `merge`, `from`, `interval`,
+`range` and `timer` in
 `packages/simulator-model/src/operators`. Their group template helpers and engine registration
 keys consume these definitions; their viewer forms consume the field labels. Existing model
 interfaces/default constants, descriptors, engine functions, forms, drawers and themes stay in
@@ -9,8 +10,8 @@ place. No saved field, connection, callback argument, or RxJS behavior changes.
 The metadata contract provides identity/category/docs, support status, declared property kinds,
 defaults, callback argument/return/helper signatures, existing port compatibility/cardinality,
 reference-port classification, a source example and an explicit deferred export reason. Property
-kinds currently cover the three migrated operators; richer field kinds and their validation belong
-to subsequent #140 slices and #134/#135. These definitions describe current behavior, not the
+kinds cover callbacks, booleans and numbers, including numeric mode choices and optional fields;
+richer field kinds and validation belong to subsequent #140 slices and #134/#135. These definitions describe current behavior, not the
 future parameter schema or a generic plugin API.
 
 `findOperatorDefinition` returns `undefined` for an operator whose metadata has not migrated.
@@ -21,7 +22,7 @@ this required lookup until their metadata has migrated.
 
 ## Current inventory
 
-This table includes every current `ElementType`. **D** means the first definition slice is migrated;
+This table includes every current `ElementType`. **D** means its definition metadata is migrated;
 **L** means existing registrations remain and definition migration is pending under #140.
 All executable rows remain supported; **I** identifies an internal/transient type. Full readable
 RxJS export is deferred to #136 for every executable row: no serializer is implemented by metadata.
@@ -31,16 +32,16 @@ have connection-order controls; lack of a property form does not mean unsupporte
 | Type            | State | Stored properties                                                                                                                                                                       | Property form / notes                                                 |
 | --------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | `of`            | D     | `argsFactoryExpression: string`                                                                                                                                                         | Arguments factory                                                     |
-| `from`          | L     | `enableObservableEvent: boolean`, `inputCallbackExpression: string`, `observableFactory: string`                                                                                        | Literal input callback or connected factory mode                      |
+| `from`          | D     | `enableObservableEvent: boolean`, `inputCallbackExpression: string`, `observableFactory: string`                                                                                        | Literal input callback or connected factory mode                      |
 | `iif`           | L     | `conditionExpression`, `trueCallbackExpression`, `falseCallbackExpression`: string                                                                                                      | Condition and true/false connected factories                          |
-| `interval`      | L     | `period: number`                                                                                                                                                                        | Period                                                                |
+| `interval`      | D     | `period: number`                                                                                                                                                                        | Period                                                                |
 | `ajax`          | L     | `url: string`, `method: HttpMethod`, `body?: string`, `headers?: [string,string][]`, `timeout?: number`, `responseType?: XMLHttpRequestResponseType`, `queryParams?: [string,string][]` | Body is JSON text; pair lists remain pair lists                       |
 | `empty`         | L     | None                                                                                                                                                                                    | No property form                                                      |
 | `defer`         | L     | `observableFactory: string`                                                                                                                                                             | Connected factory                                                     |
 | `generate`      | L     | `initialState: string`, `condition?: string`, `iterate: string`, `resultSelector: string`                                                                                               | Initial state is an expression, others callbacks                      |
-| `range`         | L     | `start: number`, `count?: number`                                                                                                                                                       | Start/count                                                           |
+| `range`         | D     | `start: number`, `count?: number`                                                                                                                                                       | Start/count                                                           |
 | `throwError`    | L     | `errorOrErrorFactory: string`                                                                                                                                                           | Existing RxJS error/factory field                                     |
-| `timer`         | L     | `dueDateType: DueDateType`, `startDue: number`, `intervalDuration: number`                                                                                                              | Millisecond/date modes and one-shot sentinel below                    |
+| `timer`         | D     | `dueDateType: DueDateType`, `startDue: number`, `intervalDuration: number`                                                                                                              | Millisecond/date modes and one-shot sentinel below                    |
 | `combineLatest` | L     | `observableInputsType: ObservableInputsType`                                                                                                                                            | Array/object selection; order/names on connections                    |
 | `merge`         | D     | `limitConcurrent: number`                                                                                                                                                               | Concurrency plus input order                                          |
 | `concat`        | L     | None                                                                                                                                                                                    | Input order on connections                                            |
@@ -122,17 +123,35 @@ when `limitConcurrent > 0`; zero and negative values leave concurrency unbounded
 6. Remove the old registration source only after parity. Update the inventory status and plan.
    Unknown/new types must fail the completeness tests; required metadata lookups must fail clearly.
 
+## Source modes and optional fields
+
+From's `ports` describes its default connected mode. Use `resolvePorts(properties)` for the
+current mode; this is the same built-in resolver used by the editor's descriptors. `referencePorts`
+lists candidates, so consumers must intersect it with the resolved descriptor. `activeWhen`
+identifies the selected callback without evaluating authored code. Only the connected factory
+receives `createObservable`; input mode wraps emitted raw items while connected mode preserves
+reference FlowValues. Its input callback runs at factory invocation; its connected factory runs
+on subscription, although the callback-producing expression is still evaluated at factory
+invocation. These current timing rules are not the future #134 invocation contract.
+
+Timer's numeric property metadata includes the existing mode choices. `startDue` stays a number,
+and the date picker still uses its existing `Due date` label; no Date object is persisted. Numeric
+Range `count` has `optional: true`: omitting it preserves RxJS `range(start)` semantics, while an
+explicit zero completes without values. No metadata discovery evaluates callback strings. The
+built-in port resolver remains module code, not data added to saved diagrams or Worker messages.
+
 ## Remaining #140 work
 
-The representative group is the first reviewed slice, not issue completion. Migrate remaining
-field/signature/reference metadata (especially From/Timer and connected callbacks) before broad
+The representative group and source-mode follow-up do not complete the issue. Migrate remaining
+field/signature/reference metadata (including IIf/Defer and higher-order callbacks) before broad
 #134 compiler rollout. Finish all current registrations and richer form/drawer/theme integration
 after #134/#135 invocation/parameter rules and #129 lifecycle boundaries stabilize. Keep #140 open
 through that integrated gate. No new operators, serializer, schema migration, or execution policy
 is delivered here.
 
 Validation uses model metadata/template/descriptor tests, all-current engine registration coverage,
-Of scalar/array behavior and Map raw-value/index/identity regressions, plus the existing factory,
+Of scalar/array behavior, Map raw-value/index/identity, From inactive fields/helper scope, and
+Range/Interval/Timer defaults, overrides and mode/sentinel regressions, plus the existing factory,
 form, persistence and browser journeys. Metadata adds only static records; no evaluation, discovery
 scan, event retention, extra scheduler or heavyweight UI registration is introduced. Labels and
 input callbacks remain unchanged, preserving accessible controls and keyboard behavior.

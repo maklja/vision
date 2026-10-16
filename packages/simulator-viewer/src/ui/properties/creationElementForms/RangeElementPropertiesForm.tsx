@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { RangeElementProperties } from '@maklja/vision-simulator-model';
+import { RangeElementProperties, rangeOperatorDefinition } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { handleNumberInputChanged, handleOptionalNumberInputChanged } from '../utils';
 
@@ -23,7 +23,7 @@ export function RangeElementPropertiesForm({
 		>
 			<TextField
 				id="range-el-start-prop"
-				label="Start"
+				label={rangeOperatorDefinition.properties.start.label}
 				value={properties.start}
 				type="number"
 				size="small"
@@ -41,7 +41,7 @@ export function RangeElementPropertiesForm({
 
 			<TextField
 				id="range-el-count-prop"
-				label="Count"
+				label={rangeOperatorDefinition.properties.count.label}
 				value={properties.count}
 				type="number"
 				size="small"

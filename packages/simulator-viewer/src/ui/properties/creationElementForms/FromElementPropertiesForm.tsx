@@ -1,7 +1,7 @@
 import { SyntheticEvent } from 'react';
 import Stack from '@mui/material/Stack';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { FromElementProperties } from '@maklja/vision-simulator-model';
+import { FromElementProperties, fromOperatorDefinition } from '@maklja/vision-simulator-model';
 import Checkbox from '@mui/material/Checkbox';
 import { SimpleCodeEditor } from '../../code';
 import { formStyle } from '../commonStyles';
@@ -43,13 +43,17 @@ export function FromElementPropertiesForm({
 		>
 			<FormControlLabel
 				control={<Checkbox checked={properties.enableObservableEvent} />}
-				label="Observable event"
+				label={fromOperatorDefinition.properties.enableObservableEvent.label}
 				onChange={handleObservableEventChange}
 			/>
 
 			<SimpleCodeEditor
 				code={code}
-				label="Input"
+				label={
+					properties.enableObservableEvent
+						? fromOperatorDefinition.properties.observableFactory.label
+						: fromOperatorDefinition.properties.inputCallbackExpression.label
+				}
 				helperText={helperText}
 				onCodeChange={handleInputChanged}
 			/>
