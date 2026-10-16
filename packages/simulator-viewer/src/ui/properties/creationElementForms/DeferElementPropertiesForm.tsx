@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { DeferElementProperties } from '@maklja/vision-simulator-model';
+import { DeferElementProperties, deferOperatorDefinition } from '@maklja/vision-simulator-model';
 import { SimpleCodeEditor } from '../../code';
 import { formStyle } from '../commonStyles';
 
@@ -25,7 +25,7 @@ export function DeferElementPropertiesForm({
 		>
 			<SimpleCodeEditor
 				code={properties.observableFactory}
-				label="Observable factory"
+				label={deferOperatorDefinition.properties.observableFactory.label}
 				helperText="The Observable factory function to invoke for each Observer that subscribes to the output Observable. May also return any ObservableInput, which will be converted on the fly to an Observable."
 				onCodeChange={handleObservableFactoryChanged}
 			/>

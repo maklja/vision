@@ -1,5 +1,7 @@
 import {
 	ofOperatorDefinition,
+	iifOperatorDefinition,
+	deferOperatorDefinition,
 	fromOperatorDefinition,
 	intervalOperatorDefinition,
 	rangeOperatorDefinition,
@@ -7,9 +9,7 @@ import {
 } from '../operators/operatorDefinitions';
 import {
 	ajaxElementPropsTemplate,
-	deferElementPropsTemplate,
 	generateElementPropsTemplate,
-	iifElementPropsTemplate,
 	throwErrorElementPropsTemplate,
 } from '../creationOperators';
 import { ElementProps, ElementType } from '../element';
@@ -19,11 +19,11 @@ export function mapToCreationOperatorPropsTemplates(elType: ElementType): Elemen
 		case ElementType.Ajax:
 			return ajaxElementPropsTemplate;
 		case ElementType.Defer:
-			return deferElementPropsTemplate;
+			return deferOperatorDefinition.defaults;
 		case ElementType.From:
 			return fromOperatorDefinition.defaults;
 		case ElementType.IIf:
-			return iifElementPropsTemplate;
+			return iifOperatorDefinition.defaults;
 		case ElementType.Interval:
 			return intervalOperatorDefinition.defaults;
 		case ElementType.Of:

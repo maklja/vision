@@ -37,6 +37,8 @@ import {
 	OBSERVABLE_GENERATOR_NAME,
 	OfElement,
 	ofOperatorDefinition,
+	iifOperatorDefinition,
+	deferOperatorDefinition,
 	fromOperatorDefinition,
 	intervalOperatorDefinition,
 	rangeOperatorDefinition,
@@ -455,11 +457,11 @@ type CreationOperatorFunctionFactory = (
 
 const supportedOperators: ReadonlyMap<ElementType, CreationOperatorFunctionFactory> = new Map([
 	[ElementType.Ajax, createAjaxCreationOperator],
-	[ElementType.Defer, createDeferCreationOperator],
+	[deferOperatorDefinition.type, createDeferCreationOperator],
 	[ElementType.Empty, createEmptyCreationOperator],
 	[fromOperatorDefinition.type, createFromCreationOperator],
 	[ElementType.Generate, createGenerateCreationOperator],
-	[ElementType.IIf, createIifCreationOperator],
+	[iifOperatorDefinition.type, createIifCreationOperator],
 	[intervalOperatorDefinition.type, createIntervalCreationOperator],
 	[ofOperatorDefinition.type, createOfCreationOperator],
 	[rangeOperatorDefinition.type, createRangeCreationOperator],
