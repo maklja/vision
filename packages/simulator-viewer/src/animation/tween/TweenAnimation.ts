@@ -15,18 +15,26 @@ import {
 
 export class TweenAnimation extends AbstractAnimation {
 	private readonly events$ = new Subject<AnimationEvent>();
-	private readonly animationTween: Konva.Tween;
+	private tween: Konva.Tween | null = null;
 	private destroyed = false;
 
 	constructor(
-		config: Konva.TweenConfig,
+		private readonly config: Konva.TweenConfig,
 		private readonly options: AnimationOptions = {},
 		public readonly id = v1(),
 	) {
 		super();
-		this.animationTween = new Konva.Tween(config);
-		this.animationTween.onReset = this.onReset.bind(this);
-		this.animationTween.onFinish = this.onFinish.bind(this);
+	}
+
+	private get animationTween(): Konva.Tween {
+		if (!this.tween) {
+			// Capture starting values at playback, after React commits the canvas position.
+			// Constructing a wrapper alone must not allocate or mutate a canvas tween.
+			this.tween = new Konva.Tween(this.config);
+			this.tween.onReset = this.onReset.bind(this);
+			this.tween.onFinish = this.onFinish.bind(this);
+		}
+		return this.tween;
 	}
 
 	observable(): Observable<AnimationEvent> {
@@ -92,8 +100,9 @@ export class TweenAnimation extends AbstractAnimation {
 			return;
 		}
 
+		this.destroyed = true;
 		this.onDestroy();
-		this.animationTween.destroy();
+		this.tween?.destroy();
 		this.onAnimationDestroy?.(this);
 		this.events$.complete();
 	}
