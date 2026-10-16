@@ -180,7 +180,20 @@ gzip. The Worker chunk grows from 98.51 kB to 99.47 kB because uuid 14's ESM bui
 still has no external imports.
 
 The production viewer build is written to `packages/simulator-viewer/build`. The versioned `docs/`
-directory contains the static build served by GitHub Pages.
+directory contains the static build served by GitHub Pages. After both CI jobs pass on `main`,
+`publish-docs` replaces `docs/` with the `/vision/` production build exercised by Playwright,
+commits changed output with `github-actions[bot]`, and explicitly requests a Pages rebuild. Old
+assets are removed and `.nojekyll` keeps the generated application out of Jekyll processing.
+Pull requests only validate the application; they cannot update `docs/` or publish it.
+
+Pages keeps its existing **Deploy from a branch → main → /docs** configuration. The publishing
+job uses the built-in `GITHUB_TOKEN` with job-scoped `contents: write` and `pages: write`; no
+personal token is needed. Bot commits do not recursively trigger CI or Pages, which is why the
+job requests the Pages build through the API. A normal push rejects concurrent updates to `main`
+instead of publishing an older build on newer source. To retry a failed publish, rerun the failed
+job while its one-day artifact is available, or run the **CI** workflow manually on `main` to
+rebuild and validate a fresh artifact. The first successful CI run after this change is merged
+refreshes the previously stale `docs/` directory.
 
 ### Dependency maintenance
 

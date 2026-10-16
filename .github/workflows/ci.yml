@@ -2,6 +2,7 @@ name: CI
 
 on:
     pull_request:
+    workflow_dispatch:
     push:
         branches:
             - main
@@ -56,7 +57,20 @@ jobs:
               run: pnpm exec playwright install --with-deps chromium firefox webkit
 
             - name: Run browser tests
+              env:
+                  VISION_BASE_PATH: /vision/
               run: pnpm test:e2e
+
+            # Playwright rebuilds the production viewer with /vision/ before exercising it.
+            # Upload after the browser tests so publishing uses that exact tested build.
+            - name: Upload tested Pages build
+              if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: pages-viewer
+                  path: packages/simulator-viewer/build/
+                  if-no-files-found: error
+                  retention-days: 1
 
             - name: Upload coverage summary
               if: always()
@@ -95,3 +109,59 @@ jobs:
 
             - name: Check production dependency licenses
               run: pnpm audit:licenses
+
+    publish-docs:
+        needs: [test-and-build, dependency-audit]
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        runs-on: ubuntu-22.04
+        timeout-minutes: 5
+        permissions:
+            contents: write
+            pages: write
+
+        steps:
+            - name: Check out validated revision
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.sha }}
+
+            - name: Download tested Pages build
+              uses: actions/download-artifact@v4
+              with:
+                  name: pages-viewer
+                  path: pages-viewer
+
+            - name: Refresh generated docs
+              run: |
+                  test -s pages-viewer/index.html
+                  rsync -a --delete pages-viewer/ docs/
+                  touch docs/.nojekyll
+
+            - name: Commit generated docs
+              run: |
+                  # Never attach an older build to newer source. A concurrent push after this
+                  # check is also rejected by the ordinary (non-force) push below.
+                  git add --all docs/
+                  git fetch origin main
+                  if [ "$(git rev-parse origin/main)" != "$GITHUB_SHA" ]; then
+                      # A retry may find the exact source and generated docs already committed.
+                      if git diff --cached --quiet origin/main --; then
+                          echo "main already contains this tested build; retry Pages publishing."
+                          exit 0
+                      fi
+                      echo "main advanced; its own CI run must publish the newer build."
+                      exit 1
+                  fi
+                  if ! git diff --cached --quiet; then
+                      git config user.name 'github-actions[bot]'
+                      git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+                      git commit -m "chore: refresh GitHub Pages build for $GITHUB_SHA"
+                      git push origin HEAD:main
+                  fi
+
+            - name: Request GitHub Pages rebuild
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              # GITHUB_TOKEN pushes do not trigger Pages builds. Request one explicitly,
+              # including on retries where docs already matches but publishing had failed.
+              run: gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"
