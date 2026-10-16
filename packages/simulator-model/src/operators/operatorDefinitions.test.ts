@@ -14,6 +14,10 @@ import { mapToCreationOperatorPropsTemplates } from '../templates/creationOperat
 import { mapTransformationOperatorTemplates } from '../templates/transformationOperatorTemplates';
 import { mapToJoinCreationOperatorPropsTemplates } from '../templates/mapToJoinCreationOperatorPropsTemplates';
 import {
+	concatMapOperatorDefinition,
+	exhaustMapOperatorDefinition,
+	expandOperatorDefinition,
+	mergeMapOperatorDefinition,
 	findOperatorDefinition,
 	iifOperatorDefinition,
 	deferOperatorDefinition,
@@ -48,9 +52,15 @@ describe('operator definitions', () => {
 			expect(findElementDescriptor(definition.type, definition.defaults)).toEqual(
 				definition.ports,
 			);
-			expect(Object.keys(definition.properties).sort()).toEqual(
-				Object.keys(definition.defaults).sort(),
-			);
+			expect(
+				Object.entries(definition.properties)
+					.filter(
+						([key, field]) =>
+							!('optional' in field && field.optional) || key in definition.defaults,
+					)
+					.map(([key]) => key)
+					.sort(),
+			).toEqual(Object.keys(definition.defaults).sort());
 			expect(requireOperatorDefinition(definition.type)).toBe(definition);
 		},
 	);
@@ -189,6 +199,27 @@ describe('operator definitions', () => {
 			expect(mapToCreationOperatorPropsTemplates(definition.type)).toBe(definition.defaults);
 			expect(definition.codeExport.status).toBe('deferred');
 		}
+	});
+
+	it.each([
+		concatMapOperatorDefinition,
+		exhaustMapOperatorDefinition,
+		expandOperatorDefinition,
+		mergeMapOperatorDefinition,
+	])('describes $name project references and optional concurrency', (definition) => {
+		expect(mapTransformationOperatorTemplates(definition.type)).toBe(definition.defaults);
+		expect(definition.referencePorts).toEqual(['event']);
+		expect(definition.ports.event?.cardinality).toBe(1);
+		expect(definition.properties.projectExpression.signature.arguments).toEqual([
+			{ name: 'value', type: 'unknown (raw)' },
+			{ name: 'index', type: 'number' },
+		]);
+		expect(definition.properties.projectExpression.signature.helpers).toEqual([
+			'createObservable',
+		]);
+		expect(definition.defaults).not.toHaveProperty('concurrent');
+		if ('concurrent' in definition.properties)
+			expect(definition.properties.concurrent.optional).toBe(true);
 	});
 
 	it('reports missing metadata explicitly without disabling legacy operators', () => {

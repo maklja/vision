@@ -1,14 +1,16 @@
-import { mapOperatorDefinition } from '../operators/operatorDefinitions';
+import {
+	concatMapOperatorDefinition,
+	exhaustMapOperatorDefinition,
+	expandOperatorDefinition,
+	mergeMapOperatorDefinition,
+	mapOperatorDefinition,
+} from '../operators/operatorDefinitions';
 import { ElementProps, ElementType } from '../element';
 import {
 	bufferCountElementPropsTemplate,
 	bufferTimeElementPropsTemplate,
 	bufferToggleElementPropsTemplate,
 	bufferWhenElementPropsTemplate,
-	concatMapElementPropsTemplate,
-	exhaustMapElementPropsTemplate,
-	expandElementPropsTemplate,
-	mergeMapElementPropsTemplate,
 } from '../transformationOperators';
 
 export function mapTransformationOperatorTemplates(elType: ElementType): ElementProps {
@@ -22,15 +24,15 @@ export function mapTransformationOperatorTemplates(elType: ElementType): Element
 		case ElementType.BufferWhen:
 			return bufferWhenElementPropsTemplate;
 		case ElementType.Expand:
-			return expandElementPropsTemplate;
+			return expandOperatorDefinition.defaults;
 		case ElementType.ExhaustMap:
-			return exhaustMapElementPropsTemplate;
+			return exhaustMapOperatorDefinition.defaults;
 		case ElementType.Map:
 			return mapOperatorDefinition.defaults;
 		case ElementType.ConcatMap:
-			return concatMapElementPropsTemplate;
+			return concatMapOperatorDefinition.defaults;
 		case ElementType.MergeMap:
-			return mergeMapElementPropsTemplate;
+			return mergeMapOperatorDefinition.defaults;
 		default:
 			return {};
 	}

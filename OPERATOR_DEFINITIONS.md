@@ -53,10 +53,10 @@ have connection-order controls; lack of a property form does not mean unsupporte
 | `bufferTime`    | L     | `bufferTimeSpan: number`, `bufferCreationInterval?: number`, `maxBufferSize?: number`                                                                                                   | Time/creation/max size                                                |
 | `bufferToggle`  | L     | `closingSelectorExpression: string`                                                                                                                                                     | Opening and closing references                                        |
 | `bufferWhen`    | L     | `closingSelectorExpression: string`                                                                                                                                                     | Closing reference                                                     |
-| `concatMap`     | L     | `projectExpression: string`                                                                                                                                                             | Connected project                                                     |
-| `exhaustMap`    | L     | `projectExpression: string`                                                                                                                                                             | Connected project                                                     |
-| `expand`        | L     | `concurrent?: number`, `projectExpression: string`                                                                                                                                      | Connected project/concurrency                                         |
-| `mergeMap`      | L     | `concurrent?: number`, `projectExpression: string`                                                                                                                                      | Connected project/concurrency                                         |
+| `concatMap`     | D     | `projectExpression: string`                                                                                                                                                             | Connected project                                                     |
+| `exhaustMap`    | D     | `projectExpression: string`                                                                                                                                                             | Connected project                                                     |
+| `expand`        | D     | `concurrent?: number`, `projectExpression: string`                                                                                                                                      | Connected project/concurrency                                         |
+| `mergeMap`      | D     | `concurrent?: number`, `projectExpression: string`                                                                                                                                      | Connected project/concurrency                                         |
 | `map`           | D     | `projectExpression: string`                                                                                                                                                             | Raw-value project; adapter index caveat below                         |
 | `filter`        | L     | `predicateExpression: string`                                                                                                                                                           | Current dispatcher has no property form; do not claim one in metadata |
 | `subscriber`    | L     | None                                                                                                                                                                                    | Sink, no property form; not an RxJS creation/pipe factory             |
@@ -155,6 +155,24 @@ are preserved: IIf reads the stored condition but applies branch-field overrides
 all top-level overrides. These compatibility facts are tested, not corrected in this metadata slice.
 Issue #134 owns any change to evaluation timing or override semantics. Metadata discovery never
 executes these authored expressions, and no context bindings, parser or serializer is added here.
+
+## Higher-order project compatibility
+
+`concatMap`, `exhaustMap`, `expand` and `mergeMap` now consume definition metadata for
+saved defaults, engine registration keys and form labels. Each requires one event reference;
+the normal input is value flow, not a helper reference. Project receives the raw value and
+running projection index, reset for each subscription. The callback-producing expression is
+evaluated per projection. `createObservable(overrides?)` forwards overrides and a fresh child
+subscription ID to that reference; subscription dependencies identify the projected FlowValue.
+Inner FlowValues retain their identity. Expand emits source and recursive values.
+
+ConcatMap queues; ExhaustMap ignores inputs while an inner is active (without advancing its
+project index). MergeMap and Expand retain an omitted `concurrent` in their templates. Both
+pass the saved value unchanged to RxJS: MergeMap with zero/negative concurrency queues forever
+until cancellation; Expand normalizes values below one to unbounded. No new normalization or
+invocation policy is introduced. Behavior coverage lives in
+`higherOrderOperatorMetadata.test.ts` and `transformationOperatorFactory.test.ts`; the browser
+journey covers forms, saved callbacks, reference execution and Worker completion.
 
 ## Remaining #140 work
 

@@ -1,3 +1,19 @@
+import {
+	MergeMapElementProperties,
+	mergeMapElementPropsTemplate,
+} from '../transformationOperators/MergeMapElement';
+import {
+	ExpandElementProperties,
+	expandElementPropsTemplate,
+} from '../transformationOperators/ExpandElement';
+import {
+	ExhaustMapElementProperties,
+	exhaustMapElementPropsTemplate,
+} from '../transformationOperators/ExhaustMapElement';
+import {
+	ConcatMapElementProperties,
+	concatMapElementPropsTemplate,
+} from '../transformationOperators/ConcatMapElement';
 import { OBSERVABLE_GENERATOR_NAME } from '../common';
 import { IifElementProperties, iifElementPropsTemplate } from '../creationOperators/IifElement';
 import {
@@ -27,6 +43,7 @@ import {
 	findFromElementDescriptor,
 	joinCreationElementDescriptor,
 	pipeElementDescriptor,
+	eventPipeElementDescriptor,
 } from '../descriptors/elementDescriptors';
 import { CommonProps } from '../element/Element';
 import { ElementGroup } from '../element/ElementGroup';
@@ -323,6 +340,136 @@ export const deferOperatorDefinition = {
 	codeExport,
 } as const satisfies OperatorDefinition<DeferElementProperties>;
 
+export const concatMapOperatorDefinition = {
+	type: ElementType.ConcatMap,
+	name: 'concatMap',
+	category: ElementGroup.Transformation,
+	documentationUrl: 'https://rxjs.dev/api/operators/concatMap',
+	status: 'supported',
+	defaults: concatMapElementPropsTemplate,
+	properties: {
+		projectExpression: {
+			kind: 'callback',
+			label: 'Project',
+			signature: {
+				arguments: [
+					{ name: 'value', type: 'unknown (raw)' },
+					{ name: 'index', type: 'number' },
+				],
+				returns: 'ObservableInput<FlowValue>',
+				helpers: [OBSERVABLE_GENERATOR_NAME],
+				notes: 'The expression is evaluated for each projected value, then its returned function receives the raw value and running projection index (reset per subscription). createObservable(overrides?) binds the single event reference and forwards overrides with a fresh child subscription ID. Subscription events depend on the projected FlowValue ID; returned FlowValues are preserved. ConcatMap queues source values until the preceding inner subscription completes.',
+			},
+		},
+	},
+	ports: eventPipeElementDescriptor,
+	referencePorts: ['event'],
+	example:
+		'Connect one event reference; projectExpression: function project(value, index) { return createObservable({ count: index + 1 }); }',
+	codeExport,
+} as const satisfies OperatorDefinition<ConcatMapElementProperties>;
+
+export const exhaustMapOperatorDefinition = {
+	type: ElementType.ExhaustMap,
+	name: 'exhaustMap',
+	category: ElementGroup.Transformation,
+	documentationUrl: 'https://rxjs.dev/api/operators/exhaustMap',
+	status: 'supported',
+	defaults: exhaustMapElementPropsTemplate,
+	properties: {
+		projectExpression: {
+			kind: 'callback',
+			label: 'Project',
+			signature: {
+				arguments: [
+					{ name: 'value', type: 'unknown (raw)' },
+					{ name: 'index', type: 'number' },
+				],
+				returns: 'ObservableInput<FlowValue>',
+				helpers: [OBSERVABLE_GENERATOR_NAME],
+				notes: 'The expression is evaluated for each projected value, then its returned function receives the raw value and running projection index (reset per subscription). createObservable(overrides?) binds the single event reference and forwards overrides with a fresh child subscription ID. Subscription events depend on the projected FlowValue ID; returned FlowValues are preserved. ExhaustMap skips source values while an inner subscription is active; skipped values do not advance the project index.',
+			},
+		},
+	},
+	ports: eventPipeElementDescriptor,
+	referencePorts: ['event'],
+	example:
+		'Connect one event reference; projectExpression: function project(value, index) { return createObservable({ count: index + 1 }); }',
+	codeExport,
+} as const satisfies OperatorDefinition<ExhaustMapElementProperties>;
+
+export const expandOperatorDefinition = {
+	type: ElementType.Expand,
+	name: 'expand',
+	category: ElementGroup.Transformation,
+	documentationUrl: 'https://rxjs.dev/api/operators/expand',
+	status: 'supported',
+	defaults: expandElementPropsTemplate,
+	properties: {
+		projectExpression: {
+			kind: 'callback',
+			label: 'Project',
+			signature: {
+				arguments: [
+					{ name: 'value', type: 'unknown (raw)' },
+					{ name: 'index', type: 'number' },
+				],
+				returns: 'ObservableInput<FlowValue>',
+				helpers: [OBSERVABLE_GENERATOR_NAME],
+				notes: 'The expression is evaluated for each projected value, then its returned function receives the raw value and running projection index (reset per subscription). createObservable(overrides?) binds the single event reference and forwards overrides with a fresh child subscription ID. Subscription events depend on the projected FlowValue ID; returned FlowValues are preserved. Expand also emits each source and recursively emitted FlowValue before projecting its raw value.',
+			},
+		},
+		concurrent: {
+			kind: 'number',
+			optional: true,
+			label: 'Concurrent',
+			semantics:
+				'Omitted means unbounded. Passed unchanged to RxJS expand; values below 1 are normalized to unbounded by RxJS.',
+		},
+	},
+	ports: eventPipeElementDescriptor,
+	referencePorts: ['event'],
+	example:
+		'Connect a Range event reference; projectExpression: function project(value, index) { return value < 3 ? createObservable({ start: value + 1, count: 1 }) : []; }',
+	codeExport,
+} as const satisfies OperatorDefinition<ExpandElementProperties>;
+
+export const mergeMapOperatorDefinition = {
+	type: ElementType.MergeMap,
+	name: 'mergeMap',
+	category: ElementGroup.Transformation,
+	documentationUrl: 'https://rxjs.dev/api/operators/mergeMap',
+	status: 'supported',
+	defaults: mergeMapElementPropsTemplate,
+	properties: {
+		projectExpression: {
+			kind: 'callback',
+			label: 'Project',
+			signature: {
+				arguments: [
+					{ name: 'value', type: 'unknown (raw)' },
+					{ name: 'index', type: 'number' },
+				],
+				returns: 'ObservableInput<FlowValue>',
+				helpers: [OBSERVABLE_GENERATOR_NAME],
+				notes: 'The expression is evaluated for each projected value, then its returned function receives the raw value and running projection index (reset per subscription). createObservable(overrides?) binds the single event reference and forwards overrides with a fresh child subscription ID. Subscription events depend on the projected FlowValue ID; returned FlowValues are preserved. MergeMap queues source values when its concurrency limit is reached.',
+			},
+		},
+		concurrent: {
+			kind: 'number',
+			optional: true,
+			label: 'Concurrent',
+			semantics:
+				'Omitted means unbounded. Passed unchanged to RxJS mergeMap; zero or negative concurrency leaves values queued until unsubscribe.',
+		},
+	},
+	ports: eventPipeElementDescriptor,
+	referencePorts: ['event'],
+	example:
+		'Connect one event reference; projectExpression: function project(value, index) { return createObservable({ count: index + 1 }); }',
+	codeExport,
+} as const satisfies OperatorDefinition<MergeMapElementProperties>;
+
 /** Only migrated operators belong here. Absence must not be interpreted as unsupported execution. */
 export const operatorDefinitions = {
 	[ElementType.Of]: ofOperatorDefinition,
@@ -332,6 +479,10 @@ export const operatorDefinitions = {
 	[ElementType.Interval]: intervalOperatorDefinition,
 	[ElementType.Range]: rangeOperatorDefinition,
 	[ElementType.Timer]: timerOperatorDefinition,
+	[ElementType.ConcatMap]: concatMapOperatorDefinition,
+	[ElementType.ExhaustMap]: exhaustMapOperatorDefinition,
+	[ElementType.Expand]: expandOperatorDefinition,
+	[ElementType.MergeMap]: mergeMapOperatorDefinition,
 	[ElementType.Map]: mapOperatorDefinition,
 	[ElementType.Merge]: mergeOperatorDefinition,
 } as const;

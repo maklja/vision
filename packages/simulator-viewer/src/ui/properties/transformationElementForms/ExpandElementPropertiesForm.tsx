@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { ExpandElementProperties } from '@maklja/vision-simulator-model';
+import { ExpandElementProperties, expandOperatorDefinition } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { handleNumberInputChanged } from '../utils';
 import { SimpleCodeEditor } from '../../code';
@@ -27,7 +27,7 @@ export function ExpandElementPropertiesForm({
 		>
 			<TextField
 				id="expand-el-concurrent-prop"
-				label="Concurrent"
+				label={expandOperatorDefinition.properties.concurrent.label}
 				value={properties.concurrent}
 				type="number"
 				size="small"
@@ -46,7 +46,7 @@ export function ExpandElementPropertiesForm({
 
 			<SimpleCodeEditor
 				code={properties.projectExpression}
-				label="Project"
+				label={expandOperatorDefinition.properties.projectExpression.label}
 				helperText="A function that, when applied to an item emitted by the source or the output Observable, returns an Observable."
 				onCodeChange={handleProjectExpressionChanged}
 			/>
