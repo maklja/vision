@@ -9,9 +9,10 @@ export default defineConfig({
 	retries: 0,
 	workers: 1,
 	// Safety net: previously, a preview-server teardown could consume the entire CI job allowance.
-	// The budget covers the full journey suite in Chromium, Firefox, and WebKit.
+	// All three browsers run serially: the 78-test suite exceeded six minutes on CI
+	// with 73 tests passing. Allow ten minutes for the full suite and teardown.
 	// TODO: remove this once the preview lifecycle is owned by a dedicated e2e launcher.
-	globalTimeout: 6 * 60_000,
+	globalTimeout: 10 * 60_000,
 	reporter: [
 		['list', { printSteps: true }],
 		['html', { open: 'never' }],
