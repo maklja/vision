@@ -1,3 +1,9 @@
+import { OBSERVABLE_GENERATOR_NAME } from '../common';
+import { IifElementProperties, iifElementPropsTemplate } from '../creationOperators/IifElement';
+import {
+	DeferElementProperties,
+	deferElementPropsTemplate,
+} from '../creationOperators/DeferElement';
 import { FromElementProperties, fromElementPropsTemplate } from '../creationOperators/FromElement';
 import {
 	IntervalElementProperties,
@@ -15,6 +21,8 @@ import {
 import { OfElementProperties, ofElementPropsTemplate } from '../creationOperators/OfElement';
 import {
 	creationElementDescriptor,
+	iifElementDescriptor,
+	deferElementDescriptor,
 	fromElementDescriptor,
 	findFromElementDescriptor,
 	joinCreationElementDescriptor,
@@ -243,10 +251,84 @@ export const timerOperatorDefinition = {
 	codeExport,
 } as const satisfies OperatorDefinition<TimerElementProperties>;
 
+export const iifOperatorDefinition = {
+	type: ElementType.IIf,
+	name: 'iif',
+	category: ElementGroup.Creation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/iif',
+	status: 'supported',
+	defaults: iifElementPropsTemplate,
+	properties: {
+		conditionExpression: {
+			kind: 'callback',
+			label: 'Condition',
+			signature: {
+				arguments: [],
+				returns: 'boolean',
+				helpers: [],
+				notes: 'The stored condition expression is evaluated at source factory invocation, ignoring a conditionExpression override in the current adapter. Its returned function is called without arguments on every subscription; RxJS selects a branch by truthiness. No createObservable helper is injected into the condition.',
+			},
+		},
+		trueCallbackExpression: {
+			kind: 'callback',
+			label: 'True result',
+			signature: {
+				arguments: [],
+				returns: 'ObservableInput<FlowValue>',
+				helpers: [OBSERVABLE_GENERATOR_NAME],
+				notes: 'The expression is evaluated at source factory invocation, including for an unchosen branch; direct overrides of this field are applied. Its returned function is called without arguments only when the condition is truthy. createObservable(overrides?) binds only the top event reference and forwards child overrides with the current child subscription ID; emitted FlowValues are preserved.',
+			},
+		},
+		falseCallbackExpression: {
+			kind: 'callback',
+			label: 'False result',
+			signature: {
+				arguments: [],
+				returns: 'ObservableInput<FlowValue>',
+				helpers: [OBSERVABLE_GENERATOR_NAME],
+				notes: 'The expression is evaluated at source factory invocation, including for an unchosen branch; direct overrides of this field are applied. Its returned function is called without arguments only when the condition is falsy. createObservable(overrides?) binds only the bottom event reference and forwards child overrides with the current child subscription ID; emitted FlowValues are preserved.',
+			},
+		},
+	},
+	ports: iifElementDescriptor,
+	referencePorts: ['input', 'event'],
+	example:
+		'Connect top and bottom event references; the default condition selects the top reference. Both references are required even when the condition is constant.',
+	codeExport,
+} as const satisfies OperatorDefinition<IifElementProperties>;
+
+export const deferOperatorDefinition = {
+	type: ElementType.Defer,
+	name: 'defer',
+	category: ElementGroup.Creation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/defer',
+	status: 'supported',
+	defaults: deferElementPropsTemplate,
+	properties: {
+		observableFactory: {
+			kind: 'callback',
+			label: 'Observable factory',
+			signature: {
+				arguments: [],
+				returns: 'ObservableInput<FlowValue>',
+				helpers: [OBSERVABLE_GENERATOR_NAME],
+				notes: 'The stored expression is evaluated at source factory invocation; the current adapter ignores top-level invocation overrides, including observableFactory. Its returned function is called without arguments on each subscription. createObservable(overrides?) binds the single event reference and forwards child overrides with the current child subscription ID; emitted FlowValues are preserved. This is not the future #134 invocation contract.',
+			},
+		},
+	},
+	ports: deferElementDescriptor,
+	referencePorts: ['input', 'event'],
+	example:
+		'Connect one event reference; observableFactory: function input() { return createObservable({ count: 2 }); } forwards overrides to that reference on subscription.',
+	codeExport,
+} as const satisfies OperatorDefinition<DeferElementProperties>;
+
 /** Only migrated operators belong here. Absence must not be interpreted as unsupported execution. */
 export const operatorDefinitions = {
 	[ElementType.Of]: ofOperatorDefinition,
 	[ElementType.From]: fromOperatorDefinition,
+	[ElementType.IIf]: iifOperatorDefinition,
+	[ElementType.Defer]: deferOperatorDefinition,
 	[ElementType.Interval]: intervalOperatorDefinition,
 	[ElementType.Range]: rangeOperatorDefinition,
 	[ElementType.Timer]: timerOperatorDefinition,

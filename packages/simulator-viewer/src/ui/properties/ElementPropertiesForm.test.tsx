@@ -79,6 +79,7 @@ function renderForm(
 
 const supportedForms: [ElementType, string[]][] = [
 	[ElementType.Defer, ['Observable factory']],
+	[ElementType.IIf, ['Condition', 'True result', 'False result']],
 	[ElementType.Interval, ['Period']],
 	[ElementType.From, ['Observable event', 'Input']],
 	[ElementType.Range, ['Start', 'Count']],

@@ -60,7 +60,11 @@ function createConnectLine(seed: ConnectLineSeed, elements: Element[]): ConnectL
 	const sourcePosition = seed.sourcePosition ?? ConnectPointPosition.Right;
 	const targetPosition = seed.targetPosition ?? ConnectPointPosition.Left;
 	const sourceOffset =
-		sourcePosition === ConnectPointPosition.Top ? { x: 30, y: 0 } : { x: 60, y: 30 };
+		sourcePosition === ConnectPointPosition.Top
+			? { x: 30, y: 0 }
+			: sourcePosition === ConnectPointPosition.Bottom
+				? { x: 30, y: 60 }
+				: { x: 60, y: 30 };
 	const targetOffset =
 		targetPosition === ConnectPointPosition.Top ? { x: 30, y: 0 } : { x: 0, y: 30 };
 
@@ -86,7 +90,7 @@ function createConnectLine(seed: ConnectLineSeed, elements: Element[]): ConnectL
 	};
 }
 
-function createDiagram(
+export function createDiagram(
 	seeds: ElementSeed[],
 	connectLineSeeds: ConnectLineSeed[],
 ): PersistedDiagram {

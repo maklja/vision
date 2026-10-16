@@ -1,7 +1,7 @@
 # Operator definitions and registration
 
 Issue #140 is incremental. Definitions now cover `of`, `map`, `merge`, `from`, `interval`,
-`range` and `timer` in
+`range`, `timer`, `iif` and `defer` in
 `packages/simulator-model/src/operators`. Their group template helpers and engine registration
 keys consume these definitions; their viewer forms consume the field labels. Existing model
 interfaces/default constants, descriptors, engine functions, forms, drawers and themes stay in
@@ -33,11 +33,11 @@ have connection-order controls; lack of a property form does not mean unsupporte
 | --------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | `of`            | D     | `argsFactoryExpression: string`                                                                                                                                                         | Arguments factory                                                     |
 | `from`          | D     | `enableObservableEvent: boolean`, `inputCallbackExpression: string`, `observableFactory: string`                                                                                        | Literal input callback or connected factory mode                      |
-| `iif`           | L     | `conditionExpression`, `trueCallbackExpression`, `falseCallbackExpression`: string                                                                                                      | Condition and true/false connected factories                          |
+| `iif`           | D     | `conditionExpression`, `trueCallbackExpression`, `falseCallbackExpression`: string                                                                                                      | Condition and true/false connected factories                          |
 | `interval`      | D     | `period: number`                                                                                                                                                                        | Period                                                                |
 | `ajax`          | L     | `url: string`, `method: HttpMethod`, `body?: string`, `headers?: [string,string][]`, `timeout?: number`, `responseType?: XMLHttpRequestResponseType`, `queryParams?: [string,string][]` | Body is JSON text; pair lists remain pair lists                       |
 | `empty`         | L     | None                                                                                                                                                                                    | No property form                                                      |
-| `defer`         | L     | `observableFactory: string`                                                                                                                                                             | Connected factory                                                     |
+| `defer`         | D     | `observableFactory: string`                                                                                                                                                             | Connected factory                                                     |
 | `generate`      | L     | `initialState: string`, `condition?: string`, `iterate: string`, `resultSelector: string`                                                                                               | Initial state is an expression, others callbacks                      |
 | `range`         | D     | `start: number`, `count?: number`                                                                                                                                                       | Start/count                                                           |
 | `throwError`    | L     | `errorOrErrorFactory: string`                                                                                                                                                           | Existing RxJS error/factory field                                     |
@@ -140,10 +140,26 @@ Range `count` has `optional: true`: omitting it preserves RxJS `range(start)` se
 explicit zero completes without values. No metadata discovery evaluates callback strings. The
 built-in port resolver remains module code, not data added to saved diagrams or Worker messages.
 
+## Conditional and deferred factories
+
+IIf has two required event references: top is the true branch, bottom is the false branch.
+Reference array order does not select the branch. Its condition receives no positional arguments
+or connected helper; each branch factory receives no positional arguments and only its own
+`createObservable(overrides?)` binding. Defer requires exactly one event reference and binds its
+factory to that reference. Both preserve referenced FlowValues and forward explicit helper overrides.
+
+The callback-producing expressions run at source factory invocation, including both IIf branches.
+The returned condition runs on every subscription; only the selected returned branch function is
+invoked. Defer's returned factory also runs on every subscription. Existing override inconsistencies
+are preserved: IIf reads the stored condition but applies branch-field overrides; Defer ignores
+all top-level overrides. These compatibility facts are tested, not corrected in this metadata slice.
+Issue #134 owns any change to evaluation timing or override semantics. Metadata discovery never
+executes these authored expressions, and no context bindings, parser or serializer is added here.
+
 ## Remaining #140 work
 
-The representative group and source-mode follow-up do not complete the issue. Migrate remaining
-field/signature/reference metadata (including IIf/Defer and higher-order callbacks) before broad
+These metadata slices do not complete the issue. Migrate remaining
+field/signature/reference metadata (including higher-order and buffer callbacks) before broad
 #134 compiler rollout. Finish all current registrations and richer form/drawer/theme integration
 after #134/#135 invocation/parameter rules and #129 lifecycle boundaries stabilize. Keep #140 open
 through that integrated gate. No new operators, serializer, schema migration, or execution policy
@@ -151,7 +167,8 @@ is delivered here.
 
 Validation uses model metadata/template/descriptor tests, all-current engine registration coverage,
 Of scalar/array behavior, Map raw-value/index/identity, From inactive fields/helper scope, and
-Range/Interval/Timer defaults, overrides and mode/sentinel regressions, plus the existing factory,
+Range/Interval/Timer defaults, overrides and mode/sentinel regressions, and IIf/Defer branch
+selection, helper scope, invocation timing and override compatibility, plus the existing factory,
 form, persistence and browser journeys. Metadata adds only static records; no evaluation, discovery
 scan, event retention, extra scheduler or heavyweight UI registration is introduced. Labels and
 input callbacks remain unchanged, preserving accessible controls and keyboard behavior.

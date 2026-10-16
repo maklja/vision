@@ -4,6 +4,8 @@ import type { MergeElementProperties } from '../joinCreationOperators/MergeEleme
 import type { RangeElementProperties } from '../creationOperators/RangeElement';
 import type { FromElementProperties } from '../creationOperators/FromElement';
 import { DueDateType } from '../creationOperators/TimerElement';
+import type { IifElementProperties } from '../creationOperators/IifElement';
+import type { DeferElementProperties } from '../creationOperators/DeferElement';
 import type { OfElementProperties } from '../creationOperators/OfElement';
 import { ElementType } from '../element/ElementType';
 import { findElementDescriptor } from '../descriptors/elementDescriptors';
@@ -13,6 +15,8 @@ import { mapTransformationOperatorTemplates } from '../templates/transformationO
 import { mapToJoinCreationOperatorPropsTemplates } from '../templates/mapToJoinCreationOperatorPropsTemplates';
 import {
 	findOperatorDefinition,
+	iifOperatorDefinition,
+	deferOperatorDefinition,
 	fromOperatorDefinition,
 	timerOperatorDefinition,
 	rangeOperatorDefinition,
@@ -157,13 +161,41 @@ describe('operator definitions', () => {
 		}
 	});
 
-	it('reports missing metadata explicitly without disabling legacy operators', () => {
-		expect(findOperatorDefinition(ElementType.Defer)).toBeUndefined();
-		expect(mapToOperatorPropsTemplate(ElementType.Defer).observableFactory).toContain(
-			'createObservable()',
+	it('describes IIf and Defer callback fields, branch references and helper scope', () => {
+		expectTypeOf<keyof OperatorDefinition<IifElementProperties>['properties']>().toEqualTypeOf<
+			'conditionExpression' | 'trueCallbackExpression' | 'falseCallbackExpression'
+		>();
+		expectTypeOf<
+			keyof OperatorDefinition<DeferElementProperties>['properties']
+		>().toEqualTypeOf<'observableFactory'>();
+		expect(iifOperatorDefinition.ports.event?.cardinality).toBe(2);
+		expect(deferOperatorDefinition.ports.event?.cardinality).toBe(1);
+		expect(iifOperatorDefinition.properties.conditionExpression.signature.helpers).toEqual([]);
+		for (const field of [
+			iifOperatorDefinition.properties.trueCallbackExpression,
+			iifOperatorDefinition.properties.falseCallbackExpression,
+			deferOperatorDefinition.properties.observableFactory,
+		]) {
+			expect(field.signature.arguments).toEqual([]);
+			expect(field.signature.helpers).toEqual(['createObservable']);
+		}
+		expect(iifOperatorDefinition.properties.conditionExpression.signature.arguments).toEqual(
+			[],
 		);
-		expect(() => requireOperatorDefinition(ElementType.Defer)).toThrow(
-			'Operator metadata is not registered for defer',
+		for (const definition of [iifOperatorDefinition, deferOperatorDefinition]) {
+			expect(definition.referencePorts).toEqual(['input', 'event']);
+			expect(definition.ports.input?.cardinality).toBe(1);
+			expect(definition.ports.output?.cardinality).toBe(1);
+			expect(mapToCreationOperatorPropsTemplates(definition.type)).toBe(definition.defaults);
+			expect(definition.codeExport.status).toBe('deferred');
+		}
+	});
+
+	it('reports missing metadata explicitly without disabling legacy operators', () => {
+		expect(findOperatorDefinition(ElementType.Empty)).toBeUndefined();
+		expect(mapToOperatorPropsTemplate(ElementType.Empty)).toEqual({});
+		expect(() => requireOperatorDefinition(ElementType.Empty)).toThrow(
+			'Operator metadata is not registered for empty',
 		);
 		expect(findOperatorDefinition('toString' as ElementType)).toBeUndefined();
 		expect(() => requireOperatorDefinition('unknown' as ElementType)).toThrow(

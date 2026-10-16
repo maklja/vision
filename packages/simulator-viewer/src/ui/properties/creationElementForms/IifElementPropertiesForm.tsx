@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { IifElementProperties } from '@maklja/vision-simulator-model';
+import { IifElementProperties, iifOperatorDefinition } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -31,21 +31,21 @@ export function IifElementPropertiesForm({
 		>
 			<SimpleCodeEditor
 				code={properties.conditionExpression}
-				label="Condition"
+				label={iifOperatorDefinition.properties.conditionExpression.label}
 				helperText="Condition which Observable should be chosen."
 				onCodeChange={handleConditionExpressionChanged}
 			/>
 
 			<SimpleCodeEditor
 				code={properties.trueCallbackExpression}
-				label="True result"
+				label={iifOperatorDefinition.properties.trueCallbackExpression.label}
 				helperText="An Observable that will be subscribed if condition is true."
 				onCodeChange={handleTrueCallbackExpressionChanged}
 			/>
 
 			<SimpleCodeEditor
 				code={properties.falseCallbackExpression}
-				label="False result"
+				label={iifOperatorDefinition.properties.falseCallbackExpression.label}
 				helperText="An Observable that will be subscribed if condition is false."
 				onCodeChange={handleFalseCallbackExpressionChanged}
 			/>
