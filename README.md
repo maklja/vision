@@ -246,9 +246,8 @@ docs/                 Generated GitHub Pages application
 
 ## Versioned diagrams and JSON files
 
-Open **Diagram files** to import/export a source-only JSON document, download original/backup data,
-restore the previous saved record or retry a failed load. Legacy diagrams migrate after a durable
-backup; failed/unknown data is preserved. Imported code never runs automatically and needs explicit
+Open **Diagram files** to import/export a source-only JSON document or retry a failed load.
+Legacy diagrams migrate after a durable backup; failed/unknown data is preserved. Imported code never runs automatically and needs explicit
 session approval after review. Source edits and reload revoke that approval.
 
 See [Diagram persistence and recovery](DIAGRAM_PERSISTENCE.md) for schema v1, storage keys,

@@ -69,12 +69,12 @@ describe('durable backup ordering and failure recovery', () => {
 		},
 	);
 
-	it('preserves the previous record and downloadable backup after a failed replacement commit', async () => {
+	it('preserves the previous record and internal backup after a failed replacement commit', async () => {
 		const repository = new DiagramRepository();
 		const previous = await repository.save(currentReleaseDiagram);
 		vi.mocked(keyval.setMany).mockRejectedValueOnce(new Error('commit failed'));
 		await expect(repository.replace(imported())).rejects.toThrow('commit failed');
-		expect(await repository.readOriginal()).toEqual(previous);
+		expect(await keyval.get(diagramKey(previous.id))).toEqual(previous);
 		expect(await keyval.get(backupKey(previous.id))).toEqual(previous);
 	});
 
@@ -112,10 +112,6 @@ describe('explicit replacement of invalid active storage', () => {
 				activePointer: pointer,
 				record: undefined,
 			});
-			expect(await repository.readBackup()).toEqual({
-				activePointer: pointer,
-				record: undefined,
-			});
 			expect(await new DiagramRepository().load()).toEqual(recovered);
 			expect(await keyval.get(LEGACY_DIAGRAM_KEY)).toEqual(currentReleaseDiagram);
 		},
@@ -134,7 +130,7 @@ describe('explicit replacement of invalid active storage', () => {
 		const repository = new DiagramRepository();
 		await expect(repository.replace(imported())).rejects.toThrow('commit failed');
 		expect(await keyval.get(ACTIVE_DIAGRAM_KEY)).toBe('missing-record');
-		expect(await repository.readBackup()).toEqual({
+		expect(await keyval.get(RECOVERY_BACKUP_KEY)).toEqual({
 			activePointer: 'missing-record',
 			record: undefined,
 		});

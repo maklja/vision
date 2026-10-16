@@ -45,7 +45,7 @@ function App() {
 				reportDiagramLoadError(error);
 				setSession({ store: createRootStore(), blocked: true, key: token });
 				setMessage(
-					`Saved data was not changed. ${error instanceof Error ? error.message : 'Load failed.'} Use Diagram files to download original data, import a replacement or retry.`,
+					`Saved data was not changed. ${error instanceof Error ? error.message : 'Load failed.'} Use Diagram files to import a replacement or retry.`,
 				);
 			});
 	}, [repository]);

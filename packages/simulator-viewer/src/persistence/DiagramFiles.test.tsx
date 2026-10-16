@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ElementType, migrateLegacyDiagram } from '@maklja/vision-simulator-model';
 import { currentReleaseDiagram } from '../../../simulator-model/test/fixtures/currentReleaseDiagram';
@@ -132,14 +132,13 @@ describe('diagram file controls', () => {
 		vi.unstubAllGlobals();
 	});
 
-	it('shows missing backup and failed downloads as accessible status', async () => {
-		vi.spyOn(repository, 'readBackup').mockResolvedValue(undefined);
+	it('offers diagram JSON export without recovery download or restore controls', () => {
 		controls();
-		fireEvent.click(screen.getByRole('button', { name: 'Restore previous backup' }));
-		await screen.findByText('No backup is available.');
-		fireEvent.click(screen.getByRole('button', { name: 'Download backup' }));
-		await waitFor(() =>
-			expect(screen.getByRole('status').textContent).toContain('No saved data'),
-		);
+		expect(
+			screen.getByRole('button', { name: 'Export diagram JSON' }).hasAttribute('disabled'),
+		).toBe(false);
+		expect(screen.queryByRole('button', { name: 'Download original data' })).toBeNull();
+		expect(screen.queryByRole('button', { name: 'Download backup' })).toBeNull();
+		expect(screen.queryByRole('button', { name: 'Restore previous backup' })).toBeNull();
 	});
 });

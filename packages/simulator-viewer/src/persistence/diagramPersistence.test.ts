@@ -132,12 +132,11 @@ describe('versioned IndexedDB repository', () => {
 		const repository = new DiagramRepository();
 		await expect(repository.load()).rejects.toThrow('unsupported version');
 		await expect(repository.save(currentReleaseDiagram)).rejects.toThrow('unsupported version');
-		expect(await repository.readOriginal()).toEqual(invalid);
 		expect(await get(diagramKey('release'))).toEqual(invalid);
 		const imported = await repository.replace(releaseDoc());
 		expect(imported.origin).toBe('file');
 		expect(imported.id).toBe('release');
-		expect(await repository.readBackup()).toEqual(invalid);
+		expect(await get(backupKey('release'))).toEqual(invalid);
 	});
 
 	it('keeps imported provenance across autosaves and reload; a file cannot grant permission', async () => {
