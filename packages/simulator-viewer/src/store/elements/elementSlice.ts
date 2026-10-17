@@ -7,6 +7,7 @@ import {
 	ElementType,
 	EMPTY_ELEMENT,
 	mapToOperatorPropsTemplate,
+	findOperatorDefinition,
 	Point,
 } from '@maklja/vision-simulator-model';
 import { RootState } from '../rootStore';
@@ -159,7 +160,15 @@ export const createElementSlice: StateCreator<RootState, [], [], ElementSlice> =
 				return state;
 			}
 
-			element.properties[payload.propertyName] = payload.propertyValue;
+			const definitions = findOperatorDefinition(element.type)?.properties as
+				Record<string, { optional?: boolean }> | undefined;
+			// Clearing an optional editor field means absence, not an explicit undefined override.
+			if (
+				payload.propertyValue === undefined &&
+				definitions?.[payload.propertyName]?.optional
+			)
+				delete element.properties[payload.propertyName];
+			else element.properties[payload.propertyName] = payload.propertyValue;
 			return state;
 		}, true),
 	moveElementToPosition: (payload: MoveElementPayload) =>

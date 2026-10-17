@@ -6,6 +6,7 @@ import {
 	ElementType,
 	PropertyDefinition,
 	requireOperatorDefinition,
+	resultOperators,
 	validateJsonData,
 } from '@maklja/vision-simulator-model';
 
@@ -83,6 +84,7 @@ export function validateSource(el: Element, field: string, source: unknown, call
 }
 export function preflight(elements: readonly Element[]) {
 	for (const el of elements) {
+		if (resultOperators.has(el.type)) continue;
 		for (const [field, definition] of Object.entries(fields(el))) {
 			if (!active(definition, el.properties)) continue;
 			if (definition.optional && el.properties[field] === undefined) continue;
@@ -106,15 +108,17 @@ export function preflight(elements: readonly Element[]) {
 export function requiresTrustedWorker(elements: readonly Element[], seed: ElementProps = {}) {
 	return (
 		Object.keys(seed).length > 0 ||
-		elements.some(
-			(el) =>
-				el.type === ElementType.Ajax ||
-				Object.values(fields(el)).some(
-					(d) =>
-						active(d, el.properties) &&
-						(d.kind === 'callback' || d.kind === 'expression'),
-				),
-		)
+		elements
+			.filter((el) => !resultOperators.has(el.type))
+			.some(
+				(el) =>
+					el.type === ElementType.Ajax ||
+					Object.values(fields(el)).some(
+						(d) =>
+							active(d, el.properties) &&
+							(d.kind === 'callback' || d.kind === 'expression'),
+					),
+			)
 	);
 }
 

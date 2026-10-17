@@ -113,6 +113,16 @@ describe('startObservableSimulation trusted execution', () => {
 		const start = worker.postMessage.mock.calls[0][0] as { runId: string };
 		worker.dispatch('message', { data: { type, runId: runId ?? start.runId, value } });
 	}
+	it('ignores transient result nodes when preflighting a restarted run', () => {
+		const onCreationError = vi.fn();
+		const subscription = launch({
+			elements: [...elements, element('previous-result', ElementType.Result)],
+			onCreationError,
+		});
+		expect(onCreationError).not.toHaveBeenCalled();
+		expect(FakeWorker.instances).toHaveLength(1);
+		subscription.unsubscribe();
+	});
 	it('requires explicit trust and never starts a Worker before approval', () => {
 		const onCreationError = vi.fn();
 		launch({ trusted: false, onCreationError });
