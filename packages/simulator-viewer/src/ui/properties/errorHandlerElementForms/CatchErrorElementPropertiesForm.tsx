@@ -1,5 +1,8 @@
 import Stack from '@mui/material/Stack';
-import { CatchErrorElementProperties } from '@maklja/vision-simulator-model';
+import {
+	CatchErrorElementProperties,
+	catchErrorOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -25,7 +28,7 @@ export function CatchErrorElementPropertiesForm({
 		>
 			<SimpleCodeEditor
 				code={properties.selectorExpression}
-				label="Project"
+				label={catchErrorOperatorDefinition.properties.selectorExpression.label}
 				helperText={
 					'A function that takes as arguments err, which is the error, and caught, which is the source observable, in case you\'d like to "retry" that observable by returning it again. Whatever observable is returned by the selector will be used to continue the observable chain.'
 				}
