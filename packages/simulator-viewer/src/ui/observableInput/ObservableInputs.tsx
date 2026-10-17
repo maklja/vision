@@ -4,10 +4,14 @@ import { ConnectPointType, ObservableInputsType } from '@maklja/vision-simulator
 import { RelatedElements } from '../properties/ElementPropertiesForm';
 import { ObservableNamedInputs } from './ObservableNamedInputs';
 import { ObservableIndexedInputs } from './ObservableIndexedInputs';
-import { ObservableInputsTypeSelect } from './ObservableInputsTypeSelect';
+import {
+	ObservableInputsTypeSelect,
+	ObservableInputsTypeSelectProps,
+} from './ObservableInputsTypeSelect';
 
 export interface ObservableInputsProps {
 	observableInputsType: ObservableInputsType;
+	inputTypeDefinition?: ObservableInputsTypeSelectProps['definition'];
 	relatedElements: RelatedElements;
 	onObservableInputsTypeChange?: (observableInputsType: ObservableInputsType) => void;
 	onConnectLineIndexChange?: (id: string, connectLineIndex: number) => void;
@@ -16,6 +20,7 @@ export interface ObservableInputsProps {
 
 export const ObservableInputs = ({
 	observableInputsType,
+	inputTypeDefinition,
 	relatedElements,
 	onObservableInputsTypeChange,
 	onConnectLineIndexChange,
@@ -36,6 +41,7 @@ export const ObservableInputs = ({
 			>
 				<ObservableInputsTypeSelect
 					value={observableInputsType}
+					definition={inputTypeDefinition}
 					onChange={onObservableInputsTypeChange}
 				/>
 
