@@ -191,7 +191,7 @@ describe('observableSimulationWorker', () => {
 		expect(messages).toHaveLength(1);
 		expect(messages[0]).toMatchObject({
 			type: ObservableSimulationMessageType.CreationError,
-			diagnostic: { category: 'reference' },
+			diagnostic: { category: 'reference', elementId: 'buffer', phase: 'preflight' },
 		});
 	});
 });

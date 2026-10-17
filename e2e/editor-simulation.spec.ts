@@ -53,10 +53,8 @@ test('builds and runs an of → map → filter → subscriber pipeline', async (
 	);
 	expect(probe.created).toBe(1);
 	expect(probe.terminated).toBe(1);
-	expect(probe.outbound.map((message) => message.type)).toEqual([
-		'startSimulation',
-		'stopSimulation',
-	]);
+	// Stop is a host-observed Worker termination, not an acknowledged teardown message.
+	expect(probe.outbound.map((message) => message.type)).toEqual(['startSimulation']);
 
 	const subscriberValues = probe.inbound
 		.filter((message) => message.type === 'next')

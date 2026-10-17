@@ -1,6 +1,12 @@
 import { ConnectLine, Element } from '@maklja/vision-simulator-model';
 import { createSimulationModel, ObservableSimulation } from './ObservableSimulation';
 import { ObservableSimulationMessageType as Type } from './startObservableSimulation';
+import {
+	MissingReferenceObservableError,
+	MissingNextElementError,
+	UnsupportedElementTypeError,
+	InvalidElementPropertyValueError,
+} from './errors';
 import { ExecutionDiagnostic, ExecutionError } from './execution/ExecutionRun';
 
 export interface StartSimulationMessageEvent {
@@ -70,7 +76,13 @@ self.addEventListener('message', (ev: MessageEvent<ObservableSimulationMessages>
 						category: 'reference',
 						phase: 'preflight',
 						runId: data.runId,
-						elementId: data.entryElementId,
+						elementId:
+							error instanceof MissingReferenceObservableError ||
+							error instanceof MissingNextElementError ||
+							error instanceof UnsupportedElementTypeError ||
+							error instanceof InvalidElementPropertyValueError
+								? error.elementId
+								: data.entryElementId,
 						message: 'Graph construction failed; check connected references.',
 					};
 		send(Type.CreationError, { diagnostic });

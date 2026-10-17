@@ -163,10 +163,8 @@ test('runs a concat branch and join graph with edited reference order in the wor
 	expect(probe.created).toBe(1);
 	expect(probe.terminated).toBe(1);
 	expect(probe.inbound.map((message) => message.type)).toContain('complete');
-	expect(probe.outbound.map((message) => message.type)).toEqual([
-		'startSimulation',
-		'stopSimulation',
-	]);
+	// Stop is a host-observed Worker termination, not an acknowledged teardown message.
+	expect(probe.outbound.map((message) => message.type)).toEqual(['startSimulation']);
 
 	const events = flowValueEvents(probe);
 	const concatValues = events
