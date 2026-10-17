@@ -1,3 +1,4 @@
+import { catchErrorOperatorDefinition } from '@maklja/vision-simulator-model';
 import { v1 } from 'uuid';
 import { Observable, ObservableInput, catchError, map } from 'rxjs';
 import {
@@ -62,7 +63,7 @@ const createCatchErrorOperator =
 	};
 
 const supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory> = new Map([
-	[ElementType.CatchError, createCatchErrorOperator],
+	[catchErrorOperatorDefinition.type, createCatchErrorOperator],
 ]);
 
 export const errorHandlingOperatorFactory: PipeOperatorFactory = {

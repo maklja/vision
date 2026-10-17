@@ -1,3 +1,5 @@
+import { mapFilteringOperatorPropsTemplates } from '../templates/filteringOperatorTemplates';
+import { mapErrorHandlingOperatorPropsTemplates } from '../templates/errorHandlerOperatorTemplates';
 import { ObservableInputsType } from '../element/Element';
 import type { CombineLatestElementProperties } from '../joinCreationOperators/CombineLatestElement';
 import { describe, expect, expectTypeOf, it } from 'vitest';
@@ -30,6 +32,8 @@ import {
 	forkJoinOperatorDefinition,
 	raceOperatorDefinition,
 	zipOperatorDefinition,
+	filterOperatorDefinition,
+	catchErrorOperatorDefinition,
 	findOperatorDefinition,
 	iifOperatorDefinition,
 	deferOperatorDefinition,
@@ -309,6 +313,37 @@ describe('operator definitions', () => {
 			zipOperatorDefinition,
 		])
 			expect(definition.properties).toEqual({});
+	});
+
+	it('describes Filter raw arguments, absent reference port, and CatchError recovery scope', () => {
+		expect(mapFilteringOperatorPropsTemplates(ElementType.Filter)).toBe(
+			filterOperatorDefinition.defaults,
+		);
+		expect(mapErrorHandlingOperatorPropsTemplates(ElementType.CatchError)).toBe(
+			catchErrorOperatorDefinition.defaults,
+		);
+		expect(filterOperatorDefinition.referencePorts).toEqual([]);
+		expect(filterOperatorDefinition.ports.event).toBeUndefined();
+		expect(
+			filterOperatorDefinition.properties.predicateExpression.signature.arguments.map(
+				(arg) => arg.name,
+			),
+		).toEqual(['value', 'index']);
+		expect(filterOperatorDefinition.properties.predicateExpression.signature.helpers).toEqual(
+			[],
+		);
+		expect(catchErrorOperatorDefinition.referencePorts).toEqual(['event']);
+		expect(catchErrorOperatorDefinition.ports.event?.cardinality).toBe(1);
+		expect(
+			catchErrorOperatorDefinition.properties.selectorExpression.signature.arguments,
+		).toEqual([
+			{ name: 'err', type: 'unknown (raw error from FlowValue)' },
+			{ name: 'caught', type: 'Observable<unknown> (raw values)' },
+		]);
+		expect(
+			catchErrorOperatorDefinition.properties.selectorExpression.signature.helpers,
+		).toEqual(['createObservable']);
+		expect(catchErrorOperatorDefinition.properties.selectorExpression.label).toBe('Project');
 	});
 
 	it('reports missing metadata explicitly without disabling legacy operators', () => {

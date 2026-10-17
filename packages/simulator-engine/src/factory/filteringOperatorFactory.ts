@@ -1,3 +1,4 @@
+import { filterOperatorDefinition } from '@maklja/vision-simulator-model';
 import { Observable, filter } from 'rxjs';
 import { Element, ElementType, FilterElement } from '@maklja/vision-simulator-model';
 import {
@@ -17,7 +18,7 @@ const createFilterOperator = (el: Element) => (o: Observable<FlowValue>) => {
 };
 
 const supportedOperators: ReadonlyMap<ElementType, PipeOperatorFunctionFactory> = new Map([
-	[ElementType.Filter, createFilterOperator],
+	[filterOperatorDefinition.type, createFilterOperator],
 ]);
 
 export const filteringOperatorFactory: PipeOperatorFactory = {

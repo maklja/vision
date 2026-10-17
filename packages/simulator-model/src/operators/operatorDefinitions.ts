@@ -1,4 +1,12 @@
 import {
+	FilterElementProperties,
+	filterElementPropsTemplate,
+} from '../filterOperators/FilterElement';
+import {
+	CatchErrorElementProperties,
+	catchErrorElementPropsTemplate,
+} from '../errorHandlerOperators/CatchErrorElement';
+import {
 	ForkJoinElementProperties,
 	forkJoinElementPropsTemplate,
 } from '../joinCreationOperators/ForkJoinElement';
@@ -721,6 +729,64 @@ export const zipOperatorDefinition = {
 	codeExport,
 } as const satisfies OperatorDefinition<ElementProps>;
 
+export const filterOperatorDefinition = {
+	type: ElementType.Filter,
+	name: 'filter',
+	category: ElementGroup.Filtering,
+	documentationUrl: 'https://rxjs.dev/api/operators/filter',
+	status: 'supported',
+	defaults: filterElementPropsTemplate,
+	properties: {
+		predicateExpression: {
+			kind: 'callback',
+			label: 'Predicate',
+			signature: {
+				arguments: [
+					{ name: 'value', type: 'unknown (raw)' },
+					{ name: 'index', type: 'number' },
+				],
+				returns: 'unknown (truthy predicate)',
+				helpers: [],
+				notes: 'The expression is evaluated once when the pipe factory is applied; its returned predicate is reused across values and subscriptions to that returned observable. Each input FlowValue is filtered through a one-value observable, so index is always 0. Truthy results retain the raw value and FlowValue identity fields via copy; falsy results drop the value. No createObservable helper is injected. The current viewer dispatcher has no Filter property form.',
+			},
+		},
+	},
+	ports: pipeElementDescriptor,
+	referencePorts: [],
+	example:
+		'predicateExpression: function predicate(value, index) { return value % 2 === 0; } filters raw values while preserving their IDs.',
+	codeExport,
+} as const satisfies OperatorDefinition<FilterElementProperties>;
+
+export const catchErrorOperatorDefinition = {
+	type: ElementType.CatchError,
+	name: 'catchError',
+	category: ElementGroup.ErrorHandling,
+	documentationUrl: 'https://rxjs.dev/api/operators/catchError',
+	status: 'supported',
+	defaults: catchErrorElementPropsTemplate,
+	properties: {
+		selectorExpression: {
+			kind: 'callback',
+			label: 'Project',
+			signature: {
+				arguments: [
+					{ name: 'err', type: 'unknown (raw error from FlowValue)' },
+					{ name: 'caught', type: 'Observable<unknown> (raw values)' },
+				],
+				returns: 'ObservableInput<FlowValue> | Observable<unknown>',
+				helpers: [OBSERVABLE_GENERATOR_NAME],
+				notes: 'One event reference is required even if the input never errors. The expression is evaluated once when the pipe factory is applied; the returned selector is called only on errors with error.raw and the caught observable mapped to raw values. createObservable(overrides?) binds the recovery reference and forwards child overrides with one application-time subscription ID reused across recoveries and subscriptions. On each error a subscription event uses that same ID and the error FlowValue ID as a dependency, even if the selector does not call the helper. Passthrough and recovery FlowValues are preserved; returning caught forwards its raw items without rewrapping. Keep these existing invocation and tracing boundaries until #129/#134 deliberately changes them.',
+			},
+		},
+	},
+	ports: eventPipeElementDescriptor,
+	referencePorts: ['event'],
+	example:
+		'Connect one recovery event reference; selectorExpression: function selector(err, caught) { return createObservable({ count: 2 }); } forwards overrides to that reference after an upstream error.',
+	codeExport,
+} as const satisfies OperatorDefinition<CatchErrorElementProperties>;
+
 /** Only migrated operators belong here. Absence must not be interpreted as unsupported execution. */
 export const operatorDefinitions = {
 	[ElementType.Of]: ofOperatorDefinition,
@@ -739,6 +805,8 @@ export const operatorDefinitions = {
 	[ElementType.BufferTime]: bufferTimeOperatorDefinition,
 	[ElementType.BufferToggle]: bufferToggleOperatorDefinition,
 	[ElementType.BufferWhen]: bufferWhenOperatorDefinition,
+	[ElementType.Filter]: filterOperatorDefinition,
+	[ElementType.CatchError]: catchErrorOperatorDefinition,
 	[ElementType.Map]: mapOperatorDefinition,
 	[ElementType.CombineLatest]: combineLatestOperatorDefinition,
 	[ElementType.Concat]: concatOperatorDefinition,

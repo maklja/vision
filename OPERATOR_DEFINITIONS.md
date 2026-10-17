@@ -58,9 +58,9 @@ have connection-order controls; lack of a property form does not mean unsupporte
 | `expand`        | D     | `concurrent?: number`, `projectExpression: string`                                                                                                                                      | Connected project/concurrency                                         |
 | `mergeMap`      | D     | `concurrent?: number`, `projectExpression: string`                                                                                                                                      | Connected project/concurrency                                         |
 | `map`           | D     | `projectExpression: string`                                                                                                                                                             | Raw-value project; adapter index caveat below                         |
-| `filter`        | L     | `predicateExpression: string`                                                                                                                                                           | Current dispatcher has no property form; do not claim one in metadata |
+| `filter`        | D     | `predicateExpression: string`                                                                                                                                                           | Current dispatcher has no property form; do not claim one in metadata |
 | `subscriber`    | L     | None                                                                                                                                                                                    | Sink, no property form; not an RxJS creation/pipe factory             |
-| `catchError`    | L     | `selectorExpression: string`                                                                                                                                                            | Connected recovery selector                                           |
+| `catchError`    | D     | `selectorExpression: string`                                                                                                                                                            | Connected recovery selector                                           |
 | `result`        | I     | `hash: string`                                                                                                                                                                          | Transient result; excluded from saved documents                       |
 | `connectPoint`  | I     | No operator property interface                                                                                                                                                          | Geometry/visibility belongs to ConnectPoint; not executable           |
 
@@ -222,6 +222,28 @@ and connection cardinality remain unchanged.
 `joinOperatorMetadata.test.ts` covers those boundaries alongside the existing factory tests.
 `join-metadata.spec.ts` exercises all five operators, reversed connection indices, array/object
 selection, edited names, Worker results, and persistence through reload.
+
+## Filter and recovery compatibility
+
+Filter and CatchError now consume definition metadata for defaults and engine registration keys;
+the existing CatchError form consumes its unchanged Project label. Filter still has no property
+form in the dispatcher. Its expression is constructed at pipe application, with the predicate
+reused across values and subscriptions. The per-value adapter supplies raw values and index zero;
+truthiness determines retention, and copied FlowValues preserve raw values and identity fields.
+
+CatchError requires one recovery event reference even for successful inputs. Its selector expression
+and helper subscription ID are created at pipe application and reused across recoveries and
+subscriptions. On an error, the selector receives the error FlowValue's raw value and a caught
+observable mapped to raw values. The subscription event uses the shared helper ID and error ID as
+a dependency, even when the selector never invokes the helper. Helper overrides reach only the
+recovery reference; original passthrough and recovery FlowValues retain their object identity.
+Returning caught forwards its raw items without rewrapping; metadata does not promise a new retry
+or invocation contract. These lifecycle/invocation boundaries remain #129/#134 work.
+
+`filterRecoveryMetadata.test.ts` covers argument and construction timing, predicate truthiness,
+identity fields, error dependencies, child overrides, shared IDs, caught raw values and failure
+paths. The browser journeys cover saved no-form predicates, Filter errors, connected recovery
+through the Worker, existing labels, child overrides and reload persistence.
 
 ## Remaining #140 work
 
