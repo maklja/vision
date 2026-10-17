@@ -248,21 +248,59 @@ describe('startObservableSimulation trusted execution', () => {
 		},
 	);
 
-	it('keeps single-source fallback available when another literal source is unreachable', () => {
-		vi.stubGlobal('Worker', undefined);
-		const onNext = vi.fn();
-		startObservableSimulation({
-			entryElementId: source.id,
-			elements: [
-				element(source.id, ElementType.Range, { start: 0, count: 2 }),
-				element('unused', ElementType.Range, { start: 0, count: 10000 }),
-				subscriber,
-			],
-			connectLines,
-			onNext,
-		});
-		expect(onNext).toHaveBeenCalledTimes(2);
-	});
+	it.each([undefined, 10001, 10000])(
+		'ignores an unreachable Range count of %s during fallback admission',
+		(count) => {
+			vi.stubGlobal('Worker', undefined);
+			const onNext = vi.fn(),
+				onCreationError = vi.fn();
+			startObservableSimulation({
+				entryElementId: source.id,
+				elements: [
+					element(source.id, ElementType.Range, { start: 0, count: 2 }),
+					element('unused', ElementType.Range, {
+						start: 0,
+						...(count === undefined ? {} : { count }),
+					}),
+					subscriber,
+				],
+				connectLines,
+				onNext,
+				onCreationError,
+			});
+			expect(onNext).toHaveBeenCalledTimes(2);
+			expect(onCreationError).not.toHaveBeenCalled();
+		},
+	);
+
+	it.each([undefined, 10001])(
+		'still rejects a reachable Range count of %s in fallback',
+		(count) => {
+			vi.stubGlobal('Worker', undefined);
+			const onNext = vi.fn(),
+				onDiagnostic = vi.fn();
+			startObservableSimulation({
+				entryElementId: source.id,
+				elements: [
+					element(source.id, ElementType.Range, {
+						start: 0,
+						...(count === undefined ? {} : { count }),
+					}),
+					subscriber,
+				],
+				connectLines,
+				onNext,
+				onDiagnostic,
+			});
+			expect(onNext).not.toHaveBeenCalled();
+			expect(onDiagnostic).toHaveBeenCalledExactlyOnceWith(
+				expect.objectContaining({
+					category: 'policy',
+					message: expect.stringContaining('explicit Range count'),
+				}),
+			);
+		},
+	);
 
 	it('preflights malformed code without executing a source or allocating a Worker', () => {
 		const onDiagnostic = vi.fn();

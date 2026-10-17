@@ -124,11 +124,14 @@ export function startObservableSimulation(
 				return { unsubscribe: stop };
 			}
 			if (
-				elements.some(
-					(el) =>
+				model.getGraphBranch(entryElementId).nodes.some(({ id }) => {
+					// Disconnected elements remain editable drafts and do not run in this graph.
+					const el = model.getElement(id);
+					return (
 						el.type === ElementType.Range &&
-						(el.properties.count === undefined || Number(el.properties.count) > 10000),
-				)
+						(el.properties.count === undefined || Number(el.properties.count) > 10000)
+					);
+				})
 			) {
 				failure(
 					'policy',
