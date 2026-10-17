@@ -9,6 +9,7 @@ import {
 	FlowValueType,
 } from '@maklja/vision-simulator-model';
 import { FlowValueEvent } from './context';
+import { ObservableSimulation } from './ObservableSimulation';
 import {
 	ObservableSimulationMessageType,
 	startObservableSimulation,
@@ -156,6 +157,113 @@ describe('startObservableSimulation trusted execution', () => {
 		expect(onDiagnostic.mock.calls[0][0].message).toContain('literal-only');
 		subscription.unsubscribe();
 	});
+	it.each([true, false])(
+		'attributes host graph errors to the disconnected downstream element (Worker: %s)',
+		(workerAvailable) => {
+			vi.stubGlobal('Worker', workerAvailable ? FakeWorker : undefined);
+			const onDiagnostic = vi.fn(),
+				onCreationError = vi.fn();
+			startObservableSimulation({
+				entryElementId: source.id,
+				elements: [
+					source,
+					element('disconnected-map', ElementType.Map, {
+						projectExpression: 'value => value',
+					}),
+				],
+				connectLines: [link('source-map', source.id, 'disconnected-map')],
+				trusted: true,
+				onDiagnostic,
+				onCreationError,
+			});
+			expect(onDiagnostic).toHaveBeenCalledExactlyOnceWith(
+				expect.objectContaining({
+					category: 'reference',
+					phase: 'preflight',
+					elementId: 'disconnected-map',
+					runId: expect.any(String),
+				}),
+			);
+			expect(onCreationError).toHaveBeenCalledExactlyOnceWith(
+				expect.objectContaining({ elementId: 'disconnected-map' }),
+			);
+			expect(FakeWorker.instances).toHaveLength(0);
+		},
+	);
+
+	it.each([false, true])(
+		'blocks aggregate synchronous Range work before fallback starts (shared source: %s)',
+		(shared) => {
+			vi.stubGlobal('Worker', undefined);
+			// If the admission guard regresses, fail without actually emitting a million UI events.
+			const start = vi
+				.spyOn(ObservableSimulation.prototype, 'start')
+				.mockReturnValue({ unsubscribe() {} });
+			const onDiagnostic = vi.fn(),
+				onNext = vi.fn();
+			const ranges = Array.from({ length: shared ? 1 : 100 }, (_, index) =>
+				element(`range-${index}`, ElementType.Range, { start: 0, count: 10000 }),
+			);
+			const references = Array.from({ length: 100 }, (_, index) => {
+				const line = link(
+					`reference-${index}`,
+					source.id,
+					ranges[shared ? 0 : index].id,
+					index,
+				);
+				return {
+					...line,
+					source: {
+						...line.source,
+						connectPointType: ConnectPointType.Event,
+						connectPosition: ConnectPointPosition.Top,
+					},
+				};
+			});
+			startObservableSimulation({
+				entryElementId: source.id,
+				elements: [
+					element(source.id, ElementType.Merge, { limitConcurrent: 0 }),
+					...ranges,
+					subscriber,
+				],
+				connectLines: [
+					...connectLines,
+					...references,
+					...ranges.map((range) =>
+						link(`${range.id}-subscriber`, range.id, subscriber.id),
+					),
+				],
+				onDiagnostic,
+				onNext,
+			});
+			expect(start).not.toHaveBeenCalled();
+			expect(onNext).not.toHaveBeenCalled();
+			expect(onDiagnostic).toHaveBeenCalledExactlyOnceWith(
+				expect.objectContaining({
+					category: 'policy',
+					message: expect.stringContaining('single source graph'),
+				}),
+			);
+		},
+	);
+
+	it('keeps single-source fallback available when another literal source is unreachable', () => {
+		vi.stubGlobal('Worker', undefined);
+		const onNext = vi.fn();
+		startObservableSimulation({
+			entryElementId: source.id,
+			elements: [
+				element(source.id, ElementType.Range, { start: 0, count: 2 }),
+				element('unused', ElementType.Range, { start: 0, count: 10000 }),
+				subscriber,
+			],
+			connectLines,
+			onNext,
+		});
+		expect(onNext).toHaveBeenCalledTimes(2);
+	});
+
 	it('preflights malformed code without executing a source or allocating a Worker', () => {
 		const onDiagnostic = vi.fn();
 		launch({

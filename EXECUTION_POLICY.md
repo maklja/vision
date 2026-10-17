@@ -69,8 +69,11 @@ cancellation. Stop and restart ignore stale messages and terminate old Workers. 
 cannot guarantee authored cleanup or undo already dispatched network requests.
 
 Without a Worker, code, network and context execution fail visibly; only validated literal graphs
-can use the main-thread fallback, with a visible limitation. Fallback Range sources require an explicit count of at most 10000 to
-bound synchronous main-thread work. There is no unsafe callback fallback.
+can use the main-thread fallback, with a visible limitation. Fallback supports only a single reachable
+source graph; graphs with referenced sources require a Worker, including joins and repeated references
+to the same source. This prevents individually bounded Range sources from multiplying synchronous
+UI-thread work. A fallback Range requires an explicit count of at most 10000. There is no unsafe
+callback fallback.
 Source is limited to 64 KiB UTF-8 per field, seed/params to 1 MiB JSON and depth 64, and displayed
 diagnostics to 2 KiB. The host retains a bounded diagnostic list. These limits do not make trusted
 JavaScript safe against resource abuse. Event transport/retention accounting remains #131.

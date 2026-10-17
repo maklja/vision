@@ -2,6 +2,7 @@ import { Unsubscribable } from 'rxjs';
 import { ConnectLine, Element, ElementType } from '@maklja/vision-simulator-model';
 import { createSimulationModel, ObservableSimulation } from './ObservableSimulation';
 import { FlowValueEvent } from './context';
+import { MissingNextElementError, MissingReferenceObservableError } from './errors';
 import {
 	cloneContextSeed,
 	ExecutionDiagnostic,
@@ -113,6 +114,15 @@ export function startObservableSimulation(
 				failure('policy', 'A Worker is required for code, context and network execution.');
 				return { unsubscribe: stop };
 			}
+			// Referenced branches can subscribe repeatedly (even to the same Range), so a
+			// per-element count limit does not bound their aggregate synchronous work.
+			if (model.graphBranches.size > 1) {
+				failure(
+					'policy',
+					'Graphs with referenced sources require a Worker; literal fallback supports a single source graph only.',
+				);
+				return { unsubscribe: stop };
+			}
 			if (
 				elements.some(
 					(el) =>
@@ -211,6 +221,23 @@ export function startObservableSimulation(
 			contextSeed,
 		});
 	} catch (error) {
+		if (
+			error instanceof MissingNextElementError ||
+			error instanceof MissingReferenceObservableError
+		) {
+			failure(
+				'reference',
+				error.message,
+				new ExecutionError({
+					category: 'reference',
+					phase: 'preflight',
+					runId,
+					elementId: error.elementId,
+					message: error.message.slice(0, 2048),
+				}),
+			);
+			return { unsubscribe: stop };
+		}
 		failure(
 			error instanceof ExecutionError ? error.diagnostic.category : 'schema',
 			'Invalid graph, execution settings or transport data.',
