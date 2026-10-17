@@ -13,7 +13,11 @@ import type { DeferElementProperties } from '../creationOperators/DeferElement';
 import type { OfElementProperties } from '../creationOperators/OfElement';
 import type { GenerateElementProperties } from '../creationOperators/GenerateElement';
 import type { ThrowErrorElementProperties } from '../creationOperators/ThrowErrorElement';
-import { ajaxElementPropsTemplate } from '../creationOperators/AjaxElement';
+import {
+	AjaxElementProperties,
+	ajaxElementPropsTemplate,
+	HttpMethod,
+} from '../creationOperators/AjaxElement';
 import { ElementType } from '../element/ElementType';
 import { findElementDescriptor } from '../descriptors/elementDescriptors';
 import { mapToOperatorPropsTemplate } from '../templates/operatorTemplates';
@@ -21,6 +25,8 @@ import { mapToCreationOperatorPropsTemplates } from '../templates/creationOperat
 import { mapTransformationOperatorTemplates } from '../templates/transformationOperatorTemplates';
 import { mapToJoinCreationOperatorPropsTemplates } from '../templates/mapToJoinCreationOperatorPropsTemplates';
 import {
+	ajaxOperatorDefinition,
+	subscriberOperatorDefinition,
 	concatMapOperatorDefinition,
 	exhaustMapOperatorDefinition,
 	expandOperatorDefinition,
@@ -400,12 +406,40 @@ describe('operator definitions', () => {
 		expect(catchErrorOperatorDefinition.properties.selectorExpression.label).toBe('Project');
 	});
 
-	it('reports missing metadata explicitly without disabling legacy operators', () => {
-		expect(findOperatorDefinition(ElementType.Ajax)).toBeUndefined();
-		expect(mapToOperatorPropsTemplate(ElementType.Ajax)).toEqual(ajaxElementPropsTemplate);
-		expect(() => requireOperatorDefinition(ElementType.Ajax)).toThrow(
-			'Operator metadata is not registered for ajax',
+	it('covers every current operator while excluding internal drawing elements', () => {
+		const internal = [ElementType.Result, ElementType.ConnectPoint];
+		expect(Object.keys(operatorDefinitions).sort()).toEqual(
+			Object.values(ElementType)
+				.filter((type) => !internal.includes(type))
+				.sort(),
 		);
+		for (const type of internal) {
+			expect(findOperatorDefinition(type)).toBeUndefined();
+			expect(() => requireOperatorDefinition(type)).toThrow('not registered');
+		}
+	});
+	it('types literal text and pair lists without changing callbacks or stored defaults', () => {
+		type Fields = OperatorDefinition<
+			AjaxElementProperties,
+			never,
+			'url' | 'body'
+		>['properties'];
+		expectTypeOf<Fields['url']['kind']>().toEqualTypeOf<'text'>();
+		expectTypeOf<Fields['body']['kind']>().toEqualTypeOf<'text'>();
+		expectTypeOf<Fields['headers']['kind']>().toEqualTypeOf<'pairs'>();
+		expectTypeOf<Fields['queryParams']['kind']>().toEqualTypeOf<'pairs'>();
+		expectTypeOf<Fields['method']['options'][number]['value']>().toEqualTypeOf<HttpMethod>();
+		expectTypeOf<Fields['body']['optional']>().toEqualTypeOf<true>();
+		expectTypeOf<Fields['url']['optional']>().toEqualTypeOf<false | undefined>();
+		expect(ajaxOperatorDefinition.defaults).toBe(ajaxElementPropsTemplate);
+		expect(Object.keys(ajaxOperatorDefinition.defaults).sort()).toEqual(['method', 'url']);
+		expect(ajaxOperatorDefinition.properties.body.format).toBe('json');
+		expect(subscriberOperatorDefinition.ports.input?.cardinality).toBe(1);
+		expect('output' in subscriberOperatorDefinition.ports).toBe(false);
+		expect('event' in subscriberOperatorDefinition.ports).toBe(false);
+		expect(subscriberOperatorDefinition.referencePorts).toEqual([]);
+	});
+	it('reports unknown metadata explicitly', () => {
 		expect(findOperatorDefinition('toString' as ElementType)).toBeUndefined();
 		expect(() => requireOperatorDefinition('unknown' as ElementType)).toThrow(
 			'not registered for unknown',

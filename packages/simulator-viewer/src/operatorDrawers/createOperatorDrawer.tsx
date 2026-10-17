@@ -1,4 +1,8 @@
-import { ElementType } from '@maklja/vision-simulator-model';
+import {
+	ElementType,
+	ajaxOperatorDefinition,
+	subscriberOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import {
 	AjaxOperatorDrawer,
 	DeferOperatorDrawer,
@@ -48,7 +52,7 @@ export function createOperatorDrawer(elType: ElementType, props: ElementDrawerPr
 			return <FromOperatorDrawer {...props} />;
 		case ElementType.IIf:
 			return <IifOperatorDrawer {...props} />;
-		case ElementType.Ajax:
+		case ajaxOperatorDefinition.type:
 			return <AjaxOperatorDrawer {...props} />;
 		case ElementType.Empty:
 			return <EmptyOperatorDrawer {...props} />;
@@ -101,7 +105,7 @@ export function createOperatorDrawer(elType: ElementType, props: ElementDrawerPr
 			return <FilterOperatorDrawer {...props} />;
 		case ElementType.CatchError:
 			return <CatchErrorOperatorDrawer {...props} />;
-		case ElementType.Subscriber:
+		case subscriberOperatorDefinition.type:
 			return <SubscriberDrawer {...props} />;
 		default:
 			return null;

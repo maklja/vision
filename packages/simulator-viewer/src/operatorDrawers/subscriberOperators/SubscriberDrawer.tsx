@@ -1,5 +1,5 @@
 import { Group } from 'react-konva';
-import { ElementType } from '@maklja/vision-simulator-model';
+import { subscriberOperatorDefinition } from '@maklja/vision-simulator-model';
 import { DotCircleOperatorDrawer } from '../../drawers';
 import { ConnectPointsDrawer } from '../ConnectPointsDrawer';
 import { ElementDrawerProps } from '../ElementDrawerProps';
@@ -30,7 +30,7 @@ export function SubscriberDrawer({
 	onMouseOut,
 	onMouseOver,
 }: ElementDrawerProps) {
-	const elType = ElementType.Subscriber;
+	const elType = subscriberOperatorDefinition.type;
 	const circleShapeSize = useCircleShapeSize(elType, scale);
 
 	return (

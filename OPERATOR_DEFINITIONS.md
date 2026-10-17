@@ -1,29 +1,27 @@
 # Operator definitions and registration
 
-Issue #140 is incremental. Definitions now cover `of`, `map`, `merge`, `from`, `interval`,
-`range`, `timer`, `iif` and `defer` in
-`packages/simulator-model/src/operators`. Their group template helpers and engine registration
-keys consume these definitions; their viewer forms consume the field labels. Existing model
-interfaces/default constants, descriptors, engine functions, forms, drawers and themes stay in
-place. No saved field, connection, callback argument, or RxJS behavior changes.
+Issue #140 is incremental. All 30 current operator/sink types now have typed static definitions in
+`packages/simulator-model/src/operators`. Internal Result and ConnectPoint drawing elements are
+excluded. Group template helpers and engine registration keys consume the definitions; existing
+property forms consume field labels and choices. Ajax and Subscriber drawer registrations also
+consume metadata. Existing interfaces, descriptors, engine functions and themes stay in place.
+No saved field, connection, callback argument or RxJS behavior changes.
 
-The metadata contract provides identity/category/docs, support status, declared property kinds,
-defaults, callback argument/return/helper signatures, existing port compatibility/cardinality,
-reference-port classification, a source example and an explicit deferred export reason. Property
-kinds cover callbacks, booleans and numbers, including numeric mode choices and optional fields;
-richer field kinds and validation belong to subsequent #140 slices and #134/#135. These definitions describe current behavior, not the
-future parameter schema or a generic plugin API.
+The contract provides identity/category/docs, support status, declared property kinds, defaults,
+callback argument/return/helper signatures, existing ports, reference classification, examples and
+an explicit deferred export reason. Kinds distinguish callbacks, expressions, literal text (including
+JSON text), ordered string pairs, boolean, number and choice fields. Definitions describe current
+behavior; they do not implement the future parameter schema, validation or a generic plugin API.
 
-`findOperatorDefinition` returns `undefined` for an operator whose metadata has not migrated.
-That does **not** mean its existing execution is unsupported. Consumers that require metadata use
-`requireOperatorDefinition`, which fails with an explicit registration diagnostic. They must not
-substitute `{}` or execute code to discover its shape. Do not route all current operators through
-this required lookup until their metadata has migrated.
+`findOperatorDefinition` returns `undefined` for internal or unknown types. Consumers requiring
+metadata use `requireOperatorDefinition`, which fails with an explicit registration diagnostic.
+Never substitute `{}` or execute code to discover a definition. The all-current inventory test
+requires a definition for each new operator type.
 
 ## Current inventory
 
 This table includes every current `ElementType`. **D** means its definition metadata is migrated;
-**L** means existing registrations remain and definition migration is pending under #140.
+All current operator definitions are migrated; richer registration integration remains under #140.
 All executable rows remain supported; **I** identifies an internal/transient type. Full readable
 RxJS export is deferred to #136 for every executable row: no serializer is implemented by metadata.
 Properties listed with `?` are optional in the existing interface. A propertyless operator may still
@@ -35,7 +33,7 @@ have connection-order controls; lack of a property form does not mean unsupporte
 | `from`          | D     | `enableObservableEvent: boolean`, `inputCallbackExpression: string`, `observableFactory: string`                                                                                        | Literal input callback or connected factory mode                      |
 | `iif`           | D     | `conditionExpression`, `trueCallbackExpression`, `falseCallbackExpression`: string                                                                                                      | Condition and true/false connected factories                          |
 | `interval`      | D     | `period: number`                                                                                                                                                                        | Period                                                                |
-| `ajax`          | L     | `url: string`, `method: HttpMethod`, `body?: string`, `headers?: [string,string][]`, `timeout?: number`, `responseType?: XMLHttpRequestResponseType`, `queryParams?: [string,string][]` | Body is JSON text; pair lists remain pair lists                       |
+| `ajax`          | D     | `url: string`, `method: HttpMethod`, `body?: string`, `headers?: [string,string][]`, `timeout?: number`, `responseType?: XMLHttpRequestResponseType`, `queryParams?: [string,string][]` | Body is JSON text; pair lists remain pair lists                       |
 | `empty`         | D     | None                                                                                                                                                                                    | No property form                                                      |
 | `defer`         | D     | `observableFactory: string`                                                                                                                                                             | Connected factory                                                     |
 | `generate`      | D     | `initialState: string`, `condition?: string`, `iterate: string`, `resultSelector: string`                                                                                               | Initial state is an expression, others callbacks                      |
@@ -59,14 +57,14 @@ have connection-order controls; lack of a property form does not mean unsupporte
 | `mergeMap`      | D     | `concurrent?: number`, `projectExpression: string`                                                                                                                                      | Connected project/concurrency                                         |
 | `map`           | D     | `projectExpression: string`                                                                                                                                                             | Raw-value project; adapter index caveat below                         |
 | `filter`        | D     | `predicateExpression: string`                                                                                                                                                           | Current dispatcher has no property form; do not claim one in metadata |
-| `subscriber`    | L     | None                                                                                                                                                                                    | Sink, no property form; not an RxJS creation/pipe factory             |
+| `subscriber`    | D     | None                                                                                                                                                                                    | Sink, no property form; not an RxJS creation/pipe factory             |
 | `catchError`    | D     | `selectorExpression: string`                                                                                                                                                            | Connected recovery selector                                           |
 | `result`        | I     | `hash: string`                                                                                                                                                                          | Transient result; excluded from saved documents                       |
 | `connectPoint`  | I     | No operator property interface                                                                                                                                                          | Geometry/visibility belongs to ConnectPoint; not executable           |
 
 Common source-element fields remain `id`, `type`, `name`, `x`, `y`, `visible`, `properties`.
 Connection order/name live on `ConnectLine`, not inside the operator properties. Existing
-`ElementType` IDs and defaults remain authoritative until each row is migrated and parity tested.
+`ElementType` IDs and existing defaults remain authoritative; metadata parity tests preserve them.
 
 ## Invocation inventory and compatibility boundaries
 
@@ -272,12 +270,34 @@ identity fields, error dependencies, child overrides, shared IDs, caught raw val
 paths. The browser journeys cover saved no-form predicates, Filter errors, connected recovery
 through the Worker, existing labels, child overrides and reload persistence.
 
+## Ajax and Subscriber compatibility
+
+Ajax stores literal URL and JSON body text, not authored JavaScript. Body parsing happens after
+invocation overrides and before subscription; empty/omitted text supplies undefined, JSON primitives
+are accepted, and malformed JSON fails before Ajax is called. Optional request fields remain absent
+from the saved defaults. Method and response-type options preserve the existing form choices.
+
+Headers/query parameters stay ordered pair arrays in persisted diagrams. Exact duplicate header
+keys reduce with the last value winning. Duplicate query keys group into arrays in the adapter;
+installed RxJS 7.8 passes that record through URLSearchParams, serializing arrays as comma-separated
+values rather than repeated wire keys. The whole AjaxResponse becomes the FlowValue raw value,
+including status and nested response. Each subscription produces fresh FlowValue identities; request
+errors and cancellation retain existing behavior. No runtime behavior is changed here.
+
+Subscriber is a propertyless terminal sink with one value input, no output/event port and no
+creation/pipe factory. It retains its category, entry eligibility and no-form behavior. Its defaults
+and drawer registration consume metadata without inventing an RxJS factory.
+
+`ajaxOperatorMetadata.test.ts` covers overrides, parsing timing/primitives, literal URLs, optional
+fields, pair reduction, response identity, lazy subscriptions, errors and cancellation. The browser
+journey uses a same-origin mocked endpoint to verify the real Worker/XHR request, response projection
+through Map to Subscriber, and pair-array persistence after reload, without external HTTP requests.
+
 ## Remaining #140 work
 
-These metadata slices do not complete the issue. Migrate remaining
-field/signature/reference metadata (including higher-order and buffer callbacks) before broad
-#134 compiler rollout. Finish all current registrations and richer form/drawer/theme integration
-after #134/#135 invocation/parameter rules and #129 lifecycle boundaries stabilize. Keep #140 open
+The initial field/default/signature/reference inventory is complete for all current operators.
+These metadata slices do not complete the issue. Finish richer form/drawer/theme registration
+integration after #134/#135 invocation/parameter rules and #129 lifecycle boundaries stabilize. Keep #140 open
 through that integrated gate. No new operators, serializer, schema migration, or execution policy
 is delivered here.
 

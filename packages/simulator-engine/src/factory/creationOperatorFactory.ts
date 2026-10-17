@@ -36,6 +36,7 @@ import {
 	IntervalElementProperties,
 	OBSERVABLE_GENERATOR_NAME,
 	OfElement,
+	ajaxOperatorDefinition,
 	emptyOperatorDefinition,
 	generateOperatorDefinition,
 	throwErrorOperatorDefinition,
@@ -459,7 +460,7 @@ type CreationOperatorFunctionFactory = (
 ) => CreationObservableFactory;
 
 const supportedOperators: ReadonlyMap<ElementType, CreationOperatorFunctionFactory> = new Map([
-	[ElementType.Ajax, createAjaxCreationOperator],
+	[ajaxOperatorDefinition.type, createAjaxCreationOperator],
 	[deferOperatorDefinition.type, createDeferCreationOperator],
 	[emptyOperatorDefinition.type, createEmptyCreationOperator],
 	[fromOperatorDefinition.type, createFromCreationOperator],

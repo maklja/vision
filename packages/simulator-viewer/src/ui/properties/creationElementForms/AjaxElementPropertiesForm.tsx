@@ -6,34 +6,13 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
-import { AjaxElementProperties, HttpMethod } from '@maklja/vision-simulator-model';
+import { AjaxElementProperties, ajaxOperatorDefinition } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 import { KeyValueList } from '../../pair';
 import { handleNumberInputChanged } from '../utils';
 
-const responseTypes = [
-	{
-		id: 'arraybuffer',
-		label: 'Array buffer',
-	},
-	{
-		id: 'blob',
-		label: 'Blob',
-	},
-	{
-		id: 'document',
-		label: 'Document',
-	},
-	{
-		id: 'json',
-		label: 'JSON',
-	},
-	{
-		id: 'text',
-		label: 'Text',
-	},
-];
+const fields = ajaxOperatorDefinition.properties;
 
 export interface AjaxElementPropertiesFormProps {
 	id: string;
@@ -75,7 +54,7 @@ export function AjaxElementPropertiesForm({
 		>
 			<TextField
 				id="ajax-el-url-prop"
-				label="Url"
+				label={fields.url.label}
 				value={properties.url}
 				type="text"
 				size="small"
@@ -88,17 +67,17 @@ export function AjaxElementPropertiesForm({
 
 			<FormControl fullWidth size="small">
 				<InputLabel shrink id="ajax-el-method-prop">
-					Method
+					{fields.method.label}
 				</InputLabel>
 				<Select
 					labelId="ajax-el-method-prop"
 					value={properties.method}
-					label="Method"
+					label={fields.method.label}
 					onChange={handleMethodChanged}
 				>
-					{Object.values(HttpMethod).map((httpMethod) => (
-						<MenuItem key={httpMethod} value={httpMethod}>
-							{httpMethod}
+					{fields.method.options.map(({ value, label }) => (
+						<MenuItem key={value} value={value}>
+							{label}
 						</MenuItem>
 					))}
 				</Select>
@@ -107,7 +86,7 @@ export function AjaxElementPropertiesForm({
 
 			<SimpleCodeEditor
 				code={properties.body ?? ''}
-				label="Body"
+				label={fields.body.label}
 				helperText="The body of the HTTP request to send."
 				language="json"
 				height="200px"
@@ -116,7 +95,7 @@ export function AjaxElementPropertiesForm({
 
 			<TextField
 				id="ajax-el-timeout-prop"
-				label="Timeout"
+				label={fields.timeout.label}
 				value={properties.timeout}
 				type="number"
 				size="small"
@@ -136,17 +115,17 @@ export function AjaxElementPropertiesForm({
 
 			<FormControl fullWidth size="small">
 				<InputLabel shrink id="ajax-el-response-type-prop">
-					Response type
+					{fields.responseType.label}
 				</InputLabel>
 				<Select
 					labelId="ajax-el-response-type-prop"
 					value={properties.responseType}
-					label="Response type"
+					label={fields.responseType.label}
 					onChange={handleResponseTypeChanged}
 					defaultValue="json"
 				>
-					{responseTypes.map((responseType) => (
-						<MenuItem key={responseType.id} value={responseType.id}>
+					{fields.responseType.options.map((responseType) => (
+						<MenuItem key={responseType.value} value={responseType.value}>
 							{responseType.label}
 						</MenuItem>
 					))}
@@ -155,13 +134,13 @@ export function AjaxElementPropertiesForm({
 			</FormControl>
 
 			<KeyValueList
-				label="Headers"
+				label={fields.headers.label}
 				data={properties.headers ?? []}
 				onChange={handleHeadersChanged}
 			/>
 
 			<KeyValueList
-				label="Query parameters"
+				label={fields.queryParams.label}
 				data={properties.queryParams ?? []}
 				onChange={handleQueryParamsChanged}
 			/>
