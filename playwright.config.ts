@@ -8,10 +8,8 @@ export default defineConfig({
 	// Characterization journeys must fail loudly: no retries, one worker, no fixed delays.
 	retries: 0,
 	workers: 1,
-	// Safety net: previously, a preview-server teardown could consume the entire CI job allowance.
-	// All three browsers run serially: the 78-test suite exceeded six minutes on CI
-	// with 73 tests passing. Allow ten minutes for the full suite and teardown.
-	// TODO: remove this once the preview lifecycle is owned by a dedicated e2e launcher.
+	// CI selects one browser per job, so growth in another browser cannot consume its budget.
+	// Keep a finite suite deadline in addition to individual test and web-server timeouts.
 	globalTimeout: 10 * 60_000,
 	reporter: [
 		['list', { printSteps: true }],
@@ -46,15 +44,15 @@ export default defineConfig({
 		// artifact with Vite preview. The ordinary `pnpm build` stays on the root base.
 		command:
 			'pnpm --filter @maklja/vision-simulator-viewer build && ' +
-			'pnpm --filter @maklja/vision-simulator-viewer serve --host 127.0.0.1 --port 4173 --strictPort',
+			'node packages/simulator-viewer/node_modules/vite/bin/vite.js preview ' +
+			'packages/simulator-viewer --host 127.0.0.1 --port 4173 --strictPort',
 		env: {
 			VISION_BASE_PATH: E2E_BASE_PATH,
 			VITE_CHECKER_ENABLE: 'false',
 		},
 		url: E2E_EDITOR_URL,
-		// Playwright's default force-kill left this pnpm/Vite process group alive after the tests.
-		// pnpm logs the expected SIGTERM as ELIFECYCLE/ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL.
-		// TODO: use a dedicated e2e launcher that forwards shutdown cleanly, then remove this.
+		// Launch Vite directly: SIGTERM then stops the preview without pnpm reporting a failed
+		// recursive script. Keep process-group cleanup bounded so port 4173 is released.
 		gracefulShutdown: {
 			signal: 'SIGTERM',
 			timeout: 1_000,

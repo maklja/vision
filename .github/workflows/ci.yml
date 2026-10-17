@@ -15,10 +15,9 @@ permissions:
     contents: read
 
 jobs:
-    test-and-build:
+    unit-and-build:
         runs-on: ubuntu-22.04
-        # Chromium, Firefox, and WebKit are downloaded and exercised on every pull request.
-        timeout-minutes: 25
+        timeout-minutes: 15
 
         steps:
             - name: Check out repository
@@ -53,25 +52,6 @@ jobs:
             - name: Build viewer
               run: pnpm build
 
-            - name: Install Playwright browser
-              run: pnpm exec playwright install --with-deps chromium firefox webkit
-
-            - name: Run browser tests
-              env:
-                  VISION_BASE_PATH: /vision/
-              run: pnpm test:e2e
-
-            # Playwright rebuilds the production viewer with /vision/ before exercising it.
-            # Upload after the browser tests so publishing uses that exact tested build.
-            - name: Upload tested Pages build
-              if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-              uses: actions/upload-artifact@v4
-              with:
-                  name: pages-viewer
-                  path: packages/simulator-viewer/build/
-                  if-no-files-found: error
-                  retention-days: 1
-
             - name: Upload coverage summary
               if: always()
               uses: actions/upload-artifact@v4
@@ -79,6 +59,67 @@ jobs:
                   name: coverage-summary
                   path: coverage/coverage-summary.json
                   if-no-files-found: ignore
+
+    browser-tests:
+        needs: unit-and-build
+        runs-on: ubuntu-22.04
+        timeout-minutes: 15
+        # Keep one worker per browser while giving each browser its own suite deadline.
+        strategy:
+            fail-fast: false
+            matrix:
+                browser: [chromium, firefox, webkit]
+
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 12.6.0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24.19.0
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Install Playwright browser
+              run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+
+            - name: Run browser tests
+              env:
+                  VISION_BASE_PATH: /vision/
+              run: pnpm test:e2e --project=${{ matrix.browser }}
+
+            # Publish the Chromium-tested build only after all browser jobs pass the final gate.
+            - name: Upload tested Pages build
+              if: matrix.browser == 'chromium' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: pages-viewer
+                  path: packages/simulator-viewer/build/
+                  if-no-files-found: error
+                  retention-days: 1
+
+    # Preserve the existing aggregate check name: it succeeds only after every browser passes.
+    test-and-build:
+        needs: [unit-and-build, browser-tests]
+        if: always()
+        runs-on: ubuntu-22.04
+        timeout-minutes: 2
+        steps:
+            - name: Require unit, build and browser success
+              env:
+                  UNIT_RESULT: ${{ needs.unit-and-build.result }}
+                  BROWSER_RESULT: ${{ needs.browser-tests.result }}
+              run: |
+                  test "$UNIT_RESULT" = success
+                  test "$BROWSER_RESULT" = success
 
     dependency-audit:
         runs-on: ubuntu-22.04
