@@ -130,6 +130,92 @@ describe('startObservableSimulation trusted execution', () => {
 		expect(FakeWorker.instances).toHaveLength(0);
 		expect(onCreationError).toHaveBeenCalledOnce();
 	});
+	it.each([false, true])(
+		'classifies an omitted From mode using its default (trusted: %s)',
+		(trusted) => {
+			const reference = link('source-range', source.id, 'range');
+			reference.source.connectPointType = ConnectPointType.Event;
+			reference.source.connectPosition = ConnectPointPosition.Top;
+			const onDiagnostic = vi.fn();
+			const subscription = launch({
+				elements: [
+					element(source.id, ElementType.From),
+					element('range', ElementType.Range, { start: 0, count: 1 }),
+					subscriber,
+				],
+				connectLines: [
+					...connectLines,
+					reference,
+					link('range-subscriber', 'range', subscriber.id),
+				],
+				trusted,
+				onDiagnostic,
+			});
+			expect(FakeWorker.instances).toHaveLength(trusted ? 1 : 0);
+			if (trusted) expect(onDiagnostic).not.toHaveBeenCalled();
+			else
+				expect(onDiagnostic).toHaveBeenCalledExactlyOnceWith(
+					expect.objectContaining({
+						category: 'policy',
+						message: expect.stringContaining('explicitly trust'),
+					}),
+				);
+			subscription.unsubscribe();
+		},
+	);
+
+	it.each([true, false])(
+		'ignores malformed disconnected code (Worker: %s)',
+		(workerAvailable) => {
+			vi.stubGlobal('Worker', workerAvailable ? FakeWorker : undefined);
+			const onCreationError = vi.fn(),
+				onNext = vi.fn();
+			const subscription = startObservableSimulation({
+				entryElementId: source.id,
+				elements: [
+					element(source.id, ElementType.Range, { start: 0, count: 2 }),
+					element('draft', ElementType.Of, { argsFactoryExpression: '() =>' }),
+					subscriber,
+				],
+				connectLines,
+				trusted: false,
+				onCreationError,
+				onNext,
+			});
+			expect(onCreationError).not.toHaveBeenCalled();
+			expect(FakeWorker.instances).toHaveLength(workerAvailable ? 1 : 0);
+			expect(onNext).toHaveBeenCalledTimes(workerAvailable ? 0 : 2);
+			subscription.unsubscribe();
+		},
+	);
+
+	it('still preflights malformed code in referenced branches', () => {
+		const reference = link('source-child', source.id, 'child');
+		reference.source.connectPointType = ConnectPointType.Event;
+		reference.source.connectPosition = ConnectPointPosition.Top;
+		const onDiagnostic = vi.fn();
+		launch({
+			elements: [
+				element(source.id, ElementType.Merge, { limitConcurrent: 0 }),
+				element('child', ElementType.Of, { argsFactoryExpression: '() =>' }),
+				subscriber,
+			],
+			connectLines: [
+				...connectLines,
+				reference,
+				link('child-subscriber', 'child', subscriber.id),
+			],
+			onDiagnostic,
+		});
+		expect(FakeWorker.instances).toHaveLength(0);
+		expect(onDiagnostic).toHaveBeenCalledExactlyOnceWith(
+			expect.objectContaining({
+				category: 'compile',
+				elementId: 'child',
+				field: 'argsFactoryExpression',
+			}),
+		);
+	});
 	it('rejects authored code on the main thread even with trust', () => {
 		vi.stubGlobal('Worker', undefined);
 		const onDiagnostic = vi.fn();

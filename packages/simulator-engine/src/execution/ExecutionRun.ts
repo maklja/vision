@@ -62,6 +62,16 @@ function fields(el: Element) {
 		}
 	>;
 }
+/** Match invocation defaults without evaluating authored source or filling optional fields. */
+function propertiesWithDefaults(el: Element): ElementProps {
+	const defaults: ElementProps = requireOperatorDefinition(el.type).defaults;
+	const properties: ElementProps = {};
+	for (const [key, definition] of Object.entries(fields(el))) {
+		if (Object.hasOwn(el.properties, key)) properties[key] = el.properties[key];
+		else if (!definition.optional) properties[key] = defaults[key];
+	}
+	return properties;
+}
 function active(
 	field: { activeWhen?: { property: string; equals: boolean } },
 	properties: ElementProps,
@@ -85,12 +95,13 @@ export function validateSource(el: Element, field: string, source: unknown, call
 export function preflight(elements: readonly Element[]) {
 	for (const el of elements) {
 		if (resultOperators.has(el.type)) continue;
+		const properties = propertiesWithDefaults(el);
 		for (const [field, definition] of Object.entries(fields(el))) {
-			if (!active(definition, el.properties)) continue;
-			if (definition.optional && el.properties[field] === undefined) continue;
+			if (!active(definition, properties)) continue;
+			if (definition.optional && properties[field] === undefined) continue;
 			if (definition.kind === 'callback' || definition.kind === 'expression') {
 				try {
-					validateSource(el, field, el.properties[field], definition.kind === 'callback');
+					validateSource(el, field, properties[field], definition.kind === 'callback');
 				} catch {
 					throw new ExecutionError({
 						category: 'compile',
@@ -110,15 +121,17 @@ export function requiresTrustedWorker(elements: readonly Element[], seed: Elemen
 		Object.keys(seed).length > 0 ||
 		elements
 			.filter((el) => !resultOperators.has(el.type))
-			.some(
-				(el) =>
+			.some((el) => {
+				const properties = propertiesWithDefaults(el);
+				return (
 					el.type === ElementType.Ajax ||
 					Object.values(fields(el)).some(
 						(d) =>
-							active(d, el.properties) &&
+							active(d, properties) &&
 							(d.kind === 'callback' || d.kind === 'expression'),
-					),
-			)
+					)
+				);
+			})
 	);
 }
 
@@ -175,7 +188,7 @@ export class ExecutionRun {
 			if (error instanceof ExecutionError) throw error;
 			this.fail(el, 'overrides', 'schema', 'subscription');
 		}
-		const defaults: ElementProps = requireOperatorDefinition(el.type).defaults;
+		const defaults = propertiesWithDefaults(el);
 		const properties: ElementProps = {};
 		for (const key of Object.keys(el.properties))
 			if (!Object.hasOwn(definitions, key)) this.fail(el, key, 'schema', 'subscription');
@@ -184,13 +197,7 @@ export class ExecutionRun {
 		for (const [key, definition] of Object.entries(definitions)) {
 			const present =
 				Object.hasOwn(overrides ?? {}, key) || Object.hasOwn(el.properties, key);
-			const value = Object.hasOwn(overrides ?? {}, key)
-				? overrides![key]
-				: Object.hasOwn(el.properties, key)
-					? el.properties[key]
-					: definition.optional
-						? undefined
-						: defaults[key];
+			const value = Object.hasOwn(overrides ?? {}, key) ? overrides![key] : defaults[key];
 			if (!present && definition.optional) continue;
 			const valid =
 				definition.kind === 'number'

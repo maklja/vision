@@ -94,14 +94,15 @@ export function startObservableSimulation(
 		});
 	};
 	try {
-		preflight(elements);
 		const contextSeed = cloneContextSeed(options.contextSeed ?? {});
 		const timeout = options.watchdogSeconds ?? 5;
 		if (!Number.isFinite(timeout) || timeout < 1 || timeout > 60)
 			throw new Error('Watchdog must be 1–60 seconds');
 		// Graph construction inspects connections only; no authored callbacks are evaluated.
 		const model = createSimulationModel(entryElementId, elements, connectLines);
-		const unsafe = requiresTrustedWorker(elements, contextSeed);
+		const reachableElements = model.getReachableElements();
+		preflight(reachableElements);
+		const unsafe = requiresTrustedWorker(reachableElements, contextSeed);
 		if (unsafe && !options.trusted) {
 			failure(
 				'policy',

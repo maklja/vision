@@ -47,7 +47,7 @@ export class ObservableSimulation {
 	) {}
 
 	start(o: Partial<Observer<FlowValueEvent>>): Unsubscribable {
-		preflight([...this.simulationModel.elements.values()]);
+		preflight(this.simulationModel.getReachableElements());
 		const run = new ExecutionRun(this.runId, this.seed, this.report);
 		const flowManager = new DefaultFlowManager(this.simulationModel);
 		const observableFactory = new ObservableFactory(this.simulationModel, flowManager, run);
