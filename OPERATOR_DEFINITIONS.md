@@ -36,11 +36,11 @@ have connection-order controls; lack of a property form does not mean unsupporte
 | `iif`           | D     | `conditionExpression`, `trueCallbackExpression`, `falseCallbackExpression`: string                                                                                                      | Condition and true/false connected factories                          |
 | `interval`      | D     | `period: number`                                                                                                                                                                        | Period                                                                |
 | `ajax`          | L     | `url: string`, `method: HttpMethod`, `body?: string`, `headers?: [string,string][]`, `timeout?: number`, `responseType?: XMLHttpRequestResponseType`, `queryParams?: [string,string][]` | Body is JSON text; pair lists remain pair lists                       |
-| `empty`         | L     | None                                                                                                                                                                                    | No property form                                                      |
+| `empty`         | D     | None                                                                                                                                                                                    | No property form                                                      |
 | `defer`         | D     | `observableFactory: string`                                                                                                                                                             | Connected factory                                                     |
-| `generate`      | L     | `initialState: string`, `condition?: string`, `iterate: string`, `resultSelector: string`                                                                                               | Initial state is an expression, others callbacks                      |
+| `generate`      | D     | `initialState: string`, `condition?: string`, `iterate: string`, `resultSelector: string`                                                                                               | Initial state is an expression, others callbacks                      |
 | `range`         | D     | `start: number`, `count?: number`                                                                                                                                                       | Start/count                                                           |
-| `throwError`    | L     | `errorOrErrorFactory: string`                                                                                                                                                           | Existing RxJS error/factory field                                     |
+| `throwError`    | D     | `errorOrErrorFactory: string`                                                                                                                                                           | Existing RxJS error/factory field                                     |
 | `timer`         | D     | `dueDateType: DueDateType`, `startDue: number`, `intervalDuration: number`                                                                                                              | Millisecond/date modes and one-shot sentinel below                    |
 | `combineLatest` | D     | `observableInputsType: ObservableInputsType`                                                                                                                                            | Array/object selection; order/names on connections                    |
 | `merge`         | D     | `limitConcurrent: number`                                                                                                                                                               | Concurrency plus input order                                          |
@@ -173,6 +173,33 @@ until cancellation; Expand normalizes values below one to unbounded. No new norm
 invocation policy is introduced. Behavior coverage lives in
 `higherOrderOperatorMetadata.test.ts` and `transformationOperatorFactory.test.ts`; the browser
 journey covers forms, saved callbacks, reference execution and Worker completion.
+
+## Empty, Generate and ThrowError compatibility
+
+Empty, Generate and ThrowError consume definition metadata for defaults and engine registration
+keys; Generate and ThrowError retain their existing form labels. Empty has no properties/form and
+completes without output. The definition contract can explicitly mark stored string fields as
+`expression` metadata, with an optional callback signature when the evaluated value may be a factory.
+Existing callback, numeric, boolean and choice fields keep their previous typed shapes.
+For example, `OperatorDefinition<GenerateElementProperties, 'initialState'>` explicitly marks the
+expression key; the second type argument accepts only declared string properties and defaults to
+none for existing definitions.
+
+Generate initialState is an expression, not a callback. At source factory invocation, overrides are
+merged and all active expressions are evaluated without connected helpers. Subscriptions then call
+condition, iterate and resultSelector with one state argument and no index. Omitted/empty condition
+strings omit the condition, so callers must cancel unbounded generation. Evaluated initial objects
+and callback closures are reused across subscriptions to that observable; no cloning is added.
+Expression-construction errors escape invocation, while subscribed callback errors remain RxJS
+errors at this factory boundary. Emitted results receive fresh FlowValues and the supplied ID.
+
+ThrowError accepts an expression yielding either an error value or a factory. Direct values are
+reused across subscriptions; factories receive no arguments and run per subscription. Returned or
+thrown errors are wrapped in fresh error FlowValues with the element and supplied subscription IDs.
+Expression-construction failures occur before that wrapping. No stored shape or execution policy
+changes are introduced. `generationOperatorMetadata.test.ts` covers defaults, overrides, closure/
+object reuse, optional conditions with bounded cancellation, error timing and identity. Browser
+journeys cover Empty/Generate and both ThrowError forms with connected recovery and persistence.
 
 ## Buffer compatibility
 

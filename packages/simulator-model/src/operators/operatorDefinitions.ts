@@ -66,6 +66,14 @@ import {
 	TimerElementProperties,
 	timerElementPropsTemplate,
 } from '../creationOperators/TimerElement';
+import {
+	GenerateElementProperties,
+	generateElementPropsTemplate,
+} from '../creationOperators/GenerateElement';
+import {
+	ThrowErrorElementProperties,
+	throwErrorElementPropsTemplate,
+} from '../creationOperators/ThrowErrorElement';
 import { OfElementProperties, ofElementPropsTemplate } from '../creationOperators/OfElement';
 import {
 	creationElementDescriptor,
@@ -95,6 +103,104 @@ const codeExport = {
 	status: 'deferred',
 	reason: 'Readable RxJS serializers are tracked in #136.',
 } as const;
+
+export const emptyOperatorDefinition = {
+	type: ElementType.Empty,
+	name: 'empty',
+	category: ElementGroup.Creation,
+	documentationUrl: 'https://rxjs.dev/api/index/const/EMPTY',
+	status: 'supported',
+	defaults: {},
+	properties: {},
+	ports: creationElementDescriptor,
+	referencePorts: ['input'],
+	example:
+		'Completes synchronously without emitting. No properties, event reference or property form; invocation overrides are ignored.',
+	codeExport,
+} as const satisfies OperatorDefinition<ElementProps>;
+
+export const generateOperatorDefinition = {
+	type: ElementType.Generate,
+	name: 'generate',
+	category: ElementGroup.Creation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/generate',
+	status: 'supported',
+	defaults: generateElementPropsTemplate,
+	properties: {
+		initialState: {
+			kind: 'expression',
+			label: 'Initial state',
+			returns: 'unknown',
+			semantics:
+				'Evaluated without helpers once per source factory invocation after merging property overrides. The resulting value is reused as the initial state for each subscription to that observable; object state is shared by reference, not cloned. Evaluation errors escape factory invocation before subscription.',
+		},
+		condition: {
+			kind: 'callback',
+			optional: true,
+			label: 'Condition',
+			signature: {
+				arguments: [{ name: 'value', type: 'unknown (state)' }],
+				returns: 'unknown (truthy condition)',
+				helpers: [],
+				notes: 'The callback-producing expression is evaluated at source factory invocation after overrides; an omitted or empty string skips evaluation and omits the RxJS condition. The returned function receives only the state on subscription before each emission. A falsy result terminates generation. Without a condition, generation continues synchronously until cancellation or an error.',
+			},
+		},
+		iterate: {
+			kind: 'callback',
+			label: 'Iterate',
+			signature: {
+				arguments: [{ name: 'value', type: 'unknown (state)' }],
+				returns: 'unknown (next state)',
+				helpers: [],
+				notes: 'The expression is evaluated at source factory invocation after overrides; its returned function receives only the current state between emissions. No index or helper is supplied; closures are reused across subscriptions to the returned observable.',
+			},
+		},
+		resultSelector: {
+			kind: 'callback',
+			label: 'Result selector',
+			signature: {
+				arguments: [{ name: 'value', type: 'unknown (state)' }],
+				returns: 'unknown',
+				helpers: [],
+				notes: 'The expression is evaluated at source factory invocation after overrides; its returned function projects each accepted state on subscription. Each raw result becomes a fresh FlowValue with the source element and supplied subscription ID. Callback errors remain RxJS errors at this factory boundary.',
+			},
+		},
+	},
+	ports: creationElementDescriptor,
+	referencePorts: ['input'],
+	example:
+		'The saved initialState 0, condition value < 3, iterate value + 1 and resultSelector value * 1000 emit 0, 1000, 2000, then complete.',
+	codeExport,
+} as const satisfies OperatorDefinition<GenerateElementProperties, 'initialState'>;
+
+export const throwErrorOperatorDefinition = {
+	type: ElementType.ThrowError,
+	name: 'throwError',
+	category: ElementGroup.Creation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/throwError',
+	status: 'supported',
+	defaults: throwErrorElementPropsTemplate,
+	properties: {
+		errorOrErrorFactory: {
+			kind: 'expression',
+			label: 'Error factory',
+			returns: 'unknown | (() => unknown)',
+			semantics:
+				'Evaluated without helpers once per source factory invocation after merging overrides. RxJS accepts either an error value (reused across subscriptions) or a factory. Expression-construction errors escape the source factory before subscription. Subscription errors are wrapped in fresh error FlowValues with the element ID and supplied subscription ID.',
+			callback: {
+				arguments: [],
+				returns: 'unknown',
+				helpers: [],
+				notes: 'If the expression returns a function, RxJS invokes it without arguments on every subscription. The callback closure is shared across subscriptions to the returned observable; errors thrown by the callback are wrapped like returned errors.',
+			},
+		},
+	},
+	ports: creationElementDescriptor,
+	referencePorts: ['input'],
+	example:
+		'The saved function creates a new Error("Unexpected error!") for each subscription. A direct new Error("failure") expression instead reuses its evaluated error value.',
+	codeExport,
+} as const satisfies OperatorDefinition<ThrowErrorElementProperties, 'errorOrErrorFactory'>;
 
 export const ofOperatorDefinition = {
 	type: ElementType.Of,
@@ -789,6 +895,9 @@ export const catchErrorOperatorDefinition = {
 
 /** Only migrated operators belong here. Absence must not be interpreted as unsupported execution. */
 export const operatorDefinitions = {
+	[ElementType.Empty]: emptyOperatorDefinition,
+	[ElementType.Generate]: generateOperatorDefinition,
+	[ElementType.ThrowError]: throwErrorOperatorDefinition,
 	[ElementType.Of]: ofOperatorDefinition,
 	[ElementType.From]: fromOperatorDefinition,
 	[ElementType.IIf]: iifOperatorDefinition,

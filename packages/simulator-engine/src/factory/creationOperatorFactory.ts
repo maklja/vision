@@ -36,6 +36,9 @@ import {
 	IntervalElementProperties,
 	OBSERVABLE_GENERATOR_NAME,
 	OfElement,
+	emptyOperatorDefinition,
+	generateOperatorDefinition,
+	throwErrorOperatorDefinition,
 	ofOperatorDefinition,
 	iifOperatorDefinition,
 	deferOperatorDefinition,
@@ -458,14 +461,14 @@ type CreationOperatorFunctionFactory = (
 const supportedOperators: ReadonlyMap<ElementType, CreationOperatorFunctionFactory> = new Map([
 	[ElementType.Ajax, createAjaxCreationOperator],
 	[deferOperatorDefinition.type, createDeferCreationOperator],
-	[ElementType.Empty, createEmptyCreationOperator],
+	[emptyOperatorDefinition.type, createEmptyCreationOperator],
 	[fromOperatorDefinition.type, createFromCreationOperator],
-	[ElementType.Generate, createGenerateCreationOperator],
+	[generateOperatorDefinition.type, createGenerateCreationOperator],
 	[iifOperatorDefinition.type, createIifCreationOperator],
 	[intervalOperatorDefinition.type, createIntervalCreationOperator],
 	[ofOperatorDefinition.type, createOfCreationOperator],
 	[rangeOperatorDefinition.type, createRangeCreationOperator],
-	[ElementType.ThrowError, createThrowErrorCreationOperator],
+	[throwErrorOperatorDefinition.type, createThrowErrorCreationOperator],
 	[timerOperatorDefinition.type, createTimerCreationOperator],
 ]);
 

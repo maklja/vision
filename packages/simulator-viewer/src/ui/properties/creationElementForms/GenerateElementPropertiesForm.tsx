@@ -1,5 +1,8 @@
 import Stack from '@mui/material/Stack';
-import { GenerateElementProperties } from '@maklja/vision-simulator-model';
+import {
+	GenerateElementProperties,
+	generateOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -33,14 +36,14 @@ export function GenerateElementPropertiesForm({
 		>
 			<SimpleCodeEditor
 				code={properties.initialState}
-				label="Initial state"
+				label={generateOperatorDefinition.properties.initialState.label}
 				onCodeChange={handleInitialStateChanged}
 				height="200px"
 			/>
 
 			<SimpleCodeEditor
 				code={properties.condition ?? ''}
-				label="Condition"
+				label={generateOperatorDefinition.properties.condition.label}
 				onCodeChange={handleConditionChanged}
 				helperText="Condition to terminate generation (upon returning false)."
 				height="200px"
@@ -48,7 +51,7 @@ export function GenerateElementPropertiesForm({
 
 			<SimpleCodeEditor
 				code={properties.iterate ?? ''}
-				label="Iterate"
+				label={generateOperatorDefinition.properties.iterate.label}
 				onCodeChange={handleIterateChanged}
 				helperText="Iteration step function."
 				height="200px"
@@ -56,7 +59,7 @@ export function GenerateElementPropertiesForm({
 
 			<SimpleCodeEditor
 				code={properties.resultSelector}
-				label="Result selector"
+				label={generateOperatorDefinition.properties.resultSelector.label}
 				onCodeChange={handleResultSelectorChanged}
 				helperText="Selector function for results produced in the sequence."
 				height="200px"
