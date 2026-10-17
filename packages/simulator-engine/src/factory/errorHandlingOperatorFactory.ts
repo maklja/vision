@@ -1,12 +1,10 @@
+import { compileCallback, validateReferences } from './utils';
+import { ExecutionRun } from '../execution/ExecutionRun';
 import { catchErrorOperatorDefinition } from '@maklja/vision-simulator-model';
 import { v1 } from 'uuid';
 import { Observable, ObservableInput, catchError, map } from 'rxjs';
-import {
-	CatchErrorElement,
-	Element,
-	ElementType,
-	OBSERVABLE_GENERATOR_NAME,
-} from '@maklja/vision-simulator-model';
+import { defer } from 'rxjs';
+import { CatchErrorElement, Element, ElementType } from '@maklja/vision-simulator-model';
 import {
 	OperatorProps,
 	PipeObservableFactory,
@@ -41,10 +39,12 @@ const createCatchErrorOperator =
 		const observableRefInvokerFn: (
 			err: unknown,
 			caughtRaw: Observable<unknown>,
-		) => Observable<FlowValue> = new Function(
-			OBSERVABLE_GENERATOR_NAME,
-			`return ${catchEl.properties.selectorExpression}`,
-		)(wrappedObservableGenerator);
+		) => Observable<FlowValue> = compileCallback(
+			el,
+			props,
+			'selectorExpression',
+			wrappedObservableGenerator,
+		);
 
 		return o.pipe(
 			catchError<FlowValue, ObservableInput<FlowValue>>((error: FlowValue, caught) => {
@@ -73,7 +73,11 @@ export const errorHandlingOperatorFactory: PipeOperatorFactory = {
 			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
 		}
 
-		return factory(el, props);
+		const run = props.run ?? new ExecutionRun();
+		return (source, subscriptionId) => {
+			validateReferences(el, props);
+			return defer(() => factory(run.resolve(el), { ...props, run, subscriptionId })(source));
+		};
 	},
 
 	isSupported(el: Element): boolean {

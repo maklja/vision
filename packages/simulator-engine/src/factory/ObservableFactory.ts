@@ -1,4 +1,6 @@
-import { catchError, Observable, ObservableInput, tap } from 'rxjs';
+import { validateReferences } from './utils';
+import { ExecutionRun } from '../execution/ExecutionRun';
+import { defer, catchError, Observable, ObservableInput, tap } from 'rxjs';
 import {
 	ConnectLine,
 	Element,
@@ -43,6 +45,7 @@ export class ObservableFactory {
 	constructor(
 		private readonly simulationModel: SimulationModel,
 		private readonly flowManager: FlowManager,
+		private readonly run = new ExecutionRun(),
 	) {}
 
 	createObservable() {
@@ -154,9 +157,11 @@ export class ObservableFactory {
 		const fullPipeFactories = [...creationPipeFactories, ...pipeFactories];
 
 		return (overrideParameters?: ElementProps, subscribeId?: string) =>
-			fullPipeFactories.reduce(
-				(o, pipeFactory) => pipeFactory(o),
-				creationObservableFactory(overrideParameters, subscribeId),
+			defer(() =>
+				fullPipeFactories.reduce(
+					(o, pipeFactory) => pipeFactory(o, subscribeId),
+					creationObservableFactory(overrideParameters, subscribeId),
+				),
 			);
 	}
 
@@ -171,15 +176,18 @@ export class ObservableFactory {
 			}))
 			.sort((o1, o2) => o1.connectLine.index - o2.connectLine.index);
 
+		validateReferences(el, { refObservableGenerators });
 		if (isCreationOperatorType(el.type)) {
 			return creationOperatorFactory.create(el, {
 				refObservableGenerators,
+				run: this.run,
 			});
 		}
 
 		if (isJoinCreationOperatorType(el.type)) {
 			return joinCreationOperatorFactory.create(el, {
 				refObservableGenerators,
+				run: this.run,
 			});
 		}
 
@@ -187,7 +195,8 @@ export class ObservableFactory {
 	}
 
 	private createPipeOperator(el: Element, refObservables: RefObservable[]) {
-		return pipeOperatorFactory.create(el, {
+		const props = {
+			run: this.run,
 			refObservableGenerators: refObservables
 				.map((refObservable) => ({
 					connectPoint: refObservable.connectLine.source,
@@ -197,7 +206,9 @@ export class ObservableFactory {
 						this.flowManager.handleNextEvent(value, refObservable.connectLine),
 				}))
 				.sort((o1, o2) => o1.connectLine.index - o2.connectLine.index),
-		});
+		};
+		validateReferences(el, props);
+		return pipeOperatorFactory.create(el, props);
 	}
 
 	private getRefObservableGenerators(

@@ -399,6 +399,8 @@ export async function selectEntryOperator(page: Page, element: Element): Promise
 }
 
 export async function startSimulation(page: Page): Promise<void> {
+	const approval = page.getByRole('button', { name: 'Allow execution for this revision' });
+	if (await approval.isVisible()) await approval.click();
 	await page.getByRole('button', { name: 'start simulation' }).click();
 }
 

@@ -109,3 +109,9 @@ permission reset on source edit/remount, file diagnostics and existing retry/dis
 Playwright keeps existing legacy-seeded recovery/cancellation journeys and adds import → approval →
 run → reload → export and invalid-import journeys in Chromium, Firefox and WebKit. The common test
 reader follows the active versioned pointer while legacy seeds continue testing v0 migration.
+
+## Context seed
+
+Versioned documents may include optional `diagram.contextSeed`, a finite JSON object (1 MiB, depth
+64). Existing version-1 documents without it use `{}`. Save/export/import preserve only this seed;
+runtime mutations and execution approval are never persisted. See [execution policy](EXECUTION_POLICY.md).

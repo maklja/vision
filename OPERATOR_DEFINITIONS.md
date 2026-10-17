@@ -308,3 +308,10 @@ selection, helper scope, invocation timing and override compatibility, plus the 
 form, persistence and browser journeys. Metadata adds only static records; no evaluation, discovery
 scan, event retention, extra scheduler or heavyweight UI registration is introduced. Labels and
 input callbacks remain unchanged, preserving accessible controls and keyboard behavior.
+
+## Execution core integration (#134)
+
+The exact positional signatures above remain unchanged. [Execution policy](EXECUTION_POLICY.md)
+is the runtime binding/override matrix: callbacks receive lexical `$context` and frozen `$params`,
+are evaluated per actual subscription, IIf selects using resolved overrides, Defer honors its own
+factory override, and joins consume their own parameters without broadcasting to children. Metadata notes now describe these subscription boundaries. Final lifecycle correlation remains #129 and typed expressions remain #135.

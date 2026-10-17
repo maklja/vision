@@ -88,146 +88,150 @@ const nextEvent: FlowValueEvent = {
 	targetElementId: 'subscriber',
 };
 
-describe('startObservableSimulation', () => {
+describe('startObservableSimulation trusted execution', () => {
 	beforeEach(() => {
 		FakeWorker.reset();
+		vi.useFakeTimers();
 	});
-
 	afterEach(() => {
+		vi.useRealTimers();
 		vi.unstubAllGlobals();
 		vi.restoreAllMocks();
 	});
-
-	it('should initialize simulation using the fallback main thread when Worker is unavailable', () => {
-		vi.stubGlobal('window', {});
-		vi.stubGlobal('Worker', undefined);
-		const events: FlowValueEvent[] = [];
-		let completed = false;
-
-		const subscription = startObservableSimulation({
+	function launch(extra: Partial<Parameters<typeof startObservableSimulation>[0]> = {}) {
+		vi.stubGlobal('Worker', FakeWorker);
+		return startObservableSimulation({
 			entryElementId: 'source',
 			elements,
 			connectLines,
-			onNext: (event) => events.push(event),
-			onComplete: () => {
-				completed = true;
-			},
+			trusted: true,
+			...extra,
 		});
-
-		expect(events.map((event) => event.value)).toEqual(['1', '2']);
-		expect(events.every((event) => event.sourceElementId === 'source')).toBe(true);
-		expect(completed).toBe(true);
-
-		subscription.unsubscribe();
+	}
+	function send(type: ObservableSimulationMessageType, value?: unknown, runId?: string) {
+		const worker = FakeWorker.instances.at(-1)!;
+		const start = worker.postMessage.mock.calls[0][0] as { runId: string };
+		worker.dispatch('message', { data: { type, runId: runId ?? start.runId, value } });
+	}
+	it('requires explicit trust and never starts a Worker before approval', () => {
+		const onCreationError = vi.fn();
+		launch({ trusted: false, onCreationError });
+		expect(FakeWorker.instances).toHaveLength(0);
+		expect(onCreationError).toHaveBeenCalledOnce();
 	});
-
-	it('should instantiate the Worker, send startSimulation, and process structured-cloned FlowValueEvents messages', () => {
-		vi.stubGlobal('window', { Worker: FakeWorker });
-		vi.stubGlobal('Worker', FakeWorker);
-		const events: FlowValueEvent[] = [];
-		const errors: FlowValueEvent[] = [];
-		const creationErrors: unknown[] = [];
-		let completed = false;
-
+	it('rejects authored code on the main thread even with trust', () => {
+		vi.stubGlobal('Worker', undefined);
+		const onDiagnostic = vi.fn();
 		startObservableSimulation({
 			entryElementId: 'source',
 			elements,
 			connectLines,
-			onNext: (event) => events.push(event),
-			onError: (event) => errors.push(event),
-			onComplete: () => {
-				completed = true;
-			},
-			onCreationError: (event) => creationErrors.push(event),
+			trusted: true,
+			onDiagnostic,
 		});
-
-		expect(FakeWorker.instances).toHaveLength(1);
-		const worker = FakeWorker.instances[0];
-		expect(worker.url.pathname.endsWith('observableSimulationWorker.ts')).toBe(true);
-		expect(worker.options).toEqual({ name: 'ObservableWorker', type: 'module' });
-		expect(worker.postMessage).toHaveBeenCalledWith({
-			type: ObservableSimulationMessageType.StartSimulation,
-			entryElementId: 'source',
-			elements,
-			connectLines,
-		});
-
-		worker.dispatch('message', {
-			data: { type: ObservableSimulationMessageType.Next, value: nextEvent },
-		});
-		expect(events).toEqual([nextEvent]);
-
-		worker.dispatch('message', {
-			data: { type: ObservableSimulationMessageType.Error, value: nextEvent },
-		});
-		expect(errors).toEqual([nextEvent]);
-
-		worker.dispatch('message', { data: { type: ObservableSimulationMessageType.Complete } });
-		expect(completed).toBe(true);
-
-		worker.dispatch('message', {
-			data: {
-				type: ObservableSimulationMessageType.CreationError,
-				value: { id: 'error-1', sourceElementId: 'source', value: 'boom' },
-			},
-		});
-		expect(creationErrors).toEqual([
-			{ elementId: 'source', errorId: 'error-1', errorMessage: 'boom' },
-		]);
+		expect(onDiagnostic.mock.calls[0][0]).toMatchObject({ category: 'policy' });
 	});
-
-	it('should notify the creation error callback when the main thread simulation cannot be created', () => {
-		vi.stubGlobal('window', {});
+	it('retains a visible literal-only fallback', () => {
 		vi.stubGlobal('Worker', undefined);
-		const buffer = element('buffer', ElementType.Buffer);
-		const creationErrors: unknown[] = [];
-
-		expect(() =>
-			startObservableSimulation({
-				entryElementId: 'source',
-				elements: [source, buffer, subscriber],
-				connectLines: [
-					link('source-buffer', 'source', 'buffer'),
-					link('buffer-subscriber', 'buffer', 'subscriber', 1),
-				],
-				onCreationError: (event) => creationErrors.push(event),
-			}),
-		).toThrow('Reference observable is required for buffer operator');
-
-		expect(creationErrors).toHaveLength(1);
-		expect(creationErrors[0]).toMatchObject({ elementId: 'buffer' });
-	});
-
-	it('should correctly stop the simulation by posting stopSimulation message to Worker', () => {
-		vi.stubGlobal('window', { Worker: FakeWorker });
-		vi.stubGlobal('Worker', FakeWorker);
-
+		const onNext = vi.fn(),
+			onDiagnostic = vi.fn();
 		const subscription = startObservableSimulation({
 			entryElementId: 'source',
-			elements,
+			elements: [element('source', ElementType.Range, { start: 0, count: 2 }), subscriber],
 			connectLines,
+			onNext,
+			onDiagnostic,
 		});
-		const worker = FakeWorker.instances[0];
-
+		expect(onNext).toHaveBeenCalledTimes(2);
+		expect(onDiagnostic.mock.calls[0][0].message).toContain('literal-only');
 		subscription.unsubscribe();
-
-		expect(worker.postMessage).toHaveBeenLastCalledWith({
-			type: ObservableSimulationMessageType.StopSimulation,
+	});
+	it('preflights malformed code without executing a source or allocating a Worker', () => {
+		const onDiagnostic = vi.fn();
+		launch({
+			elements: [
+				element('source', ElementType.Of, { argsFactoryExpression: '() =>' }),
+				subscriber,
+			],
+			onDiagnostic,
 		});
-		expect(worker.terminate).toHaveBeenCalledTimes(1);
+		expect(FakeWorker.instances).toHaveLength(0);
+		expect(onDiagnostic.mock.calls[0][0]).toMatchObject({
+			category: 'compile',
+			elementId: 'source',
+			field: 'argsFactoryExpression',
+		});
 	});
-
-	it('should terminate the Worker when it reports a runtime error', () => {
-		vi.stubGlobal('window', { Worker: FakeWorker });
-		vi.stubGlobal('Worker', FakeWorker);
-		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-
-		startObservableSimulation({ entryElementId: 'source', elements, connectLines });
+	it('transfers cloneable seed and correlates events, ignoring stale and stopped runs', () => {
+		const onNext = vi.fn(),
+			onError = vi.fn(),
+			onComplete = vi.fn();
+		const subscription = launch({ onNext, onError, onComplete, contextSeed: { seen: 0 } });
 		const worker = FakeWorker.instances[0];
-
-		worker.dispatch('error', new Error('worker failed'));
-
-		expect(worker.terminate).toHaveBeenCalledTimes(1);
-		expect(consoleError).toHaveBeenCalled();
+		expect(worker.postMessage.mock.calls[0][0]).toMatchObject({ contextSeed: { seen: 0 } });
+		send(ObservableSimulationMessageType.Next, nextEvent, 'old-run');
+		expect(onNext).not.toHaveBeenCalled();
+		send(ObservableSimulationMessageType.Next, nextEvent);
+		expect(onNext).toHaveBeenCalledWith(nextEvent);
+		expect(onError).not.toHaveBeenCalled();
+		subscription.unsubscribe();
+		subscription.unsubscribe();
+		send(ObservableSimulationMessageType.Next, nextEvent);
+		expect(onNext).toHaveBeenCalledOnce();
+		expect(worker.terminate).toHaveBeenCalledOnce();
+		expect(vi.getTimerCount()).toBe(0);
 	});
+	it('terminates a hung Worker after the default five seconds', () => {
+		const onDiagnostic = vi.fn(),
+			onCreationError = vi.fn();
+		launch({ onDiagnostic, onCreationError });
+		vi.advanceTimersByTime(5000);
+		expect(FakeWorker.instances[0].terminate).toHaveBeenCalledOnce();
+		expect(onDiagnostic.mock.calls[0][0]).toMatchObject({ category: 'watchdog' });
+		expect(onCreationError).toHaveBeenCalledOnce();
+	});
+	it('accepts silent async sources while control heartbeat responds', () => {
+		launch();
+		for (let i = 0; i < 40; i++) {
+			vi.advanceTimersByTime(250);
+			send(ObservableSimulationMessageType.Heartbeat);
+		}
+		expect(FakeWorker.instances[0].terminate).not.toHaveBeenCalled();
+		send(ObservableSimulationMessageType.Complete);
+		expect(FakeWorker.instances[0].terminate).toHaveBeenCalledOnce();
+		expect(vi.getTimerCount()).toBe(0);
+	});
+	it.each(['error', 'messageerror'])('reports %s transport failures', (type) => {
+		const onDiagnostic = vi.fn();
+		launch({ onDiagnostic });
+		FakeWorker.instances[0].dispatch(type, {});
+		expect(onDiagnostic.mock.calls[0][0]).toMatchObject({ category: 'transport' });
+		expect(FakeWorker.instances[0].terminate).toHaveBeenCalledOnce();
+	});
+	it.each([0, 61, NaN])('rejects an invalid watchdog %s', (watchdogSeconds) => {
+		const onCreationError = vi.fn();
+		launch({ watchdogSeconds, onCreationError });
+		expect(FakeWorker.instances).toHaveLength(0);
+		expect(onCreationError).toHaveBeenCalledOnce();
+	});
+});
+
+it('releases the Worker on a terminal observable error', () => {
+	vi.stubGlobal('Worker', FakeWorker);
+	const onError = vi.fn();
+	startObservableSimulation({
+		entryElementId: 'source',
+		elements,
+		connectLines,
+		trusted: true,
+		onError,
+	});
+	const worker = FakeWorker.instances.at(-1)!;
+	const start = worker.postMessage.mock.calls[0][0] as { runId: string };
+	worker.dispatch('message', {
+		data: { type: ObservableSimulationMessageType.Error, runId: start.runId, value: nextEvent },
+	});
+	expect(onError).toHaveBeenCalledWith(nextEvent);
+	expect(worker.terminate).toHaveBeenCalledOnce();
+	vi.unstubAllGlobals();
 });

@@ -170,7 +170,7 @@ describe('observableSimulationWorker', () => {
 		}
 	});
 
-	it('should post a CreationError message and rethrow when the graph cannot be simulated', () => {
+	it('should post a CreationError diagnostic when the graph cannot be simulated', () => {
 		const buffer = element('buffer', ElementType.Buffer);
 
 		expect(() =>
@@ -185,16 +185,13 @@ describe('observableSimulationWorker', () => {
 					],
 				},
 			}),
-		).toThrow('Reference observable is required for buffer operator');
+		).not.toThrow();
 
 		const messages = sentMessages(scope);
 		expect(messages).toHaveLength(1);
 		expect(messages[0]).toMatchObject({
 			type: ObservableSimulationMessageType.CreationError,
-			value: {
-				sourceElementId: 'buffer',
-				value: 'Reference observable is required for buffer operator',
-			},
+			diagnostic: { category: 'reference' },
 		});
 	});
 });

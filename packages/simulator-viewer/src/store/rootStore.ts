@@ -3,7 +3,12 @@ import { createStore, useStore } from 'zustand';
 import { useStoreWithEqualityFn } from 'zustand/traditional';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { ConnectLine, Element, DiagramData } from '@maklja/vision-simulator-model';
+import {
+	ConnectLine,
+	Element,
+	DiagramData,
+	validateContextSeed,
+} from '@maklja/vision-simulator-model';
 import { createElementSlice, ElementSlice } from './elements';
 import { createStageSlice, StageSlice } from './stage';
 import { ConnectPointSlice, createConnectPointSlice } from './connectPoints';
@@ -17,7 +22,10 @@ import { ClipboardSlice, createClipboardSlice } from './clipboard';
 
 export type StateProps = DiagramData;
 
-export type RootState = ElementSlice &
+export type RootState = {
+	contextSeed: Record<string, unknown>;
+	setContextSeed: (seed: unknown) => void;
+} & ElementSlice &
 	StageSlice &
 	ConnectPointSlice &
 	SelectSlice &
@@ -46,6 +54,11 @@ export function createRootStore(initProps?: Partial<StateProps>) {
 		devtools(
 			immer(
 				subscribeWithSelector((...args) => ({
+					contextSeed: initProps?.contextSeed ?? {},
+					setContextSeed: (seed) =>
+						args[0]((state) => {
+							state.contextSeed = validateContextSeed(seed);
+						}),
 					...createElementSlice(...args),
 					...createConnectLineSlice(...args),
 					...createConnectPointSlice(...args),

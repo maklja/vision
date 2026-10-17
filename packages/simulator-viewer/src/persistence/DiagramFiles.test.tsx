@@ -142,3 +142,17 @@ describe('diagram file controls', () => {
 		expect(screen.queryByRole('button', { name: 'Restore previous backup' })).toBeNull();
 	});
 });
+
+it('requires local code approval and revokes it when the context seed changes', () => {
+	const store = createRootStore(currentReleaseDiagram);
+	render(
+		<DiagramExecutionGate store={store} imported={false}>
+			<Permission />
+		</DiagramExecutionGate>,
+	);
+	expect(screen.getByLabelText('execution permission').textContent).toBe('false');
+	fireEvent.click(screen.getByRole('button', { name: 'Allow execution for this revision' }));
+	expect(screen.getByLabelText('execution permission').textContent).toBe('true');
+	act(() => store.getState().setContextSeed({ seen: 0 }));
+	expect(screen.getByLabelText('execution permission').textContent).toBe('false');
+});

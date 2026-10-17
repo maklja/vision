@@ -136,7 +136,7 @@ export const ajaxOperatorDefinition = {
 			label: 'Body',
 			format: 'json',
 			semantics:
-				'Truthy text is parsed with JSON.parse at factory invocation after overrides, before subscription. JSON primitives are accepted. Empty or omitted text supplies undefined; invalid JSON throws InvalidElementPropertyValueError for body before Ajax is called.',
+				'Truthy text is parsed with JSON.parse on each actual subscription after overrides. JSON primitives are accepted. Empty or omitted text supplies undefined; invalid JSON throws InvalidElementPropertyValueError for body before Ajax is called.',
 		},
 		headers: {
 			kind: 'pairs',
@@ -207,7 +207,7 @@ export const emptyOperatorDefinition = {
 	ports: creationElementDescriptor,
 	referencePorts: ['input'],
 	example:
-		'Completes synchronously without emitting. No properties, event reference or property form; invocation overrides are ignored.',
+		'Completes synchronously without emitting. No properties, event reference or property form; unknown invocation override keys are rejected.',
 	codeExport,
 } as const satisfies OperatorDefinition<ElementProps>;
 
@@ -224,7 +224,7 @@ export const generateOperatorDefinition = {
 			label: 'Initial state',
 			returns: 'unknown',
 			semantics:
-				'Evaluated without helpers once per source factory invocation after merging property overrides. The resulting value is reused as the initial state for each subscription to that observable; object state is shared by reference, not cloned. Evaluation errors escape factory invocation before subscription.',
+				'Evaluated without helpers on each actual source subscription after resolving overrides. The resulting initial state and callback closures are fresh per subscription. Errors enter the observable error channel.',
 		},
 		condition: {
 			kind: 'callback',
@@ -234,7 +234,7 @@ export const generateOperatorDefinition = {
 				arguments: [{ name: 'value', type: 'unknown (state)' }],
 				returns: 'unknown (truthy condition)',
 				helpers: [],
-				notes: 'The callback-producing expression is evaluated at source factory invocation after overrides; an omitted or empty string skips evaluation and omits the RxJS condition. The returned function receives only the state on subscription before each emission. A falsy result terminates generation. Without a condition, generation continues synchronously until cancellation or an error.',
+				notes: 'The callback-producing expression is evaluated on each actual source subscription after overrides; an omitted optional condition omits the RxJS condition. Explicit undefined or empty source is invalid. The returned function receives only the state on subscription before each emission. A falsy result terminates generation. Without a condition, generation continues synchronously until cancellation or an error.',
 			},
 		},
 		iterate: {
@@ -244,7 +244,7 @@ export const generateOperatorDefinition = {
 				arguments: [{ name: 'value', type: 'unknown (state)' }],
 				returns: 'unknown (next state)',
 				helpers: [],
-				notes: 'The expression is evaluated at source factory invocation after overrides; its returned function receives only the current state between emissions. No index or helper is supplied; closures are reused across subscriptions to the returned observable.',
+				notes: 'The expression is evaluated on each actual source subscription after overrides; its returned function receives only the current state between emissions. No index or helper is supplied; closures are isolated across subscriptions to the returned observable.',
 			},
 		},
 		resultSelector: {
@@ -254,7 +254,7 @@ export const generateOperatorDefinition = {
 				arguments: [{ name: 'value', type: 'unknown (state)' }],
 				returns: 'unknown',
 				helpers: [],
-				notes: 'The expression is evaluated at source factory invocation after overrides; its returned function projects each accepted state on subscription. Each raw result becomes a fresh FlowValue with the source element and supplied subscription ID. Callback errors remain RxJS errors at this factory boundary.',
+				notes: 'The expression is evaluated on each actual source subscription after overrides; its returned function projects each accepted state on subscription. Each raw result becomes a fresh FlowValue with the source element and supplied subscription ID. Callback errors remain RxJS errors at this factory boundary.',
 			},
 		},
 	},
@@ -278,7 +278,7 @@ export const throwErrorOperatorDefinition = {
 			label: 'Error factory',
 			returns: 'unknown | (() => unknown)',
 			semantics:
-				'Evaluated without helpers once per source factory invocation after merging overrides. RxJS accepts either an error value (reused across subscriptions) or a factory. Expression-construction errors escape the source factory before subscription. Subscription errors are wrapped in fresh error FlowValues with the element ID and supplied subscription ID.',
+				'Evaluated without helpers on each actual source subscription after merging overrides. RxJS accepts either an error value or a factory. Expression-construction errors enter the observable error channel. Subscription errors are wrapped in fresh error FlowValues with the element ID and supplied subscription ID.',
 			callback: {
 				arguments: [],
 				returns: 'unknown',
@@ -290,7 +290,7 @@ export const throwErrorOperatorDefinition = {
 	ports: creationElementDescriptor,
 	referencePorts: ['input'],
 	example:
-		'The saved function creates a new Error("Unexpected error!") for each subscription. A direct new Error("failure") expression instead reuses its evaluated error value.',
+		'The saved function creates a new Error("Unexpected error!") for each subscription. A direct new Error("failure") expression also evaluates afresh per subscription.',
 	codeExport,
 } as const satisfies OperatorDefinition<ThrowErrorElementProperties, 'errorOrErrorFactory'>;
 
@@ -309,7 +309,7 @@ export const ofOperatorDefinition = {
 				arguments: [],
 				returns: 'unknown | unknown[]',
 				helpers: [],
-				notes: 'Called without arguments per factory invocation. Arrays emit each item; a non-array emits once.',
+				notes: 'Called without arguments per actual source subscription. Arrays emit each item; a non-array emits once.',
 			},
 		},
 	},
@@ -391,7 +391,7 @@ export const fromOperatorDefinition = {
 				arguments: [],
 				returns: 'ObservableInput<unknown>',
 				helpers: [],
-				notes: 'Called without arguments when the source factory is invoked in input mode; each emitted raw item is wrapped in a new FlowValue. The inactive observableFactory is not evaluated.',
+				notes: 'Called without arguments on each actual subscription in input mode; each emitted raw item is wrapped in a new FlowValue. The inactive observableFactory is not evaluated.',
 			},
 		},
 		observableFactory: {
@@ -402,7 +402,7 @@ export const fromOperatorDefinition = {
 				arguments: [],
 				returns: 'ObservableInput<FlowValue>',
 				helpers: ['createObservable'],
-				notes: 'The callback-producing expression is evaluated at source factory invocation; its returned function is called without arguments on each subscription in connected mode. createObservable(overrides?) invokes the single event reference with a child subscription ID and preserves its FlowValues. The inactive input callback is not evaluated.',
+				notes: 'The callback-producing expression is evaluated on each actual source subscription; its returned function is called without arguments on each subscription in connected mode. createObservable(overrides?) invokes the single event reference with a child subscription ID and preserves its FlowValues. The inactive input callback is not evaluated.',
 			},
 		},
 	},
@@ -514,7 +514,7 @@ export const iifOperatorDefinition = {
 				arguments: [],
 				returns: 'boolean',
 				helpers: [],
-				notes: 'The stored condition expression is evaluated at source factory invocation, ignoring a conditionExpression override in the current adapter. Its returned function is called without arguments on every subscription; RxJS selects a branch by truthiness. No createObservable helper is injected into the condition.',
+				notes: 'The resolved condition expression, including direct overrides, is evaluated on each actual source subscription. Its returned function is called without arguments on every subscription; RxJS selects a branch by truthiness. No createObservable helper is injected into the condition.',
 			},
 		},
 		trueCallbackExpression: {
@@ -524,7 +524,7 @@ export const iifOperatorDefinition = {
 				arguments: [],
 				returns: 'ObservableInput<FlowValue>',
 				helpers: [OBSERVABLE_GENERATOR_NAME],
-				notes: 'The expression is evaluated at source factory invocation, including for an unchosen branch; direct overrides of this field are applied. Its returned function is called without arguments only when the condition is truthy. createObservable(overrides?) binds only the top event reference and forwards child overrides with the current child subscription ID; emitted FlowValues are preserved.',
+				notes: 'The resolved expression is evaluated only for the selected branch on each actual source subscription; an unchosen branch has no effects. Its returned function is called without arguments only when the condition is truthy. createObservable(overrides?) binds only the top event reference and forwards child overrides with the current child subscription ID; emitted FlowValues are preserved.',
 			},
 		},
 		falseCallbackExpression: {
@@ -534,7 +534,7 @@ export const iifOperatorDefinition = {
 				arguments: [],
 				returns: 'ObservableInput<FlowValue>',
 				helpers: [OBSERVABLE_GENERATOR_NAME],
-				notes: 'The expression is evaluated at source factory invocation, including for an unchosen branch; direct overrides of this field are applied. Its returned function is called without arguments only when the condition is falsy. createObservable(overrides?) binds only the bottom event reference and forwards child overrides with the current child subscription ID; emitted FlowValues are preserved.',
+				notes: 'The resolved expression is evaluated only for the selected branch on each actual source subscription; an unchosen branch has no effects. Its returned function is called without arguments only when the condition is falsy. createObservable(overrides?) binds only the bottom event reference and forwards child overrides with the current child subscription ID; emitted FlowValues are preserved.',
 			},
 		},
 	},
@@ -560,7 +560,7 @@ export const deferOperatorDefinition = {
 				arguments: [],
 				returns: 'ObservableInput<FlowValue>',
 				helpers: [OBSERVABLE_GENERATOR_NAME],
-				notes: 'The stored expression is evaluated at source factory invocation; the current adapter ignores top-level invocation overrides, including observableFactory. Its returned function is called without arguments on each subscription. createObservable(overrides?) binds the single event reference and forwards child overrides with the current child subscription ID; emitted FlowValues are preserved. This is not the future #134 invocation contract.',
+				notes: 'The resolved expression is evaluated on each actual source subscription, honoring direct observableFactory overrides. Its returned function is called without arguments on each subscription. createObservable(overrides?) binds the single event reference and forwards child overrides with the current child subscription ID; emitted FlowValues are preserved. Callbacks also receive lexical $context and immutable $params.',
 			},
 		},
 	},
@@ -712,7 +712,7 @@ export const bufferOperatorDefinition = {
 	ports: eventPipeElementDescriptor,
 	referencePorts: ['event'],
 	example:
-		'Connect a Timer event reference to close a buffer; source completion flushes remaining raw values. No property form. The notifier factory and subscription event are created when the pipe is applied, using one ID shared by repeated subscriptions to that returned observable. Buffer dependencies include source IDs and the notifier ID when present.',
+		'Connect a Timer event reference to close a buffer; source completion flushes remaining raw values. No property form. The notifier factory and subscription event are created on each actual pipe subscription with a fresh ID. Buffer dependencies include source IDs and the notifier ID when present.',
 	codeExport,
 } as const satisfies OperatorDefinition<ElementProps>;
 
@@ -793,7 +793,7 @@ export const bufferToggleOperatorDefinition = {
 				arguments: [{ name: 'value', type: 'unknown (raw opening value)' }],
 				returns: 'ObservableInput<FlowValue>',
 				helpers: [OBSERVABLE_GENERATOR_NAME],
-				notes: 'The expression is evaluated once when the pipe factory is applied, before subscription; its returned function receives each raw opening value, without an index. The top event reference supplies openings; createObservable(overrides?) binds only the bottom closing reference. Both helpers forward the same application-time subscription ID. Closing subscription events currently use separate fresh IDs with the opening FlowValue as a dependency; these differ from the ID passed to the closing helper. Preserve this correlation mismatch until #129/#134 changes the runtime deliberately.',
+				notes: 'The expression is evaluated on each actual pipe subscription; its returned function receives each raw opening value, without an index. The top event reference supplies openings; createObservable(overrides?) binds only the bottom closing reference. Both helpers forward the same pipe-subscription ID. Closing subscription events currently use separate fresh IDs with the opening FlowValue as a dependency; these differ from the ID passed to the closing helper. Preserve this correlation mismatch until #129/#134 changes the runtime deliberately.',
 			},
 		},
 	},
@@ -846,13 +846,13 @@ export const combineLatestOperatorDefinition = {
 				{ value: ObservableInputsType.Object, label: 'Object' },
 			],
 			semantics:
-				'Array mode uses the supplied reference order. Object mode uses ConnectLine names as keys, with the last reference winning for duplicate names. The stored field selects the mode; invocation overrides are forwarded to child factories and do not change this selection. Any stored non-array value currently takes the object path; metadata does not introduce runtime validation.',
+				'Array mode uses the supplied reference order. Object mode uses ConnectLine names as keys, with the last reference winning for duplicate names. The resolved field, including direct invocation overrides, selects the mode. Only array/object choices are valid. Joins consume their own parameters and do not forward overrides to children.',
 		},
 	},
 	ports: joinCreationElementDescriptor,
 	referencePorts: ['input', 'event'],
 	example:
-		'Connect two Of event references. Array mode emits a new raw array once all inputs have emitted, then on each input emission; dependencies are the current input FlowValue IDs. Children receive invocation overrides and fresh subscription IDs per subscription. Integer-like object keys retain JavaScript property enumeration order.',
+		'Connect two Of event references. Array mode emits a new raw array once all inputs have emitted, then on each input emission; dependencies are the current input FlowValue IDs. Children receive no broadcast overrides and fresh subscription IDs per subscription. Integer-like object keys retain JavaScript property enumeration order.',
 	codeExport,
 } as const satisfies OperatorDefinition<CombineLatestElementProperties>;
 
@@ -867,7 +867,7 @@ export const concatOperatorDefinition = {
 	ports: joinCreationElementDescriptor,
 	referencePorts: ['input', 'event'],
 	example:
-		'Connect two Of event references; the engine supplies them in ConnectLine index order. Subscribe sequentially, forwarding invocation overrides and parent-correlated fresh child IDs. Original FlowValues are preserved. With no references, complete without output.',
+		'Connect two Of event references; the engine supplies them in ConnectLine index order. Subscribe sequentially with parent-correlated fresh child IDs and no broadcast overrides. Original FlowValues are preserved. With no references, complete without output.',
 	codeExport,
 } as const satisfies OperatorDefinition<ElementProps>;
 
@@ -887,13 +887,13 @@ export const forkJoinOperatorDefinition = {
 				{ value: ObservableInputsType.Object, label: 'Object' },
 			],
 			semantics:
-				'Array mode uses the supplied reference order. Object mode uses ConnectLine names as keys, with the last reference winning for duplicate names. The stored field selects the mode; invocation overrides are forwarded to child factories and do not change this selection. Any stored non-array value currently takes the object path; metadata does not introduce runtime validation.',
+				'Array mode uses the supplied reference order. Object mode uses ConnectLine names as keys, with the last reference winning for duplicate names. The resolved field, including direct invocation overrides, selects the mode. Only array/object choices are valid. Joins consume their own parameters and do not forward overrides to children.',
 		},
 	},
 	ports: joinCreationElementDescriptor,
 	referencePorts: ['input', 'event'],
 	example:
-		'Connect two Range event references. Array mode emits one raw array of final values after all inputs complete; dependencies identify those final FlowValues. Children receive invocation overrides and fresh subscription IDs per subscription. An input completing without a value prevents output.',
+		'Connect two Range event references. Array mode emits one raw array of final values after all inputs complete; dependencies identify those final FlowValues. Children receive no broadcast overrides and fresh subscription IDs per subscription. An input completing without a value prevents output.',
 	codeExport,
 } as const satisfies OperatorDefinition<ForkJoinElementProperties>;
 
@@ -908,7 +908,7 @@ export const raceOperatorDefinition = {
 	ports: joinCreationElementDescriptor,
 	referencePorts: ['input', 'event'],
 	example:
-		'Connect two Timer event references; the engine supplies them in ConnectLine index order. The first input notification wins; a synchronous winner can prevent later inputs from subscribing. Forward invocation overrides and parent-correlated fresh child IDs; original FlowValues are preserved. With no references, remain open until cancellation.',
+		'Connect two Timer event references; the engine supplies them in ConnectLine index order. The first input notification wins; a synchronous winner can prevent later inputs from subscribing. Use parent-correlated fresh child IDs without broadcasting overrides; original FlowValues are preserved. With no references, remain open until cancellation.',
 	codeExport,
 } as const satisfies OperatorDefinition<ElementProps>;
 
@@ -923,7 +923,7 @@ export const zipOperatorDefinition = {
 	ports: joinCreationElementDescriptor,
 	referencePorts: ['input', 'event'],
 	example:
-		'Connect two Of event references; the engine supplies them in ConnectLine index order. Pair input values by emission index into new raw arrays with input FlowValue IDs as dependencies. Forward invocation overrides and parent-correlated fresh child IDs. Complete when no further tuple can be formed; no references complete without output.',
+		'Connect two Of event references; the engine supplies them in ConnectLine index order. Pair input values by emission index into new raw arrays with input FlowValue IDs as dependencies. Use parent-correlated fresh child IDs without broadcasting overrides. Complete when no further tuple can be formed; no references complete without output.',
 	codeExport,
 } as const satisfies OperatorDefinition<ElementProps>;
 
@@ -945,7 +945,7 @@ export const filterOperatorDefinition = {
 				],
 				returns: 'unknown (truthy predicate)',
 				helpers: [],
-				notes: 'The expression is evaluated once when the pipe factory is applied; its returned predicate is reused across values and subscriptions to that returned observable. Each input FlowValue is filtered through a one-value observable, so index is always 0. Truthy results retain the raw value and FlowValue identity fields via copy; falsy results drop the value. No createObservable helper is injected. The current viewer dispatcher has no Filter property form.',
+				notes: 'The expression is evaluated on each actual pipe subscription; its returned predicate is reused across values within that subscription. Each input FlowValue is filtered through a one-value observable, so index is always 0. Truthy results retain the raw value and FlowValue identity fields via copy; falsy results drop the value. No createObservable helper is injected. The current viewer dispatcher has no Filter property form.',
 			},
 		},
 	},
@@ -974,7 +974,7 @@ export const catchErrorOperatorDefinition = {
 				],
 				returns: 'ObservableInput<FlowValue> | Observable<unknown>',
 				helpers: [OBSERVABLE_GENERATOR_NAME],
-				notes: 'One event reference is required even if the input never errors. The expression is evaluated once when the pipe factory is applied; the returned selector is called only on errors with error.raw and the caught observable mapped to raw values. createObservable(overrides?) binds the recovery reference and forwards child overrides with one application-time subscription ID reused across recoveries and subscriptions. On each error a subscription event uses that same ID and the error FlowValue ID as a dependency, even if the selector does not call the helper. Passthrough and recovery FlowValues are preserved; returning caught forwards its raw items without rewrapping. Keep these existing invocation and tracing boundaries until #129/#134 deliberately changes them.',
+				notes: 'One event reference is required even if the input never errors. The expression is evaluated on each actual pipe subscription; the returned selector is called only on errors with error.raw and the caught observable mapped to raw values. createObservable(overrides?) binds the recovery reference and forwards child overrides with one pipe-subscription ID reused across recoveries within that subscription. On each error a subscription event uses that same ID and the error FlowValue ID as a dependency, even if the selector does not call the helper. Passthrough and recovery FlowValues are preserved; returning caught forwards its raw items without rewrapping. Full lifecycle event correlation remains tracked in #129.',
 			},
 		},
 	},
