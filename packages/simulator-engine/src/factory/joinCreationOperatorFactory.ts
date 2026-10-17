@@ -18,6 +18,11 @@ import {
 	ElementType,
 	ForkJoinElement,
 	MergeElement,
+	combineLatestOperatorDefinition,
+	concatOperatorDefinition,
+	forkJoinOperatorDefinition,
+	raceOperatorDefinition,
+	zipOperatorDefinition,
 	mergeOperatorDefinition,
 	MergeElementProperties,
 	ObservableInputsType,
@@ -270,11 +275,11 @@ const createZipOperator =
 
 const supportedOperators: ReadonlyMap<ElementType, JoinCreationOperatorFunctionFactory> = new Map([
 	[mergeOperatorDefinition.type, createMergeOperator],
-	[ElementType.CombineLatest, createCombineLatestOperator],
-	[ElementType.Concat, createConcatOperator],
-	[ElementType.ForkJoin, createForkJoinOperator],
-	[ElementType.Race, createRaceOperator],
-	[ElementType.Zip, createZipOperator],
+	[combineLatestOperatorDefinition.type, createCombineLatestOperator],
+	[concatOperatorDefinition.type, createConcatOperator],
+	[forkJoinOperatorDefinition.type, createForkJoinOperator],
+	[raceOperatorDefinition.type, createRaceOperator],
+	[zipOperatorDefinition.type, createZipOperator],
 ]);
 
 export const joinCreationOperatorFactory: JoinCreationOperatorFactory = {

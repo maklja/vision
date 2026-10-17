@@ -1,4 +1,12 @@
 import {
+	ForkJoinElementProperties,
+	forkJoinElementPropsTemplate,
+} from '../joinCreationOperators/ForkJoinElement';
+import {
+	CombineLatestElementProperties,
+	combineLatestElementPropsTemplate,
+} from '../joinCreationOperators/CombineLatestElement';
+import {
 	BufferWhenElementProperties,
 	bufferWhenElementPropsTemplate,
 } from '../transformationOperators/BufferWhenElement';
@@ -62,7 +70,7 @@ import {
 	eventPipeElementDescriptor,
 	bufferToggleElementDescriptor,
 } from '../descriptors/elementDescriptors';
-import { CommonProps, ElementProps } from '../element/Element';
+import { CommonProps, ElementProps, ObservableInputsType } from '../element/Element';
 import { ElementGroup } from '../element/ElementGroup';
 import { ElementType } from '../element/ElementType';
 import {
@@ -616,6 +624,103 @@ export const bufferWhenOperatorDefinition = {
 	codeExport,
 } as const satisfies OperatorDefinition<BufferWhenElementProperties>;
 
+export const combineLatestOperatorDefinition = {
+	type: ElementType.CombineLatest,
+	name: 'combineLatest',
+	category: ElementGroup.JoinCreation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/combineLatest',
+	status: 'supported',
+	defaults: combineLatestElementPropsTemplate,
+	properties: {
+		observableInputsType: {
+			kind: 'choice',
+			label: 'Observable input type',
+			options: [
+				{ value: ObservableInputsType.Array, label: 'Array' },
+				{ value: ObservableInputsType.Object, label: 'Object' },
+			],
+			semantics:
+				'Array mode uses the supplied reference order. Object mode uses ConnectLine names as keys, with the last reference winning for duplicate names. The stored field selects the mode; invocation overrides are forwarded to child factories and do not change this selection. Any stored non-array value currently takes the object path; metadata does not introduce runtime validation.',
+		},
+	},
+	ports: joinCreationElementDescriptor,
+	referencePorts: ['input', 'event'],
+	example:
+		'Connect two Of event references. Array mode emits a new raw array once all inputs have emitted, then on each input emission; dependencies are the current input FlowValue IDs. Children receive invocation overrides and fresh subscription IDs per subscription. Integer-like object keys retain JavaScript property enumeration order.',
+	codeExport,
+} as const satisfies OperatorDefinition<CombineLatestElementProperties>;
+
+export const concatOperatorDefinition = {
+	type: ElementType.Concat,
+	name: 'concat',
+	category: ElementGroup.JoinCreation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/concat',
+	status: 'supported',
+	defaults: {},
+	properties: {},
+	ports: joinCreationElementDescriptor,
+	referencePorts: ['input', 'event'],
+	example:
+		'Connect two Of event references; the engine supplies them in ConnectLine index order. Subscribe sequentially, forwarding invocation overrides and parent-correlated fresh child IDs. Original FlowValues are preserved. With no references, complete without output.',
+	codeExport,
+} as const satisfies OperatorDefinition<ElementProps>;
+
+export const forkJoinOperatorDefinition = {
+	type: ElementType.ForkJoin,
+	name: 'forkJoin',
+	category: ElementGroup.JoinCreation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/forkJoin',
+	status: 'supported',
+	defaults: forkJoinElementPropsTemplate,
+	properties: {
+		observableInputsType: {
+			kind: 'choice',
+			label: 'Observable input type',
+			options: [
+				{ value: ObservableInputsType.Array, label: 'Array' },
+				{ value: ObservableInputsType.Object, label: 'Object' },
+			],
+			semantics:
+				'Array mode uses the supplied reference order. Object mode uses ConnectLine names as keys, with the last reference winning for duplicate names. The stored field selects the mode; invocation overrides are forwarded to child factories and do not change this selection. Any stored non-array value currently takes the object path; metadata does not introduce runtime validation.',
+		},
+	},
+	ports: joinCreationElementDescriptor,
+	referencePorts: ['input', 'event'],
+	example:
+		'Connect two Range event references. Array mode emits one raw array of final values after all inputs complete; dependencies identify those final FlowValues. Children receive invocation overrides and fresh subscription IDs per subscription. An input completing without a value prevents output.',
+	codeExport,
+} as const satisfies OperatorDefinition<ForkJoinElementProperties>;
+
+export const raceOperatorDefinition = {
+	type: ElementType.Race,
+	name: 'race',
+	category: ElementGroup.JoinCreation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/race',
+	status: 'supported',
+	defaults: {},
+	properties: {},
+	ports: joinCreationElementDescriptor,
+	referencePorts: ['input', 'event'],
+	example:
+		'Connect two Timer event references; the engine supplies them in ConnectLine index order. The first input notification wins; a synchronous winner can prevent later inputs from subscribing. Forward invocation overrides and parent-correlated fresh child IDs; original FlowValues are preserved. With no references, remain open until cancellation.',
+	codeExport,
+} as const satisfies OperatorDefinition<ElementProps>;
+
+export const zipOperatorDefinition = {
+	type: ElementType.Zip,
+	name: 'zip',
+	category: ElementGroup.JoinCreation,
+	documentationUrl: 'https://rxjs.dev/api/index/function/zip',
+	status: 'supported',
+	defaults: {},
+	properties: {},
+	ports: joinCreationElementDescriptor,
+	referencePorts: ['input', 'event'],
+	example:
+		'Connect two Of event references; the engine supplies them in ConnectLine index order. Pair input values by emission index into new raw arrays with input FlowValue IDs as dependencies. Forward invocation overrides and parent-correlated fresh child IDs. Complete when no further tuple can be formed; no references complete without output.',
+	codeExport,
+} as const satisfies OperatorDefinition<ElementProps>;
+
 /** Only migrated operators belong here. Absence must not be interpreted as unsupported execution. */
 export const operatorDefinitions = {
 	[ElementType.Of]: ofOperatorDefinition,
@@ -635,6 +740,11 @@ export const operatorDefinitions = {
 	[ElementType.BufferToggle]: bufferToggleOperatorDefinition,
 	[ElementType.BufferWhen]: bufferWhenOperatorDefinition,
 	[ElementType.Map]: mapOperatorDefinition,
+	[ElementType.CombineLatest]: combineLatestOperatorDefinition,
+	[ElementType.Concat]: concatOperatorDefinition,
+	[ElementType.ForkJoin]: forkJoinOperatorDefinition,
+	[ElementType.Race]: raceOperatorDefinition,
+	[ElementType.Zip]: zipOperatorDefinition,
 	[ElementType.Merge]: mergeOperatorDefinition,
 } as const;
 

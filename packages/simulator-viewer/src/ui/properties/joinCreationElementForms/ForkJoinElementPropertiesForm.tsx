@@ -1,6 +1,7 @@
 import Stack from '@mui/material/Stack';
 import {
 	CommonProps,
+	forkJoinOperatorDefinition,
 	ForkJoinElementProperties,
 	ObservableInputsType,
 } from '@maklja/vision-simulator-model';
@@ -35,6 +36,7 @@ export function ForkJoinElementPropertiesForm({
 			<ObservableInputs
 				relatedElements={relatedElements}
 				observableInputsType={properties.observableInputsType}
+				inputTypeDefinition={forkJoinOperatorDefinition.properties.observableInputsType}
 				onObservableInputsTypeChange={handleObservableInputsTypeChanged}
 				onConnectLineNameChange={(id, name) => onConnectLineChange?.(id, { name })}
 				onConnectLineIndexChange={(id, index) => onConnectLineChange?.(id, { index })}

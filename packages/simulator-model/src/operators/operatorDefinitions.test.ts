@@ -1,3 +1,5 @@
+import { ObservableInputsType } from '../element/Element';
+import type { CombineLatestElementProperties } from '../joinCreationOperators/CombineLatestElement';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import type { OperatorDefinition } from './OperatorDefinition';
 import type { MergeElementProperties } from '../joinCreationOperators/MergeElement';
@@ -23,6 +25,11 @@ import {
 	bufferTimeOperatorDefinition,
 	bufferToggleOperatorDefinition,
 	bufferWhenOperatorDefinition,
+	combineLatestOperatorDefinition,
+	concatOperatorDefinition,
+	forkJoinOperatorDefinition,
+	raceOperatorDefinition,
+	zipOperatorDefinition,
 	findOperatorDefinition,
 	iifOperatorDefinition,
 	deferOperatorDefinition,
@@ -264,6 +271,44 @@ describe('operator definitions', () => {
 			expect(definition.properties.closingSelectorExpression.signature.helpers).toEqual([
 				'createObservable',
 			]);
+	});
+
+	it.each([
+		combineLatestOperatorDefinition,
+		concatOperatorDefinition,
+		forkJoinOperatorDefinition,
+		raceOperatorDefinition,
+		zipOperatorDefinition,
+	])('preserves $name reference ports and group defaults', (definition) => {
+		expect(mapToJoinCreationOperatorPropsTemplates(definition.type)).toBe(definition.defaults);
+		expect(definition.referencePorts).toEqual(['input', 'event']);
+		expect(definition.ports.event?.cardinality).toBe(Infinity);
+	});
+	it('distinguishes string choices from authored callbacks with model-typed option values', () => {
+		expectTypeOf<
+			OperatorDefinition<CombineLatestElementProperties>['properties']['observableInputsType']['kind']
+		>().toEqualTypeOf<'choice'>();
+		expectTypeOf<
+			OperatorDefinition<CombineLatestElementProperties>['properties']['observableInputsType']['options'][number]['value']
+		>().toEqualTypeOf<ObservableInputsType>();
+		expectTypeOf<
+			OperatorDefinition<OfElementProperties>['properties']['argsFactoryExpression']['kind']
+		>().toEqualTypeOf<'callback'>();
+		for (const definition of [combineLatestOperatorDefinition, forkJoinOperatorDefinition]) {
+			expect(definition.defaults).toEqual({
+				observableInputsType: ObservableInputsType.Array,
+			});
+			expect(definition.properties.observableInputsType.options).toEqual([
+				{ value: ObservableInputsType.Array, label: 'Array' },
+				{ value: ObservableInputsType.Object, label: 'Object' },
+			]);
+		}
+		for (const definition of [
+			concatOperatorDefinition,
+			raceOperatorDefinition,
+			zipOperatorDefinition,
+		])
+			expect(definition.properties).toEqual({});
 	});
 
 	it('reports missing metadata explicitly without disabling legacy operators', () => {

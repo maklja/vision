@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import {
 	CombineLatestElementProperties,
 	CommonProps,
+	combineLatestOperatorDefinition,
 	ObservableInputsType,
 } from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
@@ -35,6 +36,9 @@ export function CombineLatestElementPropertiesForm({
 			<ObservableInputs
 				relatedElements={relatedElements}
 				observableInputsType={properties.observableInputsType}
+				inputTypeDefinition={
+					combineLatestOperatorDefinition.properties.observableInputsType
+				}
 				onObservableInputsTypeChange={handleObservableInputsTypeChanged}
 				onConnectLineNameChange={(id, name) => onConnectLineChange?.(id, { name })}
 				onConnectLineIndexChange={(id, index) => onConnectLineChange?.(id, { index })}

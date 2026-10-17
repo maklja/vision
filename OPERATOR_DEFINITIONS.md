@@ -42,12 +42,12 @@ have connection-order controls; lack of a property form does not mean unsupporte
 | `range`         | D     | `start: number`, `count?: number`                                                                                                                                                       | Start/count                                                           |
 | `throwError`    | L     | `errorOrErrorFactory: string`                                                                                                                                                           | Existing RxJS error/factory field                                     |
 | `timer`         | D     | `dueDateType: DueDateType`, `startDue: number`, `intervalDuration: number`                                                                                                              | Millisecond/date modes and one-shot sentinel below                    |
-| `combineLatest` | L     | `observableInputsType: ObservableInputsType`                                                                                                                                            | Array/object selection; order/names on connections                    |
+| `combineLatest` | D     | `observableInputsType: ObservableInputsType`                                                                                                                                            | Array/object selection; order/names on connections                    |
 | `merge`         | D     | `limitConcurrent: number`                                                                                                                                                               | Concurrency plus input order                                          |
-| `concat`        | L     | None                                                                                                                                                                                    | Input order on connections                                            |
-| `forkJoin`      | L     | `observableInputsType: ObservableInputsType`                                                                                                                                            | Array/object selection; order/names on connections                    |
-| `race`          | L     | None                                                                                                                                                                                    | Input order on connections                                            |
-| `zip`           | L     | None                                                                                                                                                                                    | Input order on connections                                            |
+| `concat`        | D     | None                                                                                                                                                                                    | Input order on connections                                            |
+| `forkJoin`      | D     | `observableInputsType: ObservableInputsType`                                                                                                                                            | Array/object selection; order/names on connections                    |
+| `race`          | D     | None                                                                                                                                                                                    | Input order on connections                                            |
+| `zip`           | D     | None                                                                                                                                                                                    | Input order on connections                                            |
 | `buffer`        | D     | None                                                                                                                                                                                    | No property form; connected notifier                                  |
 | `bufferCount`   | D     | `bufferSize: number`, `startBufferEvery: number`                                                                                                                                        | Size/start interval                                                   |
 | `bufferTime`    | D     | `bufferTimeSpan: number`, `bufferCreationInterval?: number`, `maxBufferSize?: number`                                                                                                   | Time/creation/max size                                                |
@@ -198,6 +198,30 @@ currently record only buffered-value dependencies.
 `bufferOperatorMetadata.test.ts` covers these boundaries, numeric defaults, max-size truthiness,
 separate buffer creation intervals and reference requirements. Browser journeys cover each buffer,
 its existing controls, saved properties and connected execution through the Worker.
+
+## Combining operator compatibility
+
+CombineLatest, Concat, ForkJoin, Race and Zip now consume definitions for defaults and engine
+registration keys. CombineLatest/ForkJoin expose the existing string-valued array/object selection
+as typed `choice` metadata. Their forms use its label and options; arbitrary callback strings remain
+callbacks. This adds no runtime validation or saved-field normalization.
+
+The engine assembles references in connection-index order before invoking these factories. Each
+child factory is deferred until subscription, receives invocation overrides and a fresh child ID,
+and emits a subscription event linked to the parent ID. CombineLatest/ForkJoin select the mode
+from stored properties, even when forwarded child overrides contain a different mode. Named inputs
+use connection names: duplicates retain the last reference, and integer-like keys retain JavaScript
+property enumeration order. The model schema does not add duplicate-name rejection.
+
+CombineLatest/ForkJoin/Zip return new FlowValues containing raw arrays/objects and input IDs as
+dependencies. Concat/Race preserve their child FlowValues. Concat subscribes sequentially; a
+synchronous Race winner can prevent later subscriptions. With no references, Race remains open
+until cancellation; the other migrated joins complete without emitting. Existing graph validation
+and connection cardinality remain unchanged.
+
+`joinOperatorMetadata.test.ts` covers those boundaries alongside the existing factory tests.
+`join-metadata.spec.ts` exercises all five operators, reversed connection indices, array/object
+selection, edited names, Worker results, and persistence through reload.
 
 ## Remaining #140 work
 

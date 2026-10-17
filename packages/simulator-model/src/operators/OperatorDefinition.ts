@@ -19,6 +19,12 @@ export type PropertyDefinition =
 			/** Existing numeric mode choices, such as Timer's DueDateType. */
 			readonly options?: readonly { readonly value: number; readonly label: string }[];
 	  }
+	| {
+			readonly kind: 'choice';
+			readonly label: string;
+			readonly semantics: string;
+			readonly options: readonly { readonly value: string; readonly label: string }[];
+	  }
 	| { readonly kind: 'boolean'; readonly label: string; readonly semantics: string };
 
 /** Remove ElementProps' string index signature so missing/extra property keys fail type checking. */
@@ -31,7 +37,16 @@ type PropertyDefinitions<P> = {
 		? Extract<PropertyDefinition, { kind: 'boolean' }>
 		: NonNullable<P[K]> extends number
 			? Extract<PropertyDefinition, { kind: 'number' }>
-			: Extract<PropertyDefinition, { kind: 'callback' }>) &
+			: NonNullable<P[K]> extends string
+				? string extends NonNullable<P[K]>
+					? Extract<PropertyDefinition, { kind: 'callback' }>
+					: Omit<Extract<PropertyDefinition, { kind: 'choice' }>, 'options'> & {
+							readonly options: readonly {
+								readonly value: NonNullable<P[K]>;
+								readonly label: string;
+							}[];
+						}
+				: Extract<PropertyDefinition, { kind: 'callback' }>) &
 		(undefined extends P[K] ? { readonly optional: true } : { readonly optional?: false }) & {
 			/** Mode selection is descriptive metadata, not authored-code evaluation. */
 			readonly activeWhen?: {
