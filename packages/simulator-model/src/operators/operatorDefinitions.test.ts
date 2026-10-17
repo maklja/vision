@@ -11,6 +11,9 @@ import { DueDateType } from '../creationOperators/TimerElement';
 import type { IifElementProperties } from '../creationOperators/IifElement';
 import type { DeferElementProperties } from '../creationOperators/DeferElement';
 import type { OfElementProperties } from '../creationOperators/OfElement';
+import type { GenerateElementProperties } from '../creationOperators/GenerateElement';
+import type { ThrowErrorElementProperties } from '../creationOperators/ThrowErrorElement';
+import { ajaxElementPropsTemplate } from '../creationOperators/AjaxElement';
 import { ElementType } from '../element/ElementType';
 import { findElementDescriptor } from '../descriptors/elementDescriptors';
 import { mapToOperatorPropsTemplate } from '../templates/operatorTemplates';
@@ -43,6 +46,9 @@ import {
 	intervalOperatorDefinition,
 	mapOperatorDefinition,
 	mergeOperatorDefinition,
+	emptyOperatorDefinition,
+	generateOperatorDefinition,
+	throwErrorOperatorDefinition,
 	ofOperatorDefinition,
 	operatorDefinitions,
 	requireOperatorDefinition,
@@ -115,6 +121,54 @@ describe('operator definitions', () => {
 			const [property] = Object.values(definition.properties);
 			expect(property.signature.helpers).toEqual([]);
 			expect(definition.codeExport.status).toBe('deferred');
+		}
+	});
+
+	it('distinguishes evaluated expressions from state callbacks and preserves source defaults', () => {
+		expectTypeOf<
+			OperatorDefinition<
+				GenerateElementProperties,
+				'initialState'
+			>['properties']['initialState']['kind']
+		>().toEqualTypeOf<'expression'>();
+		expectTypeOf<
+			OperatorDefinition<
+				GenerateElementProperties,
+				'initialState'
+			>['properties']['condition']['kind']
+		>().toEqualTypeOf<'callback'>();
+		expectTypeOf<
+			OperatorDefinition<
+				ThrowErrorElementProperties,
+				'errorOrErrorFactory'
+			>['properties']['errorOrErrorFactory']['kind']
+		>().toEqualTypeOf<'expression'>();
+		expect(generateOperatorDefinition.defaults.initialState).toBe('0');
+		expect(generateOperatorDefinition.properties.condition.optional).toBe(true);
+		for (const field of [
+			generateOperatorDefinition.properties.condition,
+			generateOperatorDefinition.properties.iterate,
+			generateOperatorDefinition.properties.resultSelector,
+		]) {
+			expect(field.signature.arguments).toEqual([{ name: 'value', type: 'unknown (state)' }]);
+			expect(field.signature.helpers).toEqual([]);
+		}
+		expect(
+			throwErrorOperatorDefinition.properties.errorOrErrorFactory.callback.arguments,
+		).toEqual([]);
+		expect(
+			throwErrorOperatorDefinition.properties.errorOrErrorFactory.callback.helpers,
+		).toEqual([]);
+		expect(emptyOperatorDefinition.defaults).toEqual({});
+		expect(emptyOperatorDefinition.properties).toEqual({});
+		for (const definition of [
+			emptyOperatorDefinition,
+			generateOperatorDefinition,
+			throwErrorOperatorDefinition,
+		]) {
+			expect(mapToCreationOperatorPropsTemplates(definition.type)).toBe(definition.defaults);
+			expect(definition.referencePorts).toEqual(['input']);
+			expect(definition.ports.event).toBeUndefined();
 		}
 	});
 
@@ -347,10 +401,10 @@ describe('operator definitions', () => {
 	});
 
 	it('reports missing metadata explicitly without disabling legacy operators', () => {
-		expect(findOperatorDefinition(ElementType.Empty)).toBeUndefined();
-		expect(mapToOperatorPropsTemplate(ElementType.Empty)).toEqual({});
-		expect(() => requireOperatorDefinition(ElementType.Empty)).toThrow(
-			'Operator metadata is not registered for empty',
+		expect(findOperatorDefinition(ElementType.Ajax)).toBeUndefined();
+		expect(mapToOperatorPropsTemplate(ElementType.Ajax)).toEqual(ajaxElementPropsTemplate);
+		expect(() => requireOperatorDefinition(ElementType.Ajax)).toThrow(
+			'Operator metadata is not registered for ajax',
 		);
 		expect(findOperatorDefinition('toString' as ElementType)).toBeUndefined();
 		expect(() => requireOperatorDefinition('unknown' as ElementType)).toThrow(

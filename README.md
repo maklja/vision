@@ -82,6 +82,12 @@ pnpm build
 These root workspace scripts are the canonical local and CI commands; the workflow in
 `.github/workflows/ci.yml` runs the same scripts after installing with `--frozen-lockfile`.
 
+CI runs Chromium, Firefox and WebKit in separate jobs using
+`pnpm test:e2e --project=<browser>`, with one worker and a ten-minute suite limit per job.
+The aggregate `test-and-build` check requires the unit/build job and all three browser jobs;
+Pages publishing waits for that check and the dependency audit. Playwright launches Vite preview
+directly, so normal SIGTERM cleanup no longer emits pnpm recursive-script failures.
+
 Linting uses ESLint 9's flat configuration in `eslint.config.mjs`. It covers TypeScript and TSX
 sources in every workspace package; package-level legacy `.eslintrc` and `eslintConfig` settings
 are intentionally not used. Formatting is checked separately with Prettier.
@@ -180,8 +186,8 @@ gzip. The Worker chunk grows from 98.51 kB to 99.47 kB because uuid 14's ESM bui
 still has no external imports.
 
 The production viewer build is written to `packages/simulator-viewer/build`. The versioned `docs/`
-directory contains the static build served by GitHub Pages. After both CI jobs pass on `main`,
-`publish-docs` replaces `docs/` with the `/vision/` production build exercised by Playwright,
+directory contains the static build served by GitHub Pages. After the unit/build, browser and
+dependency gates pass on `main`, `publish-docs` replaces `docs/` with the `/vision/` production build exercised by Playwright,
 commits changed output with `github-actions[bot]`, and explicitly requests a Pages rebuild. Old
 assets are removed and `.nojekyll` keeps the generated application out of Jekyll processing.
 Pull requests only validate the application; they cannot update `docs/` or publish it.

@@ -1,5 +1,8 @@
 import Stack from '@mui/material/Stack';
-import { ThrowErrorElementProperties } from '@maklja/vision-simulator-model';
+import {
+	ThrowErrorElementProperties,
+	throwErrorOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { SimpleCodeEditor } from '../../code';
 
@@ -25,7 +28,7 @@ export function ThrowErrorElementPropertiesForm({
 		>
 			<SimpleCodeEditor
 				code={properties.errorOrErrorFactory}
-				label="Error factory"
+				label={throwErrorOperatorDefinition.properties.errorOrErrorFactory.label}
 				helperText="A factory function that will create the error instance that is pushed."
 				onCodeChange={handleErrorOrErrorFactoryChanged}
 			/>
