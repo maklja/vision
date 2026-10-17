@@ -51,35 +51,48 @@ type StringPropertyKeys<P> = {
 	[K in keyof DeclaredProperties<P>]-?: NonNullable<P[K]> extends string ? K : never;
 }[keyof DeclaredProperties<P>];
 
+type DefinitionOfKind<Kind extends PropertyDefinition['kind']> = Extract<
+	PropertyDefinition,
+	{ kind: Kind }
+>;
+
+/** Free-form strings are callbacks by default; string unions retain their allowed choice values. */
+type StringDefinition<Value> = string extends Value
+	? DefinitionOfKind<'callback'>
+	: Omit<DefinitionOfKind<'choice'>, 'options'> & {
+			readonly options: readonly { readonly value: Value; readonly label: string }[];
+		};
+
+/** Infer the field kind from the stored value, ignoring optionality until the final mapping. */
+type ValueDefinition<Value> =
+	NonNullable<Value> extends readonly (readonly [string, string])[]
+		? DefinitionOfKind<'pairs'>
+		: NonNullable<Value> extends boolean
+			? DefinitionOfKind<'boolean'>
+			: NonNullable<Value> extends number
+				? DefinitionOfKind<'number'>
+				: NonNullable<Value> extends string
+					? StringDefinition<NonNullable<Value>>
+					: DefinitionOfKind<'callback'>;
+
+/** Explicit expression/text declarations take precedence over the default value-based kind. */
+type FieldDefinition<Value, Key, Expressions, Texts> = Key extends Expressions
+	? DefinitionOfKind<'expression'>
+	: Key extends Texts
+		? DefinitionOfKind<'text'>
+		: ValueDefinition<Value>;
+
+type OptionalField<Value> = undefined extends Value
+	? { readonly optional: true }
+	: { readonly optional?: false };
+
 type PropertyDefinitions<
 	P,
 	Expressions extends StringPropertyKeys<P>,
 	Texts extends Exclude<StringPropertyKeys<P>, Expressions>,
 > = {
-	readonly [K in keyof DeclaredProperties<P>]-?: (K extends Expressions
-		? Extract<PropertyDefinition, { kind: 'expression' }>
-		: K extends Texts
-			? Extract<PropertyDefinition, { kind: 'text' }>
-			: NonNullable<P[K]> extends readonly (readonly [string, string])[]
-				? Extract<PropertyDefinition, { kind: 'pairs' }>
-				: NonNullable<P[K]> extends boolean
-					? Extract<PropertyDefinition, { kind: 'boolean' }>
-					: NonNullable<P[K]> extends number
-						? Extract<PropertyDefinition, { kind: 'number' }>
-						: NonNullable<P[K]> extends string
-							? string extends NonNullable<P[K]>
-								? Extract<PropertyDefinition, { kind: 'callback' }>
-								: Omit<
-										Extract<PropertyDefinition, { kind: 'choice' }>,
-										'options'
-									> & {
-										readonly options: readonly {
-											readonly value: NonNullable<P[K]>;
-											readonly label: string;
-										}[];
-									}
-							: Extract<PropertyDefinition, { kind: 'callback' }>) &
-		(undefined extends P[K] ? { readonly optional: true } : { readonly optional?: false }) & {
+	readonly [K in keyof DeclaredProperties<P>]-?: FieldDefinition<P[K], K, Expressions, Texts> &
+		OptionalField<P[K]> & {
 			/** Mode selection is descriptive metadata, not authored-code evaluation. */
 			readonly activeWhen?: {
 				readonly property: keyof DeclaredProperties<P>;

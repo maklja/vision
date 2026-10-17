@@ -13,7 +13,11 @@ import type { DeferElementProperties } from '../creationOperators/DeferElement';
 import type { OfElementProperties } from '../creationOperators/OfElement';
 import type { GenerateElementProperties } from '../creationOperators/GenerateElement';
 import type { ThrowErrorElementProperties } from '../creationOperators/ThrowErrorElement';
-import { AjaxElementProperties, ajaxElementPropsTemplate } from '../creationOperators/AjaxElement';
+import {
+	AjaxElementProperties,
+	ajaxElementPropsTemplate,
+	HttpMethod,
+} from '../creationOperators/AjaxElement';
 import { ElementType } from '../element/ElementType';
 import { findElementDescriptor } from '../descriptors/elementDescriptors';
 import { mapToOperatorPropsTemplate } from '../templates/operatorTemplates';
@@ -424,6 +428,9 @@ describe('operator definitions', () => {
 		expectTypeOf<Fields['body']['kind']>().toEqualTypeOf<'text'>();
 		expectTypeOf<Fields['headers']['kind']>().toEqualTypeOf<'pairs'>();
 		expectTypeOf<Fields['queryParams']['kind']>().toEqualTypeOf<'pairs'>();
+		expectTypeOf<Fields['method']['options'][number]['value']>().toEqualTypeOf<HttpMethod>();
+		expectTypeOf<Fields['body']['optional']>().toEqualTypeOf<true>();
+		expectTypeOf<Fields['url']['optional']>().toEqualTypeOf<false | undefined>();
 		expect(ajaxOperatorDefinition.defaults).toBe(ajaxElementPropsTemplate);
 		expect(Object.keys(ajaxOperatorDefinition.defaults).sort()).toEqual(['method', 'url']);
 		expect(ajaxOperatorDefinition.properties.body.format).toBe('json');
