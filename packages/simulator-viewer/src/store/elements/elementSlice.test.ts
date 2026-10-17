@@ -238,3 +238,16 @@ describe('element slice', () => {
 		});
 	});
 });
+
+it('clearing optional count removes its key while explicit zero remains stored', () => {
+	const store = createTestStore();
+	store.getState().addElement(createElement(ElementType.Range, { id: 'range' }));
+	store
+		.getState()
+		.updateElementProperty({ id: 'range', propertyName: 'count', propertyValue: 0 });
+	expect(store.getState().elements.range.properties.count).toBe(0);
+	store
+		.getState()
+		.updateElementProperty({ id: 'range', propertyName: 'count', propertyValue: undefined });
+	expect(store.getState().elements.range.properties).not.toHaveProperty('count');
+});

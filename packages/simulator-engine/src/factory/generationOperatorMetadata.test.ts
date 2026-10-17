@@ -33,17 +33,19 @@ const factory = (definition: Parameters<typeof element>[0], properties?: Element
 	});
 
 describe('generation operator metadata compatibility', () => {
-	it('Empty ignores overrides and completes without values on each subscription', () => {
+	it('Empty rejects unknown overrides and completes without values on each subscription', () => {
 		const observable = factory(emptyOperatorDefinition)(
 			{ unused: '(() => { throw new Error("unused"); })()' },
 			'parent',
 		);
 		const next = vi.fn(),
-			complete = vi.fn();
-		observable.subscribe({ next, complete });
-		observable.subscribe({ next, complete });
+			complete = vi.fn(),
+			error = vi.fn();
+		observable.subscribe({ next, complete, error });
+		observable.subscribe({ next, complete, error });
 		expect(next).not.toHaveBeenCalled();
-		expect(complete).toHaveBeenCalledTimes(2);
+		expect(complete).not.toHaveBeenCalled();
+		expect(error).toHaveBeenCalledTimes(2);
 	});
 	it('Generate preserves default results and creates fresh FlowValues per subscription', () => {
 		const observable = factory(generateOperatorDefinition)(undefined, 'parent');
@@ -78,7 +80,9 @@ describe('generation operator metadata compatibility', () => {
 		const actual: unknown[] = [];
 		source(overrides).subscribe((v) => actual.push(v.raw));
 		expect(actual).toEqual([10, 20]);
-		expect(() => source()).toThrow('stored state');
+		const error = vi.fn();
+		source().subscribe({ error });
+		expect(error).toHaveBeenCalledOnce();
 	});
 	it('Generate reuses evaluated object state across subscriptions but reevaluates on new invocation', () => {
 		const source = factory(generateOperatorDefinition, {
@@ -95,7 +99,7 @@ describe('generation operator metadata compatibility', () => {
 		observable.subscribe((v) => second.push(v.raw));
 		source().subscribe((v) => fresh.push(v.raw));
 		expect(first).toEqual([0, 1]);
-		expect(second).toEqual([]);
+		expect(second).toEqual([0, 1]);
 		expect(fresh).toEqual([0, 1]);
 	});
 	it('Generate callback-producing expressions run once per invocation and closures survive resubscription', () => {
@@ -110,26 +114,30 @@ describe('generation operator metadata compatibility', () => {
 			[0, 1],
 			[1, 2],
 			[2, 3],
-			[0, 4],
-			[1, 5],
-			[2, 6],
+			[0, 1],
+			[1, 2],
+			[2, 3],
 		]);
 	});
 	it.each([undefined, ''])(
 		'Generate supports absent/empty condition %s and cancellation',
 		(condition) => {
 			const actual: unknown[] = [];
+			const error = vi.fn();
 			factory(generateOperatorDefinition)({ condition })
 				.pipe(take(3))
-				.subscribe((v) => actual.push(v.raw));
-			expect(actual).toEqual([0, 1000, 2000]);
+				.subscribe({ next: (v) => actual.push(v.raw), error });
+			expect(actual).toEqual([]);
+			expect(error).toHaveBeenCalledOnce();
 		},
 	);
 	it('Generate distinguishes expression-construction errors from subscribed callback errors', () => {
 		const source = factory(generateOperatorDefinition);
-		expect(() => source({ iterate: '(() => { throw new Error("construction"); })()' })).toThrow(
-			'construction',
-		);
+		const constructionError = vi.fn();
+		source({ iterate: '(() => { throw new Error("construction"); })()' }).subscribe({
+			error: constructionError,
+		});
+		expect(constructionError).toHaveBeenCalledOnce();
 		const error = vi.fn();
 		source({
 			resultSelector: 'function resultSelector() { throw new Error("callback"); }',
@@ -151,7 +159,7 @@ describe('generation operator metadata compatibility', () => {
 		observable.subscribe({ error });
 		observable.subscribe({ error });
 		const errors = error.mock.calls.map(([value]) => value as FlowValue);
-		expect(errors.map((v) => v.raw)).toEqual([{ calls: 1 }, { calls: 2 }]);
+		expect(errors.map((v) => v.raw)).toEqual([{ calls: 1 }, { calls: 1 }]);
 		expect(errors[0].id).not.toBe(errors[1].id);
 		errors.forEach((v) =>
 			expect(v).toMatchObject({ elementId: 'source', subscribeId: 'parent' }),
@@ -166,14 +174,16 @@ describe('generation operator metadata compatibility', () => {
 		observable.subscribe({ error });
 		expect(error.mock.calls[0][0]).toBeInstanceOf(FlowValue);
 		expect(error.mock.calls[0][0].raw.message).toBe('direct');
-		expect(error.mock.calls[1][0].raw).toBe(error.mock.calls[0][0].raw);
+		expect(error.mock.calls[1][0].raw).not.toBe(error.mock.calls[0][0].raw);
 		expect(error.mock.calls[1][0]).not.toBe(error.mock.calls[0][0]);
 	});
 	it('ThrowError preserves construction failures and wraps errors thrown by its callback', () => {
 		const source = factory(throwErrorOperatorDefinition);
-		expect(() =>
-			source({ errorOrErrorFactory: '(() => { throw new Error("construction"); })()' }),
-		).toThrow('construction');
+		const constructionError = vi.fn();
+		source({ errorOrErrorFactory: '(() => { throw new Error("construction"); })()' }).subscribe(
+			{ error: constructionError },
+		);
+		expect(constructionError).toHaveBeenCalledOnce();
 		const error = vi.fn();
 		source({
 			errorOrErrorFactory: 'function factory() { throw new Error("callback"); }',

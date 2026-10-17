@@ -29,7 +29,7 @@ beforeEach(() => {
 	ajaxMock.mockReturnValue(of({ status: 200, response: { answer: 42 } }));
 });
 describe('Ajax metadata compatibility', () => {
-	it('merges overrides, parses JSON and preserves duplicate pair semantics before subscription', () => {
+	it('merges overrides, parses JSON and preserves duplicate pair semantics on subscription', () => {
 		const source = factory({ url: 'stored', method: HttpMethod.Get, body: 'invalid JSON' });
 		expect(ajaxMock).not.toHaveBeenCalled();
 		source({
@@ -47,7 +47,7 @@ describe('Ajax metadata compatibility', () => {
 				['other', 'c'],
 				['tag', 'b'],
 			],
-		});
+		}).subscribe();
 		expect(ajaxMock).toHaveBeenCalledExactlyOnceWith({
 			url: '/local',
 			method: 'POST',
@@ -65,18 +65,18 @@ describe('Ajax metadata compatibility', () => {
 		['', undefined],
 		[undefined, undefined],
 	])('accepts JSON primitive/absent body %s', (body, expected) => {
-		factory()({ body });
+		factory()(body === undefined ? {} : { body }).subscribe();
 		expect(ajaxMock.mock.calls[0][0].body).toBe(expected);
 	});
 	it('rejects authored JavaScript as invalid JSON before calling Ajax', () => {
-		expect(() =>
-			factory()({ body: '(() => { throw new Error("never execute"); })()' }),
-		).toThrow(InvalidElementPropertyValueError);
+		const error = vi.fn();
+		factory()({ body: '(() => { throw new Error("never execute"); })()' }).subscribe({ error });
+		expect(error.mock.calls[0][0]).toBeInstanceOf(InvalidElementPropertyValueError);
 		expect(ajaxMock).not.toHaveBeenCalled();
 	});
 	it('keeps URLs literal and optional request settings absent', () => {
 		const url = '(() => { throw new Error("literal"); })()';
-		factory()({ url });
+		factory()({ url }).subscribe();
 		expect(ajaxMock.mock.calls[0][0]).toEqual({
 			url,
 			method: HttpMethod.Get,

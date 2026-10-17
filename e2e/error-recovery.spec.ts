@@ -18,10 +18,11 @@ interface FlowValueEventPayload {
 	connectLinesId: string[];
 }
 
-interface CreationErrorPayload {
-	sourceElementId: string;
-	targetElementId: string;
-	value: string;
+interface CreationErrorDiagnostic {
+	elementId: string;
+	category: string;
+	phase: string;
+	message: string;
 }
 
 function inboundMessages(probe: WorkerProbeSnapshot, type: string) {
@@ -47,7 +48,6 @@ function captureErrorLogging(page: Page) {
 
 test('recovers from a creation error and runs the sibling pipeline without reloading', async ({
 	page,
-	browserName,
 }) => {
 	const { consoleErrors, pageErrors } = captureErrorLogging(page);
 	await installWorkerProbe(page);
@@ -66,8 +66,13 @@ test('recovers from a creation error and runs the sibling pipeline without reloa
 	);
 	const creationErrors = inboundMessages(failedProbe, 'creationError');
 	expect(creationErrors).toHaveLength(1);
-	expect((creationErrors[0].value as CreationErrorPayload).sourceElementId).toBe(buffer.id);
-	expect((creationErrors[0].value as CreationErrorPayload).value).toContain('buffer');
+	const diagnostic = creationErrors[0].diagnostic as CreationErrorDiagnostic;
+	expect(diagnostic).toMatchObject({
+		elementId: buffer.id,
+		category: 'reference',
+		phase: 'preflight',
+	});
+	expect(diagnostic.message).toContain('references');
 
 	// The worker is torn down and the controls return to the stopped state.
 	expect(failedProbe.terminated).toBeGreaterThanOrEqual(1);
@@ -101,19 +106,10 @@ test('recovers from a creation error and runs the sibling pipeline without reloa
 		.map((event) => event.value);
 	expect(subscriberValues).toEqual(['1', '2', '3', '4']);
 
-	// Across both runs the only reported failure is the creation error, once, through the worker's
-	// uncaught-error path. Any unrelated page error or extra console error fails the journey.
+	// Construction failures are structured diagnostics; they no longer escape as uncaught
+	// Worker errors or dump authored execution data into the browser console.
 	expect(pageErrors).toEqual([]);
-	// Chromium forwards an uncaught error thrown inside a dedicated worker to the page, where the
-	// engine's `error` listener logs it. Firefox and WebKit keep the worker silent, so that listener
-	// never runs there. Recovery itself is engine independent and is asserted above through the
-	// creation-error message, the terminated worker, and the restarted sibling pipeline, so only the
-	// diagnostic log is engine specific.
-	const expectedConsoleErrors =
-		browserName === 'chromium'
-			? [expect.stringContaining('Error is throw by ObservableWorker')]
-			: [];
-	expect(consoleErrors).toEqual(expectedConsoleErrors);
+	expect(consoleErrors).toEqual([]);
 });
 
 test('recovers from a runtime error and runs the sibling pipeline without reloading', async ({
@@ -137,7 +133,7 @@ test('recovers from a runtime error and runs the sibling pipeline without reload
 	expect(errorEvents).toHaveLength(1);
 	expect((errorEvents[0].value as FlowValueEventPayload).sourceElementId).toBe(errorSource.id);
 
-	expect(failedProbe.outbound.map((message) => message.type)).toContain('stopSimulation');
+	expect(failedProbe.outbound.map((message) => message.type)).toEqual(['startSimulation']);
 	expect(failedProbe.terminated).toBeGreaterThanOrEqual(1);
 
 	await selectEntryOperator(page, goodSource);

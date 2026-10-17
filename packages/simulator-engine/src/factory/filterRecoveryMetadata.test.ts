@@ -86,7 +86,7 @@ describe('filter and recovery metadata compatibility', () => {
 		observable.subscribe((v) => first.push(v));
 		observable.subscribe((v) => second.push(v));
 		expect(first).toEqual([source[0], source[2]]);
-		expect(second).toEqual([]);
+		expect(second).toEqual([source[0], source[2]]);
 		expect(first[0]).not.toBe(source[0]);
 		expect(first[0].raw).toBe(source[0].raw);
 	});
@@ -106,14 +106,16 @@ describe('filter and recovery metadata compatibility', () => {
 		expect(actual).toHaveLength(count);
 	});
 	it('Filter preserves expression-construction and predicate-error boundaries', () => {
-		expect(() =>
-			filteringOperatorFactory.create(
+		const constructionError = vi.fn();
+		filteringOperatorFactory
+			.create(
 				element(filterOperatorDefinition, {
 					predicateExpression: '(() => { throw new Error("construction"); })()',
 				}),
 				{ refObservableGenerators: [] },
-			)(EMPTY),
-		).toThrow('construction');
+			)(EMPTY)
+			.subscribe({ error: constructionError });
+		expect(constructionError).toHaveBeenCalledOnce();
 		const error = vi.fn();
 		filteringOperatorFactory
 			.create(
@@ -152,14 +154,14 @@ describe('filter and recovery metadata compatibility', () => {
 		expect(actual[3]).toBe(ref.values[1]);
 		expect(ref.observableGenerator.mock.calls.map(([props]) => props)).toEqual([
 			{ error: failure.raw, calls: 1 },
-			{ error: failure.raw, calls: 2 },
+			{ error: failure.raw, calls: 1 },
 		]);
 		const id = ref.observableGenerator.mock.calls[0][1];
 		expect(id).toEqual(expect.any(String));
-		expect(ref.observableGenerator.mock.calls[1][1]).toBe(id);
-		for (const [event] of ref.props.onSubscribe.mock.calls)
+		expect(ref.observableGenerator.mock.calls[1][1]).not.toBe(id);
+		for (const [index, [event]] of ref.props.onSubscribe.mock.calls.entries())
 			expect(event).toMatchObject({
-				id,
+				id: ref.observableGenerator.mock.calls[index][1],
 				elementId: 'operator',
 				subscribeId: null,
 				dependencies: [failure.id],
@@ -176,9 +178,10 @@ describe('filter and recovery metadata compatibility', () => {
 		expect(ref.observableGenerator).not.toHaveBeenCalled();
 		const original = value(1),
 			observable = factory(of(original));
-		expect(ref.observableGenerator.mock.calls[0][0]).toEqual({ phase: 'construction' });
+		expect(ref.observableGenerator).not.toHaveBeenCalled();
 		const actual: FlowValue[] = [];
 		observable.subscribe((v) => actual.push(v));
+		expect(ref.observableGenerator.mock.calls[0][0]).toEqual({ phase: 'construction' });
 		expect(actual).toEqual([original]);
 		expect(actual[0]).toBe(original);
 		expect(ref.props.onSubscribe).not.toHaveBeenCalled();

@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { ExecutionRun } from '../execution/ExecutionRun';
 import {
 	ConnectLine,
 	ConnectedElement,
@@ -16,7 +17,10 @@ export type CreationObservableFactory = (
 	subscribeId?: string,
 ) => Observable<FlowValue>;
 
-export type PipeObservableFactory = (o: Observable<FlowValue>) => Observable<FlowValue>;
+export type PipeObservableFactory = (
+	o: Observable<FlowValue>,
+	subscriptionId?: string,
+) => Observable<FlowValue>;
 
 export interface ObservableGeneratorProps {
 	readonly observableGenerator: CreationObservableFactory;
@@ -26,6 +30,8 @@ export interface ObservableGeneratorProps {
 }
 
 export interface OperatorProps {
+	readonly run?: ExecutionRun;
+	readonly subscriptionId?: string;
 	readonly refObservableGenerators: readonly ObservableGeneratorProps[];
 }
 

@@ -569,6 +569,12 @@ current operators incrementally and keep package boundaries intact.
 
 ### 4.3 Expression execution and validation
 
+Execution/trust core #134 is implemented for review: per-run context seed, immutable per-subscription
+params, parser preflight, lazy callback evaluation, validated local overrides, session/revision trust,
+Worker heartbeat/watchdog and accessible settings/diagnostics. See [execution policy](EXECUTION_POLICY.md).
+Final lifecycle diagnostic identity/parentage remains #129; typed parameter expressions remain #135.
+Keep #134 open until those integration gates and the relevant three-browser journeys pass.
+
 Implementation owners: [#134](https://github.com/maklja/vision/issues/134) execution/trust and [#135](https://github.com/maklja/vision/issues/135) typed parameters/UX; accepted contract in the Phase 3.3 decision.
 
 The current engine compiles user expressions with `new Function`. Before adding more expression-

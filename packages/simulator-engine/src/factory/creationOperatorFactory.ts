@@ -1,3 +1,5 @@
+import { compileCallback, validateReferences } from './utils';
+import { ExecutionRun } from '../execution/ExecutionRun';
 import { v1 } from 'uuid';
 import {
 	catchError,
@@ -31,11 +33,8 @@ import {
 	GenerateElement,
 	GenerateElementProperties,
 	IifElement,
-	IifElementProperties,
 	IntervalElement,
 	IntervalElementProperties,
-	OBSERVABLE_GENERATOR_NAME,
-	OfElement,
 	ajaxOperatorDefinition,
 	emptyOperatorDefinition,
 	generateOperatorDefinition,
@@ -47,11 +46,9 @@ import {
 	intervalOperatorDefinition,
 	rangeOperatorDefinition,
 	timerOperatorDefinition,
-	OfElementProperties,
 	RangeElement,
 	RangeElementProperties,
 	ThrowErrorElement,
-	ThrowErrorElementProperties,
 	TimerElement,
 	TimerElementProperties,
 } from '@maklja/vision-simulator-model';
@@ -78,7 +75,12 @@ const createFromCreationOperator =
 		};
 
 		if (!fromElProperties.enableObservableEvent) {
-			const inputFn = new Function(`return ${fromElProperties.inputCallbackExpression}`);
+			const inputFn = () =>
+				compileCallback<import('rxjs').ObservableInput<unknown>>(
+					el,
+					props,
+					'inputCallbackExpression',
+				);
 			return from(inputFn()()).pipe(
 				map((item) =>
 					FlowValue.createNextEvent({
@@ -108,10 +110,12 @@ const createFromCreationOperator =
 			subscribeId,
 		);
 
-		const observableRefInvokerFn: () => Observable<FlowValue> = new Function(
-			OBSERVABLE_GENERATOR_NAME,
-			`return ${fromElProperties.observableFactory}`,
-		)(wrappedObservableGenerator);
+		const observableRefInvokerFn: () => Observable<FlowValue> = compileCallback(
+			el,
+			props,
+			'observableFactory',
+			wrappedObservableGenerator,
+		);
 		return defer(() => {
 			refObservableGenerator.onSubscribe?.(
 				FlowValue.createSubscribeEvent({
@@ -125,14 +129,9 @@ const createFromCreationOperator =
 	};
 
 const createOfCreationOperator =
-	(el: Element) => (overrideProperties?: ElementProps, subscribeId?: string) => {
-		const ofEl = el as OfElement;
-		const ofElProperties: OfElementProperties = {
-			...ofEl.properties,
-			...overrideProperties,
-		};
-
-		const argsFn = new Function(`return ${ofElProperties.argsFactoryExpression}`)();
+	(el: Element, props: OperatorProps) =>
+	(overrideProperties?: ElementProps, subscribeId?: string) => {
+		const argsFn = (() => compileCallback(el, props, 'argsFactoryExpression'))();
 		const args = argsFn();
 		const observable = Array.isArray(args) ? of(...args) : of(args);
 		return observable.pipe(
@@ -170,11 +169,7 @@ const createIifCreationOperator =
 	(el: Element, props: OperatorProps) =>
 	(overrideProperties?: ElementProps, parentSubscribeId?: string): Observable<FlowValue> => {
 		const iifEl = el as IifElement;
-		const iifElProps: IifElementProperties = {
-			...iifEl.properties,
-			...overrideProperties,
-		};
-		const conditionFn = new Function(`return ${iifEl.properties.conditionExpression}`);
+		const conditionFn = () => compileCallback<boolean>(el, props, 'conditionExpression');
 
 		const trueRefObservableGenerator = props.refObservableGenerators.find(
 			({ connectPoint }) =>
@@ -205,19 +200,25 @@ const createIifCreationOperator =
 			trueRefObservableGenerator.observableGenerator,
 			subscribeId,
 		);
-		const trueRefInvokerFn: () => Observable<FlowValue> = new Function(
-			OBSERVABLE_GENERATOR_NAME,
-			`return ${iifElProps.trueCallbackExpression}`,
-		)(trueWrappedObservableGenerator);
+		const trueRefInvokerFn: () => Observable<FlowValue> = () =>
+			compileCallback<Observable<FlowValue>>(
+				el,
+				props,
+				'trueCallbackExpression',
+				trueWrappedObservableGenerator,
+			)();
 
 		const falseWrappedObservableGenerator = wrapGeneratorCallback(
 			falseRefObservableGenerator.observableGenerator,
 			subscribeId,
 		);
-		const falseRefInvokerFn: () => Observable<FlowValue> = new Function(
-			OBSERVABLE_GENERATOR_NAME,
-			`return ${iifElProps.falseCallbackExpression}`,
-		)(falseWrappedObservableGenerator);
+		const falseRefInvokerFn: () => Observable<FlowValue> = () =>
+			compileCallback<Observable<FlowValue>>(
+				el,
+				props,
+				'falseCallbackExpression',
+				falseWrappedObservableGenerator,
+			)();
 
 		return iif(
 			conditionFn(),
@@ -345,10 +346,12 @@ const createDeferCreationOperator =
 			refObservableGenerator.observableGenerator,
 			subscribeId,
 		);
-		const observableRefInvokerFn: () => Observable<FlowValue> = new Function(
-			OBSERVABLE_GENERATOR_NAME,
-			`return ${el.properties.observableFactory}`,
-		)(wrappedObservableGenerator);
+		const observableRefInvokerFn: () => Observable<FlowValue> = compileCallback(
+			el,
+			props,
+			'observableFactory',
+			wrappedObservableGenerator,
+		);
 		return defer(() => {
 			refObservableGenerator.onSubscribe?.(
 				FlowValue.createSubscribeEvent({
@@ -362,18 +365,20 @@ const createDeferCreationOperator =
 	};
 
 const createGenerateCreationOperator =
-	(el: Element) =>
+	(el: Element, props: OperatorProps) =>
 	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
 		const generateEl = el as GenerateElement;
 		const generateElProperties: GenerateElementProperties = {
 			...generateEl.properties,
 			...overrideProperties,
 		};
-		const { initialState, iterate, resultSelector, condition } = generateElProperties;
-		const initialStateFn = new Function(`return ${initialState}`);
-		const conditionFn = condition ? new Function(`return ${condition}`) : undefined;
-		const iterateFn = new Function(`return ${iterate}`);
-		const resultSelectorFn = new Function(`return ${resultSelector}`);
+		const { condition } = generateElProperties;
+		const initialStateFn = () => (props.run ?? new ExecutionRun()).evaluate(el, 'initialState');
+		const conditionFn = condition
+			? () => compileCallback<boolean>(el, props, 'condition')
+			: undefined;
+		const iterateFn = () => compileCallback(el, props, 'iterate');
+		const resultSelectorFn = () => compileCallback(el, props, 'resultSelector');
 
 		return generate({
 			initialState: initialStateFn(),
@@ -392,16 +397,11 @@ const createGenerateCreationOperator =
 	};
 
 const createThrowErrorCreationOperator =
-	(el: Element) =>
+	(el: Element, props: OperatorProps) =>
 	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
 		const throwErrorEl = el as ThrowErrorElement;
-		const throwErrorElProperties: ThrowErrorElementProperties = {
-			...throwErrorEl.properties,
-			...overrideProperties,
-		};
-		const errorFactoryFn = new Function(
-			`return ${throwErrorElProperties.errorOrErrorFactory}`,
-		)();
+		const errorValue = (props.run ?? new ExecutionRun()).evaluate(el, 'errorOrErrorFactory');
+		const errorFactoryFn = errorValue;
 
 		return throwError(errorFactoryFn as () => unknown).pipe(
 			catchError((error) => {
@@ -480,7 +480,17 @@ export const creationOperatorFactory: CreationOperatorFactory = {
 			throw new UnsupportedElementTypeError(el.id, el.type, ElementGroup.Creation);
 		}
 
-		return factory(el, props);
+		const run = props.run ?? new ExecutionRun();
+		return (overrides, subscribeId) => {
+			validateReferences(el, props);
+			return defer(() => {
+				const resolved = run.resolve(el, overrides);
+				return factory(resolved, { ...props, run, subscriptionId: subscribeId })(
+					undefined,
+					subscribeId,
+				);
+			});
+		};
 	},
 	isSupported(el: Element): boolean {
 		return supportedOperators.has(el.type);
