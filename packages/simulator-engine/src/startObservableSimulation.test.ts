@@ -243,6 +243,102 @@ describe('startObservableSimulation trusted execution', () => {
 		expect(onDiagnostic.mock.calls[0][0].message).toContain('literal-only');
 		subscription.unsubscribe();
 	});
+	it.each([2, undefined, 10001])(
+		'applies literal fallback limits when Worker construction throws (count: %s)',
+		(count) => {
+			const createWorker = vi.fn(function () {
+				throw new DOMException('Blocked by worker-src', 'SecurityError');
+			});
+			vi.stubGlobal('Worker', createWorker);
+			const onNext = vi.fn(),
+				onComplete = vi.fn(),
+				onCreationError = vi.fn(),
+				onDiagnostic = vi.fn();
+			const subscription = startObservableSimulation({
+				entryElementId: source.id,
+				elements: [
+					element(source.id, ElementType.Range, {
+						start: 0,
+						...(count === undefined ? {} : { count }),
+					}),
+					subscriber,
+				],
+				connectLines,
+				onNext,
+				onComplete,
+				onCreationError,
+				onDiagnostic,
+			});
+			expect(createWorker).toHaveBeenCalledOnce();
+			expect(onDiagnostic.mock.calls[0][0]).toMatchObject({ category: 'transport' });
+			expect(onDiagnostic.mock.calls.some(([d]) => d.category === 'schema')).toBe(false);
+			if (count === 2) {
+				expect(onNext).toHaveBeenCalledTimes(2);
+				expect(onComplete).toHaveBeenCalledOnce();
+				expect(onCreationError).not.toHaveBeenCalled();
+				expect(onDiagnostic).toHaveBeenLastCalledWith(
+					expect.objectContaining({
+						category: 'policy',
+						message: expect.stringContaining('literal-only'),
+					}),
+				);
+			} else {
+				expect(onNext).not.toHaveBeenCalled();
+				expect(onCreationError).toHaveBeenCalledOnce();
+				expect(onDiagnostic).toHaveBeenLastCalledWith(
+					expect.objectContaining({
+						category: 'policy',
+						message: expect.stringContaining('explicit Range count'),
+					}),
+				);
+			}
+			subscription.unsubscribe();
+			expect(vi.getTimerCount()).toBe(0);
+		},
+	);
+
+	it.each(['code', 'context', 'network'])(
+		'never falls back to the main thread for %s when Worker construction throws',
+		(kind) => {
+			vi.stubGlobal(
+				'Worker',
+				vi.fn(function () {
+					throw new DOMException('Blocked by worker-src', 'SecurityError');
+				}),
+			);
+			const start = vi.spyOn(ObservableSimulation.prototype, 'start');
+			const onDiagnostic = vi.fn(),
+				onCreationError = vi.fn();
+			startObservableSimulation({
+				entryElementId: source.id,
+				elements: [
+					kind === 'code'
+						? source
+						: element(
+								source.id,
+								kind === 'network' ? ElementType.Ajax : ElementType.Range,
+								kind === 'network' ? {} : { start: 0, count: 2 },
+							),
+					subscriber,
+				],
+				connectLines,
+				trusted: true,
+				contextSeed: kind === 'context' ? { seen: 0 } : {},
+				onDiagnostic,
+				onCreationError,
+			});
+			expect(start).not.toHaveBeenCalled();
+			expect(onCreationError).toHaveBeenCalledOnce();
+			expect(onDiagnostic.mock.calls[0][0]).toMatchObject({ category: 'transport' });
+			expect(onDiagnostic).toHaveBeenLastCalledWith(
+				expect.objectContaining({
+					category: 'policy',
+					message: expect.stringContaining('A Worker is required'),
+				}),
+			);
+			expect(vi.getTimerCount()).toBe(0);
+		},
+	);
 	it.each([true, false])(
 		'attributes host graph errors to the disconnected downstream element (Worker: %s)',
 		(workerAvailable) => {

@@ -112,7 +112,25 @@ export function startObservableSimulation(
 			);
 			return { unsubscribe: stop };
 		}
-		if (typeof Worker === 'undefined') {
+		if (typeof Worker !== 'undefined') {
+			try {
+				worker = new Worker(new URL('./observableSimulationWorker.ts', import.meta.url), {
+					name: 'ObservableWorker',
+					type: 'module',
+				});
+			} catch {
+				// CSP and deployment restrictions can make an exposed Worker API unusable.
+				// Apply the same fallback admission checks as when the API is absent.
+				report({
+					category: 'transport',
+					phase: 'host',
+					runId,
+					message:
+						'Worker construction failed; treating Worker execution as unavailable.',
+				});
+			}
+		}
+		if (!worker) {
 			if (unsafe) {
 				failure('policy', 'A Worker is required for code, context and network execution.');
 				return { unsubscribe: stop };
@@ -160,10 +178,6 @@ export function startObservableSimulation(
 				},
 			};
 		}
-		worker = new Worker(new URL('./observableSimulationWorker.ts', import.meta.url), {
-			name: 'ObservableWorker',
-			type: 'module',
-		});
 		let heartbeat = Date.now();
 		worker.addEventListener(
 			'message',
