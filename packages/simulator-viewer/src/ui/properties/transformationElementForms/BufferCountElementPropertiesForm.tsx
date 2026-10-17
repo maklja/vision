@@ -1,6 +1,9 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { BufferCountElementProperties } from '@maklja/vision-simulator-model';
+import {
+	BufferCountElementProperties,
+	bufferCountOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { handleNumberInputChanged } from '../utils';
 
@@ -23,7 +26,7 @@ export function BufferCountElementPropertiesForm({
 		>
 			<TextField
 				id="buffer-count-el-buffer-size-prop"
-				label="Buffer size"
+				label={bufferCountOperatorDefinition.properties.bufferSize.label}
 				value={properties.bufferSize}
 				type="number"
 				size="small"
@@ -42,7 +45,7 @@ export function BufferCountElementPropertiesForm({
 
 			<TextField
 				id="buffer-count-el-start-buffer-every-prop"
-				label="Start buffer every"
+				label={bufferCountOperatorDefinition.properties.startBufferEvery.label}
 				value={properties.startBufferEvery}
 				type="number"
 				size="small"

@@ -1,6 +1,9 @@
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { BufferTimeElementProperties } from '@maklja/vision-simulator-model';
+import {
+	BufferTimeElementProperties,
+	bufferTimeOperatorDefinition,
+} from '@maklja/vision-simulator-model';
 import { formStyle } from '../commonStyles';
 import { handleNumberInputChanged, handleOptionalNumberInputChanged } from '../utils';
 
@@ -23,7 +26,7 @@ export function BufferTimeElementPropertiesForm({
 		>
 			<TextField
 				id="buffer-time-el-buffer-time-span-prop"
-				label="Buffer time span"
+				label={bufferTimeOperatorDefinition.properties.bufferTimeSpan.label}
 				value={properties.bufferTimeSpan}
 				type="number"
 				size="small"
@@ -42,7 +45,7 @@ export function BufferTimeElementPropertiesForm({
 
 			<TextField
 				id="buffer-time-el-buffer-creation-interval-prop"
-				label="Buffer creation interval"
+				label={bufferTimeOperatorDefinition.properties.bufferCreationInterval.label}
 				value={properties.bufferCreationInterval}
 				type="number"
 				size="small"
@@ -62,7 +65,7 @@ export function BufferTimeElementPropertiesForm({
 
 			<TextField
 				id="buffer-time-el-max-buffer-size-prop"
-				label="Max buffer size"
+				label={bufferTimeOperatorDefinition.properties.maxBufferSize.label}
 				value={properties.maxBufferSize}
 				type="number"
 				size="small"

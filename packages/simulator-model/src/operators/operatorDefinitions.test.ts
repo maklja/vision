@@ -18,6 +18,11 @@ import {
 	exhaustMapOperatorDefinition,
 	expandOperatorDefinition,
 	mergeMapOperatorDefinition,
+	bufferOperatorDefinition,
+	bufferCountOperatorDefinition,
+	bufferTimeOperatorDefinition,
+	bufferToggleOperatorDefinition,
+	bufferWhenOperatorDefinition,
 	findOperatorDefinition,
 	iifOperatorDefinition,
 	deferOperatorDefinition,
@@ -220,6 +225,45 @@ describe('operator definitions', () => {
 		expect(definition.defaults).not.toHaveProperty('concurrent');
 		if ('concurrent' in definition.properties)
 			expect(definition.properties.concurrent.optional).toBe(true);
+	});
+
+	it.each([
+		bufferOperatorDefinition,
+		bufferCountOperatorDefinition,
+		bufferTimeOperatorDefinition,
+		bufferToggleOperatorDefinition,
+		bufferWhenOperatorDefinition,
+	])('describes $name value flow and notifier ports', (definition) => {
+		expect(mapTransformationOperatorTemplates(definition.type)).toBe(definition.defaults);
+		const notifier =
+			definition.type === ElementType.Buffer ||
+			definition.type === ElementType.BufferWhen ||
+			definition.type === ElementType.BufferToggle;
+		expect(definition.referencePorts).toEqual(notifier ? ['event'] : []);
+		expect(definition.ports.event?.cardinality).toBe(
+			definition.type === ElementType.BufferToggle ? 2 : notifier ? 1 : undefined,
+		);
+	});
+	it('keeps propertyless Buffer and optional BufferTime fields distinct', () => {
+		expect(bufferOperatorDefinition.properties).toEqual({});
+		expect(bufferOperatorDefinition.defaults).toEqual({});
+		expect(bufferCountOperatorDefinition.defaults).toEqual({
+			bufferSize: 3,
+			startBufferEvery: 2,
+		});
+		expect(bufferTimeOperatorDefinition.defaults).toEqual({ bufferTimeSpan: 100 });
+		expect(bufferTimeOperatorDefinition.properties.bufferCreationInterval.optional).toBe(true);
+		expect(bufferTimeOperatorDefinition.properties.maxBufferSize.optional).toBe(true);
+		expect(
+			bufferToggleOperatorDefinition.properties.closingSelectorExpression.signature.arguments,
+		).toEqual([{ name: 'value', type: 'unknown (raw opening value)' }]);
+		expect(
+			bufferWhenOperatorDefinition.properties.closingSelectorExpression.signature.arguments,
+		).toEqual([]);
+		for (const definition of [bufferToggleOperatorDefinition, bufferWhenOperatorDefinition])
+			expect(definition.properties.closingSelectorExpression.signature.helpers).toEqual([
+				'createObservable',
+			]);
 	});
 
 	it('reports missing metadata explicitly without disabling legacy operators', () => {
