@@ -423,6 +423,68 @@ describe('startObservableSimulation trusted execution', () => {
 		expect(worker.terminate).toHaveBeenCalledOnce();
 		expect(vi.getTimerCount()).toBe(0);
 	});
+	it('caps diagnostic deliveries at 99 details and one summary per run', () => {
+		const onDiagnostic = vi.fn(),
+			onNext = vi.fn(),
+			onComplete = vi.fn();
+		launch({ onDiagnostic, onNext, onComplete });
+		const worker = FakeWorker.instances.at(-1)!;
+		const { runId } = worker.postMessage.mock.calls[0][0] as { runId: string };
+		const report = () =>
+			worker.dispatch('message', {
+				data: {
+					type: ObservableSimulationMessageType.Diagnostic,
+					runId,
+					diagnostic: {
+						category: 'invocation',
+						phase: 'callback',
+						runId,
+						elementId: 'map',
+						field: 'projectExpression',
+						message: 'Callback exception',
+					},
+				},
+			});
+		for (let i = 0; i < 99; i++) report();
+		expect(onDiagnostic).toHaveBeenCalledTimes(99);
+		expect(onDiagnostic.mock.calls.every(([d]) => d.category === 'invocation')).toBe(true);
+		report();
+		expect(onDiagnostic).toHaveBeenLastCalledWith(
+			expect.objectContaining({
+				category: 'policy',
+				omittedCount: 1,
+				message: expect.stringContaining('additional diagnostics are suppressed'),
+			}),
+		);
+		for (let i = 0; i < 1000; i++) report();
+		expect(onDiagnostic).toHaveBeenCalledTimes(100);
+		send(ObservableSimulationMessageType.Next, nextEvent);
+		send(ObservableSimulationMessageType.Complete);
+		expect(onNext).toHaveBeenCalledExactlyOnceWith(nextEvent);
+		expect(onComplete).toHaveBeenCalledOnce();
+		expect(worker.terminate).toHaveBeenCalledOnce();
+
+		// A new run receives its own diagnostic budget.
+		launch({ onDiagnostic });
+		onDiagnostic.mockClear();
+		const nextWorker = FakeWorker.instances.at(-1)!;
+		const nextRun = nextWorker.postMessage.mock.calls[0][0] as { runId: string };
+		nextWorker.dispatch('message', {
+			data: {
+				type: ObservableSimulationMessageType.Diagnostic,
+				runId: nextRun.runId,
+				diagnostic: { category: 'invocation', phase: 'callback', message: 'New run' },
+			},
+		});
+		expect(onDiagnostic).toHaveBeenCalledExactlyOnceWith(
+			expect.objectContaining({
+				category: 'invocation',
+				runId: nextRun.runId,
+				message: 'New run',
+			}),
+		);
+		send(ObservableSimulationMessageType.Complete);
+	});
 	it('terminates a hung Worker after the default five seconds', () => {
 		const onDiagnostic = vi.fn(),
 			onCreationError = vi.fn();

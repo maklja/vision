@@ -50,7 +50,6 @@ export function startObservableSimulation(
 	let worker: Worker | undefined;
 	let timer: ReturnType<typeof setInterval> | undefined;
 	let retained = 0;
-	let omitted = 0;
 	const stop = () => {
 		active = false;
 		clearInterval(timer);
@@ -65,14 +64,17 @@ export function startObservableSimulation(
 				runId,
 				message: diagnostic.message.slice(0, 2048),
 			});
-		} else {
-			omitted++;
+		} else if (retained === 99) {
+			// Deliver the summary once; repeated recoverable errors must not keep
+			// triggering UI updates after the per-run retention limit is reached.
+			retained++;
 			options.onDiagnostic?.({
 				category: 'policy',
 				phase: 'host',
 				runId,
-				omittedCount: omitted,
-				message: `${omitted} additional diagnostics omitted (100 record limit).`,
+				omittedCount: 1,
+				message:
+					'Diagnostic limit reached; additional diagnostics are suppressed (100 record limit).',
 			});
 		}
 	};
