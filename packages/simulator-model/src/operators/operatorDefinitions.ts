@@ -1,4 +1,9 @@
 import {
+	AjaxElementProperties,
+	ajaxElementPropsTemplate,
+	HttpMethod,
+} from '../creationOperators/AjaxElement';
+import {
 	FilterElementProperties,
 	filterElementPropsTemplate,
 } from '../filterOperators/FilterElement';
@@ -76,6 +81,7 @@ import {
 } from '../creationOperators/ThrowErrorElement';
 import { OfElementProperties, ofElementPropsTemplate } from '../creationOperators/OfElement';
 import {
+	subscriberElementDescriptor,
 	creationElementDescriptor,
 	iifElementDescriptor,
 	deferElementDescriptor,
@@ -103,6 +109,92 @@ const codeExport = {
 	status: 'deferred',
 	reason: 'Readable RxJS serializers are tracked in #136.',
 } as const;
+
+export const ajaxOperatorDefinition = {
+	type: ElementType.Ajax,
+	name: 'ajax',
+	category: ElementGroup.Creation,
+	documentationUrl: 'https://rxjs.dev/api/ajax/ajax',
+	status: 'supported',
+	defaults: ajaxElementPropsTemplate,
+	properties: {
+		url: {
+			kind: 'text',
+			label: 'Url',
+			semantics:
+				'Literal request URL; never evaluated as JavaScript. Forwarded after invocation overrides.',
+		},
+		method: {
+			kind: 'choice',
+			label: 'Method',
+			options: Object.values(HttpMethod).map((value) => ({ value, label: value })),
+			semantics: 'HTTP method forwarded unchanged to RxJS Ajax.',
+		},
+		body: {
+			kind: 'text',
+			optional: true,
+			label: 'Body',
+			format: 'json',
+			semantics:
+				'Truthy text is parsed with JSON.parse at factory invocation after overrides, before subscription. JSON primitives are accepted. Empty or omitted text supplies undefined; invalid JSON throws InvalidElementPropertyValueError for body before Ajax is called.',
+		},
+		headers: {
+			kind: 'pairs',
+			optional: true,
+			label: 'Headers',
+			semantics:
+				'Ordered string pairs reduced to an object. The last exact duplicate key wins; metadata does not normalize names.',
+		},
+		queryParams: {
+			kind: 'pairs',
+			optional: true,
+			label: 'Query parameters',
+			semantics:
+				'Ordered string pairs grouped by key into strings or arrays. RxJS 7.8 serializes record arrays as comma-separated values through URLSearchParams; these are not repeated wire keys.',
+		},
+		timeout: {
+			kind: 'number',
+			optional: true,
+			label: 'Timeout',
+			semantics:
+				'Forwarded unchanged in milliseconds; the form displays zero when absent without adding a stored default.',
+		},
+		responseType: {
+			kind: 'choice',
+			optional: true,
+			label: 'Response type',
+			options: [
+				{ value: 'arraybuffer', label: 'Array buffer' },
+				{ value: 'blob', label: 'Blob' },
+				{ value: 'document', label: 'Document' },
+				{ value: 'json', label: 'JSON' },
+				{ value: 'text', label: 'Text' },
+			],
+			semantics:
+				'Forwarded unchanged, including an existing empty string. The form offers five response types and displays JSON when absent; this does not add a stored default.',
+		},
+	},
+	ports: creationElementDescriptor,
+	referencePorts: ['input'],
+	example:
+		'Ajax -> Map -> Subscriber: project response.status and response.response. Each complete AjaxResponse is wrapped in a fresh source FlowValue with the supplied subscription ID. Requests begin on subscription; errors remain RxJS errors at the factory boundary.',
+	codeExport,
+} as const satisfies OperatorDefinition<AjaxElementProperties, never, 'url' | 'body'>;
+
+export const subscriberOperatorDefinition = {
+	type: ElementType.Subscriber,
+	name: 'subscriber',
+	category: ElementGroup.Subscriber,
+	documentationUrl: 'https://rxjs.dev/api/index/class/Observable',
+	status: 'supported',
+	defaults: {},
+	properties: {},
+	ports: subscriberElementDescriptor,
+	referencePorts: [],
+	example:
+		'Terminal sink with one value input and no output, event reference or property form. The graph terminates here; no RxJS creation or pipe factory is registered.',
+	codeExport,
+} as const satisfies OperatorDefinition<ElementProps>;
 
 export const emptyOperatorDefinition = {
 	type: ElementType.Empty,
@@ -893,8 +985,10 @@ export const catchErrorOperatorDefinition = {
 	codeExport,
 } as const satisfies OperatorDefinition<CatchErrorElementProperties>;
 
-/** Only migrated operators belong here. Absence must not be interpreted as unsupported execution. */
+/** Current operator inventory. Internal Result and ConnectPoint elements are intentionally excluded. */
 export const operatorDefinitions = {
+	[ElementType.Ajax]: ajaxOperatorDefinition,
+	[ElementType.Subscriber]: subscriberOperatorDefinition,
 	[ElementType.Empty]: emptyOperatorDefinition,
 	[ElementType.Generate]: generateOperatorDefinition,
 	[ElementType.ThrowError]: throwErrorOperatorDefinition,

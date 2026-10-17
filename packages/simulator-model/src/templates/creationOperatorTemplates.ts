@@ -1,4 +1,5 @@
 import {
+	ajaxOperatorDefinition,
 	emptyOperatorDefinition,
 	generateOperatorDefinition,
 	throwErrorOperatorDefinition,
@@ -10,7 +11,6 @@ import {
 	rangeOperatorDefinition,
 	timerOperatorDefinition,
 } from '../operators/operatorDefinitions';
-import { ajaxElementPropsTemplate } from '../creationOperators';
 import { ElementProps, ElementType } from '../element';
 
 export function mapToCreationOperatorPropsTemplates(elType: ElementType): ElementProps {
@@ -18,7 +18,7 @@ export function mapToCreationOperatorPropsTemplates(elType: ElementType): Elemen
 		case ElementType.Empty:
 			return emptyOperatorDefinition.defaults;
 		case ElementType.Ajax:
-			return ajaxElementPropsTemplate;
+			return ajaxOperatorDefinition.defaults;
 		case ElementType.Defer:
 			return deferOperatorDefinition.defaults;
 		case ElementType.From:

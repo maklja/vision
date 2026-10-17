@@ -1,3 +1,4 @@
+import { subscriberOperatorDefinition } from '../operators/operatorDefinitions';
 import { ElementGroup, ElementProps, ElementType, mapElementTypeToGroup } from '../element';
 import { mapToCreationOperatorPropsTemplates } from './creationOperatorTemplates';
 import { mapErrorHandlingOperatorPropsTemplates } from './errorHandlerOperatorTemplates';
@@ -8,6 +9,8 @@ import { mapTransformationOperatorTemplates } from './transformationOperatorTemp
 export function mapToOperatorPropsTemplate(elType: ElementType): ElementProps {
 	const elementGroup = mapElementTypeToGroup(elType);
 	switch (elementGroup) {
+		case ElementGroup.Subscriber:
+			return subscriberOperatorDefinition.defaults;
 		case ElementGroup.JoinCreation:
 			return mapToJoinCreationOperatorPropsTemplates(elType);
 		case ElementGroup.Creation:

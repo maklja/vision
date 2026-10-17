@@ -12,6 +12,13 @@ export interface CallbackSignature {
 
 export type PropertyDefinition =
 	| {
+			readonly kind: 'text';
+			readonly label: string;
+			readonly semantics: string;
+			readonly format?: 'json';
+	  }
+	| { readonly kind: 'pairs'; readonly label: string; readonly semantics: string }
+	| {
 			readonly kind: 'expression';
 			readonly label: string;
 			readonly returns: string;
@@ -39,28 +46,39 @@ type DeclaredProperties<P> = {
 	[K in keyof P as string extends K ? never : number extends K ? never : K]: P[K];
 };
 
-/** Only stored strings can be declared as authored expressions instead of callbacks. */
-type ExpressionPropertyKeys<P> = {
+/** Stored strings can be explicitly declared as expressions or literal text instead of callbacks. */
+type StringPropertyKeys<P> = {
 	[K in keyof DeclaredProperties<P>]-?: NonNullable<P[K]> extends string ? K : never;
 }[keyof DeclaredProperties<P>];
 
-type PropertyDefinitions<P, Expressions extends ExpressionPropertyKeys<P>> = {
+type PropertyDefinitions<
+	P,
+	Expressions extends StringPropertyKeys<P>,
+	Texts extends Exclude<StringPropertyKeys<P>, Expressions>,
+> = {
 	readonly [K in keyof DeclaredProperties<P>]-?: (K extends Expressions
 		? Extract<PropertyDefinition, { kind: 'expression' }>
-		: NonNullable<P[K]> extends boolean
-			? Extract<PropertyDefinition, { kind: 'boolean' }>
-			: NonNullable<P[K]> extends number
-				? Extract<PropertyDefinition, { kind: 'number' }>
-				: NonNullable<P[K]> extends string
-					? string extends NonNullable<P[K]>
-						? Extract<PropertyDefinition, { kind: 'callback' }>
-						: Omit<Extract<PropertyDefinition, { kind: 'choice' }>, 'options'> & {
-								readonly options: readonly {
-									readonly value: NonNullable<P[K]>;
-									readonly label: string;
-								}[];
-							}
-					: Extract<PropertyDefinition, { kind: 'callback' }>) &
+		: K extends Texts
+			? Extract<PropertyDefinition, { kind: 'text' }>
+			: NonNullable<P[K]> extends readonly (readonly [string, string])[]
+				? Extract<PropertyDefinition, { kind: 'pairs' }>
+				: NonNullable<P[K]> extends boolean
+					? Extract<PropertyDefinition, { kind: 'boolean' }>
+					: NonNullable<P[K]> extends number
+						? Extract<PropertyDefinition, { kind: 'number' }>
+						: NonNullable<P[K]> extends string
+							? string extends NonNullable<P[K]>
+								? Extract<PropertyDefinition, { kind: 'callback' }>
+								: Omit<
+										Extract<PropertyDefinition, { kind: 'choice' }>,
+										'options'
+									> & {
+										readonly options: readonly {
+											readonly value: NonNullable<P[K]>;
+											readonly label: string;
+										}[];
+									}
+							: Extract<PropertyDefinition, { kind: 'callback' }>) &
 		(undefined extends P[K] ? { readonly optional: true } : { readonly optional?: false }) & {
 			/** Mode selection is descriptive metadata, not authored-code evaluation. */
 			readonly activeWhen?: {
@@ -74,14 +92,18 @@ type PropertyDefinitions<P, Expressions extends ExpressionPropertyKeys<P>> = {
  * Static metadata only. Runtime factories and React registrations remain in their owning packages.
  * Definitions describe current adapters; they are not a validator, compiler or plugin API.
  */
-export interface OperatorDefinition<P, Expressions extends ExpressionPropertyKeys<P> = never> {
+export interface OperatorDefinition<
+	P,
+	Expressions extends StringPropertyKeys<P> = never,
+	Texts extends Exclude<StringPropertyKeys<P>, Expressions> = never,
+> {
 	readonly type: ElementType;
 	readonly name: string;
 	readonly category: ElementGroup;
 	readonly documentationUrl: string;
 	readonly status: 'supported';
 	readonly defaults: P;
-	readonly properties: PropertyDefinitions<P, Expressions>;
+	readonly properties: PropertyDefinitions<P, Expressions, Texts>;
 	readonly ports: ElementDescriptor;
 	/** Only operators with property-dependent ports need a resolver. Defaults still use ports. */
 	readonly resolvePorts?: (properties: P) => ElementDescriptor;
