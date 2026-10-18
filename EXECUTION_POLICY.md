@@ -59,13 +59,14 @@ Acorn parses source during host preflight without evaluating callback-producing 
 happens after approval inside a fresh Worker. Function shape and ObservableInput results are checked;
 callback exceptions remain RxJS errors and can be caught by CatchError. Diagnostics distinguish
 schema, syntax/shape/result, invocation, references, transport, policy and watchdog failure, with run,
-element, field and existing subscription identity where available. Full lifecycle identity/parentage
-is the #129 integration gate. Diagnostics never dump source, context or params.
+element, field and the actual graph subscription occurrence where available.
+[Protocol v1](FLOW_EVENT_PROTOCOL.md) defines lifecycle identity and parentage. Diagnostics never dump source, context or params.
 
 Worker control heartbeat is independent of source notifications, every 250 ms. The host kills a
 Worker after five seconds without a heartbeat by default; the visible setting accepts 1–60 seconds.
 Silent asynchronous sources remain valid. Browser background throttling may cause conservative
-cancellation. Stop and restart ignore stale messages and terminate old Workers. Forced termination
+cancellation. Stop and restart ignore stale values immediately. Responsive Workers acknowledge real teardown;
+the host terminates after acknowledgement or a maximum 100 ms wait. Forced termination
 cannot guarantee authored cleanup or undo already dispatched network requests.
 
 Without a Worker, code, network and context execution fail visibly; only validated literal graphs

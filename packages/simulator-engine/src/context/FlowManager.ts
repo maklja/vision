@@ -18,14 +18,9 @@ export class FlowValue<T = unknown> {
 	}
 
 	copy(raw: T) {
-		return new FlowValue(
-			raw,
-			this.elementId,
-			this.type,
-			this.id,
-			this.subscribeId,
-			this.dependencies,
-		);
+		return new FlowValue(raw, this.elementId, this.type, this.id, this.subscribeId, [
+			...new Set(this.dependencies),
+		]);
 	}
 
 	static createSubscribeEvent({
@@ -39,14 +34,9 @@ export class FlowValue<T = unknown> {
 		subscribeId?: string | null;
 		dependencies?: string[];
 	}) {
-		return new FlowValue(
-			null,
-			elementId,
-			FlowValueType.Subscribe,
-			id,
-			subscribeId,
-			dependencies,
-		);
+		return new FlowValue(null, elementId, FlowValueType.Subscribe, id, subscribeId, [
+			...new Set(dependencies),
+		]);
 	}
 
 	static createNextEvent({
@@ -60,7 +50,9 @@ export class FlowValue<T = unknown> {
 		subscribeId?: string;
 		dependencies?: string[];
 	}) {
-		return new FlowValue(value, elementId, FlowValueType.Next, v1(), subscribeId, dependencies);
+		return new FlowValue(value, elementId, FlowValueType.Next, v1(), subscribeId, [
+			...new Set(dependencies),
+		]);
 	}
 
 	static createErrorEvent(error: unknown, elementId: string, subscribeId?: string) {
@@ -82,11 +74,11 @@ export interface FlowValueEvent {
 }
 
 export interface FlowManager {
-	handleNextEvent(value: FlowValue, cl: ConnectLine): void;
+	handleNextEvent(value: FlowValue, cl: ConnectLine, subscriptionId?: string): void;
 
-	handleError(error: FlowValue, cl: ConnectLine): void;
+	handleError(error: FlowValue, cl: ConnectLine, subscriptionId?: string): void;
 
-	handleFatalError(error: FlowValue, cl: ConnectLine): void;
+	handleFatalError(error: FlowValue, cl: ConnectLine, subscriptionId?: string): void;
 
 	handleComplete(): void;
 

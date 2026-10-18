@@ -1,23 +1,28 @@
-import { Observable, ReplaySubject } from 'rxjs';
+import type { FlowTrace } from '../trace/FlowTrace';
+import { Observable, Subject } from 'rxjs';
 import { ConnectLine, isErrorHandlerType, isSubscriberType } from '@maklja/vision-simulator-model';
 import { FlowManager, FlowValue, FlowValueEvent, SimulationModel } from '../context';
 
 export class DefaultFlowManager implements FlowManager {
 	private eventIndex = 0;
-	private readonly eventObserver = new ReplaySubject<FlowValueEvent>(10_000);
+	private readonly eventObserver = new Subject<FlowValueEvent>();
 	private readonly connectLinesPath: Map<string, ConnectLine[]> = new Map();
 
-	constructor(private readonly simulationModel: SimulationModel) {}
+	constructor(
+		private readonly simulationModel: SimulationModel,
+		private readonly trace?: FlowTrace,
+	) {}
 
 	asObservable(): Observable<FlowValueEvent> {
 		return this.eventObserver.asObservable();
 	}
 
-	handleNextEvent(value: FlowValue, cl: ConnectLine): void {
+	handleNextEvent(value: FlowValue, cl: ConnectLine, subscriptionId?: string): void {
+		const pathKey = JSON.stringify([subscriptionId ?? value.subscribeId, value.id]);
 		const { target } = cl;
 		const targetEl = this.simulationModel.getElement(target.id);
 
-		const cls = this.retrieveFlowValuePath(value.id);
+		const cls = this.retrieveFlowValuePath(pathKey);
 		cls.push(cl);
 
 		if (isErrorHandlerType(targetEl.type)) {
@@ -26,7 +31,16 @@ export class DefaultFlowManager implements FlowManager {
 
 		const firstConnectLine = cls[0];
 		const lastConnectLine = cls[cls.length - 1];
-		this.connectLinesPath.delete(value.id);
+		this.connectLinesPath.delete(pathKey);
+		if (subscriptionId)
+			this.trace?.notification(
+				subscriptionId,
+				value,
+				cls.map((line) => line.id),
+				false,
+				firstConnectLine.source.id,
+				lastConnectLine.target.id,
+			);
 		this.eventObserver.next({
 			id: value.id,
 			subscribeId: value.subscribeId,
@@ -41,11 +55,18 @@ export class DefaultFlowManager implements FlowManager {
 		});
 	}
 
-	handleError(value: FlowValue, cl: ConnectLine): void {
+	handleError(value: FlowValue, cl: ConnectLine, subscriptionId?: string): void {
+		const pathKey = JSON.stringify([subscriptionId ?? value.subscribeId, value.id]);
 		const { target } = cl;
 		const targetEl = this.simulationModel.getElement(target.id);
-		const cls = this.retrieveFlowValuePath(value.id);
+		const cls = this.retrieveFlowValuePath(pathKey);
 		cls.push(cl);
+		if (subscriptionId)
+			this.trace?.noteError(
+				subscriptionId,
+				value,
+				cls.map((line) => line.id),
+			);
 
 		if (!isErrorHandlerType(targetEl.type) && !isSubscriberType(targetEl.type)) {
 			return;
@@ -53,7 +74,7 @@ export class DefaultFlowManager implements FlowManager {
 
 		const firstConnectLine = cls[0];
 		const lastConnectLine = cls[cls.length - 1];
-		this.connectLinesPath.delete(value.id);
+		this.connectLinesPath.delete(pathKey);
 		this.eventObserver.next({
 			id: value.id,
 			subscribeId: value.subscribeId,
@@ -68,13 +89,20 @@ export class DefaultFlowManager implements FlowManager {
 		});
 	}
 
-	handleFatalError(value: FlowValue, cl: ConnectLine): void {
-		const cls = this.retrieveFlowValuePath(value.id);
+	handleFatalError(value: FlowValue, cl: ConnectLine, subscriptionId?: string): void {
+		const pathKey = JSON.stringify([subscriptionId ?? value.subscribeId, value.id]);
+		const cls = this.retrieveFlowValuePath(pathKey);
 		cls.push(cl);
+		if (subscriptionId)
+			this.trace?.noteError(
+				subscriptionId,
+				value,
+				cls.map((line) => line.id),
+			);
 
 		const firstConnectLine = cls[0];
 		const lastConnectLine = cls[cls.length - 1];
-		this.connectLinesPath.delete(value.id);
+		this.connectLinesPath.delete(pathKey);
 		this.eventObserver.error({
 			id: value.id,
 			subscribeId: value.subscribeId,
@@ -89,7 +117,14 @@ export class DefaultFlowManager implements FlowManager {
 		});
 	}
 
+	releaseOccurrence(subscriptionId: string) {
+		for (const key of this.connectLinesPath.keys()) {
+			if (JSON.parse(key)[0] === subscriptionId) this.connectLinesPath.delete(key);
+		}
+	}
+
 	handleComplete() {
+		this.connectLinesPath.clear();
 		this.eventObserver.complete();
 	}
 

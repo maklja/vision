@@ -33,7 +33,13 @@ export const filteringOperatorFactory: PipeOperatorFactory = {
 		const run = props.run ?? new ExecutionRun();
 		return (source, subscriptionId) => {
 			validateReferences(el, props);
-			return defer(() => factory(run.resolve(el), { ...props, run, subscriptionId })(source));
+			return defer(() =>
+				factory(run.resolve(el, undefined, subscriptionId), {
+					...props,
+					run,
+					subscriptionId,
+				})(source),
+			);
 		};
 	},
 	isSupported(el: Element): boolean {

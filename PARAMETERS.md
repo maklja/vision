@@ -68,7 +68,7 @@ syntax/literal validation is pending or failing. Disconnected saved parameters d
 graph. A visible invalid or pending editor draft blocks Run until corrected or dismissed.
 Expressions' dynamic return values are checked on subscription, with element/field diagnostics;
 these failures remain catchable by RxJS recovery operators. Final subscription parentage/correlation
-is still tracked by #129.
+uses the graph subscription occurrences defined in [protocol v1](FLOW_EVENT_PROTOCOL.md).
 
 Limits are 64 KiB UTF-8 per expression, 1 MiB per seed/invocation snapshot and JSON depth 64, checked
 before Worker dispatch. Runtime expression results are checked again without coercion. Diagnostic

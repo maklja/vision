@@ -1,3 +1,4 @@
+import { FlowTrace, TraceInvocation } from '../trace/FlowTrace';
 import { validateReferences } from './utils';
 import { ExecutionRun } from '../execution/ExecutionRun';
 import { defer, catchError, Observable, ObservableInput, tap } from 'rxjs';
@@ -5,7 +6,6 @@ import {
 	ConnectLine,
 	Element,
 	ElementProps,
-	FlowValueType,
 	isCreationOperatorType,
 	isEntryOperatorType,
 	isJoinCreationOperatorType,
@@ -46,6 +46,7 @@ export class ObservableFactory {
 		private readonly simulationModel: SimulationModel,
 		private readonly flowManager: FlowManager,
 		private readonly run = new ExecutionRun(),
+		private readonly trace?: FlowTrace,
 	) {}
 
 	createObservable() {
@@ -114,58 +115,91 @@ export class ObservableFactory {
 			observableGenerators,
 		);
 
-		const creationObservableFactory = this.createEntryOperator(
-			creationNodePair.element,
-			refObservables,
-		);
-		const creationPipeFactories = creationNodePair.node.edges
-			.filter((edge) => edge.type === GraphNodeType.Direct)
-			.flatMap((edge) => {
-				const nextEl = this.simulationModel.getElement(edge.targetNodeId);
-				const cl = this.simulationModel.getConnectLine(edge.id);
-				const errorOperator =
-					isMainGraphBranch && isSubscriberType(nextEl.type)
-						? this.createUnhandledErrorOperator(cl)
-						: this.createErrorTrackerOperator(cl);
+		this.createEntryOperator(creationNodePair.element, refObservables);
+		for (const { element, node } of pipeNodePairs) {
+			if (isPipeOperatorType(element.type))
+				this.createPipeOperator(
+					element,
+					this.getRefObservableGenerators(node, observableGenerators),
+				);
+		}
+		return (
+			overrideParameters?: ElementProps,
+			legacySubscribeId?: string,
+			invocation?: TraceInvocation,
+		) => {
+			const build = (subscriptionId?: string) =>
+				defer(() => {
+					const creationObservableFactory = this.createEntryOperator(
+						creationNodePair.element,
+						this.getRefObservableGenerators(
+							creationNodePair.node,
+							observableGenerators,
+							subscriptionId,
+						),
+						subscriptionId,
+					);
+					const creationPipeFactories = creationNodePair.node.edges
+						.filter((edge) => edge.type === GraphNodeType.Direct)
+						.flatMap((edge) => {
+							const nextEl = this.simulationModel.getElement(edge.targetNodeId);
+							const cl = this.simulationModel.getConnectLine(edge.id);
+							const errorOperator =
+								isMainGraphBranch && isSubscriberType(nextEl.type)
+									? this.createUnhandledErrorOperator(cl)
+									: this.createErrorTrackerOperator(cl);
 
-				return [this.createControlOperator(cl), errorOperator];
-			});
-		const pipeFactories = pipeNodePairs.flatMap(({ element, node }) => {
-			const refObservables: RefObservable[] = this.getRefObservableGenerators(
-				node,
-				observableGenerators,
-			);
+							return [this.createControlOperator(cl), errorOperator];
+						});
+					const pipeFactories = pipeNodePairs.flatMap(({ element, node }) => {
+						const refObservables: RefObservable[] = this.getRefObservableGenerators(
+							node,
+							observableGenerators,
+							subscriptionId,
+						);
 
-			const pipeGenerators: PipeObservableFactory[] = [];
-			if (isPipeOperatorType(element.type)) {
-				pipeGenerators.push(this.createPipeOperator(element, refObservables));
-			}
+						const pipeGenerators: PipeObservableFactory[] = [];
+						if (isPipeOperatorType(element.type)) {
+							pipeGenerators.push(
+								this.createPipeOperator(element, refObservables, subscriptionId),
+							);
+						}
 
-			return node.edges
-				.filter((edge) => edge.type === GraphNodeType.Direct)
-				.reduce((pipeGenerators, edge) => {
-					const nextEl = this.simulationModel.getElement(edge.targetNodeId);
-					const cl = this.simulationModel.getConnectLine(edge.id);
-					const errorOperator =
-						isMainGraphBranch && isSubscriberType(nextEl.type)
-							? this.createUnhandledErrorOperator(cl)
-							: this.createErrorTrackerOperator(cl);
+						return node.edges
+							.filter((edge) => edge.type === GraphNodeType.Direct)
+							.reduce((pipeGenerators, edge) => {
+								const nextEl = this.simulationModel.getElement(edge.targetNodeId);
+								const cl = this.simulationModel.getConnectLine(edge.id);
+								const errorOperator =
+									isMainGraphBranch && isSubscriberType(nextEl.type)
+										? this.createUnhandledErrorOperator(cl)
+										: this.createErrorTrackerOperator(cl);
 
-					return [...pipeGenerators, this.createControlOperator(cl), errorOperator];
-				}, pipeGenerators);
-		});
-		const fullPipeFactories = [...creationPipeFactories, ...pipeFactories];
+								return [
+									...pipeGenerators,
+									this.createControlOperator(cl),
+									errorOperator,
+								];
+							}, pipeGenerators);
+					});
+					const fullPipeFactories = [...creationPipeFactories, ...pipeFactories];
 
-		return (overrideParameters?: ElementProps, subscribeId?: string) =>
-			defer(() =>
-				fullPipeFactories.reduce(
-					(o, pipeFactory) => pipeFactory(o, subscribeId),
-					creationObservableFactory(overrideParameters, subscribeId),
-				),
-			);
+					return fullPipeFactories.reduce(
+						(o, pipeFactory) => pipeFactory(o, subscriptionId),
+						creationObservableFactory(overrideParameters, legacySubscribeId),
+					);
+				});
+			return this.trace
+				? this.trace.observe(creationNodePair.element.id, invocation, build)
+				: build(legacySubscribeId);
+		};
 	}
 
-	private createEntryOperator(el: Element, refObservables: RefObservable[]) {
+	private createEntryOperator(
+		el: Element,
+		refObservables: RefObservable[],
+		subscriptionId?: string,
+	) {
 		const refObservableGenerators: ObservableGeneratorProps[] = refObservables
 			.map((refObservable) => ({
 				connectPoint: refObservable.connectLine.source,
@@ -181,6 +215,7 @@ export class ObservableFactory {
 			return creationOperatorFactory.create(el, {
 				refObservableGenerators,
 				run: this.run,
+				subscriptionId,
 			});
 		}
 
@@ -188,15 +223,21 @@ export class ObservableFactory {
 			return joinCreationOperatorFactory.create(el, {
 				refObservableGenerators,
 				run: this.run,
+				subscriptionId,
 			});
 		}
 
 		throw new Error(`Unsupported entry operator type ${el.type}`);
 	}
 
-	private createPipeOperator(el: Element, refObservables: RefObservable[]) {
+	private createPipeOperator(
+		el: Element,
+		refObservables: RefObservable[],
+		subscriptionId?: string,
+	) {
 		const props = {
 			run: this.run,
+			subscriptionId,
 			refObservableGenerators: refObservables
 				.map((refObservable) => ({
 					connectPoint: refObservable.connectLine.source,
@@ -214,6 +255,7 @@ export class ObservableFactory {
 	private getRefObservableGenerators(
 		node: GraphNode,
 		observables: Map<string, CreationObservableFactory>,
+		subscriptionId?: string,
 	): RefObservable[] {
 		return node.edges
 			.filter((edge) => edge.type === GraphNodeType.Reference)
@@ -227,41 +269,58 @@ export class ObservableFactory {
 				}
 
 				return {
-					observableGenerator: refObservableGenerator,
+					observableGenerator: (overrides, legacyId) =>
+						refObservableGenerator(
+							overrides,
+							legacyId,
+							subscriptionId
+								? {
+										parentSubscriptionId: subscriptionId,
+										referenceLineId: connectLine.id,
+										...(this.simulationModel.getElement(node.id).type === 'race'
+											? { cancellationElementId: node.id }
+											: {}),
+									}
+								: undefined,
+						),
 					connectLine,
 				};
 			});
 	}
 
 	private createControlOperator(cl: ConnectLine): PipeObservableFactory {
-		return (o: Observable<FlowValue>) =>
-			o.pipe(tap<FlowValue>((value) => this.flowManager.handleNextEvent(value, cl)));
+		return (o: Observable<FlowValue>, subscriptionId?: string) =>
+			o.pipe(
+				tap<FlowValue>((value) =>
+					this.flowManager.handleNextEvent(value, cl, subscriptionId),
+				),
+			);
 	}
 
 	private createErrorTrackerOperator(cl: ConnectLine): PipeObservableFactory {
-		return (o: Observable<FlowValue>) =>
+		return (o: Observable<FlowValue>, subscriptionId?: string) =>
 			o.pipe(
 				catchError<FlowValue, ObservableInput<FlowValue>>((error: unknown) => {
 					const flowValueError =
 						error instanceof FlowValue
 							? error
-							: new FlowValue(error, cl.source.id, FlowValueType.Error);
-					this.flowManager.handleError(flowValueError, cl);
+							: FlowValue.createErrorEvent(error, cl.source.id, subscriptionId);
+					this.flowManager.handleError(flowValueError, cl, subscriptionId);
 					throw flowValueError;
 				}),
 			);
 	}
 
 	private createUnhandledErrorOperator(cl: ConnectLine): PipeObservableFactory {
-		return (o: Observable<FlowValue>) =>
+		return (o: Observable<FlowValue>, subscriptionId?: string) =>
 			o.pipe(
 				catchError<FlowValue, ObservableInput<FlowValue>>((error: unknown) => {
 					const flowValueError =
 						error instanceof FlowValue
 							? error
-							: new FlowValue(error, cl.source.id, FlowValueType.Error);
-					this.flowManager.handleFatalError(flowValueError, cl);
-					throw flowValueError.raw;
+							: FlowValue.createErrorEvent(error, cl.source.id, subscriptionId);
+					this.flowManager.handleFatalError(flowValueError, cl, subscriptionId);
+					throw flowValueError;
 				}),
 			);
 	}

@@ -1,3 +1,4 @@
+import type { FlowTraceEvent } from '@maklja/vision-simulator-engine';
 import { expect, Page } from '@playwright/test';
 
 export interface WorkerProbeOutboundMessage {
@@ -8,6 +9,7 @@ export interface WorkerProbeInboundMessage {
 	type: string;
 	value: unknown;
 	diagnostic?: unknown;
+	event?: FlowTraceEvent;
 	workerId: number;
 }
 
@@ -23,8 +25,11 @@ export interface WorkerProbeSnapshot {
  * Only the simulation worker is instrumented; every other worker keeps its native behavior.
  * The probe never leaves the browser test harness, so it cannot reach production bundles.
  */
-export async function installWorkerProbe(page: Page): Promise<void> {
-	await page.addInitScript(() => {
+export async function installWorkerProbe(
+	page: Page,
+	options: { trace?: boolean } = {},
+): Promise<void> {
+	await page.addInitScript((captureTrace: boolean) => {
 		const globalObject = window as unknown as {
 			Worker: typeof Worker;
 			__visionWorkerProbeInstalled?: boolean;
@@ -42,6 +47,10 @@ export async function installWorkerProbe(page: Page): Promise<void> {
 		let terminated = 0;
 
 		const probedTypes = new Set(['next', 'error', 'complete', 'creationError']);
+		if (captureTrace) {
+			probedTypes.add('trace');
+			probedTypes.add('stopped');
+		}
 
 		function isSimulationWorker(url: string | URL, options?: WorkerOptions) {
 			if (options?.name === 'ObservableWorker') {
@@ -79,7 +88,13 @@ export async function installWorkerProbe(page: Page): Promise<void> {
 
 			worker.addEventListener('message', (event: MessageEvent) => {
 				const data = event.data as
-					{ type?: unknown; value?: unknown; diagnostic?: unknown } | undefined;
+					| {
+							type?: unknown;
+							value?: unknown;
+							diagnostic?: unknown;
+							event?: FlowTraceEvent;
+					  }
+					| undefined;
 				if (!data || typeof data !== 'object' || typeof data.type !== 'string') {
 					return;
 				}
@@ -91,6 +106,7 @@ export async function installWorkerProbe(page: Page): Promise<void> {
 					type: data.type,
 					value: data.value,
 					diagnostic: data.diagnostic,
+					event: data.event,
 					workerId,
 				});
 			});
@@ -109,7 +125,7 @@ export async function installWorkerProbe(page: Page): Promise<void> {
 				inbound: inbound.map((message) => ({ ...message })),
 			}),
 		};
-	});
+	}, options.trace ?? false);
 }
 
 export async function readWorkerProbe(page: Page): Promise<WorkerProbeSnapshot> {

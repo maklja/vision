@@ -293,7 +293,10 @@ export const joinCreationOperatorFactory: JoinCreationOperatorFactory = {
 		const run = props.run ?? new ExecutionRun();
 		return (overrides, subscribeId) =>
 			defer(() =>
-				factory(run.resolve(el, overrides), { ...props, run })(undefined, subscribeId),
+				factory(run.resolve(el, overrides, props.subscriptionId ?? subscribeId), {
+					...props,
+					run,
+				})(undefined, subscribeId),
 			);
 	},
 	isSupported(el: Element): boolean {

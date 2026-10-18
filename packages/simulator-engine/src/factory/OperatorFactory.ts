@@ -1,3 +1,4 @@
+import type { TraceInvocation } from '../trace/FlowTrace';
 import { Observable } from 'rxjs';
 import { ExecutionRun } from '../execution/ExecutionRun';
 import {
@@ -15,6 +16,7 @@ interface OperatorFactory {
 export type CreationObservableFactory = (
 	overrideParameters?: ElementProps,
 	subscribeId?: string,
+	invocation?: TraceInvocation,
 ) => Observable<FlowValue>;
 
 export type PipeObservableFactory = (

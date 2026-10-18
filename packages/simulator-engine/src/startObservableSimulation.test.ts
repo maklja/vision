@@ -40,6 +40,12 @@ class FakeWorker {
 		this.listeners.set(type, [...listeners, listener]);
 	}
 
+	removeEventListener(type: string, listener: Listener): void {
+		this.listeners.set(
+			type,
+			(this.listeners.get(type) ?? []).filter((value) => value !== listener),
+		);
+	}
 	dispatch(type: string, payload: unknown): void {
 		(this.listeners.get(type) ?? []).forEach((listener) => listener(payload));
 	}
@@ -112,7 +118,29 @@ describe('startObservableSimulation trusted execution', () => {
 	function send(type: ObservableSimulationMessageType, value?: unknown, runId?: string) {
 		const worker = FakeWorker.instances.at(-1)!;
 		const start = worker.postMessage.mock.calls[0][0] as { runId: string };
-		worker.dispatch('message', { data: { type, runId: runId ?? start.runId, value } });
+		if (type === ObservableSimulationMessageType.Complete)
+			worker.dispatch('message', {
+				data: {
+					version: 1,
+					runId: start.runId,
+					type: ObservableSimulationMessageType.Trace,
+					event: {
+						version: 1,
+						runId: start.runId,
+						seq: 1,
+						timeMs: 0,
+						eventId: `${start.runId}:event:1`,
+						path: [],
+						dependencies: [],
+						kind: 'run-ended',
+						reason: 'completed',
+						teardownConfirmed: true,
+					},
+				},
+			});
+		worker.dispatch('message', {
+			data: { version: 1, type, runId: runId ?? start.runId, value },
+		});
 	}
 	it('ignores transient result nodes when preflighting a restarted run', () => {
 		const onCreationError = vi.fn();
@@ -565,6 +593,8 @@ describe('startObservableSimulation trusted execution', () => {
 		subscription.unsubscribe();
 		send(ObservableSimulationMessageType.Next, nextEvent);
 		expect(onNext).toHaveBeenCalledOnce();
+		expect(worker.terminate).not.toHaveBeenCalled();
+		vi.advanceTimersByTime(100);
 		expect(worker.terminate).toHaveBeenCalledOnce();
 		expect(vi.getTimerCount()).toBe(0);
 	});
@@ -578,6 +608,7 @@ describe('startObservableSimulation trusted execution', () => {
 		const report = () =>
 			worker.dispatch('message', {
 				data: {
+					version: 1,
 					type: ObservableSimulationMessageType.Diagnostic,
 					runId,
 					diagnostic: {
@@ -616,9 +647,15 @@ describe('startObservableSimulation trusted execution', () => {
 		const nextRun = nextWorker.postMessage.mock.calls[0][0] as { runId: string };
 		nextWorker.dispatch('message', {
 			data: {
+				version: 1,
 				type: ObservableSimulationMessageType.Diagnostic,
 				runId: nextRun.runId,
-				diagnostic: { category: 'invocation', phase: 'callback', message: 'New run' },
+				diagnostic: {
+					runId: nextRun.runId,
+					category: 'invocation',
+					phase: 'callback',
+					message: 'New run',
+				},
 			},
 		});
 		expect(onDiagnostic).toHaveBeenCalledExactlyOnceWith(
@@ -678,9 +715,33 @@ it('releases the Worker on a terminal observable error', () => {
 	const worker = FakeWorker.instances.at(-1)!;
 	const start = worker.postMessage.mock.calls[0][0] as { runId: string };
 	worker.dispatch('message', {
-		data: { type: ObservableSimulationMessageType.Error, runId: start.runId, value: nextEvent },
+		data: {
+			version: 1,
+			runId: start.runId,
+			type: ObservableSimulationMessageType.Trace,
+			event: {
+				version: 1,
+				runId: start.runId,
+				seq: 1,
+				timeMs: 0,
+				eventId: `${start.runId}:event:1`,
+				path: [],
+				dependencies: [],
+				kind: 'run-ended',
+				reason: 'error',
+				teardownConfirmed: true,
+			},
+		},
 	});
-	expect(onError).toHaveBeenCalledWith(nextEvent);
+	worker.dispatch('message', {
+		data: {
+			version: 1,
+			type: ObservableSimulationMessageType.Error,
+			runId: start.runId,
+			value: { ...nextEvent, type: FlowValueType.Error },
+		},
+	});
+	expect(onError).toHaveBeenCalledWith({ ...nextEvent, type: FlowValueType.Error });
 	expect(worker.terminate).toHaveBeenCalledOnce();
 	vi.unstubAllGlobals();
 });

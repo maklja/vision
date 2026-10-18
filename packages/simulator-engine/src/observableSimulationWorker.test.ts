@@ -59,6 +59,8 @@ function startMessage(): unknown {
 	return {
 		data: {
 			type: ObservableSimulationMessageType.StartSimulation,
+			version: 1,
+			runId: 'test-run',
 			entryElementId: 'source',
 			elements: [source, subscriber],
 			connectLines: [link('source-subscriber', 'source', 'subscriber')],
@@ -72,6 +74,8 @@ function intervalStartMessage(): unknown {
 	return {
 		data: {
 			type: ObservableSimulationMessageType.StartSimulation,
+			version: 1,
+			runId: 'test-run',
 			entryElementId: 'source',
 			elements: [intervalSource, subscriber],
 			connectLines: [link('source-subscriber', 'source', 'subscriber')],
@@ -80,7 +84,13 @@ function intervalStartMessage(): unknown {
 }
 
 function sentMessages(scope: FakeWorkerScope): Record<string, unknown>[] {
-	return scope.postMessage.mock.calls.map(([message]) => message as Record<string, unknown>);
+	return scope.postMessage.mock.calls
+		.map(([message]) => message as Record<string, unknown>)
+		.filter(
+			(message) =>
+				message.type !== ObservableSimulationMessageType.Trace &&
+				message.type !== ObservableSimulationMessageType.Stopped,
+		);
 }
 
 describe('observableSimulationWorker', () => {
@@ -134,7 +144,11 @@ describe('observableSimulationWorker', () => {
 				'1',
 			]);
 			scope.dispatch('message', {
-				data: { type: ObservableSimulationMessageType.StopSimulation },
+				data: {
+					type: ObservableSimulationMessageType.StopSimulation,
+					version: 1,
+					runId: 'test-run',
+				},
 			});
 		} finally {
 			vi.useRealTimers();
@@ -152,7 +166,11 @@ describe('observableSimulationWorker', () => {
 			expect(messagesAfterFirstTick).toBe(1);
 
 			scope.dispatch('message', {
-				data: { type: ObservableSimulationMessageType.StopSimulation },
+				data: {
+					type: ObservableSimulationMessageType.StopSimulation,
+					version: 1,
+					runId: 'test-run',
+				},
 			});
 
 			vi.advanceTimersByTime(1_000);
@@ -163,7 +181,11 @@ describe('observableSimulationWorker', () => {
 			expect(sentMessages(scope)).toHaveLength(messagesAfterFirstTick + 1);
 
 			scope.dispatch('message', {
-				data: { type: ObservableSimulationMessageType.StopSimulation },
+				data: {
+					type: ObservableSimulationMessageType.StopSimulation,
+					version: 1,
+					runId: 'test-run',
+				},
 			});
 		} finally {
 			vi.useRealTimers();
@@ -177,6 +199,8 @@ describe('observableSimulationWorker', () => {
 			scope.dispatch('message', {
 				data: {
 					type: ObservableSimulationMessageType.StartSimulation,
+					version: 1,
+					runId: 'test-run',
 					entryElementId: 'source',
 					elements: [source, buffer, subscriber],
 					connectLines: [
