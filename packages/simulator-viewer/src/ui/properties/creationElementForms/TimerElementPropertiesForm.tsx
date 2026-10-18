@@ -17,12 +17,14 @@ import { formStyle } from '../commonStyles';
 export interface TimerElementPropertiesFormProps {
 	id: string;
 	properties: TimerElementProperties;
+	onPropertiesChange?: (id: string, properties: Partial<TimerElementProperties>) => void;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
 
 export function TimerElementPropertiesForm({
 	id,
 	properties,
+	onPropertiesChange,
 	onPropertyValueChange,
 }: TimerElementPropertiesFormProps) {
 	const handleDueDateTypeChanged = (e: SelectChangeEvent<DueDateType>) => {
@@ -31,12 +33,15 @@ export function TimerElementPropertiesForm({
 			newDueDateType === DueDateType.Date
 				? dayjs().add(1, 'minute').toDate().getTime()
 				: 1_000;
-		onPropertyValueChange?.(id, 'startDue', {
-			kind: 'literal',
-			type: newDueDateType === DueDateType.Date ? 'date' : 'number',
-			value: newDateDate,
+		// Persistence subscribers observe every store update, so keep these fields together.
+		onPropertiesChange?.(id, {
+			dueDateType: newDueDateType,
+			startDue: {
+				kind: 'literal',
+				type: newDueDateType === DueDateType.Date ? 'date' : 'number',
+				value: newDateDate,
+			},
 		});
-		onPropertyValueChange?.(id, 'dueDateType', newDueDateType);
 	};
 
 	return (

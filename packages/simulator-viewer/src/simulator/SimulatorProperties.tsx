@@ -105,6 +105,7 @@ export function SimulatorProperties() {
 					relatedElements={selectedElementConnectLines}
 					onNameChange={handleElementNameChange}
 					onPositionChange={handleElementPositionChange}
+					onPropertiesChange={(id, properties) => updateElement({ id, properties })}
 					onPropertyValueChange={handleElementPropertyChange}
 					onConnectLineChange={handleConnectLineChanged}
 				/>

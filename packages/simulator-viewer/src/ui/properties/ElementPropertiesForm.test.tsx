@@ -58,6 +58,7 @@ function renderForm(
 		id?: string;
 		properties?: Record<string, unknown>;
 		relatedElements?: RelatedElements;
+		onPropertiesChange?: (id: string, properties: Record<string, unknown>) => void;
 		onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 		onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 	} = {},
@@ -70,6 +71,7 @@ function renderForm(
 		<ElementPropertiesForm
 			element={element}
 			relatedElements={elementProps.relatedElements ?? []}
+			onPropertiesChange={elementProps.onPropertiesChange}
 			onPropertyValueChange={elementProps.onPropertyValueChange}
 			onConnectLineChange={elementProps.onConnectLineChange}
 		/>,
@@ -283,8 +285,8 @@ describe('ElementPropertiesForm dispatcher', () => {
 		const now = Date.UTC(2026, 9, 16, 12);
 		vi.setSystemTime(now);
 		try {
-			const onPropertyValueChange = vi.fn();
-			renderForm(ElementType.Timer, { id: 'timer-mode', onPropertyValueChange });
+			const onPropertiesChange = vi.fn();
+			renderForm(ElementType.Timer, { id: 'timer-mode', onPropertiesChange });
 			expect((screen.getByLabelText('Due milliseconds') as HTMLInputElement).value).toBe(
 				'1000',
 			);
@@ -293,9 +295,14 @@ describe('ElementPropertiesForm dispatcher', () => {
 			);
 			fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Due date type' }));
 			fireEvent.click(screen.getByRole('option', { name: 'Date' }));
-			expect(onPropertyValueChange.mock.calls).toEqual([
-				['timer-mode', 'startDue', { kind: 'literal', type: 'date', value: now + 60000 }],
-				['timer-mode', 'dueDateType', DueDateType.Date],
+			expect(onPropertiesChange.mock.calls).toEqual([
+				[
+					'timer-mode',
+					{
+						dueDateType: DueDateType.Date,
+						startDue: { kind: 'literal', type: 'date', value: now + 60000 },
+					},
+				],
 			]);
 		} finally {
 			vi.useRealTimers();

@@ -68,6 +68,7 @@ export type RelatedElements = { connectLine: ConnectLine; element: Element }[];
 export interface ElementPropertiesFormProps {
 	element: Element;
 	relatedElements: RelatedElements;
+	onPropertiesChange?: (id: string, properties: Record<string, unknown>) => void;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 }
@@ -75,6 +76,7 @@ export interface ElementPropertiesFormProps {
 function createElementPropertiesForm({
 	element,
 	relatedElements,
+	onPropertiesChange,
 	onPropertyValueChange,
 	onConnectLineChange,
 }: ElementPropertiesFormProps) {
@@ -139,6 +141,7 @@ function createElementPropertiesForm({
 		case ElementType.Timer:
 			return (
 				<TimerElementPropertiesForm
+					onPropertiesChange={onPropertiesChange}
 					id={id}
 					properties={properties as TimerElementProperties}
 					onPropertyValueChange={onPropertyValueChange}
@@ -288,12 +291,14 @@ function createElementPropertiesForm({
 export function ElementPropertiesForm({
 	element,
 	relatedElements,
+	onPropertiesChange,
 	onPropertyValueChange,
 	onConnectLineChange,
 }: ElementPropertiesFormProps) {
 	const elementForm = createElementPropertiesForm({
 		element,
 		relatedElements,
+		onPropertiesChange,
 		onPropertyValueChange,
 		onConnectLineChange,
 	});

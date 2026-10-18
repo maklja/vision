@@ -1,9 +1,13 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import 'fake-indexeddb/auto';
+import { clear } from 'idb-keyval';
+import { DiagramRepository, subscribeDiagramPersistence } from '../persistence/diagramPersistence';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
 	CommonProps,
+	DueDateType,
 	ConnectPointPosition,
 	ConnectPointType,
 	ElementType,
@@ -203,4 +207,50 @@ describe('SimulatorProperties', () => {
 
 		expect(store.getState().connectLines['cl-event'].index).toBe(4);
 	});
+});
+
+it('autosaves timer mode and typed due value as one valid snapshot in both directions', async () => {
+	await clear();
+	const store = createTestStore({
+		elements: [
+			createElement(ElementType.Timer, {
+				id: 'timer-1',
+				properties: {
+					dueDateType: DueDateType.Milliseconds,
+					startDue: { kind: 'literal', type: 'number', value: 500 },
+					intervalDuration: { kind: 'literal', type: 'number', value: -1 },
+				},
+			}),
+		],
+	});
+	store.getState().setSelectElements(['timer-1']);
+	renderProperties(store);
+	const repository = new DiagramRepository();
+	const errors = vi.fn();
+	const saved = vi.fn();
+	const save = vi.fn((data) => repository.save(data).then(() => undefined));
+	const unsubscribe = subscribeDiagramPersistence(store, errors, { save, onSaved: saved });
+	try {
+		for (const [label, dueDateType, type] of [
+			['Date', DueDateType.Date, 'date'],
+			['Milliseconds', DueDateType.Milliseconds, 'number'],
+		] as const) {
+			fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Due date type' }));
+			fireEvent.click(screen.getByRole('option', { name: label }));
+			await waitFor(() => expect(saved).toHaveBeenCalledTimes(1));
+			expect(save).toHaveBeenCalledTimes(1);
+			expect(errors).not.toHaveBeenCalled();
+			const loaded = await new DiagramRepository().load();
+			expect(loaded?.diagram.elements[0].properties).toMatchObject({
+				dueDateType,
+				startDue: { kind: 'literal', type },
+				intervalDuration: { kind: 'literal', type: 'number', value: -1 },
+			});
+			saved.mockClear();
+			save.mockClear();
+		}
+	} finally {
+		unsubscribe();
+		cleanup();
+	}
 });

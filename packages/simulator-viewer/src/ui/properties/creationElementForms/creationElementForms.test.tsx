@@ -383,7 +383,7 @@ describe('TimerElementPropertiesForm', () => {
 	});
 
 	it('converts a due date selection into a timestamp and switches the due date type', () => {
-		const onPropertyValueChange = vi.fn();
+		const onPropertiesChange = vi.fn();
 		render(
 			<TimerElementPropertiesForm
 				id="timer-1"
@@ -392,28 +392,22 @@ describe('TimerElementPropertiesForm', () => {
 					startDue: 500,
 					intervalDuration: 1_000,
 				}}
-				onPropertyValueChange={onPropertyValueChange}
+				onPropertiesChange={onPropertiesChange}
 			/>,
 		);
 
 		fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Due date type' }));
 		fireEvent.click(screen.getByRole('option', { name: 'Date' }));
 
-		const firstCall = onPropertyValueChange.mock.calls[0];
-		expect(firstCall[0]).toBe('timer-1');
-		expect(firstCall[1]).toBe('startDue');
-		expect(firstCall[2]).toMatchObject({ kind: 'literal', type: 'date' });
-		expect(firstCall[2].value).toBeGreaterThan(Date.now());
-		expect(onPropertyValueChange).toHaveBeenNthCalledWith(
-			2,
-			'timer-1',
-			'dueDateType',
-			DueDateType.Date,
-		);
+		expect(onPropertiesChange).toHaveBeenCalledExactlyOnceWith('timer-1', {
+			dueDateType: DueDateType.Date,
+			startDue: { kind: 'literal', type: 'date', value: expect.any(Number) },
+		});
+		expect(onPropertiesChange.mock.calls[0][1].startDue.value).toBeGreaterThan(Date.now());
 	});
 
 	it('switches back to milliseconds and reports the default interval', () => {
-		const onPropertyValueChange = vi.fn();
+		const onPropertiesChange = vi.fn();
 		render(
 			<TimerElementPropertiesForm
 				id="timer-1"
@@ -422,7 +416,7 @@ describe('TimerElementPropertiesForm', () => {
 					startDue: 1_700_000_000_000,
 					intervalDuration: 1_000,
 				}}
-				onPropertyValueChange={onPropertyValueChange}
+				onPropertiesChange={onPropertiesChange}
 			/>,
 		);
 
@@ -431,17 +425,10 @@ describe('TimerElementPropertiesForm', () => {
 		fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Due date type' }));
 		fireEvent.click(screen.getByRole('option', { name: 'Milliseconds' }));
 
-		expect(onPropertyValueChange).toHaveBeenNthCalledWith(1, 'timer-1', 'startDue', {
-			kind: 'literal',
-			type: 'number',
-			value: 1_000,
+		expect(onPropertiesChange).toHaveBeenCalledExactlyOnceWith('timer-1', {
+			dueDateType: DueDateType.Milliseconds,
+			startDue: { kind: 'literal', type: 'number', value: 1_000 },
 		});
-		expect(onPropertyValueChange).toHaveBeenNthCalledWith(
-			2,
-			'timer-1',
-			'dueDateType',
-			DueDateType.Milliseconds,
-		);
 	});
 });
 
