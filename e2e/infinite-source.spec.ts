@@ -116,7 +116,10 @@ test('stops an infinite interval source and restarts it in a fresh worker', asyn
 	expect(firstRunValues.slice(0, 3)).toEqual(['0', '1', '2']);
 	expect(firstRunValues).toEqual(firstRunValues.map((_value, index) => String(index)));
 
-	expect(stopped.outbound.map((message) => message.type)).toEqual(['startSimulation']);
+	expect(stopped.outbound.map((message) => message.type)).toEqual([
+		'startSimulation',
+		'stopSimulation',
+	]);
 	// A terminated worker cannot post new messages, so this is the deterministic cancellation proof.
 	expect(stopped.terminated).toBe(1);
 
@@ -146,7 +149,9 @@ test('stops an infinite interval source and restarts it in a fresh worker', asyn
 	expect(afterSecondStop.terminated).toBe(2);
 	expect(afterSecondStop.outbound.map((message) => message.type)).toEqual([
 		'startSimulation',
+		'stopSimulation',
 		'startSimulation',
+		'stopSimulation',
 	]);
 	await expect(page.getByRole('button', { name: 'stop simulation' })).toBeDisabled();
 	await expect(simulationResults(page)).toHaveText('');
