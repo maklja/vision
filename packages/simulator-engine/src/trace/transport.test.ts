@@ -281,3 +281,85 @@ it('rejects missing run identities rather than silently waiting for a watchdog',
 	expect(s.worker.terminate).toHaveBeenCalledOnce();
 	expect(vi.getTimerCount()).toBe(0);
 });
+
+it('preserves recoverable errors on the legacy onNext channel through real Worker recovery', async () => {
+	vi.resetModules();
+	let dispatch: ((event: { data: unknown }) => void) | undefined;
+	vi.stubGlobal('self', {
+		addEventListener: (_type: string, listener: typeof dispatch) => {
+			dispatch = listener;
+		},
+		postMessage: (data: unknown) => TestWorker.current.send(structuredClone(data)),
+	});
+	await import('../observableSimulationWorker');
+	class BridgeWorker extends TestWorker {
+		readonly postMessage = vi.fn((data: unknown) => dispatch!({ data: structuredClone(data) }));
+	}
+	vi.stubGlobal('Worker', BridgeWorker);
+	const failing = {
+		...source,
+		type: ElementType.ThrowError,
+		properties: { errorOrErrorFactory: '() => new Error("fixture failure")' },
+	};
+	const recover = {
+		...source,
+		id: 'catch',
+		type: ElementType.CatchError,
+		properties: {
+			selectorExpression:
+				'err => { if(err.message !== "fixture failure") throw new Error("raw error"); return createObservable({start:7,count:2}); }',
+		},
+	};
+	const inner = { ...source, id: 'inner', properties: { start: 99, count: 99 } };
+	const innerSink = { ...sink, id: 'inner-sink' };
+	const connect = (id: string, from: string, to: string, reference = false): ConnectLine => ({
+		...line,
+		id,
+		source: {
+			...line.source,
+			id: from,
+			connectPointType: reference ? ConnectPointType.Event : ConnectPointType.Output,
+			connectPosition: reference ? ConnectPointPosition.Top : ConnectPointPosition.Right,
+		},
+		target: { ...line.target, id: to },
+	});
+	const onNext = vi.fn(),
+		onError = vi.fn(),
+		onCreationError = vi.fn(),
+		onComplete = vi.fn();
+	const events: FlowTraceEvent[] = [];
+	startObservableSimulation({
+		entryElementId: 'source',
+		elements: [failing, recover, inner, innerSink, sink],
+		connectLines: [
+			connect('source-catch', 'source', 'catch'),
+			connect('catch-sink', 'catch', 'sink'),
+			connect('reference', 'catch', 'inner', true),
+			connect('inner-output', 'inner', 'inner-sink'),
+		],
+		trusted: true,
+		onNext,
+		onError,
+		onCreationError,
+		onComplete,
+		onTrace: (e) => events.push(e),
+	});
+	expect(onError).not.toHaveBeenCalled();
+	expect(onCreationError).not.toHaveBeenCalled();
+	expect(onComplete).toHaveBeenCalledOnce();
+	expect(
+		onNext.mock.calls.map(([value]) => value).filter((value) => value.type === 'error'),
+	).toHaveLength(1);
+	expect(
+		onNext.mock.calls
+			.map(([value]) => value)
+			.filter((value) => value.type === 'next' && value.targetElementId === 'sink')
+			.map((value) => value.value),
+	).toEqual(['7', '8']);
+	expect(events.at(-1)).toMatchObject({
+		kind: 'run-ended',
+		reason: 'completed',
+		teardownConfirmed: true,
+	});
+	expect(vi.getTimerCount()).toBe(0);
+});

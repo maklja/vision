@@ -382,7 +382,7 @@ export function startObservableSimulation(
 						(message.type === ObservableSimulationMessageType.Error &&
 							(message.value.type !== 'error' || !ended || endReason !== 'error')) ||
 						(message.type === ObservableSimulationMessageType.Next &&
-							!['next', 'subscribe'].includes(message.value.type))
+							!['next', 'subscribe', 'error'].includes(message.value.type))
 					) {
 						failure('transport', 'Malformed Worker value.');
 						return;
