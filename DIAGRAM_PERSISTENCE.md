@@ -12,8 +12,8 @@ change the source revision. A pending Start also verifies the current permission
 revision after the engine chunk loads; approving a different revision cannot revive an old request.
 `origin: file` is persisted provenance, not a permission: imported files
 cannot mark themselves trusted, and import forces this provenance regardless of the file's value.
-Existing local authored diagrams retain their normal Run behavior. The broader expression compiler,
-watchdog and trusted-local execution policy remain issue #134. JavaScript still has the page's
+Local code and parameter expressions also require session approval. The compiler, watchdog and
+trusted-local execution policy are documented in [execution policy](EXECUTION_POLICY.md). JavaScript still has the page's
 capabilities; a Worker is not a security sandbox.
 
 ## Schema and compatibility
@@ -26,6 +26,7 @@ This is plain diagram JSON, not runnable RxJS export (#136).
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | v0 (unversioned released data)                       | `{ elements, connectLines, canvasState, themeId }` at legacy key `test`                                   | Validated; source IDs, connections, numeric/date values, callback text, viewport and theme preserved; transient result nodes excluded |
 | v1                                                   | `{ schemaVersion: 1, id, name, createdAt, updatedAt, origin, diagram }`, with v0 source data in `diagram` | Stable local ID/name/timestamps and provenance; exact supported fields only                                                           |
+| v2                                                   | Stable document metadata, optional context seed and typed numeric/date parameters                         | v0/v1 migrate registered fields to literal envelopes; see [typed parameters](PARAMETERS.md)                                           |
 | Unknown future version / unpublished prototype shape | Not admitted                                                                                              | Original storage remains unchanged; import a supported document                                                                       |
 
 v1 does not wrap numeric/date properties or rename callback fields. Deliberately absent optional
@@ -42,26 +43,27 @@ before import. Existing
 templates define current required property types; known optional properties are validated separately.
 This narrow validator is not the operator registration framework planned in #140.
 
-**Future version step:** #135 must introduce an explicit v1 → next-version migration before adding
-parameter-v1 envelopes; #134 must likewise version `contextSeed` before persisting it. These fields
-are rejected in v1 today. There is no speculative extension bag, executable initializer or evaluator.
+Schema v2 introduces parameter-v1 envelopes for Range, Interval and Timer. Released v1 documents
+(including optional context seed) migrate without evaluating authored code. Callback fields are
+unchanged; unknown versions never downgrade. A distinct schema backup survives later autosaves.
 Versioned migration fixtures and the current-release fixture protect this boundary.
 
 ## IndexedDB layout and backup ordering
 
 Database `keyval-store`, object store `keyval` remain unchanged.
 
-| Key                      | Value / retention                                                                          |
-| ------------------------ | ------------------------------------------------------------------------------------------ |
-| `vision:active-diagram`  | Active local diagram ID                                                                    |
-| `vision:diagram:<id>`    | Current validated v1 document                                                              |
-| `vision:backup:<id>`     | One prior saved record, written before replacement/autosave; bounded rolling recovery slot |
-| `vision:backup:legacy`   | Untouched unversioned source before migration or explicit replacement                      |
-| `vision:backup:recovery` | One corrupt active-pointer/record snapshot saved before explicit recovery                  |
-| `test`                   | Original unversioned data retained without modification; never the autosave destination    |
+| Key                            | Value / retention                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------------ |
+| `vision:active-diagram`        | Active local diagram ID                                                                    |
+| `vision:diagram:<id>`          | Current validated v2 document                                                              |
+| `vision:backup:<id>`           | One prior saved record, written before replacement/autosave; bounded rolling recovery slot |
+| `vision:backup:legacy`         | Untouched unversioned source before migration or explicit replacement                      |
+| `vision:backup:recovery`       | One corrupt active-pointer/record snapshot saved before explicit recovery                  |
+| `vision:backup:schema-v1:<id>` | Untouched released v1 source, retained across later autosaves                              |
+| `test`                         | Original unversioned data retained without modification; never the autosave destination    |
 
 Migration validates v0, awaits the original-data backup write, then atomically commits the new record
-and active pointer using one `idb-keyval.setMany` transaction. Reopening v1 does not repeat migration.
+and active pointer using one `idb-keyval.setMany` transaction. Opening v1 first saves its schema backup and upgrades the active record to v2. Reopening v2 does not repeat migration.
 Autosave and explicit replacement likewise await a durable previous-record backup before committing
 record/pointer. Backup failure aborts the write. Commit failure leaves the prior record and backup
 available. One repository queue serializes in-flight autosave and explicit replacement; replacement
@@ -89,7 +91,7 @@ survives later autosave and reload, so file contents never silently become local
 - File/source-data validation budget: 5 MiB UTF-8 (conservative structural estimate for in-memory
   objects), maximum JSON depth 64, at most 10,000 elements and 20,000 lines.
 - Each text field is at most 65,536 characters; a wire has 2–1,024 finite coordinate points. Runtime
-  expression-specific execution limits remain #134.
+  expression-specific limits are 64 KiB UTF-8 per field and 1 MiB per invocation snapshot.
 - Only finite JSON and plain objects are admitted; prototype-sensitive object keys are rejected.
   Validation does not use `eval`, `new Function`, source compilation or network inspection.
 - Measured locally with Node 24.19.0: the deterministic 2,000 disconnected Of-node fixture migrates

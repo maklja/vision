@@ -24,7 +24,7 @@ describe('versioned diagram data', () => {
 	it('migrates the current release without changing callbacks, IDs, connections or viewport', () => {
 		const doc = document();
 		expect(doc).toMatchObject({
-			schemaVersion: 1,
+			schemaVersion: 2,
 			id: 'diagram-1',
 			createdAt: now,
 			updatedAt: now,
@@ -68,10 +68,20 @@ describe('versioned diagram data', () => {
 				properties: { dueDateType: 1, startDue: 0, intervalDuration: -1 },
 			},
 		];
-		expect(migrateLegacyDiagram(data, 'x', now).diagram).toEqual(data);
+		expect(
+			migrateLegacyDiagram(data, 'x', now).diagram.elements.map((el) => el.properties),
+		).toEqual([
+			{ start: { kind: 'literal', type: 'number', value: 0 } },
+			data.elements[1].properties,
+			{
+				dueDateType: 1,
+				startDue: { kind: 'literal', type: 'date', value: 0 },
+				intervalDuration: { kind: 'literal', type: 'number', value: -1 },
+			},
+		]);
 		data.elements[0].properties.count = undefined;
 		expect(migrateLegacyDiagram(data, 'x', now).diagram.elements[0].properties).toEqual({
-			start: 0,
+			start: { kind: 'literal', type: 'number', value: 0 },
 		});
 	});
 
@@ -141,7 +151,7 @@ describe('versioned diagram data', () => {
 	});
 
 	it('rejects future schemas and imported permissions/hidden runtime fields', () => {
-		expect(() => validateDiagramDocument({ ...document(), schemaVersion: 2 })).toThrow(
+		expect(() => validateDiagramDocument({ ...document(), schemaVersion: 99 })).toThrow(
 			'unsupported version',
 		);
 		expect(() => validateDiagramDocument({ ...document(), trusted: true })).toThrow(
@@ -222,4 +232,95 @@ it('rejects reversed value and event connections instead of admitting a reversed
 	expect(() => validateDiagramData(event)).toThrow(
 		'expected Output/Event source and Input target',
 	);
+});
+
+import { upgradeDiagramDocument } from './diagramDocument';
+
+it('upgrades only registered numeric/date fields from released v1 and preserves callback bytes', () => {
+	const data = fixture();
+	data.connectLines = [];
+	data.elements = [
+		{ ...data.elements[0], id: 'range', type: ElementType.Range, properties: { start: -2 } },
+		{
+			...data.elements[0],
+			id: 'interval',
+			type: ElementType.Interval,
+			properties: { period: 0 },
+		},
+		{
+			...data.elements[0],
+			id: 'timer',
+			type: ElementType.Timer,
+			properties: { dueDateType: 1, startDue: -100, intervalDuration: -1 },
+		},
+		{
+			...data.elements[0],
+			id: 'code',
+			properties: { argsFactoryExpression: '() => {\n  return [1];\n}' },
+		},
+	];
+	const v1 = { ...document(), schemaVersion: 1, diagram: data };
+	const migrated = upgradeDiagramDocument(v1);
+	expect(migrated.schemaVersion).toBe(2);
+	expect(migrated.diagram.elements.map((el) => el.properties)).toEqual([
+		{ start: { kind: 'literal', type: 'number', value: -2 } },
+		{ period: { kind: 'literal', type: 'number', value: 0 } },
+		{
+			dueDateType: 1,
+			startDue: { kind: 'literal', type: 'date', value: -100 },
+			intervalDuration: { kind: 'literal', type: 'number', value: -1 },
+		},
+		data.elements[3].properties,
+	]);
+	expect(v1.diagram).toEqual(data);
+	expect(parseDiagramFile(JSON.stringify(v1))).toEqual(migrated);
+	expect(parseDiagramFile(JSON.stringify(migrated))).toEqual(migrated);
+	expect(() => validateDiagramDocument(v1)).toThrow('unsupported version');
+});
+
+it('rejects raw numbers in v2, malformed envelopes, mode mismatches and unknown versions without guessing', () => {
+	const data = fixture();
+	data.connectLines = [];
+	data.elements = [
+		{ ...data.elements[0], type: ElementType.Interval, properties: { period: 1 } },
+	];
+	expect(() => validateDiagramDocument({ ...document(), diagram: data })).toThrow('parameter-v1');
+	for (const period of [
+		null,
+		{ kind: 'expression', type: 'string', source: '1' },
+		{ kind: 'literal', type: 'number', value: '1' },
+		{ kind: 'expression', type: 'number', source: '1', extra: true },
+	]) {
+		data.elements[0].properties = { period };
+		expect(() => validateDiagramDocument({ ...document(), diagram: data })).toThrow();
+	}
+	data.elements[0] = {
+		...data.elements[0],
+		type: ElementType.Timer,
+		properties: {
+			dueDateType: 1,
+			startDue: { kind: 'literal', type: 'number', value: 0 },
+			intervalDuration: { kind: 'literal', type: 'number', value: -1 },
+		},
+	};
+	expect(() => validateDiagramDocument({ ...document(), diagram: data })).toThrow('date');
+	expect(() => upgradeDiagramDocument({ ...document(), schemaVersion: 3 })).toThrow(
+		'unsupported version',
+	);
+});
+
+it('preserves invalid legacy required values for recovery instead of silently migrating them', () => {
+	const data = fixture();
+	data.connectLines = [];
+	data.elements = [
+		{ ...data.elements[0], type: ElementType.Interval, properties: { period: -1 } },
+	];
+	const original = structuredClone(data);
+	expect(() => migrateLegacyDiagram(data, 'invalid', now)).toThrow('period');
+	expect(data).toEqual(original);
+	const getter = () => {
+		throw new Error('getter executed');
+	};
+	Object.defineProperty(data.elements[0].properties, 'period', { get: getter, enumerable: true });
+	expect(() => migrateLegacyDiagram(data, 'invalid', now)).toThrow('accessors');
 });

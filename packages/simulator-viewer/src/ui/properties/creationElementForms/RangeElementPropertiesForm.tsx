@@ -1,61 +1,47 @@
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import { RangeElementProperties, rangeOperatorDefinition } from '@maklja/vision-simulator-model';
+import {
+	ElementType,
+	RangeElementProperties,
+	rangeOperatorDefinition,
+} from '@maklja/vision-simulator-model';
+import { ParameterEditor } from '../ParameterEditor';
 import { formStyle } from '../commonStyles';
-import { handleNumberInputChanged, handleOptionalNumberInputChanged } from '../utils';
 
 export interface RangeElementPropertiesFormProps {
 	id: string;
 	properties: RangeElementProperties;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 }
-
 export function RangeElementPropertiesForm({
 	id,
 	properties,
 	onPropertyValueChange,
 }: RangeElementPropertiesFormProps) {
 	return (
-		<Stack
-			sx={{
-				gap: formStyle.componentGap,
-			}}
-		>
-			<TextField
-				id="range-el-start-prop"
+		<Stack sx={{ gap: formStyle.componentGap }}>
+			<ParameterEditor
+				key={`${id}:start`}
+				id={id}
+				field="start"
 				label={rangeOperatorDefinition.properties.start.label}
 				value={properties.start}
-				type="number"
-				size="small"
-				slotProps={{
-					inputLabel: { shrink: true },
-				}}
-				onChange={handleNumberInputChanged(
-					id,
-					'start',
-					properties.start,
-					onPropertyValueChange,
-				)}
-				helperText="The value of the first integer in the sequence."
+				elementType={ElementType.Range}
+				properties={properties}
+				optional={false}
+				help="Finite integer; negative values are allowed."
+				onChange={onPropertyValueChange}
 			/>
-
-			<TextField
-				id="range-el-count-prop"
+			<ParameterEditor
+				key={`${id}:count`}
+				id={id}
+				field="count"
 				label={rangeOperatorDefinition.properties.count.label}
 				value={properties.count}
-				type="number"
-				size="small"
-				slotProps={{
-					inputLabel: { shrink: true },
-					htmlInput: { min: 0 },
-				}}
-				onChange={handleOptionalNumberInputChanged(
-					id,
-					'count',
-					properties.count,
-					onPropertyValueChange,
-				)}
-				helperText="The number of sequential integers to generate."
+				elementType={ElementType.Range}
+				properties={properties}
+				optional={true}
+				help="Nonnegative integer; empty preserves RxJS range(start) behavior."
+				onChange={onPropertyValueChange}
 			/>
 		</Stack>
 	);

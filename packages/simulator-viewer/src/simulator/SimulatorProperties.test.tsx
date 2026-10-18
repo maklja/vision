@@ -144,7 +144,9 @@ describe('SimulatorProperties', () => {
 
 		fireEvent.change(screen.getByLabelText('Period'), { target: { value: '2500' } });
 
-		expect(store.getState().elements['interval-1'].properties).toMatchObject({ period: 2500 });
+		expect(store.getState().elements['interval-1'].properties).toMatchObject({
+			period: { kind: 'literal', type: 'number', value: 2500 },
+		});
 	});
 
 	it('removes event connect lines when an observable event property is disabled', () => {

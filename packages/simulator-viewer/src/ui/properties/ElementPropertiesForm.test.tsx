@@ -148,7 +148,11 @@ describe('ElementPropertiesForm dispatcher', () => {
 
 		fireEvent.change(screen.getByLabelText('Period'), { target: { value: '2500' } });
 
-		expect(onPropertyValueChange).toHaveBeenCalledWith('interval-1', 'period', 2500);
+		expect(onPropertyValueChange).toHaveBeenCalledWith('interval-1', 'period', {
+			kind: 'literal',
+			type: 'number',
+			value: 2500,
+		});
 	});
 
 	it('forwards code editor changes with the element id and property name', () => {
@@ -290,7 +294,7 @@ describe('ElementPropertiesForm dispatcher', () => {
 			fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Due date type' }));
 			fireEvent.click(screen.getByRole('option', { name: 'Date' }));
 			expect(onPropertyValueChange.mock.calls).toEqual([
-				['timer-mode', 'startDue', now + 60000],
+				['timer-mode', 'startDue', { kind: 'literal', type: 'date', value: now + 60000 }],
 				['timer-mode', 'dueDateType', DueDateType.Date],
 			]);
 		} finally {

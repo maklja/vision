@@ -132,8 +132,9 @@ test('runs a concat branch and join graph with edited reference order in the wor
 	await page.getByLabel('Count', { exact: true }).fill('2');
 	await waitForDiagram(page, (current) => {
 		const range = current?.elements.find((element) => element.id === rangeReference.id);
-		const properties = range?.properties as { start?: number; count?: number } | undefined;
-		return properties?.start === 10 && properties?.count === 2;
+		const properties = range?.properties as
+			{ start?: { value: number }; count?: { value: number } } | undefined;
+		return properties?.start?.value === 10 && properties?.count?.value === 2;
 	});
 
 	// Reorder concat's event lines so the range reference subscribes first.

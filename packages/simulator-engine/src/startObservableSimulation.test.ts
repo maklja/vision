@@ -500,6 +500,55 @@ describe('startObservableSimulation trusted execution', () => {
 			field: 'argsFactoryExpression',
 		});
 	});
+	it.each([false, true])(
+		'requires trust for typed parameter expressions (Worker: %s)',
+		(available) => {
+			vi.stubGlobal('Worker', available ? FakeWorker : undefined);
+			const onDiagnostic = vi.fn(),
+				probe = vi.fn();
+			vi.stubGlobal('parameterProbe', probe);
+			const args = {
+				entryElementId: source.id,
+				elements: [
+					element(source.id, ElementType.Range, {
+						start: { kind: 'literal', type: 'number', value: 0 },
+						count: {
+							kind: 'expression',
+							type: 'number',
+							source: '(() => { parameterProbe(); return 1; })()',
+						},
+					}),
+					subscriber,
+				],
+				connectLines,
+				onDiagnostic,
+			};
+			startObservableSimulation({ ...args, trusted: available ? false : true });
+			expect(probe).not.toHaveBeenCalled();
+			expect(FakeWorker.instances).toHaveLength(0);
+			expect(onDiagnostic.mock.calls[0][0]).toMatchObject({ category: 'policy' });
+		},
+	);
+	it('applies fallback bounds to typed literal Range counts', () => {
+		vi.stubGlobal('Worker', undefined);
+		const onDiagnostic = vi.fn(),
+			onNext = vi.fn();
+		startObservableSimulation({
+			entryElementId: source.id,
+			elements: [
+				element(source.id, ElementType.Range, {
+					start: { kind: 'literal', type: 'number', value: 0 },
+					count: { kind: 'literal', type: 'number', value: 10001 },
+				}),
+				subscriber,
+			],
+			connectLines,
+			onDiagnostic,
+			onNext,
+		});
+		expect(onNext).not.toHaveBeenCalled();
+		expect(onDiagnostic.mock.calls[0][0]).toMatchObject({ category: 'policy' });
+	});
 	it('transfers cloneable seed and correlates events, ignoring stale and stopped runs', () => {
 		const onNext = vi.fn(),
 			onError = vi.fn(),

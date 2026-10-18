@@ -138,3 +138,38 @@ describe('explicit replacement of invalid active storage', () => {
 		expect((await repository.load())?.diagram).toEqual(currentReleaseDiagram);
 	});
 });
+
+import { schemaBackupKey } from './diagramPersistence';
+
+it('preserves the released v1 record if its schema backup fails and retains the original after later autosaves', async () => {
+	await keyval.clear();
+	const v1 = {
+		...imported(),
+		schemaVersion: 1,
+		diagram: {
+			...currentReleaseDiagram,
+			elements: [
+				{
+					...currentReleaseDiagram.elements[0],
+					type: 'range',
+					properties: { start: 0, count: 2 },
+				},
+			],
+			connectLines: [],
+		},
+	};
+	await keyval.set(ACTIVE_DIAGRAM_KEY, v1.id);
+	await keyval.set(diagramKey(v1.id), v1);
+	const actual = await vi.importActual<typeof import('idb-keyval')>('idb-keyval');
+	vi.mocked(keyval.set).mockRejectedValueOnce(new Error('schema backup failed'));
+	await expect(new DiagramRepository().load()).rejects.toThrow('schema backup failed');
+	expect(await keyval.get(diagramKey(v1.id))).toEqual(v1);
+	vi.mocked(keyval.set).mockImplementation(actual.set);
+	const repo = new DiagramRepository();
+	const migrated = (await repo.load())!;
+	expect(migrated.schemaVersion).toBe(2);
+	expect(await keyval.get(schemaBackupKey(v1.id))).toEqual(v1);
+	await repo.save({ ...migrated.diagram, themeId: 'winter' });
+	expect(await keyval.get(schemaBackupKey(v1.id))).toEqual(v1);
+	expect(await new DiagramRepository().load()).toMatchObject({ schemaVersion: 2 });
+});

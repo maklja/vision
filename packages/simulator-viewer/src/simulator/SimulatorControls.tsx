@@ -5,7 +5,12 @@ import { Unsubscribable } from 'rxjs';
 import Box from '@mui/material/Box';
 import { useShallow } from 'zustand/react/shallow';
 import type { FlowValueEvent, ExecutionDiagnostic } from '@maklja/vision-simulator-engine';
-import { Element, isEntryOperatorType } from '@maklja/vision-simulator-model';
+import {
+	ConnectLine,
+	Element,
+	isEntryOperatorType,
+	resultOperators,
+} from '@maklja/vision-simulator-model';
 import { SimulationControls } from '../ui';
 import { useRootStore } from '../store/rootStore';
 import { selectSimulation } from '../store/simulation';
@@ -18,6 +23,8 @@ export interface SimulatorControlsProps {
 }
 
 export function SimulatorControls({ stage }: SimulatorControlsProps) {
+	const [entryId, setEntryId] = useState('');
+	const [readiness, setReadiness] = useState({ revision: '', error: '' });
 	const [watchdogSeconds, setWatchdogSeconds] = useState(5);
 	const [diagnostics, setDiagnostics] = useState<ExecutionDiagnostic[]>([]);
 	const contextSeed = useRootStore((s) => s.contextSeed);
@@ -45,7 +52,44 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	const updateCanvasState = useRootStore((state) => state.updateCanvasState);
 	const setSelectElements = useRootStore((state) => state.setSelectElements);
 	const permission = useDiagramExecutionPermission();
-	const executionAllowed = permission.allowed;
+	const sourceRevision = JSON.stringify([
+		entryId,
+		elements.filter((el) => !resultOperators.has(el.type)),
+		connectLines,
+	]);
+	const ready = readiness.revision === sourceRevision && !readiness.error;
+	useEffect(() => {
+		let current = true;
+		const [entry, sources, lines] = JSON.parse(sourceRevision) as [
+			string,
+			Element[],
+			ConnectLine[],
+		];
+		if (!entry) return;
+		import('@maklja/vision-simulator-engine')
+			.then(({ createSimulationModel, preflight, ExecutionError }) => {
+				let error = '';
+				try {
+					preflight(createSimulationModel(entry, sources, lines).getReachableElements());
+				} catch (failure) {
+					error =
+						failure instanceof ExecutionError
+							? `${failure.diagnostic.elementId}.${failure.diagnostic.field ?? 'properties'}: ${failure.message}`
+							: failure instanceof Error
+								? failure.message
+								: 'Invalid execution parameters';
+				}
+				if (current) setReadiness({ revision: sourceRevision, error });
+			})
+			.catch(() => {
+				if (current)
+					setReadiness({ revision: sourceRevision, error: 'Validation could not load.' });
+			});
+		return () => {
+			current = false;
+		};
+	}, [sourceRevision]);
+	const executionAllowed = permission.allowed && ready;
 	const latestPermission = useRef(permission);
 	latestPermission.current = permission;
 	const simulationSubscription = useRef<Unsubscribable | null>(null);
@@ -186,6 +230,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 			}}
 		>
 			<SimulationControls
+				onEntryElementChange={setEntryId}
 				executionAllowed={executionAllowed && !seedError}
 				simulatorId={simulation.id}
 				simulationState={simulation.state}
@@ -240,6 +285,9 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 					/>
 				</label>
 				{seedError && <p role="alert">{seedError}</p>}
+				{readiness.revision === sourceRevision && readiness.error && (
+					<p role="alert">{readiness.error}</p>
+				)}
 				<ul aria-label="Execution diagnostics" aria-live="polite">
 					{diagnostics.map((d, index) => (
 						<li key={index} tabIndex={0}>

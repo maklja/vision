@@ -424,6 +424,7 @@ export const intervalOperatorDefinition = {
 	properties: {
 		period: {
 			kind: 'number',
+			parameter: true,
 			label: 'Period',
 			semantics:
 				'Delay in milliseconds before the first and each following sequential value (starting at zero). Passed unchanged to RxJS interval, including zero.',
@@ -445,11 +446,13 @@ export const rangeOperatorDefinition = {
 	properties: {
 		start: {
 			kind: 'number',
+			parameter: true,
 			label: 'Start',
 			semantics: 'Passed unchanged as the first RxJS range argument.',
 		},
 		count: {
 			kind: 'number',
+			parameter: true,
 			optional: true,
 			label: 'Count',
 			semantics:
@@ -482,12 +485,14 @@ export const timerOperatorDefinition = {
 		},
 		startDue: {
 			kind: 'number',
+			parameter: true,
 			label: 'Due milliseconds',
 			semantics:
-				'Stored as a number in both modes. Relative mode passes it unchanged; Date mode constructs a Date at the engine boundary (the form labels it Due date). Past dates keep RxJS scheduling behavior.',
+				'Stored as a typed number/date parameter in schema v2. Relative mode passes it unchanged; Date mode constructs a Date at the engine boundary (the form labels it Due date). Past dates keep RxJS scheduling behavior.',
 		},
 		intervalDuration: {
 			kind: 'number',
+			parameter: true,
 			label: 'Interval duration',
 			semantics:
 				'Milliseconds between later values; -1 is the current one-shot default. Negative values complete after the first emission; zero repeats asynchronously per RxJS timer.',

@@ -52,7 +52,7 @@ test('imports inertly, requires session approval again after reload, and exports
 	const chunks = [];
 	for await (const chunk of stream!) chunks.push(chunk);
 	const exported = JSON.parse(Buffer.concat(chunks).toString());
-	expect(exported.schemaVersion).toBe(1);
+	expect(exported.schemaVersion).toBe(2);
 	expect(exported.origin).toBe('file');
 	expect(exported.diagram).toEqual(currentReleaseDiagram);
 	expect(exported).not.toHaveProperty('trusted');

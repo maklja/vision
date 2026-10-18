@@ -6,10 +6,12 @@ import {
 	Element,
 	resultOperators,
 	DiagramDocument,
-	validateDiagramData,
+	diagramWithTypedParameters,
+	upgradeDiagramDocument,
 	validateDiagramDocument,
 	migrateLegacyDiagram,
 	validateJsonData,
+	wrapParameterProperties,
 } from '@maklja/vision-simulator-model';
 import { RootStore, StateProps } from '../store/rootStore';
 import type { CanvasState } from '../store/stage';
@@ -20,6 +22,7 @@ export const LEGACY_BACKUP_KEY = 'vision:backup:legacy';
 export const RECOVERY_BACKUP_KEY = 'vision:backup:recovery';
 export const diagramKey = (id: string) => `vision:diagram:${id}`;
 export const backupKey = (id: string) => `vision:backup:${id}`;
+export const schemaBackupKey = (id: string) => `vision:backup:schema-v1:${id}`;
 
 function isActiveId(value: unknown): value is string {
 	return (
@@ -38,14 +41,18 @@ export class DiagramRepository {
 	documentForExport(data: StateProps): DiagramDocument {
 		const now = new Date().toISOString();
 		this.metadata ??= {
-			schemaVersion: 1,
+			schemaVersion: 2,
 			id: v1(),
 			name: 'My diagram',
 			createdAt: now,
 			updatedAt: now,
 			origin: 'local',
 		};
-		return validateDiagramDocument({ ...this.metadata, diagram: data, updatedAt: now });
+		return validateDiagramDocument({
+			...this.metadata,
+			diagram: diagramWithTypedParameters(data),
+			updatedAt: now,
+		});
 	}
 
 	private remember(doc: DiagramDocument) {
@@ -75,9 +82,15 @@ export class DiagramRepository {
 		return this.enqueue(async () => {
 			const active = await this.active();
 			if (active) {
-				const doc = validateDiagramDocument(active.raw);
+				const doc = upgradeDiagramDocument(active.raw);
 				if (doc.id !== active.id)
 					throw new Error('Diagram ID does not match its storage key.');
+				if (
+					(active.raw as { schemaVersion?: unknown }).schemaVersion !== doc.schemaVersion
+				) {
+					await set(schemaBackupKey(active.id), active.raw);
+					await set(diagramKey(active.id), doc);
+				}
 				return this.remember(doc);
 			}
 			const legacy = await get<unknown>(LEGACY_DIAGRAM_KEY);
@@ -95,7 +108,7 @@ export class DiagramRepository {
 
 	save(data: StateProps): Promise<DiagramDocument> {
 		return this.enqueue(async () => {
-			const diagram = validateDiagramData(data);
+			const diagram = diagramWithTypedParameters(data);
 			const active = await this.active();
 			const previous = active ? validateDiagramDocument(active.raw) : undefined;
 			if (previous && previous.id !== active?.id) throw new Error('Diagram ID mismatch.');
@@ -177,8 +190,11 @@ export function createPersistedDiagram(state: PersistableDiagramState): StatePro
 			x: el.x,
 			y: el.y,
 			visible: el.visible,
-			properties: Object.fromEntries(
-				Object.entries(el.properties).filter(([, value]) => value !== undefined),
+			properties: wrapParameterProperties(
+				el.type,
+				Object.fromEntries(
+					Object.entries(el.properties).filter(([, value]) => value !== undefined),
+				),
 			),
 		}));
 	const diagram: StateProps = {

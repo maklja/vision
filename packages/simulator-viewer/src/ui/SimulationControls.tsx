@@ -42,6 +42,7 @@ function ElementAutocompleteOption({ element, onElementLocate }: ElementAutocomp
 
 export interface SimulationControlsProps {
 	executionAllowed?: boolean;
+	onEntryElementChange?: (id: string) => void;
 	simulatorId: string;
 	simulationState: SimulationState;
 	entryElements: Element[];
@@ -54,6 +55,7 @@ export interface SimulationControlsProps {
 
 export function SimulationControls({
 	executionAllowed = true,
+	onEntryElementChange,
 	simulatorId,
 	simulationState,
 	entryElements,
@@ -74,7 +76,10 @@ export function SimulationControls({
 	const handleEntryElementChange = (
 		_event: SyntheticEvent,
 		el: Element<Record<string, unknown>> | null,
-	) => setEntryElementId(el?.id ?? '');
+	) => {
+		setEntryElementId(el?.id ?? '');
+		onEntryElementChange?.(el?.id ?? '');
+	};
 
 	const simulationRunning = simulationState === SimulationState.Running;
 	return (
