@@ -81,7 +81,7 @@ function assertForwarded(referenceValue: ReturnType<typeof reference>, actual: F
 
 describe('conditional operator metadata compatibility', () => {
 	it.each([true, false])(
-		'IIf selects by saved condition %s and binds helpers by port position',
+		'IIf selects by resolved condition %s and binds helpers by port position',
 		(condition) => {
 			const top = reference('top', ConnectPointPosition.Top);
 			const bottom = reference('bottom', ConnectPointPosition.Bottom);
@@ -108,7 +108,7 @@ describe('conditional operator metadata compatibility', () => {
 				'function result() { throw new Error("unchosen branch invoked"); }';
 			const observable = source(
 				{
-					conditionExpression: `function condition() { return ${!condition}; }`,
+					conditionExpression: `function condition() { return ${condition}; }`,
 					trueCallbackExpression: condition ? callback : unchosenCallback,
 					falseCallbackExpression: condition ? unchosenCallback : callback,
 				},
@@ -148,9 +148,9 @@ describe('conditional operator metadata compatibility', () => {
 		const values: unknown[] = [];
 		observable.subscribe((value) => values.push(value.raw));
 		observable.subscribe((value) => values.push(value.raw));
-		expect(values).toEqual(['top', 'bottom']);
-		expect(top.props.onSubscribe).toHaveBeenCalledTimes(1);
-		expect(bottom.props.onSubscribe).toHaveBeenCalledTimes(1);
+		expect(values).toEqual(['top', 'top']);
+		expect(top.props.onSubscribe).toHaveBeenCalledTimes(2);
+		expect(bottom.props.onSubscribe).not.toHaveBeenCalled();
 	});
 
 	it.each([ConnectPointPosition.Top, ConnectPointPosition.Bottom])(
@@ -181,9 +181,7 @@ describe('conditional operator metadata compatibility', () => {
 		);
 		const observable = source(
 			{
-				observableFactory:
-					'function input() { throw new Error("top-level override must be ignored"); }',
-				count: 99,
+				observableFactory: 'function input() { return createObservable({ count: 2 }); }',
 			},
 			'parent',
 		);
@@ -218,9 +216,9 @@ describe('conditional operator metadata compatibility', () => {
 			);
 			expect(top.props.observableGenerator).not.toHaveBeenCalled();
 			const observable = source();
-			expect(top.props.observableGenerator).toHaveBeenCalledTimes(1);
+			expect(top.props.observableGenerator).not.toHaveBeenCalled();
 			expect(top.props.onSubscribe).not.toHaveBeenCalled();
-			if (isIif) expect(bottom.props.observableGenerator).toHaveBeenCalledTimes(1);
+			if (isIif) expect(bottom.props.observableGenerator).not.toHaveBeenCalled();
 			const actual: FlowValue[] = [];
 			observable.subscribe((value) => actual.push(value));
 			expect(top.props.observableGenerator.mock.calls.map((call) => call[0])).toEqual([

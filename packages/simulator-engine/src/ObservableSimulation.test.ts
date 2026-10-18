@@ -77,6 +77,28 @@ describe('ObservableSimulation', () => {
 		subscription.unsubscribe();
 	});
 
+	it('excludes disconnected draft code from runtime preflight', () => {
+		const model = createSimulationModel(
+			source.id,
+			[
+				source,
+				subscriber,
+				{
+					...source,
+					id: 'draft',
+					properties: { argsFactoryExpression: '() =>' },
+				},
+			],
+			[connection],
+		);
+		const events: FlowValueEvent[] = [];
+		const subscription = new ObservableSimulation(model).start({
+			next: (event) => events.push(event),
+		});
+		expect(events.map((event) => event.value)).toEqual(['1', '2']);
+		subscription.unsubscribe();
+	});
+
 	it('should unsubscribe from the simulation and trigger cleanup', () => {
 		vi.useFakeTimers();
 		try {

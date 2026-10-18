@@ -13,7 +13,7 @@ import {
 } from '@maklja/vision-simulator-model';
 import { createSimulationModel, ObservableSimulation } from '../ObservableSimulation';
 import { FlowValueEvent } from '../context';
-import { InvalidElementPropertyValueError, MissingReferenceObservableError } from '../errors';
+import { MissingReferenceObservableError } from '../errors';
 
 const { ajaxMock } = vi.hoisted(() => ({ ajaxMock: vi.fn() }));
 vi.mock('rxjs/ajax', () => ({ ajax: ajaxMock }));
@@ -604,19 +604,14 @@ describe('creationOperatorFactory', () => {
 			body: '{invalid',
 		});
 
-		let thrown: unknown = null;
-		try {
-			runSimulation(
-				'source',
-				[ajax, subscriber('subscriber')],
-				[connectLine('source-subscriber', output('source'), input('subscriber'))],
-			);
-		} catch (error) {
-			thrown = error;
-		}
-
-		expect(thrown).toBeInstanceOf(InvalidElementPropertyValueError);
-		expect((thrown as InvalidElementPropertyValueError).elementId).toBe('source');
-		expect((thrown as InvalidElementPropertyValueError).propertyKey).toBe('body');
+		const events = runSimulation(
+			'source',
+			[ajax, subscriber('subscriber')],
+			[connectLine('source-subscriber', output('source'), input('subscriber'))],
+		);
+		expect(events.error).toMatchObject({
+			type: FlowValueType.Error,
+			value: expect.stringContaining('body'),
+		});
 	});
 });

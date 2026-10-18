@@ -76,14 +76,14 @@ function reference(name: string, raw: unknown, index = 0) {
 
 describe('join operator metadata compatibility', () => {
 	it.each(definitions)(
-		'$name forwards overrides lazily with fresh parent-correlated subscription IDs',
+		'$name keeps child overrides local and subscribes lazily with fresh parent-correlated subscription IDs',
 		(definition) => {
 			const left = reference('left', 1, 10),
 				right = reference('right', 2, 1);
 			const factory = joinCreationOperatorFactory.create(element(definition), {
 				refObservableGenerators: [left.props, right.props],
 			});
-			const overrides = { observableInputsType: ObservableInputsType.Object, count: 2 };
+			const overrides = {};
 			const observable = factory(overrides, 'parent');
 			expect(left.observableGenerator).not.toHaveBeenCalled();
 			expect(right.observableGenerator).not.toHaveBeenCalled();
@@ -107,7 +107,7 @@ describe('join operator metadata compatibility', () => {
 			for (const ref of subscribed) {
 				expect(ref.observableGenerator).toHaveBeenCalledTimes(2);
 				ref.observableGenerator.mock.calls.forEach(([props, id], index) => {
-					expect(props).toBe(overrides);
+					expect(props).toBeUndefined();
 					expect(id).toEqual(expect.any(String));
 					ids.push(id!);
 					expect(ref.props.onSubscribe.mock.calls[index][0]).toMatchObject({
@@ -134,7 +134,7 @@ describe('join operator metadata compatibility', () => {
 	);
 
 	it.each([combineLatestOperatorDefinition, forkJoinOperatorDefinition])(
-		'$name uses saved object mode, connection names and child overrides',
+		'$name applies a join-local input mode override',
 		(definition) => {
 			const left = reference('left', 1),
 				right = reference('right', 2);
@@ -145,11 +145,9 @@ describe('join operator metadata compatibility', () => {
 					{ refObservableGenerators: [left.props, right.props] },
 				)({ observableInputsType: ObservableInputsType.Array }, 'parent')
 				.subscribe((v) => actual.push(v));
-			expect(actual.map((v) => v.raw)).toEqual([{ left: 1, right: 2 }]);
+			expect(actual.map((v) => v.raw)).toEqual([[1, 2]]);
 			expect(actual[0].dependencies).toEqual([left.values[0].id, right.values[0].id]);
-			expect(left.observableGenerator.mock.calls[0][0]).toEqual({
-				observableInputsType: ObservableInputsType.Array,
-			});
+			expect(left.observableGenerator.mock.calls[0][0]).toBeUndefined();
 		},
 	);
 

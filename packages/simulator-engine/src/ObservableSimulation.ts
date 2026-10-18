@@ -1,3 +1,4 @@
+import { ExecutionRun, preflight, ExecutionDiagnostic } from './execution/ExecutionRun';
 import { Observer, Unsubscribable } from 'rxjs';
 import { ConnectLine, Element, isEntryOperatorType } from '@maklja/vision-simulator-model';
 import { ObservableFactory } from './factory';
@@ -38,11 +39,18 @@ export function createSimulationModel(
 export class ObservableSimulation {
 	private subscription: Unsubscribable | null = null;
 
-	constructor(private readonly simulationModel: SimulationModel) {}
+	constructor(
+		private readonly simulationModel: SimulationModel,
+		private readonly seed: unknown = {},
+		private readonly report?: (d: ExecutionDiagnostic) => void,
+		private readonly runId?: string,
+	) {}
 
 	start(o: Partial<Observer<FlowValueEvent>>): Unsubscribable {
+		preflight(this.simulationModel.getReachableElements());
+		const run = new ExecutionRun(this.runId, this.seed, this.report);
 		const flowManager = new DefaultFlowManager(this.simulationModel);
-		const observableFactory = new ObservableFactory(this.simulationModel, flowManager);
+		const observableFactory = new ObservableFactory(this.simulationModel, flowManager, run);
 		const observable = observableFactory.createObservable();
 
 		const subscription = observable.subscribe({

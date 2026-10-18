@@ -9,6 +9,14 @@ export class SimulationModel {
 		public readonly graphBranches: ReadonlyMap<string, GraphBranch>,
 	) {}
 
+	getReachableElements(): Element[] {
+		const ids = new Set<string>();
+		for (const branch of this.graphBranches.values()) {
+			for (const node of branch.nodes) ids.add(node.id);
+		}
+		return [...ids].map((id) => this.getElement(id));
+	}
+
 	getElement(elId: string) {
 		const el = this.elements.get(elId);
 		if (!el) {

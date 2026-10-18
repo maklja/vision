@@ -164,3 +164,21 @@ describe('versioned IndexedDB repository', () => {
 		expect(await get(LEGACY_DIAGRAM_KEY)).toEqual({ elements: 'broken' });
 	});
 });
+
+it('roundtrips only the finite context seed through versioned save/export/import', async () => {
+	await clear();
+	const repository = new DiagramRepository();
+	const diagram = {
+		elements: [],
+		connectLines: [],
+		canvasState: { x: 0, y: 0, scaleX: 1, scaleY: 1 },
+		themeId: 'sea',
+		contextSeed: { seen: 0, nested: { value: 1 } },
+	};
+	const saved = await repository.save(diagram);
+	const imported = await new DiagramRepository().replace(saved);
+	expect(imported.diagram.contextSeed).toEqual(diagram.contextSeed);
+	expect(repository.documentForExport(diagram).diagram.contextSeed).toEqual(diagram.contextSeed);
+	expect(Object.keys(saved.diagram)).not.toContain('context');
+	expect(Object.keys(saved)).not.toContain('trusted');
+});

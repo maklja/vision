@@ -159,6 +159,7 @@ export class DiagramRepository {
 const defaultRepository = new DiagramRepository();
 
 export interface PersistableDiagramState {
+	contextSeed?: Record<string, unknown>;
 	elements: Record<string, Element>;
 	connectLines: Record<string, ConnectLine>;
 	canvasState: Pick<CanvasState, 'x' | 'y' | 'scaleX' | 'scaleY'> & Partial<CanvasState>;
@@ -181,6 +182,9 @@ export function createPersistedDiagram(state: PersistableDiagramState): StatePro
 			),
 		}));
 	const diagram: StateProps = {
+		...(state.contextSeed && Object.keys(state.contextSeed).length
+			? { contextSeed: state.contextSeed }
+			: {}),
 		elements,
 		connectLines: Object.values(state.connectLines).map((line) => ({
 			id: line.id,
@@ -338,6 +342,7 @@ export function subscribeDiagramPersistence(
 		(state) => ({
 			elements: state.elements,
 			connectLines: state.connectLines,
+			contextSeed: state.contextSeed,
 			canvasState: state.canvasState,
 			themeId: state.theme.default.colors.id,
 		}),

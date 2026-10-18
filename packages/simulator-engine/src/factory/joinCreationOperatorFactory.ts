@@ -1,3 +1,4 @@
+import { ExecutionRun } from '../execution/ExecutionRun';
 import { v1 } from 'uuid';
 import {
 	combineLatest,
@@ -45,7 +46,7 @@ type JoinCreationOperatorFunctionFactory = (
 function createIndexedObservableInput(
 	id: string,
 	observableGeneratorProps: readonly ObservableGeneratorProps[],
-	overrideProperties?: ElementProps,
+	_overrideProperties?: ElementProps,
 	parentSubscribeId?: string,
 ) {
 	return observableGeneratorProps.map((observableGeneratorProp) =>
@@ -63,7 +64,7 @@ function createIndexedObservableInput(
 				observableGeneratorProp.observableGenerator,
 				subscribeId,
 			);
-			return wrappedObservableGenerator(overrideProperties);
+			return wrappedObservableGenerator();
 		}),
 	);
 }
@@ -71,7 +72,7 @@ function createIndexedObservableInput(
 function createNamedObservableInput(
 	id: string,
 	observableGeneratorProps: readonly ObservableGeneratorProps[],
-	overrideProperties?: ElementProps,
+	_overrideProperties?: ElementProps,
 	parentSubscribeId?: string,
 ): Record<string, ObservableInput<FlowValue>> {
 	return observableGeneratorProps.reduce(
@@ -91,7 +92,7 @@ function createNamedObservableInput(
 					observableGeneratorProp.observableGenerator,
 					subscribeId,
 				);
-				return wrappedObservableGenerator(overrideProperties);
+				return wrappedObservableGenerator();
 			}),
 		}),
 		{},
@@ -117,11 +118,11 @@ function mapNamedObservableOutput(value: Record<string, FlowValue>, elId: string
 
 const createMergeOperator =
 	(el: Element, props: OperatorProps) =>
-	(overrideProperties?: ElementProps, parentSubscribeId?: string) => {
+	(_overrideProperties?: ElementProps, parentSubscribeId?: string) => {
 		const mergeEl = el as MergeElement;
 		const mergeElProperties: MergeElementProperties = {
 			...mergeEl.properties,
-			...overrideProperties,
+			..._overrideProperties,
 		};
 
 		const observables = props.refObservableGenerators.map((refObservableGenerator) =>
@@ -149,7 +150,7 @@ const createMergeOperator =
 
 const createCombineLatestOperator =
 	(el: Element, props: OperatorProps) =>
-	(overrideProperties?: ElementProps, parentSubscribeId?: string) => {
+	(_overrideProperties?: ElementProps, parentSubscribeId?: string) => {
 		const combineLatestEl = el as CombineLatestElement;
 
 		if (combineLatestEl.properties.observableInputsType === ObservableInputsType.Array) {
@@ -157,7 +158,7 @@ const createCombineLatestOperator =
 				createIndexedObservableInput(
 					combineLatestEl.id,
 					props.refObservableGenerators,
-					overrideProperties,
+					undefined,
 					parentSubscribeId,
 				),
 			).pipe(mapFlowValuesArray(combineLatestEl.id));
@@ -167,7 +168,7 @@ const createCombineLatestOperator =
 			createNamedObservableInput(
 				combineLatestEl.id,
 				props.refObservableGenerators,
-				overrideProperties,
+				undefined,
 				parentSubscribeId,
 			),
 		).pipe(map((value) => mapNamedObservableOutput(value, combineLatestEl.id)));
@@ -175,7 +176,7 @@ const createCombineLatestOperator =
 
 const createConcatOperator =
 	(el: Element, props: OperatorProps) =>
-	(overrideProperties?: ElementProps, parentSubscribeId?: string) => {
+	(_overrideProperties?: ElementProps, parentSubscribeId?: string) => {
 		return concat<FlowValue[]>(
 			...props.refObservableGenerators.map((refObservableGenerator) =>
 				defer(() => {
@@ -192,7 +193,7 @@ const createConcatOperator =
 						refObservableGenerator.observableGenerator,
 						subscribeId,
 					);
-					return wrappedObservableGenerator(overrideProperties);
+					return wrappedObservableGenerator();
 				}),
 			),
 		);
@@ -200,7 +201,7 @@ const createConcatOperator =
 
 const createForkJoinOperator =
 	(el: Element, props: OperatorProps) =>
-	(overrideProperties?: ElementProps, parentSubscribeId?: string) => {
+	(_overrideProperties?: ElementProps, parentSubscribeId?: string) => {
 		const forkJoinEl = el as ForkJoinElement;
 
 		if (forkJoinEl.properties.observableInputsType === ObservableInputsType.Array) {
@@ -208,7 +209,7 @@ const createForkJoinOperator =
 				createIndexedObservableInput(
 					forkJoinEl.id,
 					props.refObservableGenerators,
-					overrideProperties,
+					undefined,
 					parentSubscribeId,
 				),
 			).pipe(mapFlowValuesArray(forkJoinEl.id));
@@ -218,7 +219,7 @@ const createForkJoinOperator =
 			createNamedObservableInput(
 				forkJoinEl.id,
 				props.refObservableGenerators,
-				overrideProperties,
+				undefined,
 				parentSubscribeId,
 			),
 		).pipe(map((value) => mapNamedObservableOutput(value, forkJoinEl.id)));
@@ -226,7 +227,7 @@ const createForkJoinOperator =
 
 const createRaceOperator =
 	(el: Element, props: OperatorProps) =>
-	(overrideProperties?: ElementProps, parentSubscribeId?: string) => {
+	(_overrideProperties?: ElementProps, parentSubscribeId?: string) => {
 		return race<FlowValue[]>(
 			props.refObservableGenerators.map((refObservableGenerator) =>
 				defer(() => {
@@ -243,7 +244,7 @@ const createRaceOperator =
 						subscribeId,
 					);
 
-					return wrappedObservableGenerator(overrideProperties);
+					return wrappedObservableGenerator();
 				}),
 			),
 		);
@@ -251,7 +252,7 @@ const createRaceOperator =
 
 const createZipOperator =
 	(el: Element, props: OperatorProps) =>
-	(overrideProperties?: ElementProps, parentSubscribeId?: string) => {
+	(_overrideProperties?: ElementProps, parentSubscribeId?: string) => {
 		return zip<FlowValue[]>(
 			props.refObservableGenerators.map((refObservableGenerator) =>
 				defer(() => {
@@ -267,7 +268,7 @@ const createZipOperator =
 						refObservableGenerator.observableGenerator,
 						subscribeId,
 					);
-					return wrappedObservableGenerator(overrideProperties);
+					return wrappedObservableGenerator();
 				}),
 			),
 		).pipe(mapFlowValuesArray(el.id));
@@ -289,7 +290,11 @@ export const joinCreationOperatorFactory: JoinCreationOperatorFactory = {
 			throw new UnsupportedElementTypeError(el.id, el.type, ElementGroup.JoinCreation);
 		}
 
-		return factory(el, props);
+		const run = props.run ?? new ExecutionRun();
+		return (overrides, subscribeId) =>
+			defer(() =>
+				factory(run.resolve(el, overrides), { ...props, run })(undefined, subscribeId),
+			);
 	},
 	isSupported(el: Element): boolean {
 		return supportedOperators.has(el.type);

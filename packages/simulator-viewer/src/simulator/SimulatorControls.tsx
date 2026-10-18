@@ -1,10 +1,10 @@
 import Konva from 'konva';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDiagramExecutionPermission } from '../persistence/DiagramExecutionGate';
 import { Unsubscribable } from 'rxjs';
 import Box from '@mui/material/Box';
 import { useShallow } from 'zustand/react/shallow';
-import type { FlowValueEvent } from '@maklja/vision-simulator-engine';
+import type { FlowValueEvent, ExecutionDiagnostic } from '@maklja/vision-simulator-engine';
 import { Element, isEntryOperatorType } from '@maklja/vision-simulator-model';
 import { SimulationControls } from '../ui';
 import { useRootStore } from '../store/rootStore';
@@ -18,6 +18,12 @@ export interface SimulatorControlsProps {
 }
 
 export function SimulatorControls({ stage }: SimulatorControlsProps) {
+	const [watchdogSeconds, setWatchdogSeconds] = useState(5);
+	const [diagnostics, setDiagnostics] = useState<ExecutionDiagnostic[]>([]);
+	const contextSeed = useRootStore((s) => s.contextSeed);
+	const setContextSeed = useRootStore((s) => s.setContextSeed);
+	const [seedDraft, setSeedDraft] = useState(() => JSON.stringify(contextSeed, null, 2));
+	const [seedError, setSeedError] = useState('');
 	const simulation = useRootStore(selectSimulation);
 	const elements = useRootStore(selectStageElements());
 	const entryElements = useRootStore(
@@ -44,10 +50,12 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	latestPermission.current = permission;
 	const simulationSubscription = useRef<Unsubscribable | null>(null);
 	const mounted = useRef(true);
+	const generation = useRef(0);
 	useEffect(() => {
 		mounted.current = true;
 		return () => {
 			mounted.current = false;
+			generation.current++;
 			simulationSubscription.current?.unsubscribe();
 		};
 	}, []);
@@ -57,17 +65,20 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 			return;
 		}
 
+		const request = ++generation.current;
 		const requestedRevision = permission.revision;
 		const { startObservableSimulation } = await import('@maklja/vision-simulator-engine');
 		// The chunk may arrive after source edits revoke approval (or approve another revision).
 		if (
 			!mounted.current ||
+			request !== generation.current ||
 			!latestPermission.current.allowed ||
 			latestPermission.current.revision !== requestedRevision
 		)
 			return;
 
-		const dispatchObservableEvent = (event: FlowValueEvent) =>
+		const dispatchObservableEvent = (event: FlowValueEvent) => {
+			if (request !== generation.current) return;
 			simulateObservableEvent({
 				id: event.id,
 				hash: event.hash,
@@ -80,39 +91,54 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 				subscribeId: event.subscribeId,
 				dependencies: [...event.dependencies],
 			});
+		};
 
 		clearErrors();
+		setDiagnostics([]);
 		startSimulation();
 		clearAllSelectedElements();
-		const subscription = startObservableSimulation({
+		const pending: { current?: Unsubscribable } = {};
+		pending.current = startObservableSimulation({
 			entryElementId,
+			trusted: executionAllowed,
+			contextSeed,
+			watchdogSeconds,
+			onDiagnostic: (diagnostic) =>
+				setDiagnostics((previous) => [
+					...previous.filter((d) => !d.omittedCount).slice(-99),
+					diagnostic,
+				]),
 			elements,
 			connectLines,
 			onNext: dispatchObservableEvent,
 			onError: (error) => {
 				dispatchObservableEvent(error);
-				subscription.unsubscribe();
+				pending.current?.unsubscribe();
 			},
 			onComplete: () => {
+				if (request !== generation.current) return;
 				completeSimulation();
-				subscription.unsubscribe();
+				pending.current?.unsubscribe();
 			},
 			onCreationError: (creationErrorEvent) => {
-				subscription.unsubscribe();
+				if (request !== generation.current) return;
+				pending.current?.unsubscribe();
 				resetSimulation();
 				createElementError(creationErrorEvent);
 			},
 		});
-		simulationSubscription.current = subscription;
+		simulationSubscription.current = pending.current;
 	}
 
 	function handleSimulationStop() {
+		generation.current++;
 		simulationSubscription.current?.unsubscribe();
 		simulationSubscription.current = null;
 		resetSimulation();
 	}
 
 	function handleSimulationReset(entryElementId: string) {
+		generation.current++;
 		simulationSubscription.current?.unsubscribe();
 		simulationSubscription.current = null;
 
@@ -160,7 +186,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 			}}
 		>
 			<SimulationControls
-				executionAllowed={executionAllowed}
+				executionAllowed={executionAllowed && !seedError}
 				simulatorId={simulation.id}
 				simulationState={simulation.state}
 				entryElements={entryElements}
@@ -170,6 +196,58 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 				onSimulationReset={handleSimulationReset}
 				onElementLocate={handleElementLocate}
 			/>
+			<details
+				style={{
+					background: 'white',
+					color: 'black',
+					padding: 8,
+					maxHeight: '60vh',
+					overflow: 'auto',
+				}}
+			>
+				<summary>Execution settings and diagnostics</summary>
+				<label>
+					Watchdog seconds (1–60)
+					<input
+						aria-label="Watchdog seconds"
+						type="number"
+						min={1}
+						max={60}
+						value={watchdogSeconds}
+						onChange={(event) => setWatchdogSeconds(Number(event.target.value))}
+					/>
+				</label>
+				<p>
+					Source silence is allowed while the Worker responds. Background throttling may
+					trigger cancellation.
+				</p>
+				<label>
+					Context seed (JSON object)
+					<textarea
+						aria-label="Context seed"
+						value={seedDraft}
+						onChange={(event) => {
+							setSeedDraft(event.target.value);
+							try {
+								setContextSeed(JSON.parse(event.target.value));
+								setSeedError('');
+							} catch {
+								setSeedError(
+									'Enter a finite JSON object, at most 1 MiB and depth 64.',
+								);
+							}
+						}}
+					/>
+				</label>
+				{seedError && <p role="alert">{seedError}</p>}
+				<ul aria-label="Execution diagnostics" aria-live="polite">
+					{diagnostics.map((d, index) => (
+						<li key={index} tabIndex={0}>
+							{d.category}: {d.elementId} {d.field} — {d.message}
+						</li>
+					))}
+				</ul>
+			</details>
 		</Box>
 	);
 }

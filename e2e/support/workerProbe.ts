@@ -7,6 +7,7 @@ export interface WorkerProbeOutboundMessage {
 export interface WorkerProbeInboundMessage {
 	type: string;
 	value: unknown;
+	diagnostic?: unknown;
 	workerId: number;
 }
 
@@ -77,7 +78,8 @@ export async function installWorkerProbe(page: Page): Promise<void> {
 			};
 
 			worker.addEventListener('message', (event: MessageEvent) => {
-				const data = event.data as { type?: unknown; value?: unknown } | undefined;
+				const data = event.data as
+					{ type?: unknown; value?: unknown; diagnostic?: unknown } | undefined;
 				if (!data || typeof data !== 'object' || typeof data.type !== 'string') {
 					return;
 				}
@@ -85,7 +87,12 @@ export async function installWorkerProbe(page: Page): Promise<void> {
 					return;
 				}
 
-				inbound.push({ type: data.type, value: data.value, workerId });
+				inbound.push({
+					type: data.type,
+					value: data.value,
+					diagnostic: data.diagnostic,
+					workerId,
+				});
 			});
 
 			return worker;

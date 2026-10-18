@@ -166,7 +166,7 @@ describe('higher-order operator metadata compatibility', () => {
 			const source = new Subject<FlowValue>();
 			const properties = {
 				...definition.defaults,
-				concurrent,
+				...(concurrent === undefined ? {} : { concurrent }),
 				projectExpression:
 					'function project(raw, index) { return createObservable({ raw, index }); }',
 			};
@@ -208,7 +208,7 @@ describe('higher-order operator metadata compatibility', () => {
 				.create(
 					element(expandOperatorDefinition, {
 						...expandOperatorDefinition.defaults,
-						concurrent,
+						...(concurrent === undefined ? {} : { concurrent }),
 						projectExpression:
 							'function project(raw, index) { return createObservable({raw,index}); }',
 					}),

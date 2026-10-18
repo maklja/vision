@@ -1,6 +1,9 @@
+import { compileCallback, validateReferences } from './utils';
+import { ExecutionRun } from '../execution/ExecutionRun';
 import { filterOperatorDefinition } from '@maklja/vision-simulator-model';
 import { Observable, filter } from 'rxjs';
-import { Element, ElementType, FilterElement } from '@maklja/vision-simulator-model';
+import { defer } from 'rxjs';
+import { Element, ElementType } from '@maklja/vision-simulator-model';
 import {
 	OperatorProps,
 	PipeObservableFactory,
@@ -10,9 +13,8 @@ import {
 import { FlowValue } from '../context';
 import { mapOutputToFlowValue } from './utils';
 
-const createFilterOperator = (el: Element) => (o: Observable<FlowValue>) => {
-	const filterEl = el as FilterElement;
-	const filterFn = new Function(`return ${filterEl.properties.predicateExpression}`);
+const createFilterOperator = (el: Element, props: OperatorProps) => (o: Observable<FlowValue>) => {
+	const filterFn = () => compileCallback<boolean>(el, props, 'predicateExpression');
 
 	return o.pipe(mapOutputToFlowValue(filter(filterFn())));
 };
@@ -28,7 +30,11 @@ export const filteringOperatorFactory: PipeOperatorFactory = {
 			throw new Error(`Unsupported element type ${el.type} as pipe operator.`);
 		}
 
-		return factory(el, props);
+		const run = props.run ?? new ExecutionRun();
+		return (source, subscriptionId) => {
+			validateReferences(el, props);
+			return defer(() => factory(run.resolve(el), { ...props, run, subscriptionId })(source));
+		};
 	},
 	isSupported(el: Element): boolean {
 		return supportedOperators.has(el.type);

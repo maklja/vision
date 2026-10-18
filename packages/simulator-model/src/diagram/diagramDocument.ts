@@ -5,6 +5,8 @@ import { findElementDescriptor } from '../descriptors';
 import { mapToOperatorPropsTemplate } from '../templates';
 
 export interface DiagramData {
+	/** Optional finite JSON initialization data; runtime mutations are never persisted. */
+	contextSeed?: Record<string, unknown>;
 	elements: Element[];
 	connectLines: ConnectLine[];
 	canvasState: { x: number; y: number; scaleX: number; scaleY: number };
@@ -93,6 +95,14 @@ export function validateJsonData(value: unknown): void {
 			);
 			active.add(item);
 			bytes += 2;
+			check(
+				Object.getOwnPropertySymbols(item).length === 0,
+				path,
+				'symbol keys are not JSON',
+			);
+			const descriptors = Object.getOwnPropertyDescriptors(item);
+			for (const descriptor of Object.values(descriptors))
+				check(!descriptor.get && !descriptor.set, path, 'accessors are not JSON');
 			for (const [key, child] of Object.entries(item)) {
 				check(!unsafeKeys.has(key), path, 'unsafe object key');
 				bytes += new TextEncoder().encode(JSON.stringify(key)).length + 2;
@@ -165,7 +175,7 @@ function validateProperties(type: ElementType, value: unknown, path: string) {
 export function validateDiagramData(value: unknown): DiagramData {
 	validateJsonData(value);
 	const data = record(value, 'diagram');
-	keys(data, ['elements', 'connectLines', 'canvasState', 'themeId'], 'diagram');
+	keys(data, ['elements', 'connectLines', 'canvasState', 'themeId', 'contextSeed'], 'diagram');
 	check(
 		Array.isArray(data.elements) && data.elements.length <= MAX_DIAGRAM_ELEMENTS,
 		'elements',
@@ -176,6 +186,7 @@ export function validateDiagramData(value: unknown): DiagramData {
 		'connectLines',
 		'expected at most 20000 lines',
 	);
+	if (data.contextSeed !== undefined) validateContextSeed(data.contextSeed);
 	const elements = new Map<string, Element>();
 	const ids = new Set<string>();
 	for (const [i, item] of data.elements.entries()) {
@@ -352,4 +363,15 @@ export function migrateLegacyDiagram(value: unknown, id: string, now: string): D
 		origin: 'local',
 		diagram: { ...raw, elements },
 	});
+}
+
+export function validateContextSeed(seed: unknown): Record<string, unknown> {
+	const value = record(seed, 'contextSeed');
+	validateJsonData(value);
+	check(
+		new TextEncoder().encode(JSON.stringify(value)).length <= 1024 * 1024,
+		'contextSeed',
+		'maximum size is 1 MiB',
+	);
+	return JSON.parse(JSON.stringify(value)) as Record<string, unknown>;
 }

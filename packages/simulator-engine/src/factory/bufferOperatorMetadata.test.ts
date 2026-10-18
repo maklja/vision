@@ -78,10 +78,11 @@ describe('buffer operator metadata compatibility', () => {
 		});
 		expect(generator).not.toHaveBeenCalled();
 		const observable = operator(source);
-		expect(generator).toHaveBeenCalledOnce();
-		expect(generator.mock.calls[0]).toEqual([undefined, ref.onSubscribe.mock.calls[0][0].id]);
+		expect(generator).not.toHaveBeenCalled();
 		const actual: FlowValue[] = [];
 		const subscription = observable.subscribe((v) => actual.push(v));
+		expect(generator.mock.calls[0]).toEqual([undefined, ref.onSubscribe.mock.calls[0][0].id]);
+
 		const first = value(1),
 			second = value(2),
 			trigger = value('flush'),
@@ -97,8 +98,8 @@ describe('buffer operator metadata compatibility', () => {
 		expect(actual[0].elementId).toBe('buffer');
 		subscription.unsubscribe();
 		observable.subscribe().unsubscribe();
-		expect(generator).toHaveBeenCalledOnce();
-		expect(ref.onSubscribe).toHaveBeenCalledOnce();
+		expect(generator).toHaveBeenCalledTimes(2);
+		expect(ref.onSubscribe).toHaveBeenCalledTimes(2);
 	});
 
 	it('bufferCount preserves overlapping defaults and flushes the remaining buffer', () => {
@@ -138,7 +139,10 @@ describe('buffer operator metadata compatibility', () => {
 			const actual: unknown[] = [];
 			transformationOperatorFactory
 				.create(
-					element(bufferTimeOperatorDefinition, { bufferTimeSpan: 100, maxBufferSize }),
+					element(bufferTimeOperatorDefinition, {
+						bufferTimeSpan: 100,
+						...(maxBufferSize === undefined ? {} : { maxBufferSize }),
+					}),
 					{ refObservableGenerators: [] },
 				)(source)
 				.subscribe((v) => actual.push(v.raw));
@@ -193,7 +197,7 @@ describe('buffer operator metadata compatibility', () => {
 			element(bufferToggleOperatorDefinition, { closingSelectorExpression: project }),
 			{ refObservableGenerators: [bottom, top] },
 		)(source);
-		expect(openingGenerator).toHaveBeenCalledOnce();
+		expect(openingGenerator).not.toHaveBeenCalled();
 		expect(closingGenerator).not.toHaveBeenCalled();
 		const actual: FlowValue[] = [];
 		const subscription = observable.subscribe((v) => actual.push(v));

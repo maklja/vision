@@ -1,90 +1,90 @@
-import { ConnectLine, Element, FlowValueType } from '@maklja/vision-simulator-model';
+import { ConnectLine, Element } from '@maklja/vision-simulator-model';
 import { createSimulationModel, ObservableSimulation } from './ObservableSimulation';
-import { ObservableSimulationMessageType } from './startObservableSimulation';
+import { ObservableSimulationMessageType as Type } from './startObservableSimulation';
 import {
-	InvalidElementPropertyValueError,
-	MissingNextElementError,
 	MissingReferenceObservableError,
+	MissingNextElementError,
 	UnsupportedElementTypeError,
+	InvalidElementPropertyValueError,
 } from './errors';
+import { ExecutionDiagnostic, ExecutionError } from './execution/ExecutionRun';
 
 export interface StartSimulationMessageEvent {
-	type: ObservableSimulationMessageType.StartSimulation;
+	type: Type.StartSimulation;
+	runId: string;
 	entryElementId: string;
 	elements: Element[];
 	connectLines: ConnectLine[];
+	contextSeed?: Record<string, unknown>;
 }
-
 export interface StopSimulationMessageEvent {
-	type: ObservableSimulationMessageType.StopSimulation;
+	type: Type.StopSimulation;
+	runId: string;
 }
-
 export type ObservableSimulationMessages = StartSimulationMessageEvent | StopSimulationMessageEvent;
-
-let observableSimulation: ObservableSimulation | null;
-self.addEventListener(
-	'message',
-	function (this: WindowEventHandlers, ev: MessageEvent<ObservableSimulationMessages>) {
-		if (ev.data.type === ObservableSimulationMessageType.StopSimulation) {
-			observableSimulation?.stop();
-			observableSimulation = null;
-			return;
-		}
-
-		if (observableSimulation) {
-			return;
-		}
-
+let simulation: ObservableSimulation | undefined;
+let heartbeat: ReturnType<typeof setInterval> | undefined;
+self.addEventListener('message', (ev: MessageEvent<ObservableSimulationMessages>) => {
+	const data = ev.data;
+	if (data.type === Type.StopSimulation) {
+		simulation?.stop();
+		simulation = undefined;
+		clearInterval(heartbeat);
+		return;
+	}
+	if (simulation) return;
+	const send = (type: Type, payload: object = {}) => {
 		try {
-			const createSimulationMessage = ev.data;
-			observableSimulation = new ObservableSimulation(
-				createSimulationModel(
-					createSimulationMessage.entryElementId,
-					createSimulationMessage.elements,
-					createSimulationMessage.connectLines,
-				),
-			);
-
-			observableSimulation.start({
-				next: (value) =>
-					self.postMessage({
-						type: ObservableSimulationMessageType.Next,
-						value,
-					}),
-				error: (error) =>
-					self.postMessage({
-						type: ObservableSimulationMessageType.Error,
-						value: error,
-					}),
-				complete: () =>
-					self.postMessage({
-						type: ObservableSimulationMessageType.Complete,
-					}),
+			self.postMessage({ type, runId: data.runId, ...payload });
+		} catch {
+			self.postMessage({
+				type: Type.CreationError,
+				runId: data.runId,
+				diagnostic: {
+					runId: data.runId,
+					category: 'transport',
+					phase: 'host',
+					message: 'Worker result could not be transferred.',
+				},
 			});
-		} catch (e) {
-			if (
-				e instanceof MissingReferenceObservableError ||
-				e instanceof MissingNextElementError ||
-				e instanceof UnsupportedElementTypeError ||
-				e instanceof InvalidElementPropertyValueError
-			) {
-				self.postMessage({
-					type: ObservableSimulationMessageType.CreationError,
-					value: {
-						id: e.id,
-						sourceElementId: e.elementId,
-						targetElementId: e.elementId,
-						connectLinesId: [],
-						hash: '',
-						index: -1,
-						type: FlowValueType.Error,
-						value: e.message,
-						subscribeId: null,
-					},
-				});
-			}
-
-			throw e;
 		}
-	},
-);
+	};
+	const diagnostic = (value: ExecutionDiagnostic) => send(Type.Diagnostic, { diagnostic: value });
+	// Control heartbeat is independent of source activity. Synchronous authored loops block it.
+	heartbeat = setInterval(() => send(Type.Heartbeat), 250);
+	try {
+		simulation = new ObservableSimulation(
+			createSimulationModel(data.entryElementId, data.elements, data.connectLines),
+			data.contextSeed,
+			diagnostic,
+			data.runId,
+		);
+		simulation.start({
+			next: (value) => send(Type.Next, { value }),
+			error: (value) => send(Type.Error, { value }),
+			complete: () => {
+				clearInterval(heartbeat);
+				send(Type.Complete);
+			},
+		});
+	} catch (error) {
+		clearInterval(heartbeat);
+		const diagnostic: ExecutionDiagnostic =
+			error instanceof ExecutionError
+				? { ...error.diagnostic, runId: data.runId }
+				: {
+						category: 'reference',
+						phase: 'preflight',
+						runId: data.runId,
+						elementId:
+							error instanceof MissingReferenceObservableError ||
+							error instanceof MissingNextElementError ||
+							error instanceof UnsupportedElementTypeError ||
+							error instanceof InvalidElementPropertyValueError
+								? error.elementId
+								: data.entryElementId,
+						message: 'Graph construction failed; check connected references.',
+					};
+		send(Type.CreationError, { diagnostic });
+	}
+});
