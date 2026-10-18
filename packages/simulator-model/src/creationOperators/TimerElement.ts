@@ -1,3 +1,4 @@
+import { NumericParameter } from '../parameters/ParameterValue';
 import { Element, ElementProps, ElementType } from '../element';
 
 export enum DueDateType {
@@ -7,8 +8,8 @@ export enum DueDateType {
 
 export interface TimerElementProperties extends ElementProps {
 	dueDateType: DueDateType;
-	startDue: number;
-	intervalDuration: number;
+	startDue: NumericParameter;
+	intervalDuration: NumericParameter;
 }
 
 export interface TimerElement extends Element<TimerElementProperties> {

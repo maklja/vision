@@ -1,3 +1,4 @@
+import type { ParameterValue } from '../parameters/ParameterValue';
 import type { ElementDescriptor } from '../descriptors/ElementDescriptor';
 import type { ElementGroup } from '../element/ElementGroup';
 import type { ElementType } from '../element/ElementType';
@@ -28,6 +29,8 @@ export type PropertyDefinition =
 	| { readonly kind: 'callback'; readonly label: string; readonly signature: CallbackSignature }
 	| {
 			readonly kind: 'number';
+			/** parameter-v1 numeric/date envelope support in persisted schema v2. */
+			readonly parameter?: true;
 			readonly label: string;
 			readonly semantics: string;
 			/** Existing numeric mode choices, such as Timer's DueDateType. */
@@ -69,7 +72,7 @@ type ValueDefinition<Value> =
 		? DefinitionOfKind<'pairs'>
 		: NonNullable<Value> extends boolean
 			? DefinitionOfKind<'boolean'>
-			: NonNullable<Value> extends number
+			: NonNullable<Value> extends number | ParameterValue
 				? DefinitionOfKind<'number'>
 				: NonNullable<Value> extends string
 					? StringDefinition<NonNullable<Value>>

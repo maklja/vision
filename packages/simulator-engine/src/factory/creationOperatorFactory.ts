@@ -33,8 +33,6 @@ import {
 	GenerateElement,
 	GenerateElementProperties,
 	IifElement,
-	IntervalElement,
-	IntervalElementProperties,
 	ajaxOperatorDefinition,
 	emptyOperatorDefinition,
 	generateOperatorDefinition,
@@ -46,11 +44,7 @@ import {
 	intervalOperatorDefinition,
 	rangeOperatorDefinition,
 	timerOperatorDefinition,
-	RangeElement,
-	RangeElementProperties,
 	ThrowErrorElement,
-	TimerElement,
-	TimerElementProperties,
 } from '@maklja/vision-simulator-model';
 import {
 	CreationObservableFactory,
@@ -148,8 +142,8 @@ const createOfCreationOperator =
 const createIntervalCreationOperator =
 	(el: Element) =>
 	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
-		const intervalEl = el as IntervalElement;
-		const intervalElProps: IntervalElementProperties = {
+		const intervalEl = el as Element<{ period: number }>;
+		const intervalElProps = {
 			...intervalEl.properties,
 			...overrideProperties,
 		};
@@ -413,8 +407,8 @@ const createThrowErrorCreationOperator =
 const createRangeCreationOperator =
 	(el: Element) =>
 	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
-		const rangeEl = el as RangeElement;
-		const rangeElProperties: RangeElementProperties = {
+		const rangeEl = el as Element<{ start: number; count?: number }>;
+		const rangeElProperties = {
 			...rangeEl.properties,
 			...overrideProperties,
 		};
@@ -433,8 +427,12 @@ const createRangeCreationOperator =
 const createTimerCreationOperator =
 	(el: Element) =>
 	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
-		const timerEl = el as TimerElement;
-		const timerElProperties: TimerElementProperties = {
+		const timerEl = el as Element<{
+			dueDateType: DueDateType;
+			startDue: number;
+			intervalDuration: number;
+		}>;
+		const timerElProperties = {
 			...timerEl.properties,
 			...overrideProperties,
 		};

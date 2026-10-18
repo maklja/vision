@@ -1,14 +1,15 @@
 import 'fake-indexeddb/auto';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ElementType, migrateLegacyDiagram } from '@maklja/vision-simulator-model';
+import { ElementType } from '@maklja/vision-simulator-model';
+import { currentDiagramDocument } from '../../../simulator-model/test/fixtures/currentDiagramDocument';
 import { currentReleaseDiagram } from '../../../simulator-model/test/fixtures/currentReleaseDiagram';
 import { createRootStore } from '../store/rootStore';
 import { DiagramFiles } from './DiagramFiles';
 import { DiagramRepository } from './diagramPersistence';
 import { DiagramExecutionGate, useDiagramExecutionAllowed } from './DiagramExecutionGate';
 
-const doc = () => migrateLegacyDiagram(currentReleaseDiagram, 'id', '2026-10-15T19:00:00Z');
+const doc = () => currentDiagramDocument(currentReleaseDiagram, 'id', '2026-10-15T19:00:00Z');
 afterEach(() => {
 	cleanup();
 	vi.restoreAllMocks();

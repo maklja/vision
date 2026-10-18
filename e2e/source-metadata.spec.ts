@@ -76,14 +76,20 @@ test('Timer keeps numeric mode choices, restores relative due time and runs its 
 		page,
 		(saved) => saved?.elements[0]?.properties.dueDateType === DueDateType.Date,
 	);
-	expect(typeof dated.elements[0].properties.startDue).toBe('number');
-	expect(Number.isFinite(dated.elements[0].properties.startDue)).toBe(true);
+	expect(dated.elements[0].properties.startDue).toMatchObject({
+		kind: 'literal',
+		type: 'date',
+		value: expect.any(Number),
+	});
 
 	await page.getByRole('combobox', { name: 'Due date type' }).click();
 	await page.getByRole('option', { name: 'Milliseconds', exact: true }).click();
 	await expect(page.getByLabel('Due milliseconds', { exact: true })).toHaveValue('1000');
 	await page.getByLabel('Due milliseconds', { exact: true }).fill('20');
-	await waitForDiagram(page, (saved) => saved?.elements[0]?.properties.startDue === 20);
+	await waitForDiagram(
+		page,
+		(saved) => (saved?.elements[0]?.properties.startDue as { value?: number })?.value === 20,
+	);
 	await selectEntryOperator(page, source);
 	await startSimulation(page);
 	await expect(simulationResults(page)).toHaveText('0');

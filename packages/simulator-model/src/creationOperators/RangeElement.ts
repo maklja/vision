@@ -1,8 +1,9 @@
+import { NumericParameter } from '../parameters/ParameterValue';
 import { Element, ElementProps, ElementType } from '../element';
 
 export interface RangeElementProperties extends ElementProps {
-	start: number;
-	count?: number;
+	start: NumericParameter;
+	count?: NumericParameter;
 }
 
 export interface RangeElement extends Element<RangeElementProperties> {

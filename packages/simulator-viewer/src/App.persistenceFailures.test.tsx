@@ -112,7 +112,7 @@ function createTestScheduler() {
 }
 
 import { currentReleaseDiagram } from '../../simulator-model/test/fixtures/currentReleaseDiagram';
-import { migrateLegacyDiagram } from '@maklja/vision-simulator-model';
+import { currentDiagramDocument } from '../../simulator-model/test/fixtures/currentDiagramDocument';
 import { RECOVERY_BACKUP_KEY } from './persistence';
 
 describe('App persistence failures', () => {
@@ -184,7 +184,7 @@ describe('App persistence failures', () => {
 		expect(setMock).not.toHaveBeenCalled();
 		fireEvent.click(screen.getByText('Diagram files'));
 		const source = JSON.stringify(
-			migrateLegacyDiagram(currentReleaseDiagram, 'import-id', '2026-10-15T19:00:00Z'),
+			currentDiagramDocument(currentReleaseDiagram, 'import-id', '2026-10-15T19:00:00Z'),
 		);
 		const file = new File([source], 'diagram.json', { type: 'application/json' });
 		Object.defineProperty(file, 'text', { value: async () => source });

@@ -15,3 +15,5 @@ export * from './templates';
 export * from './engine';
 export * from './diagram/diagramDocument';
 export * from './operators';
+
+export * from './parameters/ParameterValue';

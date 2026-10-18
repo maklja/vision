@@ -118,5 +118,8 @@ An operator usually spans all three packages. Check each applicable step:
    and persistence after a reload.
 5. Run `pnpm -r eslint` and the viewer production build.
 
-When changing stored model shapes, account for diagrams already persisted in IndexedDB. Prefer
-backward-compatible defaults or an explicit migration over assuming a fresh browser database.
+This project is still in development and is not in production. Breaking stored-schema changes are
+allowed; do not add schema migrations or compatibility loaders. Accept only the current schema.
+Reject legacy/unsupported diagrams without loading or executing them and log the error to the
+browser console. Keep tests and fixtures on the current schema. Revisit compatibility requirements
+before a production release.

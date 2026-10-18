@@ -1,6 +1,10 @@
 import { parse } from 'acorn';
 import { from, ObservableInput } from 'rxjs';
 import {
+	isParameterValue,
+	parameterTypeForField,
+	validateParameterValue,
+	validateParameterConstraint,
 	Element,
 	ElementProps,
 	ElementType,
@@ -95,10 +99,72 @@ export function validateSource(el: Element, field: string, source: unknown, call
 export function preflight(elements: readonly Element[]) {
 	for (const el of elements) {
 		if (resultOperators.has(el.type)) continue;
+		try {
+			cloneInvocation(el.properties);
+		} catch {
+			throw new ExecutionError({
+				category: 'schema',
+				phase: 'preflight',
+				runId: '',
+				elementId: el.id,
+				message: 'Invalid or oversized saved properties',
+			});
+		}
 		const properties = propertiesWithDefaults(el);
+		try {
+			cloneInvocation(properties);
+		} catch {
+			throw new ExecutionError({
+				category: 'schema',
+				phase: 'preflight',
+				runId: '',
+				elementId: el.id,
+				message: 'Invalid or oversized invocation data',
+			});
+		}
 		for (const [field, definition] of Object.entries(fields(el))) {
 			if (!active(definition, properties)) continue;
 			if (definition.optional && properties[field] === undefined) continue;
+			const parameterType = parameterTypeForField(el.type, field, properties);
+			if (parameterType) {
+				const value = properties[field];
+				try {
+					if (isParameterValue(value)) validateParameterValue(value, parameterType);
+					if (!isParameterValue(value) || value.kind === 'literal')
+						validateParameterConstraint(
+							el.type,
+							field,
+							isParameterValue(value) && value.kind === 'literal'
+								? value.value
+								: value,
+							properties,
+						);
+				} catch {
+					throw new ExecutionError({
+						category: 'schema',
+						phase: 'preflight',
+						runId: '',
+						elementId: el.id,
+						field,
+						message: `Invalid parameter in ${field}`,
+					});
+				}
+				if (isParameterValue(value) && value.kind === 'expression') {
+					try {
+						validateSource(el, field, value.source, false);
+					} catch {
+						throw new ExecutionError({
+							category: 'compile',
+							phase: 'preflight',
+							runId: '',
+							elementId: el.id,
+							field,
+							message: `Invalid JavaScript in ${field}`,
+						});
+					}
+				}
+				continue;
+			}
 			if (definition.kind === 'callback' || definition.kind === 'expression') {
 				try {
 					validateSource(el, field, properties[field], definition.kind === 'callback');
@@ -125,6 +191,12 @@ export function requiresTrustedWorker(elements: readonly Element[], seed: Elemen
 				const properties = propertiesWithDefaults(el);
 				return (
 					el.type === ElementType.Ajax ||
+					Object.entries(properties).some(
+						([key, value]) =>
+							parameterTypeForField(el.type, key, properties) &&
+							isParameterValue(value) &&
+							value.kind === 'expression',
+					) ||
 					Object.values(fields(el)).some(
 						(d) =>
 							active(d, properties) &&
@@ -188,16 +260,65 @@ export class ExecutionRun {
 			if (error instanceof ExecutionError) throw error;
 			this.fail(el, 'overrides', 'schema', 'subscription');
 		}
+		try {
+			cloneInvocation(el.properties);
+		} catch {
+			this.fail(el, 'properties', 'schema', 'subscription');
+		}
 		const defaults = propertiesWithDefaults(el);
 		const properties: ElementProps = {};
 		for (const key of Object.keys(el.properties))
 			if (!Object.hasOwn(definitions, key)) this.fail(el, key, 'schema', 'subscription');
 		for (const key of Object.keys(overrides ?? {}))
 			if (!Object.hasOwn(definitions, key)) this.fail(el, key, 'schema', 'subscription');
+		// Expressions see the same frozen raw definitions, never values from earlier fields.
+		let selected: ElementProps;
+		try {
+			selected = freeze(cloneInvocation({ ...defaults, ...overrides }));
+		} catch {
+			this.fail(el, 'properties', 'schema', 'subscription');
+		}
 		for (const [key, definition] of Object.entries(definitions)) {
 			const present =
 				Object.hasOwn(overrides ?? {}, key) || Object.hasOwn(el.properties, key);
-			const value = Object.hasOwn(overrides ?? {}, key) ? overrides![key] : defaults[key];
+			let value = selected[key];
+			let evaluated = false;
+			const parameterType = parameterTypeForField(el.type, key, selected);
+			if (parameterType && isParameterValue(value)) {
+				// Invocation overrides are raw values, never persisted envelopes.
+				if (Object.hasOwn(overrides ?? {}, key))
+					this.fail(el, key, 'schema', 'subscription');
+				try {
+					validateParameterValue(value, parameterType);
+				} catch {
+					this.fail(el, key, 'schema', 'subscription');
+				}
+				if (value.kind === 'literal') value = value.value;
+				else {
+					evaluated = true;
+					try {
+						validateSource(el, key, value.source, false);
+					} catch {
+						this.fail(el, key, 'compile', 'subscription');
+					}
+					try {
+						value = new Function(
+							'$context',
+							'$params',
+							`"use strict"; return (${value.source}\n);`,
+						)(this.context, selected);
+					} catch {
+						this.fail(el, key, 'invocation', 'subscription');
+					}
+				}
+			}
+			if (parameterType && !(!present && definition.optional)) {
+				try {
+					validateParameterConstraint(el.type, key, value, selected);
+				} catch {
+					this.fail(el, key, evaluated ? 'result' : 'schema', 'subscription');
+				}
+			}
 			if (!present && definition.optional) continue;
 			const valid =
 				definition.kind === 'number'

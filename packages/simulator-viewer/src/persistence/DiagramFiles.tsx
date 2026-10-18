@@ -50,6 +50,7 @@ export function DiagramFiles({
 		try {
 			await work();
 		} catch (error) {
+			console.error('Diagram file operation failed.', error);
 			setFeedback(error instanceof Error ? error.message : 'File operation failed.');
 		} finally {
 			setBusy(false);

@@ -9,6 +9,7 @@ export interface OperatorPropertiesPanelProps {
 	elementNames: string[];
 	relatedElements: RelatedElements;
 	onPositionChange?: (id: string, position: Point) => void;
+	onPropertiesChange?: (id: string, properties: Record<string, unknown>) => void;
 	onPropertyValueChange?: (id: string, propertyName: string, propertyValue: unknown) => void;
 	onConnectLineChange?: (id: string, changes: { index?: number; name?: string }) => void;
 	onNameChange?: (id: string, name: string) => void;
@@ -19,6 +20,7 @@ export function OperatorPropertiesPanel({
 	elementNames,
 	relatedElements,
 	onPositionChange,
+	onPropertiesChange,
 	onPropertyValueChange,
 	onConnectLineChange,
 	onNameChange,
@@ -51,6 +53,7 @@ export function OperatorPropertiesPanel({
 				<Box sx={{ margin: '2px 0px' }} />
 
 				<ElementPropertiesForm
+					onPropertiesChange={onPropertiesChange}
 					element={element}
 					relatedElements={relatedElements}
 					onPropertyValueChange={onPropertyValueChange}

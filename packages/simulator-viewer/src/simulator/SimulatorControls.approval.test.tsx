@@ -14,23 +14,31 @@ const engine = vi.hoisted(() => {
 	return { ready, release, start: vi.fn() };
 });
 
-vi.mock('@maklja/vision-simulator-engine', async () => {
+vi.mock('@maklja/vision-simulator-engine', async (importOriginal) => {
 	await engine.ready;
-	return { startObservableSimulation: engine.start };
+	return {
+		...(await importOriginal<typeof import('@maklja/vision-simulator-engine')>()),
+		startObservableSimulation: engine.start,
+	};
 });
 vi.mock('../ui', () => ({
 	SimulationControls: (props: SimulationControlsProps) => (
-		<button
-			disabled={!props.executionAllowed}
-			onClick={() => props.onSimulationStart?.('source', 'test-run')}
-		>
-			Start imported pipeline
-		</button>
+		<>
+			<button onClick={() => props.onEntryElementChange?.('source')}>
+				Select imported pipeline
+			</button>
+			<button
+				disabled={!props.executionAllowed}
+				onClick={() => props.onSimulationStart?.('source', 'test-run')}
+			>
+				Start imported pipeline
+			</button>
+		</>
 	),
 }));
 afterEach(cleanup);
 
-it('discards a pending start if another source revision is approved while the engine chunk loads', async () => {
+it('blocks pending validation and discards a start if another source revision is approved before dispatch', async () => {
 	const store = createRootStore(currentReleaseDiagram);
 	render(
 		<StoreContext.Provider value={store}>
@@ -39,6 +47,7 @@ it('discards a pending start if another source revision is approved while the en
 			</DiagramExecutionGate>
 		</StoreContext.Provider>,
 	);
+	fireEvent.click(screen.getByRole('button', { name: 'Select imported pipeline' }));
 	fireEvent.click(screen.getByRole('button', { name: 'Allow execution for this revision' }));
 	fireEvent.click(screen.getByRole('button', { name: 'Start imported pipeline' }));
 	expect(engine.start).not.toHaveBeenCalled();
@@ -57,13 +66,28 @@ it('discards a pending start if another source revision is approved while the en
 		engine.release();
 		await engine.ready;
 	});
+	const start = () => screen.getByRole('button', { name: 'Start imported pipeline' });
+	await waitFor(() => expect(start().hasAttribute('disabled')).toBe(false));
+	fireEvent.click(start());
+	act(() =>
+		store.getState().updateElementProperty({
+			id: 'source',
+			propertyName: 'argsFactoryExpression',
+			propertyValue: '() => [100]',
+		}),
+	);
+	fireEvent.click(screen.getByRole('button', { name: 'Allow execution for this revision' }));
+	await act(async () => {
+		await Promise.resolve();
+	});
 	// A true permission for a different revision must not authorize the suspended old request.
-	await waitFor(() => expect(engine.start).not.toHaveBeenCalled());
+	expect(engine.start).not.toHaveBeenCalled();
+	await waitFor(() => expect(start().hasAttribute('disabled')).toBe(false));
 
 	engine.start.mockReturnValue({ unsubscribe: vi.fn() });
 	fireEvent.click(screen.getByRole('button', { name: 'Start imported pipeline' }));
 	await waitFor(() => expect(engine.start).toHaveBeenCalledOnce());
 	expect(engine.start.mock.calls[0][0].elements[0].properties.argsFactoryExpression).toBe(
-		'() => [99]',
+		'() => [100]',
 	);
 });

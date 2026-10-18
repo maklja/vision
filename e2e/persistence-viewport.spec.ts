@@ -82,12 +82,13 @@ test('keeps operator configuration and the viewport through a real reload', asyn
 			return false;
 		}
 		const element = findElementById(diagram, range.id);
-		const properties = element?.properties as { start?: number; count?: number } | undefined;
+		const properties = element?.properties as
+			{ start?: { value: number }; count?: { value: number } } | undefined;
 		const { canvasState } = diagram;
 		return (
 			element?.name === renamedRange &&
-			properties?.start === 5 &&
-			properties?.count === 3 &&
+			properties?.start?.value === 5 &&
+			properties?.count?.value === 3 &&
 			canvasState.x !== 0 &&
 			canvasState.y !== 0 &&
 			canvasState.scaleX !== 1

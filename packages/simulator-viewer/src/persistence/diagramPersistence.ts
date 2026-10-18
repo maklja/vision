@@ -6,17 +6,16 @@ import {
 	Element,
 	resultOperators,
 	DiagramDocument,
-	validateDiagramData,
+	diagramWithTypedParameters,
 	validateDiagramDocument,
-	migrateLegacyDiagram,
 	validateJsonData,
+	wrapParameterProperties,
 } from '@maklja/vision-simulator-model';
 import { RootStore, StateProps } from '../store/rootStore';
 import type { CanvasState } from '../store/stage';
 
 export const LEGACY_DIAGRAM_KEY = 'test';
 export const ACTIVE_DIAGRAM_KEY = 'vision:active-diagram';
-export const LEGACY_BACKUP_KEY = 'vision:backup:legacy';
 export const RECOVERY_BACKUP_KEY = 'vision:backup:recovery';
 export const diagramKey = (id: string) => `vision:diagram:${id}`;
 export const backupKey = (id: string) => `vision:backup:${id}`;
@@ -38,14 +37,18 @@ export class DiagramRepository {
 	documentForExport(data: StateProps): DiagramDocument {
 		const now = new Date().toISOString();
 		this.metadata ??= {
-			schemaVersion: 1,
+			schemaVersion: 2,
 			id: v1(),
 			name: 'My diagram',
 			createdAt: now,
 			updatedAt: now,
 			origin: 'local',
 		};
-		return validateDiagramDocument({ ...this.metadata, diagram: data, updatedAt: now });
+		return validateDiagramDocument({
+			...this.metadata,
+			diagram: diagramWithTypedParameters(data),
+			updatedAt: now,
+		});
 	}
 
 	private remember(doc: DiagramDocument) {
@@ -78,29 +81,27 @@ export class DiagramRepository {
 				const doc = validateDiagramDocument(active.raw);
 				if (doc.id !== active.id)
 					throw new Error('Diagram ID does not match its storage key.');
+
 				return this.remember(doc);
 			}
-			const legacy = await get<unknown>(LEGACY_DIAGRAM_KEY);
-			if (legacy === undefined) return undefined;
-			const doc = migrateLegacyDiagram(legacy, v1(), new Date().toISOString());
-			// Never publish the migrated record until the untouched source has a durable backup.
-			await set(LEGACY_BACKUP_KEY, legacy);
-			await setMany([
-				[diagramKey(doc.id), doc],
-				[ACTIVE_DIAGRAM_KEY, doc.id],
-			]);
-			return this.remember(doc);
+			if ((await get(LEGACY_DIAGRAM_KEY)) !== undefined)
+				throw new Error(
+					'Unsupported legacy diagram. Development schemas are not migrated.',
+				);
+			return undefined;
 		});
 	}
 
 	save(data: StateProps): Promise<DiagramDocument> {
 		return this.enqueue(async () => {
-			const diagram = validateDiagramData(data);
+			const diagram = diagramWithTypedParameters(data);
 			const active = await this.active();
 			const previous = active ? validateDiagramDocument(active.raw) : undefined;
 			if (previous && previous.id !== active?.id) throw new Error('Diagram ID mismatch.');
 			if (!active && (await get(LEGACY_DIAGRAM_KEY)) !== undefined)
-				throw new Error('Load or recover the legacy diagram before saving.');
+				throw new Error(
+					'Unsupported legacy diagram. Import a current-schema diagram before saving.',
+				);
 			const now = new Date().toISOString();
 			const doc: DiagramDocument = previous
 				? { ...previous, diagram, updatedAt: now }
@@ -130,8 +131,6 @@ export class DiagramRepository {
 			const active =
 				isActiveId(pointer) && raw !== undefined ? { id: pointer, raw } : undefined;
 			const corruptPointer = pointer !== undefined && !active;
-			const legacy =
-				pointer === undefined ? await get<unknown>(LEGACY_DIAGRAM_KEY) : undefined;
 			const now = new Date().toISOString();
 			const doc = validateDiagramDocument({
 				...checked,
@@ -146,7 +145,6 @@ export class DiagramRepository {
 			if (corruptPointer)
 				await set(RECOVERY_BACKUP_KEY, { activePointer: pointer, record: raw });
 			else if (active) await set(backupKey(active.id), active.raw);
-			else if (legacy !== undefined) await set(LEGACY_BACKUP_KEY, legacy);
 			await setMany([
 				[diagramKey(doc.id), doc],
 				[ACTIVE_DIAGRAM_KEY, doc.id],
@@ -177,8 +175,11 @@ export function createPersistedDiagram(state: PersistableDiagramState): StatePro
 			x: el.x,
 			y: el.y,
 			visible: el.visible,
-			properties: Object.fromEntries(
-				Object.entries(el.properties).filter(([, value]) => value !== undefined),
+			properties: wrapParameterProperties(
+				el.type,
+				Object.fromEntries(
+					Object.entries(el.properties).filter(([, value]) => value !== undefined),
+				),
 			),
 		}));
 	const diagram: StateProps = {

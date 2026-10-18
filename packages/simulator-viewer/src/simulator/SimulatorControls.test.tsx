@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	ConnectPointPosition,
@@ -25,7 +25,10 @@ const engine = vi.hoisted(() => ({
 
 // The store-connected controls dynamically import the engine. Replacing it keeps the subscription
 // lifecycle deterministic and lets tests drive next, error, complete and creation-error callbacks.
-vi.mock('@maklja/vision-simulator-engine', () => engine);
+vi.mock('@maklja/vision-simulator-engine', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@maklja/vision-simulator-engine')>()),
+	...engine,
+}));
 
 type StageProp = Parameters<typeof SimulatorControls>[0]['stage'];
 
@@ -118,6 +121,12 @@ function renderControls(stage: StageProp = null) {
 
 	async function startSimulation(label: string) {
 		selectEntryOption(label);
+		await waitFor(() =>
+			expect(
+				(screen.getByRole('button', { name: 'start simulation' }) as HTMLButtonElement)
+					.disabled,
+			).toBe(false),
+		);
 		await act(async () => {
 			fireEvent.click(screen.getByRole('button', { name: 'start simulation' }));
 		});
@@ -339,4 +348,68 @@ describe('SimulatorControls', () => {
 
 		expect(store.getState().selectedElements).toEqual(['map-1']);
 	});
+});
+
+it('disables Run for malformed selected parameters and ignores unrelated draft errors', async () => {
+	engine.startObservableSimulation.mockReturnValue(createSubscription());
+	const { store, selectEntryOption } = renderControls();
+	// Replace the connected source with a typed Range. The unrelated Interval remains a draft.
+	act(() =>
+		store.setState((state) => {
+			state.elements['of-1'] = createElement(ElementType.Range, {
+				id: 'of-1',
+				name: 'zeta',
+				properties: {
+					start: { kind: 'literal', type: 'number', value: 0 },
+					count: { kind: 'expression', type: 'number', source: '1 +' },
+				},
+			});
+		}),
+	);
+	selectEntryOption('range - zeta');
+	await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('count'));
+	expect(
+		(screen.getByRole('button', { name: 'start simulation' }) as HTMLButtonElement).disabled,
+	).toBe(true);
+	act(() =>
+		store.getState().updateElementProperty({
+			id: 'of-1',
+			propertyName: 'count',
+			propertyValue: { kind: 'expression', type: 'number', source: '1' },
+		}),
+	);
+	await waitFor(() =>
+		expect(
+			(screen.getByRole('button', { name: 'start simulation' }) as HTMLButtonElement)
+				.disabled,
+		).toBe(false),
+	);
+	act(() =>
+		store.getState().updateElementProperty({
+			id: 'interval-1',
+			propertyName: 'period',
+			propertyValue: { kind: 'expression', type: 'number', source: '1 +' },
+		}),
+	);
+	await waitFor(() =>
+		expect(
+			(screen.getByRole('button', { name: 'start simulation' }) as HTMLButtonElement)
+				.disabled,
+		).toBe(false),
+	);
+	cleanup();
+});
+
+it('blocks Run for a local invalid draft without changing the saved graph', async () => {
+	const { store, selectEntryOption } = renderControls();
+	selectEntryOption('of - zeta');
+	const run = () => screen.getByRole('button', { name: 'start simulation' }) as HTMLButtonElement;
+	await waitFor(() => expect(run().disabled).toBe(false));
+	const elements = store.getState().elements;
+	act(() => store.getState().setParameterDraftError('of-1', 'count', 'Checking expression…'));
+	expect(run().disabled).toBe(true);
+	expect(store.getState().elements).toBe(elements);
+	act(() => store.getState().setParameterDraftError('of-1', 'count', ''));
+	await waitFor(() => expect(run().disabled).toBe(false));
+	cleanup();
 });

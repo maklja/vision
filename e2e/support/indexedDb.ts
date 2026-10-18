@@ -1,3 +1,4 @@
+import { currentDiagramDocument } from '../../packages/simulator-model/test/fixtures/currentDiagramDocument';
 import { expect, Page } from '@playwright/test';
 import { PersistedDiagram } from './diagram';
 
@@ -54,7 +55,7 @@ export async function readPersistedDiagram(page: Page): Promise<PersistedDiagram
 
 export async function seedPersistedDiagram(page: Page, diagram: PersistedDiagram): Promise<void> {
 	await page.evaluate(
-		({ database, store, key, value }) =>
+		({ database, store, value }) =>
 			new Promise<void>((resolve, reject) => {
 				const openRequest = indexedDB.open(database);
 				openRequest.onerror = () => reject(openRequest.error);
@@ -73,10 +74,11 @@ export async function seedPersistedDiagram(page: Page, diagram: PersistedDiagram
 					};
 					transaction.onerror = () => reject(transaction.error);
 					transaction.objectStore(store).clear();
-					transaction.objectStore(store).put(value, key);
+					transaction.objectStore(store).put(value, `vision:diagram:${value.id}`);
+					transaction.objectStore(store).put(value.id, 'vision:active-diagram');
 				};
 			}),
-		{ ...coordinates, value: diagram },
+		{ ...coordinates, value: currentDiagramDocument(diagram) },
 	);
 }
 

@@ -1,5 +1,10 @@
 import { Unsubscribable } from 'rxjs';
-import { ConnectLine, Element, ElementType } from '@maklja/vision-simulator-model';
+import {
+	ConnectLine,
+	Element,
+	ElementType,
+	isParameterValue,
+} from '@maklja/vision-simulator-model';
 import { createSimulationModel, ObservableSimulation } from './ObservableSimulation';
 import { FlowValueEvent } from './context';
 import { MissingNextElementError, MissingReferenceObservableError } from './errors';
@@ -148,9 +153,12 @@ export function startObservableSimulation(
 				model.getGraphBranch(entryElementId).nodes.some(({ id }) => {
 					// Disconnected elements remain editable drafts and do not run in this graph.
 					const el = model.getElement(id);
+					const count = el.properties.count;
+					const literalCount =
+						isParameterValue(count) && count.kind === 'literal' ? count.value : count;
 					return (
 						el.type === ElementType.Range &&
-						(el.properties.count === undefined || Number(el.properties.count) > 10000)
+						(literalCount === undefined || Number(literalCount) > 10000)
 					);
 				})
 			) {

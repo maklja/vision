@@ -258,8 +258,10 @@ contract, current operator/field inventory, callback compatibility and registrat
 ## Versioned diagrams and JSON files
 
 Open **Diagram files** to import/export a source-only JSON document or retry a failed load.
-Legacy diagrams migrate after a durable backup; failed/unknown data is preserved. Imported code never runs automatically and needs explicit
+Only current-schema diagrams load. Unsupported legacy/development schemas are rejected with a browser console error; no migration is performed. Imported code never runs automatically and needs explicit
 session approval after review. Source edits and reload revoke that approval.
 
-See [Diagram persistence and recovery](DIAGRAM_PERSISTENCE.md) for schema v1, storage keys,
-compatibility, limits, failure recovery and the future parameter/context migration boundary.
+See [Diagram persistence and recovery](DIAGRAM_PERSISTENCE.md) for schema v2, storage keys,
+compatibility, limits and failure recovery. [Typed source parameters](PARAMETERS.md) describes
+literal/expression editors for Range, Interval and Timer, subscription-time
+evaluation and explicit Worker trust.

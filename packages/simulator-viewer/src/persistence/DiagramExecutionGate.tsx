@@ -2,6 +2,7 @@ import {
 	findOperatorDefinition,
 	ElementType,
 	PropertyDefinition,
+	isParameterValue,
 } from '@maklja/vision-simulator-model';
 import { createContext, PropsWithChildren, useContext, useState } from 'react';
 import { useStore } from 'zustand';
@@ -42,6 +43,9 @@ export function DiagramExecutionGate({
 		Object.values(elements).some(
 			(el) =>
 				el.type === ElementType.Ajax ||
+				Object.values(el.properties).some(
+					(value) => isParameterValue(value) && value.kind === 'expression',
+				) ||
 				(
 					Object.values(
 						findOperatorDefinition(el.type)?.properties ?? {},

@@ -314,4 +314,5 @@ input callbacks remain unchanged, preserving accessible controls and keyboard be
 The exact positional signatures above remain unchanged. [Execution policy](EXECUTION_POLICY.md)
 is the runtime binding/override matrix: callbacks receive lexical `$context` and frozen `$params`,
 are evaluated per actual subscription, IIf selects using resolved overrides, Defer honors its own
-factory override, and joins consume their own parameters without broadcasting to children. Metadata notes now describe these subscription boundaries. Final lifecycle correlation remains #129 and typed expressions remain #135.
+factory override, and joins consume their own parameters without broadcasting to children. Metadata notes now describe these subscription boundaries. Final lifecycle correlation remains #129. #135 adds parameter-v1 numeric/date fields and marks their
+number metadata with `parameter: true`; see [typed parameters](PARAMETERS.md).

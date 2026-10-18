@@ -2,8 +2,8 @@
 
 Issue #134 implements the execution core described in
 [the accepted decision](planning/decisions/execution-context-and-parameters.md).
-The final subscription lifecycle correlation remains tracked by #129; typed parameter expression
-editing/evaluation remains #135. Neither dependency is claimed complete here.
+The final subscription lifecycle correlation remains tracked by #129. Issue #135 adds
+[typed source parameters and editors](PARAMETERS.md) using this execution core.
 
 Every code or network graph requires **Allow execution for this revision**, including locally
 created and restored graphs. Approval lives only in this editor session and is revoked after source,
@@ -13,7 +13,7 @@ permissions: it is **not a security sandbox**. Public untrusted execution is uns
 
 The execution settings disclosure contains a keyboard-accessible context seed editor, watchdog
 budget and text diagnostics. Only `diagram.contextSeed`, an optional finite JSON object in the
-versioned diagram document, is saved. Its absence means `{}`; older version-1 documents remain valid.
+versioned diagram document, is saved. Its absence means `{}`; older schemas are rejected without loading or executing them.
 No initializer, runtime context, compiled closure, params, approval or Worker handle is saved.
 The seed is cloned once for each run, including restart. `$context` is mutable and shared inside
 that run; asynchronous branches observe actual dispatch order. Use invocation inputs for independent

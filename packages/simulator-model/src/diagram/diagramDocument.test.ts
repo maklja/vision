@@ -1,3 +1,4 @@
+import { currentDiagramDocument } from '../../test/fixtures/currentDiagramDocument';
 import { describe, expect, it } from 'vitest';
 import { currentReleaseDiagram } from '../../test/fixtures/currentReleaseDiagram';
 import {
@@ -9,7 +10,6 @@ import {
 import {
 	DiagramData,
 	MAX_DIAGRAM_BYTES,
-	migrateLegacyDiagram,
 	parseDiagramFile,
 	validateDiagramData,
 	validateDiagramDocument,
@@ -18,13 +18,13 @@ import {
 
 const now = '2026-10-15T19:00:00.000Z';
 const fixture = () => structuredClone(currentReleaseDiagram);
-const document = () => migrateLegacyDiagram(fixture(), 'diagram-1', now);
+const document = () => currentDiagramDocument(fixture(), 'diagram-1', now);
 
 describe('versioned diagram data', () => {
-	it('migrates the current release without changing callbacks, IDs, connections or viewport', () => {
+	it('round-trips current-schema callbacks, IDs, connections and viewport', () => {
 		const doc = document();
 		expect(doc).toMatchObject({
-			schemaVersion: 1,
+			schemaVersion: 2,
 			id: 'diagram-1',
 			createdAt: now,
 			updatedAt: now,
@@ -68,11 +68,19 @@ describe('versioned diagram data', () => {
 				properties: { dueDateType: 1, startDue: 0, intervalDuration: -1 },
 			},
 		];
-		expect(migrateLegacyDiagram(data, 'x', now).diagram).toEqual(data);
+		expect(
+			currentDiagramDocument(data, 'x', now).diagram.elements.map((el) => el.properties),
+		).toEqual([
+			{ start: { kind: 'literal', type: 'number', value: 0 } },
+			data.elements[1].properties,
+			{
+				dueDateType: 1,
+				startDue: { kind: 'literal', type: 'date', value: 0 },
+				intervalDuration: { kind: 'literal', type: 'number', value: -1 },
+			},
+		]);
 		data.elements[0].properties.count = undefined;
-		expect(migrateLegacyDiagram(data, 'x', now).diagram.elements[0].properties).toEqual({
-			start: 0,
-		});
+		expect(() => currentDiagramDocument(data, 'x', now)).toThrow();
 	});
 
 	it('never evaluates callback text, including hostile code or Ajax sources', () => {
@@ -80,7 +88,7 @@ describe('versioned diagram data', () => {
 		data.elements[0].properties.argsFactoryExpression =
 			'(() => { throw new Error("DO NOT RUN"); })()';
 		expect(
-			parseDiagramFile(JSON.stringify(migrateLegacyDiagram(data, 'x', now))).diagram,
+			parseDiagramFile(JSON.stringify(currentDiagramDocument(data, 'x', now))).diagram,
 		).toEqual(data);
 	});
 
@@ -134,14 +142,14 @@ describe('versioned diagram data', () => {
 				data.elements[0].type = 'future' as ElementType;
 			},
 		],
-	])('rejects %s with a diagnostic instead of guessing a migration', (_label, change) => {
+	])('rejects %s with a diagnostic without guessing a schema', (_label, change) => {
 		const data = fixture();
 		change(data);
 		expect(() => validateDiagramData(data)).toThrow();
 	});
 
 	it('rejects future schemas and imported permissions/hidden runtime fields', () => {
-		expect(() => validateDiagramDocument({ ...document(), schemaVersion: 2 })).toThrow(
+		expect(() => validateDiagramDocument({ ...document(), schemaVersion: 99 })).toThrow(
 			'unsupported version',
 		);
 		expect(() => validateDiagramDocument({ ...document(), trusted: true })).toThrow(
@@ -165,28 +173,16 @@ describe('versioned diagram data', () => {
 		cyclic.self = cyclic;
 		expect(() => validateJsonData(cyclic)).toThrow('cyclic');
 	});
-
-	it('removes only legacy transient result nodes and preserves the original object', () => {
-		const data = fixture();
-		data.elements.push({
-			...data.elements[0],
-			id: 'result',
-			type: ElementType.Result,
-			properties: {},
-		});
-		expect(migrateLegacyDiagram(data, 'x', now).diagram.elements).toHaveLength(3);
-		expect(data.elements).toHaveLength(4);
-	});
 });
 
-it('round-trips a fixed 2000-node migration fixture without evaluating callbacks', () => {
+it('round-trips a fixed 2000-node current-schema fixture without evaluating callbacks', () => {
 	const data = fixture();
 	data.connectLines = [];
 	data.elements = Array.from({ length: 2000 }, (_, index) => ({
 		...data.elements[0],
 		id: `source-${index}`,
 	}));
-	const migrated = migrateLegacyDiagram(data, 'large-fixture', now);
+	const migrated = currentDiagramDocument(data, 'large-fixture', now);
 	expect(migrated.diagram.elements).toHaveLength(2000);
 	expect(parseDiagramFile(JSON.stringify(migrated))).toEqual(migrated);
 });
@@ -222,4 +218,50 @@ it('rejects reversed value and event connections instead of admitting a reversed
 	expect(() => validateDiagramData(event)).toThrow(
 		'expected Output/Event source and Input target',
 	);
+});
+
+it.each([0, 1, 3, 99, undefined])(
+	'rejects unsupported schema %s instead of migrating it',
+	(schemaVersion) => {
+		const original = { ...document(), schemaVersion };
+		expect(() => parseDiagramFile(JSON.stringify(original))).toThrow('unsupported version');
+		expect(original.schemaVersion).toBe(schemaVersion);
+	},
+);
+
+it('rejects raw numbers in v2, malformed envelopes, mode mismatches and unknown versions without guessing', () => {
+	const data = fixture();
+	data.connectLines = [];
+	data.elements = [
+		{ ...data.elements[0], type: ElementType.Interval, properties: { period: 1 } },
+	];
+	expect(() => validateDiagramDocument({ ...document(), diagram: data })).toThrow('parameter-v1');
+	for (const period of [
+		null,
+		{ kind: 'expression', type: 'string', source: '1' },
+		{ kind: 'literal', type: 'number', value: '1' },
+		{ kind: 'expression', type: 'number', source: '1', extra: true },
+	]) {
+		data.elements[0].properties = { period };
+		expect(() => validateDiagramDocument({ ...document(), diagram: data })).toThrow();
+	}
+	data.elements[0] = {
+		...data.elements[0],
+		type: ElementType.Timer,
+		properties: {
+			dueDateType: 1,
+			startDue: { kind: 'literal', type: 'number', value: 0 },
+			intervalDuration: { kind: 'literal', type: 'number', value: -1 },
+		},
+	};
+	expect(() => validateDiagramDocument({ ...document(), diagram: data })).toThrow('date');
+	expect(() => validateDiagramDocument({ ...document(), schemaVersion: 3 })).toThrow(
+		'unsupported version',
+	);
+});
+
+it('rejects unversioned files without interpreting their contents', () => {
+	const original = fixture();
+	expect(() => parseDiagramFile(JSON.stringify(original))).toThrow('unsupported version');
+	expect(original).toEqual(currentReleaseDiagram);
 });

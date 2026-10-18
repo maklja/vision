@@ -1,7 +1,8 @@
+import { NumericParameter } from '../parameters/ParameterValue';
 import { Element, ElementProps, ElementType } from '../element';
 
 export interface IntervalElementProperties extends ElementProps {
-	period: number;
+	period: NumericParameter;
 }
 
 export interface IntervalElement extends Element<IntervalElementProperties> {

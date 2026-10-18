@@ -6,7 +6,7 @@ import {
 	startSimulation,
 } from './support/editor';
 import { currentReleaseDiagram } from '../packages/simulator-model/test/fixtures/currentReleaseDiagram';
-import { migrateLegacyDiagram } from '@maklja/vision-simulator-model';
+import { currentDiagramDocument } from '../packages/simulator-model/test/fixtures/currentDiagramDocument';
 import { waitForDiagramCounts } from './support/indexedDb';
 import { installWorkerProbe, readWorkerProbe } from './support/workerProbe';
 
@@ -15,7 +15,7 @@ test('imports inertly, requires session approval again after reload, and exports
 }) => {
 	await installWorkerProbe(page);
 	await bootstrapEditor(page);
-	const doc = migrateLegacyDiagram(
+	const doc = currentDiagramDocument(
 		currentReleaseDiagram,
 		'file-source-id',
 		'2026-10-15T19:00:00Z',
@@ -52,7 +52,7 @@ test('imports inertly, requires session approval again after reload, and exports
 	const chunks = [];
 	for await (const chunk of stream!) chunks.push(chunk);
 	const exported = JSON.parse(Buffer.concat(chunks).toString());
-	expect(exported.schemaVersion).toBe(1);
+	expect(exported.schemaVersion).toBe(2);
 	expect(exported.origin).toBe('file');
 	expect(exported.diagram).toEqual(currentReleaseDiagram);
 	expect(exported).not.toHaveProperty('trusted');
@@ -71,4 +71,39 @@ test('reports invalid import without changing the saved diagram', async ({ page 
 	await expect(
 		page.getByRole('button', { name: 'Allow execution for this revision' }),
 	).not.toBeVisible();
+});
+
+test('rejects old development storage and logs a browser console error without loading it', async ({
+	page,
+}) => {
+	await bootstrapEditor(page);
+	await page.evaluate(async (legacy) => {
+		await new Promise<void>((resolve, reject) => {
+			const open = indexedDB.open('keyval-store');
+			open.onerror = () => reject(open.error);
+			open.onsuccess = () => {
+				const db = open.result;
+				const tx = db.transaction('keyval', 'readwrite');
+				tx.objectStore('keyval').clear();
+				tx.objectStore('keyval').put(legacy, 'test');
+				tx.oncomplete = () => {
+					db.close();
+					resolve();
+				};
+				tx.onerror = () => reject(tx.error);
+			};
+		});
+	}, currentReleaseDiagram);
+	const errors: string[] = [];
+	page.on('console', (message) => {
+		if (message.type() === 'error') errors.push(message.text());
+	});
+	await page.reload();
+	await expect(page.getByTestId('simulator-stage')).toBeVisible();
+	await expect
+		.poll(() => errors.some((message) => message.includes('Unsupported legacy diagram')))
+		.toBe(true);
+	await expect(page.getByRole('button', { name: 'start simulation' })).toBeDisabled();
+	await page.getByRole('combobox', { name: 'Entry operator' }).click();
+	await expect(page.getByRole('option')).toHaveCount(0);
 });
