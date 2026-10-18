@@ -59,10 +59,13 @@ while the field is mounted; only the active variant is saved. Selecting another 
 its own editors, so an old draft cannot be written into the new element. Timer due-mode changes
 explicitly initialize the corresponding numeric/date value, preserving the existing UI behavior.
 Clearing optional Count removes its key. Clearing a required numeric field is invalid rather than
-silently becoming zero. Invalid editor drafts are visible and cannot overwrite a valid saved record.
+silently becoming zero. Invalid editor drafts remain local and cannot overwrite the last valid saved
+value. Expression changes commit only after syntax validation succeeds; stale validation results are discarded.
+Reloading restores the last valid value.
 
 Field errors are associated with their input. Run remains disabled while the selected graph's
-syntax/literal validation is pending or failing. Disconnected drafts do not block that graph.
+syntax/literal validation is pending or failing. Disconnected saved parameters do not block that
+graph. A visible invalid or pending editor draft blocks Run until corrected or dismissed.
 Expressions' dynamic return values are checked on subscription, with element/field diagnostics;
 these failures remain catchable by RxJS recovery operators. Final subscription parentage/correlation
 is still tracked by #129.

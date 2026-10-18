@@ -23,6 +23,9 @@ import { ClipboardSlice, createClipboardSlice } from './clipboard';
 export type StateProps = DiagramData;
 
 export type RootState = {
+	/** Validation for mounted parameter drafts only; never serialized. */
+	parameterDraftErrors: Record<string, string>;
+	setParameterDraftError: (id: string, field: string, error: string) => void;
 	contextSeed: Record<string, unknown>;
 	setContextSeed: (seed: unknown) => void;
 } & ElementSlice &
@@ -54,6 +57,13 @@ export function createRootStore(initProps?: Partial<StateProps>) {
 		devtools(
 			immer(
 				subscribeWithSelector((...args) => ({
+					parameterDraftErrors: {},
+					setParameterDraftError: (id, field, error) =>
+						args[0]((state) => {
+							const key = JSON.stringify([id, field]);
+							if (error) state.parameterDraftErrors[key] = error;
+							else delete state.parameterDraftErrors[key];
+						}),
 					contextSeed: initProps?.contextSeed ?? {},
 					setContextSeed: (seed) =>
 						args[0]((state) => {

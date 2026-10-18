@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { StoreContext } from '../../store/rootStore';
+import { useContext, useEffect, useRef, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
@@ -54,65 +55,100 @@ export function ParameterEditor({
 		isParameterValue(value) ? value.kind : 'literal',
 	);
 	const [syntaxError, setSyntaxError] = useState('');
+	const store = useContext(StoreContext);
+	const request = useRef(0);
+	const mounted = useRef(false);
+	const lastCommitted = useRef<{ serialized: string | undefined } | null>(null);
+	const report = (error: string) => store?.getState().setParameterDraftError(id, field, error);
 	useEffect(() => {
+		mounted.current = true;
+		return () => {
+			mounted.current = false;
+			request.current++;
+			store?.getState().setParameterDraftError(id, field, '');
+		};
+	}, [store, id, field]);
+
+	// Invalidate pending work synchronously on each edit; effect cleanup alone is too late.
+	const emit = (
+		kind: 'literal' | 'expression',
+		nextLiteral = literal,
+		nextSource = source,
+		commit = true,
+	) => {
+		const token = ++request.current;
+		const publish = (candidate: unknown) => {
+			if (!commit) return;
+			lastCommitted.current = { serialized: JSON.stringify(candidate) };
+			onChange?.(id, field, candidate);
+		};
+		if (kind === 'literal') {
+			try {
+				if (!(optional && nextLiteral === ''))
+					validateParameterConstraint(elementType, field, nextLiteral, properties);
+			} catch {
+				const message = `Enter a valid ${type} value. ${help}`;
+				setSyntaxError(message);
+				report(message);
+				return;
+			}
+			setSyntaxError('');
+			report('');
+			publish(
+				optional && nextLiteral === '' ? undefined : { kind, type, value: nextLiteral },
+			);
+			return;
+		}
+		if (!nextSource.trim()) {
+			setSyntaxError('Expression source is required.');
+			report('Expression source is required.');
+			return;
+		}
+		setSyntaxError('Checking expression…');
+		report('Checking expression…');
+		import('@maklja/vision-simulator-engine')
+			.then(({ validateSource }) => {
+				if (!mounted.current || token !== request.current) return;
+				try {
+					validateSource(
+						{ id } as import('@maklja/vision-simulator-model').Element,
+						field,
+						nextSource,
+						false,
+					);
+				} catch {
+					const message = 'Enter a valid JavaScript value expression (at most 64 KiB).';
+					setSyntaxError(message);
+					report(message);
+					return;
+				}
+				setSyntaxError('');
+				report('');
+				publish({ kind, type, source: nextSource });
+			})
+			.catch(() => {
+				if (!mounted.current || token !== request.current) return;
+				setSyntaxError('Expression validation could not load.');
+				report('Expression validation could not load.');
+			});
+	};
+	useEffect(() => {
+		// A successful commit echo must not replace the other mode's local draft.
+		if (lastCommitted.current && lastCommitted.current.serialized === JSON.stringify(value))
+			return;
 		if (isParameterValue(value) && value.kind === 'expression') {
 			setMode('expression');
 			setSource(value.source);
+			emit('expression', literal, value.source, false);
 		} else {
+			const next =
+				isParameterValue(value) && value.kind === 'literal' ? value.value : (value ?? '');
 			setMode('literal');
-			setLiteral(
-				isParameterValue(value) && value.kind === 'literal' ? value.value : (value ?? ''),
-			);
+			setLiteral(next);
+			emit('literal', next, source, false);
 		}
 	}, [value]);
-	useEffect(() => {
-		let current = true;
-		setSyntaxError('');
-		if (mode === 'expression') {
-			import('@maklja/vision-simulator-engine')
-				.then(({ validateSource }) => {
-					try {
-						validateSource(
-							{ id } as import('@maklja/vision-simulator-model').Element,
-							field,
-							source,
-							false,
-						);
-					} catch {
-						if (current)
-							setSyntaxError(
-								'Enter a valid JavaScript value expression (at most 64 KiB).',
-							);
-					}
-				})
-				.catch(() => {
-					if (current) setSyntaxError('Expression validation could not load.');
-				});
-		}
-		return () => {
-			current = false;
-		};
-	}, [id, field, source, mode]);
-	let error = syntaxError;
-	if (mode === 'literal' && !(optional && literal === '')) {
-		try {
-			validateParameterConstraint(elementType, field, literal, properties);
-		} catch {
-			error = `Enter a valid ${type} value. ${help}`;
-		}
-	}
-	if (mode === 'expression' && !source.trim()) error = 'Expression source is required.';
-	const emit = (kind: 'literal' | 'expression', nextLiteral = literal, nextSource = source) => {
-		onChange?.(
-			id,
-			field,
-			kind === 'expression'
-				? { kind, type, source: nextSource }
-				: optional && nextLiteral === ''
-					? undefined
-					: { kind, type, value: nextLiteral },
-		);
-	};
+	const error = syntaxError;
 	return (
 		<Stack sx={{ gap: 1 }}>
 			<TextField

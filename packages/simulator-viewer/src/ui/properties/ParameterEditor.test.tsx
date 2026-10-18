@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, expect, it } from 'vitest';
 import { RangeElementProperties } from '@maklja/vision-simulator-model';
+import { createStoreWrapper, createTestStore } from '../../test-utils';
 import { RangeElementPropertiesForm } from './creationElementForms/RangeElementPropertiesForm';
 
 afterEach(cleanup);
@@ -56,11 +57,13 @@ it('retains independent literal/expression drafts, saves only the active variant
 	expect((screen.getByLabelText('Count expression') as HTMLInputElement).value).toBe(
 		'$context.count',
 	);
-	expect(saved().first.count).toEqual({
-		kind: 'expression',
-		type: 'number',
-		source: '$context.count',
-	});
+	await waitFor(() =>
+		expect(saved().first.count).toEqual({
+			kind: 'expression',
+			type: 'number',
+			source: '$context.count',
+		}),
+	);
 	mode('Literal');
 	expect((screen.getByLabelText('Count') as HTMLInputElement).value).toBe('4');
 	expect(saved().first.count).toEqual({ kind: 'literal', type: 'number', value: 4 });
@@ -76,9 +79,41 @@ it('preserves optional absence and marks invalid required literals and syntax wi
 	expect(saved().first).not.toHaveProperty('count');
 	fireEvent.change(screen.getByLabelText('Start'), { target: { value: '' } });
 	expect(screen.getByLabelText('Start').getAttribute('aria-invalid')).toBe('true');
-	expect(saved().first.start.value).toBe('');
+	expect(saved().first.start).toBe(1);
 	mode('Expression');
 	fireEvent.change(screen.getByLabelText('Count expression'), { target: { value: '1 +' } });
 	await waitFor(() => expect(screen.getByText(/valid JavaScript value expression/)).toBeTruthy());
 	expect(screen.getByLabelText('Count expression').getAttribute('aria-describedby')).toBeTruthy();
+});
+
+it('keeps invalid drafts local, cancels stale validation and clears transient errors on unmount', async () => {
+	const store = createTestStore();
+	const Wrapper = createStoreWrapper(store);
+	const view = render(
+		<Wrapper>
+			<Harness />
+		</Wrapper>,
+	);
+	mode('Expression');
+	expect(saved().first.count).toBe(2);
+	expect(Object.keys(store.getState().parameterDraftErrors)).toHaveLength(1);
+	fireEvent.change(screen.getByLabelText('Count expression'), { target: { value: '3' } });
+	fireEvent.change(screen.getByLabelText('Count expression'), { target: { value: '3 +' } });
+	await waitFor(() => expect(screen.getByText(/valid JavaScript value expression/)).toBeTruthy());
+	expect(saved().first.count).toBe(2);
+	fireEvent.change(screen.getByLabelText('Count expression'), { target: { value: '4' } });
+	await waitFor(() =>
+		expect(saved().first.count).toEqual({ kind: 'expression', type: 'number', source: '4' }),
+	);
+	expect(store.getState().parameterDraftErrors).toEqual({});
+	fireEvent.change(screen.getByLabelText('Count expression'), { target: { value: '5' } });
+	mode('Literal');
+	await waitFor(() =>
+		expect(saved().first.count).toEqual({ kind: 'literal', type: 'number', value: 2 }),
+	);
+	expect(store.getState().parameterDraftErrors).toEqual({});
+	mode('Expression');
+	fireEvent.change(screen.getByLabelText('Count expression'), { target: { value: '5 +' } });
+	view.unmount();
+	expect(store.getState().parameterDraftErrors).toEqual({});
 });

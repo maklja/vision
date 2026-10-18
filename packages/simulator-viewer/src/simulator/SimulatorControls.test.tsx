@@ -399,3 +399,17 @@ it('disables Run for malformed selected parameters and ignores unrelated draft e
 	);
 	cleanup();
 });
+
+it('blocks Run for a local invalid draft without changing the saved graph', async () => {
+	const { store, selectEntryOption } = renderControls();
+	selectEntryOption('of - zeta');
+	const run = () => screen.getByRole('button', { name: 'start simulation' }) as HTMLButtonElement;
+	await waitFor(() => expect(run().disabled).toBe(false));
+	const elements = store.getState().elements;
+	act(() => store.getState().setParameterDraftError('of-1', 'count', 'Checking expression…'));
+	expect(run().disabled).toBe(true);
+	expect(store.getState().elements).toBe(elements);
+	act(() => store.getState().setParameterDraftError('of-1', 'count', ''));
+	await waitFor(() => expect(run().disabled).toBe(false));
+	cleanup();
+});

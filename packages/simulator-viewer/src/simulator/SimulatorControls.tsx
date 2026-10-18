@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useDiagramExecutionPermission } from '../persistence/DiagramExecutionGate';
 import { Unsubscribable } from 'rxjs';
 import Box from '@mui/material/Box';
@@ -12,7 +12,7 @@ import {
 	resultOperators,
 } from '@maklja/vision-simulator-model';
 import { SimulationControls } from '../ui';
-import { useRootStore } from '../store/rootStore';
+import { StoreContext, useRootStore } from '../store/rootStore';
 import { selectSimulation } from '../store/simulation';
 import { selectStageElements } from '../store/elements';
 import { selectStageConnectLines } from '../store/connectLines';
@@ -27,6 +27,8 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	const [readiness, setReadiness] = useState({ revision: '', error: '' });
 	const [watchdogSeconds, setWatchdogSeconds] = useState(5);
 	const [diagnostics, setDiagnostics] = useState<ExecutionDiagnostic[]>([]);
+	const draftErrors = useRootStore((s) => s.parameterDraftErrors);
+	const draftsValid = Object.keys(draftErrors).length === 0;
 	const contextSeed = useRootStore((s) => s.contextSeed);
 	const setContextSeed = useRootStore((s) => s.setContextSeed);
 	const [seedDraft, setSeedDraft] = useState(() => JSON.stringify(contextSeed, null, 2));
@@ -89,7 +91,8 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 			current = false;
 		};
 	}, [sourceRevision]);
-	const executionAllowed = permission.allowed && ready;
+	const executionAllowed = permission.allowed && ready && draftsValid;
+	const store = useContext(StoreContext)!;
 	const latestPermission = useRef(permission);
 	latestPermission.current = permission;
 	const simulationSubscription = useRef<Unsubscribable | null>(null);
@@ -105,7 +108,11 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 	}, []);
 
 	async function handleSimulationStart(entryElementId: string) {
-		if (!entryElementId || !executionAllowed) {
+		if (
+			!entryElementId ||
+			!executionAllowed ||
+			Object.keys(store.getState().parameterDraftErrors).length
+		) {
 			return;
 		}
 
@@ -117,6 +124,7 @@ export function SimulatorControls({ stage }: SimulatorControlsProps) {
 			!mounted.current ||
 			request !== generation.current ||
 			!latestPermission.current.allowed ||
+			Object.keys(store.getState().parameterDraftErrors).length > 0 ||
 			latestPermission.current.revision !== requestedRevision
 		)
 			return;

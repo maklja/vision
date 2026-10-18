@@ -94,3 +94,61 @@ test('wrong expression results are diagnosed by field', async ({ page }) => {
 	await expect(page.getByLabel('Execution diagnostics')).toContainText('count');
 	await expect(page.getByLabel('Execution diagnostics')).toContainText('result');
 });
+
+test('invalid expression drafts preserve the last valid value after reload', async ({ page }) => {
+	const source = {
+		...basePathFixture.elements[0],
+		type: ElementType.Range,
+		properties: { start: 0, count: 2 },
+	};
+	await bootstrapEditorWithDiagram(page, {
+		...basePathFixture,
+		elements: [source, basePathFixture.elements[1]],
+	});
+	await selectEntryOperator(page, source);
+	await selectElement(page, source);
+	await page.getByRole('combobox', { name: 'Count mode', exact: true }).click();
+	await page.getByRole('option', { name: 'Expression', exact: true }).click();
+	await page.getByLabel('Count expression', { exact: true }).fill('1 +');
+	await expect(page.getByText(/valid JavaScript value expression/)).toBeVisible();
+	await expect(page.getByRole('button', { name: 'start simulation' })).toBeDisabled();
+	await page.getByLabel('Start', { exact: true }).fill('1');
+	const savedLiteral = await waitForDiagram(
+		page,
+		(data) => (data?.elements[0].properties.start as { value?: number })?.value === 1,
+	);
+	expect(savedLiteral.elements[0].properties.count).toEqual({
+		kind: 'literal',
+		type: 'number',
+		value: 2,
+	});
+	await page.reload();
+	await selectElement(page, source);
+	await expect(page.getByLabel('Count', { exact: true })).toHaveValue('2');
+	await page.getByRole('combobox', { name: 'Count mode', exact: true }).click();
+	await page.getByRole('option', { name: 'Expression', exact: true }).click();
+	await page.getByLabel('Count expression', { exact: true }).fill('3');
+	await waitForDiagram(
+		page,
+		(data) => (data?.elements[0].properties.count as { source?: string })?.source === '3',
+	);
+	await page.getByLabel('Count expression', { exact: true }).fill('3 +');
+	await expect(page.getByText(/valid JavaScript value expression/)).toBeVisible();
+	await page.getByLabel('Start', { exact: true }).fill('2');
+	const savedExpression = await waitForDiagram(
+		page,
+		(data) => (data?.elements[0].properties.start as { value?: number })?.value === 2,
+	);
+	expect(savedExpression.elements[0].properties.count).toEqual({
+		kind: 'expression',
+		type: 'number',
+		source: '3',
+	});
+	await page.reload();
+	await selectElement(page, source);
+	await expect(page.getByLabel('Count expression', { exact: true })).toHaveValue('3');
+	await expect(page.getByLabel('Count expression', { exact: true })).toHaveAttribute(
+		'aria-invalid',
+		'false',
+	);
+});
