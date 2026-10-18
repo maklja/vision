@@ -1,3 +1,4 @@
+import { currentDiagramDocument } from '../../simulator-model/test/fixtures/currentDiagramDocument';
 // @vitest-environment jsdom
 
 import 'fake-indexeddb/auto';
@@ -92,7 +93,6 @@ vi.mock('./simulator', async () => {
 
 import App from './App';
 
-const diagramId = 'test';
 import { ACTIVE_DIAGRAM_KEY, diagramKey } from './persistence';
 import type { DiagramDocument } from '@maklja/vision-simulator-model';
 
@@ -181,7 +181,8 @@ describe('App IndexedDB persistence', () => {
 			canvasState: { x: 40, y: 50, scaleX: 2, scaleY: 3 },
 			themeId: 'winter',
 		};
-		await set(diagramId, storedDiagram);
+		await set(ACTIVE_DIAGRAM_KEY, 'test');
+		await set(diagramKey('test'), currentDiagramDocument(storedDiagram, 'test'));
 
 		await renderApp();
 
@@ -190,6 +191,36 @@ describe('App IndexedDB persistence', () => {
 		expect(screen.getByLabelText('viewport').textContent).toBe('40,50,2,3');
 		expect(screen.getByLabelText('theme').textContent).toBe('winter');
 	});
+
+	it.each(['unversioned', 'v1'])(
+		'does not load %s data and logs the error in the browser console',
+		async (version) => {
+			const { currentReleaseDiagram } =
+				await import('../../simulator-model/test/fixtures/currentReleaseDiagram');
+			const original =
+				version === 'unversioned'
+					? currentReleaseDiagram
+					: { ...currentDiagramDocument(currentReleaseDiagram), schemaVersion: 1 };
+			if (version === 'unversioned') await set('test', original);
+			else {
+				await set(ACTIVE_DIAGRAM_KEY, 'old');
+				await set(diagramKey('old'), original);
+			}
+			const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+			try {
+				await renderApp();
+				expect(screen.getByLabelText('loaded elements').textContent).toBe('');
+				expect(error).toHaveBeenCalledWith(
+					expect.stringContaining('Failed to load data from database.'),
+				);
+				expect(await get(version === 'unversioned' ? 'test' : diagramKey('old'))).toEqual(
+					original,
+				);
+			} finally {
+				error.mockRestore();
+			}
+		},
+	);
 
 	it('persists element changes as an array in the stored shape', async () => {
 		await renderApp();
@@ -258,54 +289,6 @@ describe('App IndexedDB persistence', () => {
 			});
 			expect(persistedDiagram?.elements.map((element) => element.id)).toEqual([
 				'added',
-				'source-element',
-				'target-element',
-			]);
-			expect(persistedDiagram?.connectLines.map((line) => line.id)).toEqual(['line-1']);
-		});
-	});
-
-	it('excludes transient result elements while preserving editor state', async () => {
-		const storedDiagram: StateProps = {
-			elements: [
-				{
-					id: 'source',
-					type: ElementType.Of,
-					name: 'of_0',
-					x: 20,
-					y: 30,
-					visible: true,
-					properties: {
-						argsFactoryExpression: 'function argsFactory() { return [1, 2]; }',
-					},
-				},
-				{
-					id: 'transient-result',
-					type: ElementType.Result,
-					name: 'transient-result',
-					x: 80,
-					y: 30,
-					visible: true,
-					properties: {
-						hash: 'result-hash',
-					},
-				},
-			],
-			connectLines: [],
-			canvasState: { x: 0, y: 0, scaleX: 1, scaleY: 1 },
-			themeId: 'sea',
-		};
-		await set(diagramId, storedDiagram);
-
-		await renderApp();
-		expect(screen.getByLabelText('loaded elements').textContent).toBe('of_0');
-
-		fireEvent.click(screen.getByRole('button', { name: 'Add connect line' }));
-
-		await waitFor(async () => {
-			const persistedDiagram = await readPersistedDiagram();
-			expect(persistedDiagram?.elements.map((element) => element.id)).toEqual([
-				'source',
 				'source-element',
 				'target-element',
 			]);

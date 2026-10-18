@@ -1,7 +1,7 @@
 import { ConnectLine, Element } from '@maklja/vision-simulator-model';
 
 /**
- * Shape of the diagram persisted by the viewer under `keyval-store`/`keyval`/`test`.
+ * Source data inside the current versioned IndexedDB document.
  * It mirrors the serialized editor state without depending on viewer-only modules.
  */
 export interface PersistedCanvasState {

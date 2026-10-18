@@ -2,6 +2,11 @@
 
 Status: implementation in progress. Phase 1.4 viewer state and component characterization was completed on 2026-09-26. Phase 1.5 critical browser journeys and the Phase 1 characterization gate were completed on 2026-09-28 (issues #85–#90, PRs #91, #92, #94, #96, #98, and #103). Phase 2 was verified complete on 2026-10-01 against `main` commit `41a6b66` after PR #124 merged. Phase 3.1 inventory merged on 2026-10-01 in [PR #128](https://github.com/maklja/vision/pull/128). Phase 3.2 design was accepted in merged PR #133 on 2026-10-02; issues #129–#131 track implementation. Old PRs #40/#42/#50 are closed as superseded. Phase 3.3 design was accepted in merged #138 and #132 closed. Phase 3.4 final handoff verifies the Phase 3 gate on 2026-10-02, with all legacy refs preserved and backlog #129–#131/#134–#140 ordered. Phase 3 gate is complete; this final documentation handoff is prepared for review. Phase 4.1 merged in #145; Phase 4.2 metadata migration is in progress (#147/#151/#152/#153/#154/#155/#156/#157).
 
+**Current development policy (2026-10-18):** the application is not in production. Breaking schema
+changes are allowed, and schema migrations/compatibility loaders are not required or implemented.
+Only the current schema loads; unsupported legacy data is rejected with a browser console error.
+Historical migration requirements below are superseded by this policy until production release planning.
+
 ## Goal
 
 Finish RxJS Vision as a reliable browser-based editor and simulator for RxJS observable graphs.
@@ -481,7 +486,7 @@ stable local IDs/metadata, v0 migration with durable backup, validated inert JSO
 prior-record recovery and explicit imported-revision approval. Existing retries/disposal and the
 current-release fixture remain covered. See [storage/schema/recovery contract](DIAGRAM_PERSISTENCE.md).
 Context seed is supported by the merged #134 core; #135 adds schema v2 literal/expression parameter
-envelopes with a durable v1 backup and keeps callback fields unchanged. Named tabs, undo/cloud and full RxJS export remain later work.
+envelopes as a breaking development-schema change and keeps callback fields unchanged. Named tabs, undo/cloud and full RxJS export remain later work.
 
 Implementation owner: [#139](https://github.com/maklja/vision/issues/139); #135 extends this foundation with parameter-v1 after #134 evaluation rules.
 
@@ -572,7 +577,7 @@ current operators incrementally and keep package boundaries intact.
 Execution/trust core #134 merged in #159: per-run context seed, immutable per-subscription
 params, parser preflight, lazy callback evaluation, validated local overrides, session/revision trust,
 Worker heartbeat/watchdog and accessible settings/diagnostics. See [execution policy](EXECUTION_POLICY.md).
-Typed parameter schema v2, migration, source evaluation and editors are implemented for review in #135;
+Typed parameter schema v2, source evaluation and editors are implemented for review in #135;
 see [typed parameter contract](PARAMETERS.md). Final lifecycle diagnostic identity/parentage remains #129.
 Keep #134 open until those integration gates and the relevant three-browser journeys pass.
 

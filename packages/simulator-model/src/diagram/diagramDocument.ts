@@ -5,7 +5,7 @@ import {
 	validateParameterConstraint,
 	wrapParameterProperties,
 } from '../parameters/ParameterValue';
-import { Element, ElementType, resultOperators } from '../element';
+import { Element, ElementType } from '../element';
 import { ConnectLine } from '../connectLine';
 import { ConnectPointPosition, ConnectPointType } from '../connectPoint';
 import { findElementDescriptor } from '../descriptors';
@@ -151,7 +151,7 @@ function validateProperties(
 	type: ElementType,
 	value: unknown,
 	path: string,
-	mode: 'runtime' | 'legacy' | 'typed',
+	mode: 'runtime' | 'typed',
 ) {
 	const props = record(value, path);
 	const template = mapToOperatorPropsTemplate(type);
@@ -163,7 +163,7 @@ function validateProperties(
 		if (parameterType) {
 			try {
 				const value = props[key];
-				if (mode === 'legacy' || (mode === 'runtime' && typeof value === 'number')) {
+				if (mode === 'runtime' && typeof value === 'number') {
 					validateParameterConstraint(type, key, value, props);
 				} else {
 					validateParameterValue(value, parameterType);
@@ -193,14 +193,7 @@ function validateProperties(
 				`${path}.${key}`,
 				'expected string pairs',
 			);
-		else if (
-			expected &&
-			!(
-				mode !== 'legacy' &&
-				parameterTypeForField(type, key, props) &&
-				isParameterValue(value)
-			)
-		)
+		else if (expected && !(parameterTypeForField(type, key, props) && isParameterValue(value)))
 			check(typeof value === expected, `${path}.${key}`, `expected ${expected}`);
 	}
 	if (Object.hasOwn(props, 'observableInputsType'))
@@ -223,7 +216,7 @@ function validateProperties(
 /** Validate editable source data, not run readiness: disconnected/incomplete graphs are valid drafts. */
 export function validateDiagramData(
 	value: unknown,
-	mode: 'runtime' | 'legacy' | 'typed' = 'runtime',
+	mode: 'runtime' | 'typed' = 'runtime',
 ): DiagramData {
 	validateJsonData(value);
 	const data = record(value, 'diagram');
@@ -340,11 +333,11 @@ export function validateDiagramData(
 	return JSON.parse(JSON.stringify(data)) as DiagramData;
 }
 
-function validateDocument(value: unknown, version: 1 | 2): DiagramDocument {
+export function validateDiagramDocument(value: unknown): DiagramDocument {
 	validateJsonData(value);
 	const doc = record(value, 'document');
 	check(
-		doc.schemaVersion === version,
+		doc.schemaVersion === DIAGRAM_SCHEMA_VERSION,
 		'schemaVersion',
 		'unsupported version; original data was not changed',
 	);
@@ -363,12 +356,8 @@ function validateDocument(value: unknown, version: 1 | 2): DiagramDocument {
 	check(doc.origin === 'local' || doc.origin === 'file', 'origin', 'invalid provenance');
 	return {
 		...doc,
-		diagram: validateDiagramData(doc.diagram, version === 1 ? 'legacy' : 'typed'),
+		diagram: validateDiagramData(doc.diagram, 'typed'),
 	} as DiagramDocument;
-}
-
-export function validateDiagramDocument(value: unknown): DiagramDocument {
-	return validateDocument(value, DIAGRAM_SCHEMA_VERSION);
 }
 
 export function diagramWithTypedParameters(data: unknown): DiagramData {
@@ -385,18 +374,6 @@ export function diagramWithTypedParameters(data: unknown): DiagramData {
 	);
 }
 
-/** Recognize only released v1 and current v2. Callers durably back up v1 before writing v2. */
-export function upgradeDiagramDocument(value: unknown): DiagramDocument {
-	const raw = record(value, 'document');
-	if (raw.schemaVersion !== 1) return validateDiagramDocument(value);
-	const checked = validateDocument(value, 1);
-	return validateDiagramDocument({
-		...checked,
-		schemaVersion: 2,
-		diagram: diagramWithTypedParameters(checked.diagram),
-	});
-}
-
 export function parseDiagramFile(source: string): DiagramDocument {
 	check(
 		new TextEncoder().encode(source).length <= MAX_DIAGRAM_BYTES,
@@ -409,48 +386,7 @@ export function parseDiagramFile(source: string): DiagramDocument {
 	} catch {
 		throw new DiagramValidationError('file', 'invalid JSON');
 	}
-	return upgradeDiagramDocument(value);
-}
-
-/** Only v0 (the released unversioned shape) is supported. No prototype property guessing. */
-export function migrateLegacyDiagram(value: unknown, id: string, now: string): DiagramDocument {
-	const raw = record(value, 'legacy');
-	const elements = Array.isArray(raw.elements)
-		? raw.elements
-				.filter(
-					(item) =>
-						!resultOperators.has(record(item, 'legacy.element').type as ElementType),
-				)
-				.map((item) => {
-					const el = record(item, 'legacy.element');
-					if (
-						el.properties === null ||
-						typeof el.properties !== 'object' ||
-						Array.isArray(el.properties)
-					)
-						return el;
-					// IndexedDB v0 can retain explicitly undefined optional fields. Preserve absence,
-					// not a template fallback (notably range.count). Never remove a corrupt required field.
-					const optional = optionalProperties[el.type as ElementType] ?? {};
-					const properties = Object.fromEntries(
-						Object.entries(record(el.properties, 'legacy.element.properties')).filter(
-							([key, value]) =>
-								!(value === undefined && Object.hasOwn(optional, key)),
-						),
-					);
-					return { ...el, properties };
-				})
-		: raw.elements;
-
-	return upgradeDiagramDocument({
-		schemaVersion: 1,
-		id,
-		name: 'My diagram',
-		createdAt: now,
-		updatedAt: now,
-		origin: 'local',
-		diagram: { ...raw, elements },
-	});
+	return validateDiagramDocument(value);
 }
 
 export function validateContextSeed(seed: unknown): Record<string, unknown> {

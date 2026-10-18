@@ -71,16 +71,14 @@ Limits are 64 KiB UTF-8 per expression, 1 MiB per seed/invocation snapshot and J
 before Worker dispatch. Runtime expression results are checked again without coercion. Diagnostic
 messages do not include full context, params or authored source.
 
-## Migration and recovery
+## Development schema policy
 
-Released v0 and v1 diagrams migrate numeric/date fields to literal envelopes without changing IDs,
-callbacks, connections, viewport, theme or context seed. v0 optional undefined fields normalize to
-absence; intentionally absent Range count is never filled from its template. Raw numeric templates
-and engine API inputs remain compatible; save/export normalizes registered values to envelopes.
-Schema v2 files require envelopes and do not accept raw numeric values in these fields.
+Only schema v2 is accepted. The project is not in production, so older development schemas are
+intentionally unsupported: unversioned/v1/future documents are not loaded, converted or executed.
+Load/import failures are logged in the browser console and leave stored data unchanged. There are
+no migration functions or migration-specific backups. Tests seed current-schema documents directly.
 
-Migration validates before writing and durably saves the untouched original first. v0 retains `test`
-and `vision:backup:legacy`. v1 keeps `vision:backup:schema-v1:<id>`, separate from rolling autosave
-backups, before publishing v2. Failed backup/commit leaves the original readable; load can be retried.
-Unknown future versions and unpublished prototype schemas are rejected without repair or execution.
-See [diagram persistence](DIAGRAM_PERSISTENCE.md).
+Raw numeric templates and direct engine API inputs serialize to literal envelopes when writing
+current documents; callbacks are unchanged. Optional Range count remains absent when intentionally
+omitted. Schema v2 files require envelopes in the rolled-out fields. See
+[diagram persistence](DIAGRAM_PERSISTENCE.md). Production migration policy will be decided before release.

@@ -13,7 +13,7 @@ permissions: it is **not a security sandbox**. Public untrusted execution is uns
 
 The execution settings disclosure contains a keyboard-accessible context seed editor, watchdog
 budget and text diagnostics. Only `diagram.contextSeed`, an optional finite JSON object in the
-versioned diagram document, is saved. Its absence means `{}`; older version-1 documents migrate to schema v2 without executing code.
+versioned diagram document, is saved. Its absence means `{}`; older schemas are rejected without loading or executing them.
 No initializer, runtime context, compiled closure, params, approval or Worker handle is saved.
 The seed is cloned once for each run, including restart. `$context` is mutable and shared inside
 that run; asynchronous branches observe actual dispatch order. Use invocation inputs for independent

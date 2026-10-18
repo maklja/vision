@@ -60,7 +60,7 @@ export async function bootstrapEditor(page: Page): Promise<void> {
 }
 
 /**
- * Opens the application on a persisted fixture. The first load gives the viewer an origin to seed
+ * Opens the application on a current-schema persisted fixture. The first load gives the viewer an origin to seed
  * IndexedDB from, and the reload then loads the diagram exactly like a returning user's session.
  */
 export async function bootstrapEditorWithDiagram(

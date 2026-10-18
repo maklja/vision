@@ -1,14 +1,13 @@
 import 'fake-indexeddb/auto';
 import * as keyval from 'idb-keyval';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { migrateLegacyDiagram } from '@maklja/vision-simulator-model';
+import { currentDiagramDocument } from '../../../simulator-model/test/fixtures/currentDiagramDocument';
 import { currentReleaseDiagram } from '../../../simulator-model/test/fixtures/currentReleaseDiagram';
 import {
 	ACTIVE_DIAGRAM_KEY,
 	backupKey,
 	diagramKey,
 	DiagramRepository,
-	LEGACY_BACKUP_KEY,
 	LEGACY_DIAGRAM_KEY,
 } from './diagramPersistence';
 
@@ -18,7 +17,7 @@ vi.mock('idb-keyval', async (importOriginal) => {
 });
 
 const imported = () =>
-	migrateLegacyDiagram(currentReleaseDiagram, 'file-id', '2026-10-15T19:00:00Z');
+	currentDiagramDocument(currentReleaseDiagram, 'file-id', '2026-10-15T19:00:00Z');
 
 describe('durable backup ordering and failure recovery', () => {
 	beforeEach(async () => {
@@ -28,29 +27,6 @@ describe('durable backup ordering and failure recovery', () => {
 		const actual = await vi.importActual<typeof import('idb-keyval')>('idb-keyval');
 		vi.mocked(keyval.set).mockReset().mockImplementation(actual.set);
 		vi.mocked(keyval.setMany).mockReset().mockImplementation(actual.setMany);
-	});
-
-	it('never publishes migration when backup fails; retry succeeds from the intact original', async () => {
-		await keyval.set(LEGACY_DIAGRAM_KEY, currentReleaseDiagram);
-		const repository = new DiagramRepository();
-		const backup = vi.mocked(keyval.set).mockRejectedValueOnce(new Error('backup full'));
-		await expect(repository.load()).rejects.toThrow('backup full');
-		expect(await keyval.get(ACTIVE_DIAGRAM_KEY)).toBeUndefined();
-		expect(await keyval.get(LEGACY_DIAGRAM_KEY)).toEqual(currentReleaseDiagram);
-		backup.mockReset();
-		backup.mockImplementation(
-			(await vi.importActual<typeof import('idb-keyval')>('idb-keyval')).set,
-		);
-		expect((await repository.load())?.diagram).toEqual(currentReleaseDiagram);
-	});
-
-	it('retains both source and backup if the migration commit fails', async () => {
-		await keyval.set(LEGACY_DIAGRAM_KEY, currentReleaseDiagram);
-		vi.mocked(keyval.setMany).mockRejectedValueOnce(new Error('transaction failed'));
-		await expect(new DiagramRepository().load()).rejects.toThrow('transaction failed');
-		expect(await keyval.get(ACTIVE_DIAGRAM_KEY)).toBeUndefined();
-		expect(await keyval.get(LEGACY_BACKUP_KEY)).toEqual(currentReleaseDiagram);
-		expect(await keyval.get(LEGACY_DIAGRAM_KEY)).toEqual(currentReleaseDiagram);
 	});
 
 	it.each(['save', 'replace'] as const)(
@@ -78,7 +54,7 @@ describe('durable backup ordering and failure recovery', () => {
 		expect(await keyval.get(backupKey(previous.id))).toEqual(previous);
 	});
 
-	it('never allows direct save to bypass legacy migration/backup', async () => {
+	it('does not autosave over unsupported legacy storage', async () => {
 		await keyval.set(LEGACY_DIAGRAM_KEY, currentReleaseDiagram);
 		await expect(new DiagramRepository().save(currentReleaseDiagram)).rejects.toThrow('legacy');
 		expect(await keyval.get(ACTIVE_DIAGRAM_KEY)).toBeUndefined();
@@ -137,39 +113,4 @@ describe('explicit replacement of invalid active storage', () => {
 		await repository.replace(imported());
 		expect((await repository.load())?.diagram).toEqual(currentReleaseDiagram);
 	});
-});
-
-import { schemaBackupKey } from './diagramPersistence';
-
-it('preserves the released v1 record if its schema backup fails and retains the original after later autosaves', async () => {
-	await keyval.clear();
-	const v1 = {
-		...imported(),
-		schemaVersion: 1,
-		diagram: {
-			...currentReleaseDiagram,
-			elements: [
-				{
-					...currentReleaseDiagram.elements[0],
-					type: 'range',
-					properties: { start: 0, count: 2 },
-				},
-			],
-			connectLines: [],
-		},
-	};
-	await keyval.set(ACTIVE_DIAGRAM_KEY, v1.id);
-	await keyval.set(diagramKey(v1.id), v1);
-	const actual = await vi.importActual<typeof import('idb-keyval')>('idb-keyval');
-	vi.mocked(keyval.set).mockRejectedValueOnce(new Error('schema backup failed'));
-	await expect(new DiagramRepository().load()).rejects.toThrow('schema backup failed');
-	expect(await keyval.get(diagramKey(v1.id))).toEqual(v1);
-	vi.mocked(keyval.set).mockImplementation(actual.set);
-	const repo = new DiagramRepository();
-	const migrated = (await repo.load())!;
-	expect(migrated.schemaVersion).toBe(2);
-	expect(await keyval.get(schemaBackupKey(v1.id))).toEqual(v1);
-	await repo.save({ ...migrated.diagram, themeId: 'winter' });
-	expect(await keyval.get(schemaBackupKey(v1.id))).toEqual(v1);
-	expect(await new DiagramRepository().load()).toMatchObject({ schemaVersion: 2 });
 });

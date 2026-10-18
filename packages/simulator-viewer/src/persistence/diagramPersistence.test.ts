@@ -10,7 +10,6 @@ import {
 	ACTIVE_DIAGRAM_KEY,
 	diagramKey,
 	LEGACY_DIAGRAM_KEY,
-	LEGACY_BACKUP_KEY,
 	DiagramRepository,
 	backupKey,
 	loadDiagram,
@@ -85,10 +84,10 @@ describe('diagram persistence helpers', () => {
 });
 
 import { currentReleaseDiagram } from '../../../simulator-model/test/fixtures/currentReleaseDiagram';
-import { migrateLegacyDiagram } from '@maklja/vision-simulator-model';
+import { currentDiagramDocument } from '../../../simulator-model/test/fixtures/currentDiagramDocument';
 
 const releaseDoc = () =>
-	migrateLegacyDiagram(
+	currentDiagramDocument(
 		structuredClone(currentReleaseDiagram),
 		'release',
 		'2026-10-15T19:00:00.000Z',
@@ -99,14 +98,20 @@ describe('versioned IndexedDB repository', () => {
 		await clear();
 	});
 
-	it('backs up and migrates legacy storage idempotently without overwriting the original', async () => {
+	it('rejects legacy storage without loading, rewriting or backing it up', async () => {
 		await set(LEGACY_DIAGRAM_KEY, currentReleaseDiagram);
-		const repository = new DiagramRepository();
-		const first = await repository.load();
-		expect(first?.diagram).toEqual(currentReleaseDiagram);
-		expect(await get(LEGACY_BACKUP_KEY)).toEqual(currentReleaseDiagram);
+		await expect(new DiagramRepository().load()).rejects.toThrow('Unsupported legacy diagram');
 		expect(await get(LEGACY_DIAGRAM_KEY)).toEqual(currentReleaseDiagram);
-		expect(await new DiagramRepository().load()).toEqual(first);
+		expect(await get(ACTIVE_DIAGRAM_KEY)).toBeUndefined();
+	});
+
+	it('rejects v1 records without upgrading them', async () => {
+		const old = { ...releaseDoc(), schemaVersion: 1 };
+		await set(ACTIVE_DIAGRAM_KEY, old.id);
+		await set(diagramKey(old.id), old);
+		await expect(new DiagramRepository().load()).rejects.toThrow('unsupported version');
+		expect(await get(diagramKey(old.id))).toEqual(old);
+		expect(await get(backupKey(old.id))).toBeUndefined();
 	});
 
 	it('backs up the prior record, retains stable metadata and excludes grants from autosave', async () => {
