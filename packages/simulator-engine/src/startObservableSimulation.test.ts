@@ -726,25 +726,35 @@ it('releases the Worker on a terminal observable error', () => {
 	});
 	const worker = FakeWorker.instances.at(-1)!;
 	const start = worker.postMessage.mock.calls[0][0] as { runId: string };
-	worker.dispatch('message', {
-		data: {
-			version: 1,
-			runId: start.runId,
-			type: ObservableSimulationMessageType.Trace,
-			event: {
+	const occurrence = {
+		subscriptionId: `${start.runId}:subscription:1`,
+		parentSubscriptionId: null,
+		elementId: 'source',
+	};
+	[
+		{ ...occurrence, kind: 'subscribe' },
+		{ ...occurrence, kind: 'error', valueId: 'flow-1', value: 'failure' },
+		{ ...occurrence, kind: 'unsubscribe', reason: 'error' },
+		{ kind: 'run-ended', reason: 'error', teardownConfirmed: true },
+	].forEach((event, index) =>
+		worker.dispatch('message', {
+			data: {
 				version: 1,
 				runId: start.runId,
-				seq: 1,
-				timeMs: 0,
-				eventId: `${start.runId}:event:1`,
-				path: [],
-				dependencies: [],
-				kind: 'run-ended',
-				reason: 'error',
-				teardownConfirmed: true,
+				type: ObservableSimulationMessageType.Trace,
+				event: {
+					version: 1,
+					runId: start.runId,
+					seq: index + 1,
+					timeMs: 0,
+					eventId: `${start.runId}:event:${index + 1}`,
+					path: [],
+					dependencies: [],
+					...event,
+				},
 			},
-		},
-	});
+		}),
+	);
 	worker.dispatch('message', {
 		data: {
 			version: 1,

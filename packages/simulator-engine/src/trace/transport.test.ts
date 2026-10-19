@@ -464,3 +464,160 @@ it('rejects a second root instead of replacing the cancelled root outcome', () =
 	expect(s.events.filter((event) => event.kind === 'subscribe')).toHaveLength(1);
 	expect(s.worker.terminate).toHaveBeenCalledOnce();
 });
+
+const legacyError = {
+	id: 'failure',
+	subscribeId: null,
+	dependencies: [],
+	index: 1,
+	value: 'Observable execution failed.',
+	hash: 'hash',
+	type: 'error',
+	connectLinesId: ['line'],
+	sourceElementId: 'source',
+	targetElementId: 'sink',
+};
+it.each(['complete', 'error', 'cancelled'] as const)(
+	'preserves queued subscribe and %s lifecycle records when stop happens before delivery',
+	(outcome) => {
+		const s = setup();
+		s.subscription.unsubscribe();
+		const records: object[] = [
+			{ ...s.occurrence, kind: 'subscribe' },
+			{ ...s.occurrence, kind: 'next', valueId: 'queued-value', value: 'queued' },
+		];
+		if (outcome !== 'cancelled')
+			records.push({
+				...s.occurrence,
+				kind: outcome,
+				...(outcome === 'error' ? { valueId: 'failure', value: 'failure' } : {}),
+			});
+		records.push(
+			{
+				...s.occurrence,
+				kind: 'unsubscribe',
+				reason: outcome === 'cancelled' ? 'run-stop' : outcome,
+			},
+			{
+				kind: 'run-ended',
+				reason: outcome === 'complete' ? 'completed' : outcome,
+				teardownConfirmed: true,
+			},
+		);
+		records.forEach((record, index) => s.worker.trace(s.event(index + 1, record)));
+		s.worker.send({
+			version: 1,
+			runId: s.worker.runId,
+			type: Type.Next,
+			value: { ...legacyError, type: 'next' },
+		});
+		s.worker.send({
+			version: 1,
+			runId: s.worker.runId,
+			type: outcome === 'error' ? Type.Error : Type.Complete,
+			value: legacyError,
+		});
+		s.worker.send({ version: 1, runId: s.worker.runId, type: Type.Stopped });
+		expect(s.events.map((event) => event.kind)).toEqual(
+			outcome === 'cancelled'
+				? ['subscribe', 'unsubscribe', 'run-ended']
+				: ['subscribe', outcome, 'unsubscribe', 'run-ended'],
+		);
+		expect(s.events[0]).toMatchObject({ ...s.occurrence, kind: 'subscribe', seq: 1 });
+		expect(s.events.find((event) => event.kind === 'unsubscribe')).toMatchObject({
+			subscriptionId: s.occurrence.subscriptionId,
+		});
+		expect(s.onNext).not.toHaveBeenCalled();
+		expect(s.onError).not.toHaveBeenCalled();
+		expect(s.onComplete).not.toHaveBeenCalled();
+		expect(s.onDiagnostic).not.toHaveBeenCalled();
+		expect(s.worker.terminate).toHaveBeenCalledOnce();
+		expect(vi.getTimerCount()).toBe(0);
+	},
+);
+it.each([
+	'missing root',
+	'cancelled root',
+	'completed root',
+	'child error only',
+	'missing teardown',
+	'unconfirmed teardown',
+])('rejects a legacy observable error with %s', (scenario) => {
+	const s = setup();
+	const records: object[] = [];
+	if (scenario !== 'missing root') {
+		records.push({ ...s.occurrence, kind: 'subscribe' });
+		if (scenario === 'child error only') {
+			const child = {
+				...s.occurrence,
+				subscriptionId: `${s.worker.runId}:subscription:2`,
+				parentSubscriptionId: s.occurrence.subscriptionId,
+				referenceLineId: 'reference',
+			};
+			records.push(
+				{ ...child, kind: 'subscribe' },
+				{ ...child, kind: 'error', valueId: 'child-error', value: 'failure' },
+				{ ...child, kind: 'unsubscribe', reason: 'error' },
+			);
+		}
+		if (scenario === 'completed root') records.push({ ...s.occurrence, kind: 'complete' });
+		if (scenario === 'missing teardown' || scenario === 'unconfirmed teardown')
+			records.push({
+				...s.occurrence,
+				kind: 'error',
+				valueId: 'root-error',
+				value: 'failure',
+			});
+		if (scenario !== 'missing teardown')
+			records.push({
+				...s.occurrence,
+				kind: 'unsubscribe',
+				reason:
+					scenario === 'completed root'
+						? 'complete'
+						: scenario === 'unconfirmed teardown'
+							? 'error'
+							: 'consumer-unsubscribe',
+			});
+	}
+	records.push({
+		kind: 'run-ended',
+		reason: 'error',
+		teardownConfirmed: scenario !== 'missing teardown' && scenario !== 'unconfirmed teardown',
+	});
+	records.forEach((record, index) => s.worker.trace(s.event(index + 1, record)));
+	// A rootless/forced error end is valid control information, not proof of an observable error.
+	expect(s.onDiagnostic).not.toHaveBeenCalled();
+	s.worker.send({ version: 1, runId: s.worker.runId, type: Type.Error, value: legacyError });
+	expect(s.onError).not.toHaveBeenCalled();
+	expect(s.onComplete).not.toHaveBeenCalled();
+	expect(s.onDiagnostic).toHaveBeenCalledExactlyOnceWith(
+		expect.objectContaining({ category: 'transport' }),
+	);
+	expect(s.onCreationError).toHaveBeenCalledOnce();
+	expect(s.worker.terminate).toHaveBeenCalledOnce();
+	expect(vi.getTimerCount()).toBe(0);
+});
+it('preserves construction failure reporting after a rootless error run end', () => {
+	const s = setup();
+	const diagnostic = {
+		runId: s.worker.runId,
+		category: 'reference',
+		phase: 'preflight',
+		elementId: 'source',
+		message: 'Graph construction failed.',
+	};
+	s.worker.trace(s.event(1, { kind: 'diagnostic', diagnostic }));
+	s.worker.trace(s.event(2, { kind: 'run-ended', reason: 'error', teardownConfirmed: true }));
+	s.worker.send({ version: 1, runId: s.worker.runId, type: Type.CreationError, diagnostic });
+	expect(s.onError).not.toHaveBeenCalled();
+	expect(s.onComplete).not.toHaveBeenCalled();
+	expect(s.onDiagnostic).toHaveBeenCalledExactlyOnceWith(diagnostic);
+	expect(s.onCreationError).toHaveBeenCalledExactlyOnceWith({
+		elementId: 'source',
+		errorId: s.worker.runId,
+		errorMessage: diagnostic.message,
+	});
+	expect(s.worker.terminate).toHaveBeenCalledOnce();
+	expect(vi.getTimerCount()).toBe(0);
+});

@@ -59,6 +59,7 @@ export function startObservableSimulation(
 	let stopping = false;
 	let ended = false;
 	let endReason: 'completed' | 'error' | 'cancelled' | undefined;
+	let endTeardownConfirmed = false;
 	let worker: Worker | undefined;
 	let timer: ReturnType<typeof setInterval> | undefined;
 	let stopTimer: ReturnType<typeof setTimeout> | undefined;
@@ -345,16 +346,12 @@ export function startObservableSimulation(
 				if (value.teardownConfirmed && occurrences.size) return false;
 				ended = true;
 				endReason = value.reason;
+				endTeardownConfirmed = value.teardownConfirmed;
 			}
 			lastSeq = value.seq;
 			lastTime = value.timeMs;
-			if (
-				!stopping ||
-				value.kind === 'unsubscribe' ||
-				value.kind === 'run-ended' ||
-				value.kind === 'diagnostic'
-			)
-				options.onTrace?.(value);
+			// Queued lifecycle records still describe real occurrences after stop.
+			if (!stopping || value.kind !== 'next') options.onTrace?.(value);
 			return true;
 		};
 		listen('message', ((ev: MessageEvent<unknown>) => {
@@ -396,7 +393,12 @@ export function startObservableSimulation(
 					if (
 						!isLegacyFlowValueEvent(message.value) ||
 						(message.type === ObservableSimulationMessageType.Error &&
-							(message.value.type !== 'error' || !ended || endReason !== 'error')) ||
+							(message.value.type !== 'error' ||
+								!ended ||
+								endReason !== 'error' ||
+								root?.phase !== 'error' ||
+								!root.tornDown ||
+								!endTeardownConfirmed)) ||
 						(message.type === ObservableSimulationMessageType.Next &&
 							!['next', 'subscribe', 'error'].includes(message.value.type))
 					) {
