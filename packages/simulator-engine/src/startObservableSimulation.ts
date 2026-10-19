@@ -66,6 +66,8 @@ export function startObservableSimulation(
 	let lastSeq = 0;
 	let lastTime = 0;
 	let lastOccurrence = 0;
+	// Retain only the root outcome after active occurrences are released.
+	let root: { id: string; phase: 'open' | 'complete' | 'error'; tornDown: boolean } | undefined;
 	const origin = performance.now();
 	const occurrences = new Map<
 		string,
@@ -294,10 +296,13 @@ export function startObservableSimulation(
 					if (
 						value.subscriptionId !== `${runId}:subscription:${lastOccurrence + 1}` ||
 						state ||
+						(value.parentSubscriptionId === null && root !== undefined) ||
 						(value.parentSubscriptionId !== null &&
 							occurrences.get(value.parentSubscriptionId)?.phase !== 'open')
 					)
 						return false;
+					if (value.parentSubscriptionId === null)
+						root = { id: value.subscriptionId, phase: 'open', tornDown: false };
 					lastOccurrence++;
 					occurrences.set(value.subscriptionId, {
 						phase: 'open',
@@ -312,8 +317,10 @@ export function startObservableSimulation(
 						value.referenceLineId !== state.referenceLineId
 					)
 						return false;
-					if (value.kind === 'complete' || value.kind === 'error')
+					if (value.kind === 'complete' || value.kind === 'error') {
 						state.phase = value.kind;
+						if (root?.id === value.subscriptionId) root.phase = value.kind;
+					}
 					if (value.kind === 'unsubscribe') {
 						if (
 							(state.phase !== 'open' && value.reason !== state.phase) ||
@@ -321,11 +328,20 @@ export function startObservableSimulation(
 								(value.reason === 'complete' || value.reason === 'error'))
 						)
 							return false;
+						if (root?.id === value.subscriptionId) root.tornDown = true;
 						occurrences.delete(value.subscriptionId);
 					}
 				}
 			}
 			if (value.kind === 'run-ended') {
+				if (
+					value.reason === 'completed' &&
+					(!root ||
+						root.phase !== 'complete' ||
+						!root.tornDown ||
+						!value.teardownConfirmed)
+				)
+					return false;
 				if (value.teardownConfirmed && occurrences.size) return false;
 				ended = true;
 				endReason = value.reason;

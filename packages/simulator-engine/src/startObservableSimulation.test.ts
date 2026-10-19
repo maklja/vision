@@ -118,26 +118,38 @@ describe('startObservableSimulation trusted execution', () => {
 	function send(type: ObservableSimulationMessageType, value?: unknown, runId?: string) {
 		const worker = FakeWorker.instances.at(-1)!;
 		const start = worker.postMessage.mock.calls[0][0] as { runId: string };
-		if (type === ObservableSimulationMessageType.Complete)
-			worker.dispatch('message', {
-				data: {
-					version: 1,
-					runId: start.runId,
-					type: ObservableSimulationMessageType.Trace,
-					event: {
+		if (type === ObservableSimulationMessageType.Complete) {
+			const occurrence = {
+				subscriptionId: `${start.runId}:subscription:1`,
+				parentSubscriptionId: null,
+				elementId: 'source',
+			};
+			const lifecycle = [
+				{ ...occurrence, kind: 'subscribe' },
+				{ ...occurrence, kind: 'complete' },
+				{ ...occurrence, kind: 'unsubscribe', reason: 'complete' },
+				{ kind: 'run-ended', reason: 'completed', teardownConfirmed: true },
+			];
+			lifecycle.forEach((event, index) =>
+				worker.dispatch('message', {
+					data: {
 						version: 1,
 						runId: start.runId,
-						seq: 1,
-						timeMs: 0,
-						eventId: `${start.runId}:event:1`,
-						path: [],
-						dependencies: [],
-						kind: 'run-ended',
-						reason: 'completed',
-						teardownConfirmed: true,
+						type: ObservableSimulationMessageType.Trace,
+						event: {
+							version: 1,
+							runId: start.runId,
+							seq: index + 1,
+							timeMs: 0,
+							eventId: `${start.runId}:event:${index + 1}`,
+							path: [],
+							dependencies: [],
+							...event,
+						},
 					},
-				},
-			});
+				}),
+			);
+		}
 		worker.dispatch('message', {
 			data: { version: 1, type, runId: runId ?? start.runId, value },
 		});
