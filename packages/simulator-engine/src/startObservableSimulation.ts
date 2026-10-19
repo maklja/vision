@@ -72,7 +72,12 @@ export function startObservableSimulation(
 	const origin = performance.now();
 	const occurrences = new Map<
 		string,
-		{ phase: 'open' | 'complete' | 'error'; parent: string | null; referenceLineId?: string }
+		{
+			phase: 'open' | 'complete' | 'error';
+			parent: string | null;
+			elementId: string;
+			referenceLineId?: string;
+		}
 	>();
 	const cleanups: (() => void)[] = [];
 	const cleanup = () => {
@@ -308,6 +313,7 @@ export function startObservableSimulation(
 					occurrences.set(value.subscriptionId, {
 						phase: 'open',
 						parent: value.parentSubscriptionId,
+						elementId: value.elementId,
 						referenceLineId: value.referenceLineId,
 					});
 				} else {
@@ -315,7 +321,9 @@ export function startObservableSimulation(
 						!state ||
 						(value.kind !== 'unsubscribe' && state.phase !== 'open') ||
 						value.parentSubscriptionId !== state.parent ||
-						value.referenceLineId !== state.referenceLineId
+						value.referenceLineId !== state.referenceLineId ||
+						((value.kind === 'complete' || value.kind === 'unsubscribe') &&
+							value.elementId !== state.elementId)
 					)
 						return false;
 					if (value.kind === 'complete' || value.kind === 'error') {
@@ -335,6 +343,15 @@ export function startObservableSimulation(
 				}
 			}
 			if (value.kind === 'run-ended') {
+				const rootOutcome =
+					root?.phase === 'complete'
+						? 'completed'
+						: root?.phase === 'error'
+							? 'error'
+							: root?.tornDown
+								? 'cancelled'
+								: undefined;
+				if (rootOutcome && value.reason !== rootOutcome) return false;
 				if (
 					value.reason === 'completed' &&
 					(!root ||
