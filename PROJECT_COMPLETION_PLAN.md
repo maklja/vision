@@ -577,8 +577,9 @@ current operators incrementally and keep package boundaries intact.
 Execution/trust core #134 merged in #159: per-run context seed, immutable per-subscription
 params, parser preflight, lazy callback evaluation, validated local overrides, session/revision trust,
 Worker heartbeat/watchdog and accessible settings/diagnostics. See [execution policy](EXECUTION_POLICY.md).
-Typed parameter schema v2, source evaluation and editors are implemented for review in #135;
-see [typed parameter contract](PARAMETERS.md). Final lifecycle diagnostic identity/parentage remains #129.
+Typed parameter schema v2, source evaluation and editors merged in #160 for #135;
+see [typed parameter contract](PARAMETERS.md). #129 adds lifecycle diagnostic identity/parentage;
+see [protocol v1](FLOW_EVENT_PROTOCOL.md).
 Keep #134 open until those integration gates and the relevant three-browser journeys pass.
 
 Implementation owners: [#134](https://github.com/maklja/vision/issues/134) execution/trust and [#135](https://github.com/maklja/vision/issues/135) typed parameters/UX; accepted contract in the Phase 3.3 decision.
@@ -595,6 +596,11 @@ driven operators:
 - Add tests for syntax errors, runtime errors, infinite sources, cancellation, and malicious imports.
 
 ### 4.4 Stable flow-event protocol
+
+**Implementation prepared for review (#129):** versioned graph subscription occurrences, lineage and
+paths, execution-diagnostic correlation, Worker validation, acknowledged/forced stop and the legacy
+callback adapter. See [protocol v1](FLOW_EVENT_PROTOCOL.md). #131 retention/scheduling and #130
+visualization/edit lock remain separate prerequisites for completing Phase 4.4.
 
 Implementation owners: [#129](https://github.com/maklja/vision/issues/129) protocol, [#131](https://github.com/maklja/vision/issues/131) bounded retention/scheduling and [#130](https://github.com/maklja/vision/issues/130) visualization/edit lock; accepted contract in the Phase 3.2 decision.
 

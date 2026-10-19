@@ -33,6 +33,10 @@ user's instruction, independent of approval of the new design. Preserve the refe
 No old commit is selected for cherry-pick. No new operators, context/parameter API, saved Subscribe
 nodes, full timeline UI, graph snapshot callback, or public sharing feature is in scope.
 
+Implementation note (2026-10-18): #129 prepares the engine and transport contract below for review;
+see [current protocol API and scope](../../FLOW_EVENT_PROTOCOL.md). #131 transport/retention and
+#130 visualization remain separate. The following design traces retain their accepted specification status.
+
 ## Protocol v1 semantics
 
 The following is a future contract, not today's `FlowValueEvent` interface. Instrument actual

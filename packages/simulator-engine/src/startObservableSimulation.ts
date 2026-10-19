@@ -1,3 +1,4 @@
+import { FlowTraceEvent, isFlowTraceEvent, isExecutionDiagnostic } from './trace/FlowTrace';
 import { Unsubscribable } from 'rxjs';
 import {
 	ConnectLine,
@@ -25,6 +26,8 @@ export enum ObservableSimulationMessageType {
 	CreationError = 'creationError',
 	Heartbeat = 'heartbeat',
 	Diagnostic = 'diagnostic',
+	Trace = 'trace',
+	Stopped = 'stopped',
 }
 export interface CreationErrorEvent {
 	elementId: string;
@@ -39,6 +42,7 @@ export interface CreateObservableSimulationProps {
 	/** Granted by the caller's explicit, session-only revision approval. */
 	trusted?: boolean;
 	watchdogSeconds?: number;
+	onTrace?: (event: FlowTraceEvent) => void;
 	onDiagnostic?: (diagnostic: ExecutionDiagnostic) => void;
 	onCreationError?: (event: CreationErrorEvent) => void;
 	onNext?: (value: FlowValueEvent) => void;
@@ -52,14 +56,81 @@ export function startObservableSimulation(
 		options;
 	const runId = crypto.randomUUID();
 	let active = true;
+	let stopping = false;
+	let ended = false;
+	let endReason: 'completed' | 'error' | 'cancelled' | undefined;
+	let endTeardownConfirmed = false;
 	let worker: Worker | undefined;
 	let timer: ReturnType<typeof setInterval> | undefined;
+	let stopTimer: ReturnType<typeof setTimeout> | undefined;
 	let retained = 0;
-	const stop = () => {
+	let lastSeq = 0;
+	let lastTime = 0;
+	let lastOccurrence = 0;
+	// Retain only the root outcome after active occurrences are released.
+	let root: { id: string; phase: 'open' | 'complete' | 'error'; tornDown: boolean } | undefined;
+	const origin = performance.now();
+	const occurrences = new Map<
+		string,
+		{
+			phase: 'open' | 'complete' | 'error';
+			parent: string | null;
+			elementId: string;
+			referenceLineId?: string;
+		}
+	>();
+	const cleanups: (() => void)[] = [];
+	const cleanup = () => {
 		active = false;
 		clearInterval(timer);
+		clearTimeout(stopTimer);
+		cleanups.splice(0).forEach((cleanup) => cleanup());
 		worker?.terminate();
 		worker = undefined;
+		occurrences.clear();
+	};
+	const hostTrace = (
+		payload:
+			| { kind: 'diagnostic'; diagnostic: ExecutionDiagnostic }
+			| { kind: 'run-ended'; reason: 'error' | 'cancelled'; teardownConfirmed: boolean },
+	) => {
+		if (ended) return;
+		lastTime = Math.max(lastTime, performance.now() - origin);
+		options.onTrace?.({
+			version: 1,
+			runId,
+			seq: ++lastSeq,
+			timeMs: lastTime,
+			eventId: `${runId}:event:${lastSeq}`,
+			path: [],
+			dependencies: [],
+			...payload,
+		});
+		if (payload.kind === 'run-ended') ended = true;
+	};
+	const stop = () => {
+		if (!active || stopping) return;
+		active = false;
+		clearInterval(timer);
+		if (!worker || ended) {
+			cleanup();
+			return;
+		}
+		stopping = true;
+		stopTimer = setTimeout(() => {
+			hostTrace({ kind: 'run-ended', reason: 'cancelled', teardownConfirmed: false });
+			cleanup();
+		}, 100);
+		try {
+			worker.postMessage({
+				type: ObservableSimulationMessageType.StopSimulation,
+				version: 1,
+				runId,
+			});
+		} catch {
+			hostTrace({ kind: 'run-ended', reason: 'cancelled', teardownConfirmed: false });
+			cleanup();
+		}
 	};
 	const report = (diagnostic: ExecutionDiagnostic) => {
 		if (retained < 99) {
@@ -92,8 +163,11 @@ export function startObservableSimulation(
 			error instanceof ExecutionError
 				? { ...error.diagnostic, runId }
 				: { category, phase: 'host', runId, elementId: entryElementId, message };
+		if (!active) return;
 		report(diagnostic);
-		stop();
+		hostTrace({ kind: 'diagnostic', diagnostic });
+		hostTrace({ kind: 'run-ended', reason: 'error', teardownConfirmed: !worker });
+		cleanup();
 		onCreationError?.({
 			elementId: diagnostic.elementId ?? entryElementId,
 			errorId: runId,
@@ -174,65 +248,230 @@ export function startObservableSimulation(
 				runId,
 				message: 'Worker unavailable: limited literal-only execution on the main thread.',
 			});
-			const subscription = new ObservableSimulation(model, {}, report, runId).start({
-				next: onNext,
-				error: onError,
-				complete: onComplete,
+			const subscription = new ObservableSimulation(model, {}, report, runId, {
+				onTrace: (event) => {
+					lastSeq = event.seq;
+					lastTime = event.timeMs;
+					if (event.kind === 'run-ended') ended = true;
+					options.onTrace?.(event);
+				},
+			}).start({
+				next: (value) => {
+					if (active) onNext?.(value);
+				},
+				error: (value) => {
+					if (active) {
+						cleanup();
+						onError?.(value);
+					}
+				},
+				complete: () => {
+					if (active) {
+						cleanup();
+						onComplete?.();
+					}
+				},
 			});
 			return {
 				unsubscribe() {
-					stop();
+					active = false;
 					subscription.unsubscribe();
+					cleanup();
 				},
 			};
 		}
 		let heartbeat = Date.now();
-		worker.addEventListener(
-			'message',
-			(
-				ev: MessageEvent<{
-					runId: string;
-					type: ObservableSimulationMessageType;
-					value: FlowValueEvent;
-					diagnostic: ExecutionDiagnostic;
-				}>,
-			) => {
-				if (!active || ev.data.runId !== runId) return;
-				const data = ev.data;
-				switch (data.type) {
-					case ObservableSimulationMessageType.Heartbeat:
-						heartbeat = Date.now();
-						break;
-					case ObservableSimulationMessageType.Next:
-						onNext?.(data.value);
-						break;
-					case ObservableSimulationMessageType.Error:
-						stop();
-						onError?.(data.value);
-						break;
-					case ObservableSimulationMessageType.Diagnostic:
-						report(data.diagnostic);
-						break;
-					case ObservableSimulationMessageType.Complete:
-						stop();
-						onComplete?.();
-						break;
-					case ObservableSimulationMessageType.CreationError:
-						failure(
-							data.diagnostic.category,
-							data.diagnostic.message,
-							new ExecutionError(data.diagnostic),
-						);
-						break;
+		const listen = (type: string, handler: EventListener) => {
+			worker!.addEventListener(type, handler);
+			const target = worker!;
+			cleanups.push(() => target.removeEventListener(type, handler));
+		};
+		const acceptTrace = (value: unknown) => {
+			if (
+				!isFlowTraceEvent(value) ||
+				value.runId !== runId ||
+				value.seq !== lastSeq + 1 ||
+				value.timeMs < lastTime ||
+				value.eventId !== `${runId}:event:${value.seq}` ||
+				ended
+			)
+				return false;
+			if ('subscriptionId' in value) {
+				const state = occurrences.get(value.subscriptionId);
+				if (value.kind === 'subscribe') {
+					if (
+						value.subscriptionId !== `${runId}:subscription:${lastOccurrence + 1}` ||
+						state ||
+						(value.parentSubscriptionId === null && root !== undefined) ||
+						(value.parentSubscriptionId !== null &&
+							occurrences.get(value.parentSubscriptionId)?.phase !== 'open')
+					)
+						return false;
+					if (value.parentSubscriptionId === null)
+						root = { id: value.subscriptionId, phase: 'open', tornDown: false };
+					lastOccurrence++;
+					occurrences.set(value.subscriptionId, {
+						phase: 'open',
+						parent: value.parentSubscriptionId,
+						elementId: value.elementId,
+						referenceLineId: value.referenceLineId,
+					});
+				} else {
+					if (
+						!state ||
+						(value.kind !== 'unsubscribe' && state.phase !== 'open') ||
+						value.parentSubscriptionId !== state.parent ||
+						value.referenceLineId !== state.referenceLineId ||
+						((value.kind === 'complete' || value.kind === 'unsubscribe') &&
+							value.elementId !== state.elementId)
+					)
+						return false;
+					if (value.kind === 'complete' || value.kind === 'error') {
+						state.phase = value.kind;
+						if (root?.id === value.subscriptionId) root.phase = value.kind;
+					}
+					if (value.kind === 'unsubscribe') {
+						if (
+							(state.phase !== 'open' && value.reason !== state.phase) ||
+							(state.phase === 'open' &&
+								(value.reason === 'complete' || value.reason === 'error'))
+						)
+							return false;
+						if (root?.id === value.subscriptionId) root.tornDown = true;
+						occurrences.delete(value.subscriptionId);
+					}
 				}
-			},
-		);
-		worker.addEventListener('error', () => {
+			}
+			if (value.kind === 'run-ended') {
+				const rootOutcome =
+					root?.phase === 'complete'
+						? 'completed'
+						: root?.phase === 'error'
+							? 'error'
+							: root?.tornDown
+								? 'cancelled'
+								: undefined;
+				if (rootOutcome && value.reason !== rootOutcome) return false;
+				if (
+					value.reason === 'completed' &&
+					(!root ||
+						root.phase !== 'complete' ||
+						!root.tornDown ||
+						!value.teardownConfirmed)
+				)
+					return false;
+				if (value.teardownConfirmed && occurrences.size) return false;
+				ended = true;
+				endReason = value.reason;
+				endTeardownConfirmed = value.teardownConfirmed;
+			}
+			lastSeq = value.seq;
+			lastTime = value.timeMs;
+			// Queued lifecycle records still describe real occurrences after stop.
+			if (!stopping || value.kind !== 'next') options.onTrace?.(value);
+			return true;
+		};
+		listen('message', ((ev: MessageEvent<unknown>) => {
+			if (!active && !stopping) return;
+			const data = ev.data;
+			if (!data || typeof data !== 'object') {
+				if (active) failure('transport', 'Malformed Worker message.');
+				return;
+			}
+			const message = data as Record<string, unknown>;
+			// An obsolete generation must not mutate callbacks or lifecycle state.
+			if (typeof message.runId !== 'string') {
+				if (active) failure('transport', 'Worker message has no run identity.');
+				return;
+			}
+			if (message.runId !== runId) return;
+			if (message.version !== 1) {
+				if (active) failure('transport', 'Unsupported Worker protocol version.');
+				return;
+			}
+			if (message.type === ObservableSimulationMessageType.Trace) {
+				if (!acceptTrace(message.event) && active)
+					failure('transport', 'Malformed or out-of-order lifecycle record.');
+				return;
+			}
+			if (message.type === ObservableSimulationMessageType.Stopped && stopping) {
+				if (!ended)
+					hostTrace({ kind: 'run-ended', reason: 'cancelled', teardownConfirmed: false });
+				cleanup();
+				return;
+			}
+			if (!active) return;
+			switch (message.type) {
+				case ObservableSimulationMessageType.Heartbeat:
+					heartbeat = Date.now();
+					break;
+				case ObservableSimulationMessageType.Next:
+				case ObservableSimulationMessageType.Error:
+					if (
+						!isLegacyFlowValueEvent(message.value) ||
+						(message.type === ObservableSimulationMessageType.Error &&
+							(message.value.type !== 'error' ||
+								!ended ||
+								endReason !== 'error' ||
+								root?.phase !== 'error' ||
+								!root.tornDown ||
+								!endTeardownConfirmed)) ||
+						(message.type === ObservableSimulationMessageType.Next &&
+							!['next', 'subscribe', 'error'].includes(message.value.type))
+					) {
+						failure('transport', 'Malformed Worker value.');
+						return;
+					}
+					if (message.type === ObservableSimulationMessageType.Next)
+						onNext?.(message.value);
+					else {
+						cleanup();
+						onError?.(message.value);
+					}
+					break;
+				case ObservableSimulationMessageType.Diagnostic:
+					if (
+						!isExecutionDiagnostic(message.diagnostic) ||
+						message.diagnostic.runId !== runId
+					) {
+						failure('transport', 'Malformed Worker diagnostic.');
+						return;
+					}
+					report(message.diagnostic);
+					break;
+				case ObservableSimulationMessageType.Complete:
+					if (!ended || endReason !== 'completed') {
+						failure('transport', 'Completion without a successful root run end.');
+						return;
+					}
+					cleanup();
+					onComplete?.();
+					break;
+				case ObservableSimulationMessageType.CreationError:
+					if (
+						!isExecutionDiagnostic(message.diagnostic) ||
+						message.diagnostic.runId !== runId
+					) {
+						failure('transport', 'Malformed Worker diagnostic.');
+						return;
+					}
+					failure(
+						message.diagnostic.category,
+						message.diagnostic.message,
+						new ExecutionError(message.diagnostic),
+					);
+					break;
+				default:
+					failure('transport', 'Unknown Worker message.');
+			}
+		}) as EventListener);
+		listen('error', (() => {
 			if (active) failure('transport', 'Execution Worker failed to start or crashed.');
-		});
-		worker.addEventListener('messageerror', () => {
+		}) as EventListener);
+		listen('messageerror', (() => {
 			if (active) failure('transport', 'Execution Worker message could not be decoded.');
-		});
+		}) as EventListener);
+
 		timer = setInterval(() => {
 			if (Date.now() - heartbeat >= timeout * 1000)
 				failure(
@@ -242,6 +481,7 @@ export function startObservableSimulation(
 		}, 250);
 		worker.postMessage({
 			type: ObservableSimulationMessageType.StartSimulation,
+			version: 1,
 			runId,
 			entryElementId,
 			elements,
@@ -273,4 +513,20 @@ export function startObservableSimulation(
 		);
 	}
 	return { unsubscribe: stop };
+}
+
+function isLegacyFlowValueEvent(value: unknown): value is FlowValueEvent {
+	if (!value || typeof value !== 'object') return false;
+	const v = value as Record<string, unknown>;
+	return (
+		['id', 'value', 'hash', 'sourceElementId', 'targetElementId'].every(
+			(k) => typeof v[k] === 'string',
+		) &&
+		(v.subscribeId === null || typeof v.subscribeId === 'string') &&
+		Number.isSafeInteger(v.index) &&
+		['next', 'error', 'subscribe'].includes(v.type as string) &&
+		['connectLinesId', 'dependencies'].every(
+			(k) => Array.isArray(v[k]) && (v[k] as unknown[]).every((id) => typeof id === 'string'),
+		)
+	);
 }

@@ -367,7 +367,13 @@ const createGenerateCreationOperator =
 			...overrideProperties,
 		};
 		const { condition } = generateElProperties;
-		const initialStateFn = () => (props.run ?? new ExecutionRun()).evaluate(el, 'initialState');
+		const initialStateFn = () =>
+			(props.run ?? new ExecutionRun()).evaluate(
+				el,
+				'initialState',
+				undefined,
+				props.subscriptionId,
+			);
 		const conditionFn = condition
 			? () => compileCallback<boolean>(el, props, 'condition')
 			: undefined;
@@ -394,7 +400,12 @@ const createThrowErrorCreationOperator =
 	(el: Element, props: OperatorProps) =>
 	(overrideProperties?: ElementProps, subscribeId?: string): Observable<FlowValue> => {
 		const throwErrorEl = el as ThrowErrorElement;
-		const errorValue = (props.run ?? new ExecutionRun()).evaluate(el, 'errorOrErrorFactory');
+		const errorValue = (props.run ?? new ExecutionRun()).evaluate(
+			el,
+			'errorOrErrorFactory',
+			undefined,
+			props.subscriptionId,
+		);
 		const errorFactoryFn = errorValue;
 
 		return throwError(errorFactoryFn as () => unknown).pipe(
@@ -482,11 +493,12 @@ export const creationOperatorFactory: CreationOperatorFactory = {
 		return (overrides, subscribeId) => {
 			validateReferences(el, props);
 			return defer(() => {
-				const resolved = run.resolve(el, overrides);
-				return factory(resolved, { ...props, run, subscriptionId: subscribeId })(
-					undefined,
-					subscribeId,
-				);
+				const resolved = run.resolve(el, overrides, props.subscriptionId ?? subscribeId);
+				return factory(resolved, {
+					...props,
+					run,
+					subscriptionId: props.subscriptionId ?? subscribeId,
+				})(undefined, subscribeId);
 			});
 		};
 	},

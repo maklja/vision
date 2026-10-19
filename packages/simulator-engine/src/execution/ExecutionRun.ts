@@ -236,7 +236,7 @@ export class ExecutionRun {
 		this.report?.(diagnostic);
 		throw new ExecutionError(diagnostic);
 	}
-	resolve(el: Element, overrides?: ElementProps): Element {
+	resolve(el: Element, overrides?: ElementProps, subscriptionId?: string): Element {
 		const definitions = fields(el);
 		try {
 			if (
@@ -253,30 +253,32 @@ export class ExecutionRun {
 					descriptor.value === undefined ||
 					(typeof descriptor.value === 'number' && !Number.isFinite(descriptor.value))
 				)
-					this.fail(el, key, 'schema', 'subscription');
+					this.fail(el, key, 'schema', 'subscription', subscriptionId);
 			}
 			cloneInvocation(overrides ?? {});
 		} catch (error) {
 			if (error instanceof ExecutionError) throw error;
-			this.fail(el, 'overrides', 'schema', 'subscription');
+			this.fail(el, 'overrides', 'schema', 'subscription', subscriptionId);
 		}
 		try {
 			cloneInvocation(el.properties);
 		} catch {
-			this.fail(el, 'properties', 'schema', 'subscription');
+			this.fail(el, 'properties', 'schema', 'subscription', subscriptionId);
 		}
 		const defaults = propertiesWithDefaults(el);
 		const properties: ElementProps = {};
 		for (const key of Object.keys(el.properties))
-			if (!Object.hasOwn(definitions, key)) this.fail(el, key, 'schema', 'subscription');
+			if (!Object.hasOwn(definitions, key))
+				this.fail(el, key, 'schema', 'subscription', subscriptionId);
 		for (const key of Object.keys(overrides ?? {}))
-			if (!Object.hasOwn(definitions, key)) this.fail(el, key, 'schema', 'subscription');
+			if (!Object.hasOwn(definitions, key))
+				this.fail(el, key, 'schema', 'subscription', subscriptionId);
 		// Expressions see the same frozen raw definitions, never values from earlier fields.
 		let selected: ElementProps;
 		try {
 			selected = freeze(cloneInvocation({ ...defaults, ...overrides }));
 		} catch {
-			this.fail(el, 'properties', 'schema', 'subscription');
+			this.fail(el, 'properties', 'schema', 'subscription', subscriptionId);
 		}
 		for (const [key, definition] of Object.entries(definitions)) {
 			const present =
@@ -287,11 +289,11 @@ export class ExecutionRun {
 			if (parameterType && isParameterValue(value)) {
 				// Invocation overrides are raw values, never persisted envelopes.
 				if (Object.hasOwn(overrides ?? {}, key))
-					this.fail(el, key, 'schema', 'subscription');
+					this.fail(el, key, 'schema', 'subscription', subscriptionId);
 				try {
 					validateParameterValue(value, parameterType);
 				} catch {
-					this.fail(el, key, 'schema', 'subscription');
+					this.fail(el, key, 'schema', 'subscription', subscriptionId);
 				}
 				if (value.kind === 'literal') value = value.value;
 				else {
@@ -299,7 +301,7 @@ export class ExecutionRun {
 					try {
 						validateSource(el, key, value.source, false);
 					} catch {
-						this.fail(el, key, 'compile', 'subscription');
+						this.fail(el, key, 'compile', 'subscription', subscriptionId);
 					}
 					try {
 						value = new Function(
@@ -308,7 +310,7 @@ export class ExecutionRun {
 							`"use strict"; return (${value.source}\n);`,
 						)(this.context, selected);
 					} catch {
-						this.fail(el, key, 'invocation', 'subscription');
+						this.fail(el, key, 'invocation', 'subscription', subscriptionId);
 					}
 				}
 			}
@@ -316,7 +318,13 @@ export class ExecutionRun {
 				try {
 					validateParameterConstraint(el.type, key, value, selected);
 				} catch {
-					this.fail(el, key, evaluated ? 'result' : 'schema', 'subscription');
+					this.fail(
+						el,
+						key,
+						evaluated ? 'result' : 'schema',
+						'subscription',
+						subscriptionId,
+					);
 				}
 			}
 			if (!present && definition.optional) continue;
@@ -335,24 +343,24 @@ export class ExecutionRun {
 								)
 							: typeof value === 'string';
 			if (!valid || value === null || value === undefined)
-				this.fail(el, key, 'schema', 'subscription');
+				this.fail(el, key, 'schema', 'subscription', subscriptionId);
 			if (
 				definition.kind === 'choice' &&
 				!definition.options.some((o) => o.value === value) &&
 				!(el.type === ElementType.Ajax && key === 'responseType' && value === '')
 			)
-				this.fail(el, key, 'schema', 'subscription');
+				this.fail(el, key, 'schema', 'subscription', subscriptionId);
 			if (
 				definition.kind === 'number' &&
 				definition.options &&
 				!definition.options.some((o) => o.value === value)
 			)
-				this.fail(el, key, 'schema', 'subscription');
+				this.fail(el, key, 'schema', 'subscription', subscriptionId);
 			properties[key] = value;
 		}
 		const numeric = (key: string, valid: (v: number) => boolean) => {
 			if (properties[key] !== undefined && !valid(properties[key] as number))
-				this.fail(el, key, 'schema', 'subscription');
+				this.fail(el, key, 'schema', 'subscription', subscriptionId);
 		};
 		if (el.type === ElementType.Range) {
 			numeric('start', Number.isInteger);
@@ -376,6 +384,7 @@ export class ExecutionRun {
 					...error.diagnostic,
 					runId: this.runId,
 					phase: 'subscription' as const,
+					subscriptionId,
 				};
 				this.report?.(diagnostic);
 				throw new ExecutionError(diagnostic);
